@@ -1,0 +1,46 @@
+-- name: CreateExpense :one
+INSERT INTO expenses
+(
+    id,
+    created_at,
+    group_id,
+    recurring_id,
+    name,
+    description,
+    currency
+) VALUES (
+    ?, ?, ?, ?, ?, ?, ?
+) RETURNING *;
+
+-- name: CreateExpensePayer :one
+INSERT INTO expense_payers
+(
+    id,
+    expense_id,
+    user_id,
+    amount
+) VALUES (
+    @id, @expense_id, @user_id, @amount
+) RETURNING *;
+
+-- name: CreateExpenseBeneficiary :one
+INSERT INTO expense_beneficiaries
+(
+    id,
+    expense_id,
+    user_id
+) VALUES (
+    @id, @expense_id, @user_id
+) RETURNING *;
+
+-- name: GetGroupExpenses :many
+SELECT 
+  e.*, 
+  p.user_id as payer_id, 
+  p.amount, 
+  json_group_array(b.user_id) as beneficiaries_ids
+FROM 
+  expenses e
+  LEFT JOIN expense_payers p ON p.expense_id = e.id
+  LEFT JOIN expense_beneficiaries b ON b.expense_id = e.id
+WHERE group_id = @group_id;

@@ -1,0 +1,4 @@
+.env
+*.sqbpro
+*.sqlite3
+tmp

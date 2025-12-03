@@ -1,0 +1,14 @@
+version: v2
+inputs:
+  - directory: ../proto
+plugins:
+  - local: protoc-gen-es
+    out: src/gen
+    include_imports: true
+    opt:
+      # Add more plugin options here
+      - target=ts
+  - local: protoc-gen-connect-query
+    out: src/gen
+    opt: target=ts
+

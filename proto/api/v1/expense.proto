@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package api.v1;
+
+import "buf/validate/validate.proto";
+
+message CreateExpenseRequest {
+  string group_id = 1 [(buf.validate.field).string.uuid = true];
+  string payer_id = 2 [(buf.validate.field).string.uuid = true];
+  string name = 3 [(buf.validate.field).string.min_len = 2];
+  string description = 4;
+  float amount = 5 [(buf.validate.field).float.gt = 0.0];
+  string currency = 6 [(buf.validate.field).string.min_len = 2];
+  repeated string beneficiaries_ids = 7;
+}
+
+message CreateExpenseResponse {
+  string id = 1;
+  string name = 2;
+}
+
+service ExpenseService {
+  rpc CreateExpense(CreateExpenseRequest) returns (CreateExpenseResponse) {}
+}

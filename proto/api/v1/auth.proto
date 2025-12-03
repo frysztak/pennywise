@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package api.v1;
+
+import "api/v1/user.proto";
+import "buf/validate/validate.proto";
+import "google/protobuf/empty.proto";
+
+message LoginWithPasswordRequest {
+  string email = 1 [(buf.validate.field).string.email = true];
+  string password = 2 [(buf.validate.field).string.min_len = 6];
+}
+
+message LoginWithPasswordResponse {
+  string id = 1;
+  string email = 2;
+  string username = 3;
+  UserRole role = 4;
+}
+
+service AuthService {
+  rpc LoginWithPassword(LoginWithPasswordRequest) returns (LoginWithPasswordResponse) {}
+  rpc Logout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+}
