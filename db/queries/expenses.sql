@@ -41,6 +41,7 @@ SELECT
   json_group_array(b.user_id) as beneficiaries_ids
 FROM 
   expenses e
-  LEFT JOIN expense_payers p ON p.expense_id = e.id
-  LEFT JOIN expense_beneficiaries b ON b.expense_id = e.id
-WHERE group_id = @group_id;
+  INNER JOIN expense_payers p ON p.expense_id = e.id
+  INNER JOIN expense_beneficiaries b ON b.expense_id = e.id
+WHERE e.group_id = @group_id
+GROUP BY e.id;

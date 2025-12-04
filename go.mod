@@ -43,6 +43,7 @@ require (
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/gohugoio/hugo v0.149.1 // indirect
 	github.com/google/cel-go v0.26.1 // indirect
+	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/lestrrat-go/blackmagic v1.0.4 // indirect
 	github.com/lestrrat-go/httpcc v1.0.1 // indirect
 	github.com/lestrrat-go/httprc v1.0.6 // indirect

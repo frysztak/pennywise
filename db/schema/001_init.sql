@@ -24,6 +24,7 @@ CREATE TABLE expense_groups (
     created_at DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by TEXT NOT NULL,
     name TEXT NOT NULL UNIQUE,
+	default_currency TEXT NOT NULL,
     description TEXT
 );
 

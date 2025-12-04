@@ -45,17 +45,19 @@ INSERT INTO expense_groups
     id,
     created_by,
     description,
+    default_currency,
     name
 ) VALUES (
-    ?, ?, ?, ?
-) RETURNING id, created_at, created_by, name, description
+    ?, ?, ?, ?, ?
+) RETURNING id, created_at, created_by, name, default_currency, description
 `
 
 type CreateGroupParams struct {
-	ID          string  `json:"id"`
-	CreatedBy   string  `json:"created_by"`
-	Description *string `json:"description"`
-	Name        string  `json:"name"`
+	ID              string  `json:"id"`
+	CreatedBy       string  `json:"created_by"`
+	Description     *string `json:"description"`
+	DefaultCurrency string  `json:"default_currency"`
+	Name            string  `json:"name"`
 }
 
 func (q *Queries) CreateGroup(ctx context.Context, arg CreateGroupParams) (ExpenseGroup, error) {
@@ -63,6 +65,7 @@ func (q *Queries) CreateGroup(ctx context.Context, arg CreateGroupParams) (Expen
 		arg.ID,
 		arg.CreatedBy,
 		arg.Description,
+		arg.DefaultCurrency,
 		arg.Name,
 	)
 	var i ExpenseGroup
@@ -71,6 +74,27 @@ func (q *Queries) CreateGroup(ctx context.Context, arg CreateGroupParams) (Expen
 		&i.CreatedAt,
 		&i.CreatedBy,
 		&i.Name,
+		&i.DefaultCurrency,
+		&i.Description,
+	)
+	return i, err
+}
+
+const getGroupById = `-- name: GetGroupById :one
+SELECT id, created_at, created_by, name, default_currency, description
+FROM expense_groups
+WHERE id = ?1
+`
+
+func (q *Queries) GetGroupById(ctx context.Context, groupID string) (ExpenseGroup, error) {
+	row := q.db.QueryRowContext(ctx, getGroupById, groupID)
+	var i ExpenseGroup
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.CreatedBy,
+		&i.Name,
+		&i.DefaultCurrency,
 		&i.Description,
 	)
 	return i, err
@@ -111,7 +135,7 @@ func (q *Queries) GetGroupMembers(ctx context.Context, groupID string) ([]GetGro
 }
 
 const getGroupsByUserId = `-- name: GetGroupsByUserId :many
-SELECT id, created_at, created_by, name, description, user_id, group_id, added_at, weight
+SELECT id, created_at, created_by, name, default_currency, description, user_id, group_id, added_at, weight
 FROM 
   expense_groups g
   LEFT JOIN user_expense_groups u ON u.group_id = g.id
@@ -119,15 +143,16 @@ WHERE u.user_id = ?
 `
 
 type GetGroupsByUserIdRow struct {
-	ID          string     `json:"id"`
-	CreatedAt   time.Time  `json:"created_at"`
-	CreatedBy   string     `json:"created_by"`
-	Name        string     `json:"name"`
-	Description *string    `json:"description"`
-	UserID      *string    `json:"user_id"`
-	GroupID     *string    `json:"group_id"`
-	AddedAt     *time.Time `json:"added_at"`
-	Weight      *float64   `json:"weight"`
+	ID              string     `json:"id"`
+	CreatedAt       time.Time  `json:"created_at"`
+	CreatedBy       string     `json:"created_by"`
+	Name            string     `json:"name"`
+	DefaultCurrency string     `json:"default_currency"`
+	Description     *string    `json:"description"`
+	UserID          *string    `json:"user_id"`
+	GroupID         *string    `json:"group_id"`
+	AddedAt         *time.Time `json:"added_at"`
+	Weight          *float64   `json:"weight"`
 }
 
 func (q *Queries) GetGroupsByUserId(ctx context.Context, userID string) ([]GetGroupsByUserIdRow, error) {
@@ -144,6 +169,7 @@ func (q *Queries) GetGroupsByUserId(ctx context.Context, userID string) ([]GetGr
 			&i.CreatedAt,
 			&i.CreatedBy,
 			&i.Name,
+			&i.DefaultCurrency,
 			&i.Description,
 			&i.UserID,
 			&i.GroupID,
@@ -185,7 +211,7 @@ const updateGroup = `-- name: UpdateGroup :one
 
 UPDATE expense_groups SET name = ?, description = ?
 WHERE id = ?
-RETURNING id, created_at, created_by, name, description
+RETURNING id, created_at, created_by, name, default_currency, description
 `
 
 type UpdateGroupParams struct {
@@ -202,6 +228,7 @@ func (q *Queries) UpdateGroup(ctx context.Context, arg UpdateGroupParams) (Expen
 		&i.CreatedAt,
 		&i.CreatedBy,
 		&i.Name,
+		&i.DefaultCurrency,
 		&i.Description,
 	)
 	return i, err

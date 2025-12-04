@@ -49,6 +49,9 @@ const (
 	// GroupServiceGetUserGroupsProcedure is the fully-qualified name of the GroupService's
 	// GetUserGroups RPC.
 	GroupServiceGetUserGroupsProcedure = "/api.v1.GroupService/GetUserGroups"
+	// GroupServiceGetGroupBalanceProcedure is the fully-qualified name of the GroupService's
+	// GetGroupBalance RPC.
+	GroupServiceGetGroupBalanceProcedure = "/api.v1.GroupService/GetGroupBalance"
 )
 
 // GroupServiceClient is a client for the api.v1.GroupService service.
@@ -58,6 +61,7 @@ type GroupServiceClient interface {
 	AddUserToGroup(context.Context, *v1.AddUserToGroupRequest) (*emptypb.Empty, error)
 	RemoveUserFromGroup(context.Context, *v1.RemoveUserFromGroupRequest) (*emptypb.Empty, error)
 	GetUserGroups(context.Context, *emptypb.Empty) (*v1.GetUserGroupsResponse, error)
+	GetGroupBalance(context.Context, *v1.GetGroupBalanceRequest) (*v1.GetGroupBalanceResponse, error)
 }
 
 // NewGroupServiceClient constructs a client for the api.v1.GroupService service. By default, it
@@ -101,6 +105,12 @@ func NewGroupServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(groupServiceMethods.ByName("GetUserGroups")),
 			connect.WithClientOptions(opts...),
 		),
+		getGroupBalance: connect.NewClient[v1.GetGroupBalanceRequest, v1.GetGroupBalanceResponse](
+			httpClient,
+			baseURL+GroupServiceGetGroupBalanceProcedure,
+			connect.WithSchema(groupServiceMethods.ByName("GetGroupBalance")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -111,6 +121,7 @@ type groupServiceClient struct {
 	addUserToGroup      *connect.Client[v1.AddUserToGroupRequest, emptypb.Empty]
 	removeUserFromGroup *connect.Client[v1.RemoveUserFromGroupRequest, emptypb.Empty]
 	getUserGroups       *connect.Client[emptypb.Empty, v1.GetUserGroupsResponse]
+	getGroupBalance     *connect.Client[v1.GetGroupBalanceRequest, v1.GetGroupBalanceResponse]
 }
 
 // CreateExpenseGroup calls api.v1.GroupService.CreateExpenseGroup.
@@ -158,6 +169,15 @@ func (c *groupServiceClient) GetUserGroups(ctx context.Context, req *emptypb.Emp
 	return nil, err
 }
 
+// GetGroupBalance calls api.v1.GroupService.GetGroupBalance.
+func (c *groupServiceClient) GetGroupBalance(ctx context.Context, req *v1.GetGroupBalanceRequest) (*v1.GetGroupBalanceResponse, error) {
+	response, err := c.getGroupBalance.CallUnary(ctx, connect.NewRequest(req))
+	if response != nil {
+		return response.Msg, err
+	}
+	return nil, err
+}
+
 // GroupServiceHandler is an implementation of the api.v1.GroupService service.
 type GroupServiceHandler interface {
 	CreateExpenseGroup(context.Context, *v1.CreateExpenseGroupRequest) (*v1.CreateExpenseGroupResponse, error)
@@ -165,6 +185,7 @@ type GroupServiceHandler interface {
 	AddUserToGroup(context.Context, *v1.AddUserToGroupRequest) (*emptypb.Empty, error)
 	RemoveUserFromGroup(context.Context, *v1.RemoveUserFromGroupRequest) (*emptypb.Empty, error)
 	GetUserGroups(context.Context, *emptypb.Empty) (*v1.GetUserGroupsResponse, error)
+	GetGroupBalance(context.Context, *v1.GetGroupBalanceRequest) (*v1.GetGroupBalanceResponse, error)
 }
 
 // NewGroupServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -204,6 +225,12 @@ func NewGroupServiceHandler(svc GroupServiceHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(groupServiceMethods.ByName("GetUserGroups")),
 		connect.WithHandlerOptions(opts...),
 	)
+	groupServiceGetGroupBalanceHandler := connect.NewUnaryHandlerSimple(
+		GroupServiceGetGroupBalanceProcedure,
+		svc.GetGroupBalance,
+		connect.WithSchema(groupServiceMethods.ByName("GetGroupBalance")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/api.v1.GroupService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case GroupServiceCreateExpenseGroupProcedure:
@@ -216,6 +243,8 @@ func NewGroupServiceHandler(svc GroupServiceHandler, opts ...connect.HandlerOpti
 			groupServiceRemoveUserFromGroupHandler.ServeHTTP(w, r)
 		case GroupServiceGetUserGroupsProcedure:
 			groupServiceGetUserGroupsHandler.ServeHTTP(w, r)
+		case GroupServiceGetGroupBalanceProcedure:
+			groupServiceGetGroupBalanceHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -243,4 +272,8 @@ func (UnimplementedGroupServiceHandler) RemoveUserFromGroup(context.Context, *v1
 
 func (UnimplementedGroupServiceHandler) GetUserGroups(context.Context, *emptypb.Empty) (*v1.GetUserGroupsResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.GroupService.GetUserGroups is not implemented"))
+}
+
+func (UnimplementedGroupServiceHandler) GetGroupBalance(context.Context, *v1.GetGroupBalanceRequest) (*v1.GetGroupBalanceResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.GroupService.GetGroupBalance is not implemented"))
 }

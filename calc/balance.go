@@ -5,18 +5,34 @@ import (
 	"pennywise/utils"
 )
 
-type PerCurrencyBalance map[string]float64
+type PerCurrencyBalance map[string]int64
 type GroupBalance map[string]PerCurrencyBalance
 
 func ComputeGroupBalance(
 	members *[]database.GetGroupMembersRow,
-	expenses *[]database.GetGroupExpensesRow) GroupBalance {
+	expenses *[]database.GetGroupExpensesRow,
+	defaultCurrency string) GroupBalance {
 
 	userWeights := make(map[string]float64)
 	for _, value := range *members {
 		userWeights[value.UserID] = value.Weight
 	}
 	balances := make(GroupBalance)
+
+	// Collect all currencies used in expenses, starting with default currency
+	currencies := make(map[string]bool)
+	currencies[defaultCurrency] = true
+	for _, expense := range *expenses {
+		currencies[expense.Currency] = true
+	}
+
+	// Initialize all members with zero balances for all currencies
+	for userID := range userWeights {
+		balances[userID] = make(PerCurrencyBalance)
+		for currency := range currencies {
+			balances[userID][currency] = 0
+		}
+	}
 
 	for _, expense := range *expenses {
 		beneficiaries, _ := utils.JSONStringToSlice(expense.BeneficiariesIds)
@@ -29,19 +45,12 @@ func ComputeGroupBalance(
 
 		// owed shares
 		for _, beneficiaryId := range beneficiaries {
-			share := float64(*expense.Amount) * (userWeights[beneficiaryId] / totalWeight)
-
-			if _, hasBeneficiary := balances[beneficiaryId]; !hasBeneficiary {
-				balances[beneficiaryId] = make(PerCurrencyBalance)
-			}
-			if _, hasCurrency := balances[beneficiaryId][expense.Currency]; !hasCurrency {
-				balances[beneficiaryId][expense.Currency] = 0
-			}
+			share := int64(float64(expense.Amount) * (userWeights[beneficiaryId] / totalWeight))
 			balances[beneficiaryId][expense.Currency] -= share
 		}
 
 		// payments
-		balances[*expense.PayerID][expense.Currency] += float64(*expense.Amount)
+		balances[expense.PayerID][expense.Currency] += expense.Amount
 	}
 
 	// TODO: add transfers

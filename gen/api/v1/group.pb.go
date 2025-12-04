@@ -24,11 +24,12 @@ const (
 )
 
 type CreateExpenseGroupRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Description   string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Name            string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Description     string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	DefaultCurrency string                 `protobuf:"bytes,3,opt,name=default_currency,json=defaultCurrency,proto3" json:"default_currency,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *CreateExpenseGroupRequest) Reset() {
@@ -71,6 +72,13 @@ func (x *CreateExpenseGroupRequest) GetName() string {
 func (x *CreateExpenseGroupRequest) GetDescription() string {
 	if x != nil {
 		return x.Description
+	}
+	return ""
+}
+
+func (x *CreateExpenseGroupRequest) GetDefaultCurrency() string {
+	if x != nil {
+		return x.DefaultCurrency
 	}
 	return ""
 }
@@ -419,14 +427,103 @@ func (x *GetUserGroupsResponse) GetGroups() []*UserGroup {
 	return nil
 }
 
+type GetGroupBalanceRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	GroupId       string                 `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetGroupBalanceRequest) Reset() {
+	*x = GetGroupBalanceRequest{}
+	mi := &file_api_v1_group_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetGroupBalanceRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetGroupBalanceRequest) ProtoMessage() {}
+
+func (x *GetGroupBalanceRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_group_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetGroupBalanceRequest.ProtoReflect.Descriptor instead.
+func (*GetGroupBalanceRequest) Descriptor() ([]byte, []int) {
+	return file_api_v1_group_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *GetGroupBalanceRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
+type GetGroupBalanceResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Balance       map[string]int64       `protobuf:"bytes,1,rep,name=balance,proto3" json:"balance,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetGroupBalanceResponse) Reset() {
+	*x = GetGroupBalanceResponse{}
+	mi := &file_api_v1_group_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetGroupBalanceResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetGroupBalanceResponse) ProtoMessage() {}
+
+func (x *GetGroupBalanceResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_group_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetGroupBalanceResponse.ProtoReflect.Descriptor instead.
+func (*GetGroupBalanceResponse) Descriptor() ([]byte, []int) {
+	return file_api_v1_group_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetGroupBalanceResponse) GetBalance() map[string]int64 {
+	if x != nil {
+		return x.Balance
+	}
+	return nil
+}
+
 var File_api_v1_group_proto protoreflect.FileDescriptor
 
 const file_api_v1_group_proto_rawDesc = "" +
 	"\n" +
-	"\x12api/v1/group.proto\x12\x06api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1bgoogle/protobuf/empty.proto\"Z\n" +
+	"\x12api/v1/group.proto\x12\x06api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x8e\x01\n" +
 	"\x19CreateExpenseGroupRequest\x12\x1b\n" +
 	"\x04name\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\x04name\x12 \n" +
-	"\vdescription\x18\x02 \x01(\tR\vdescription\"\x81\x01\n" +
+	"\vdescription\x18\x02 \x01(\tR\vdescription\x122\n" +
+	"\x10default_currency\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\x0fdefaultCurrency\"\x81\x01\n" +
 	"\x1aCreateExpenseGroupResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -450,13 +547,21 @@ const file_api_v1_group_proto_rawDesc = "" +
 	"group_name\x18\x03 \x01(\tR\tgroupName\x12+\n" +
 	"\x11group_description\x18\x04 \x01(\tR\x10groupDescription\"B\n" +
 	"\x15GetUserGroupsResponse\x12)\n" +
-	"\x06groups\x18\x01 \x03(\v2\x11.api.v1.UserGroupR\x06groups2\xa8\x03\n" +
+	"\x06groups\x18\x01 \x03(\v2\x11.api.v1.UserGroupR\x06groups\"=\n" +
+	"\x16GetGroupBalanceRequest\x12#\n" +
+	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\x9d\x01\n" +
+	"\x17GetGroupBalanceResponse\x12F\n" +
+	"\abalance\x18\x01 \x03(\v2,.api.v1.GetGroupBalanceResponse.BalanceEntryR\abalance\x1a:\n" +
+	"\fBalanceEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x012\xfe\x03\n" +
 	"\fGroupService\x12]\n" +
 	"\x12CreateExpenseGroup\x12!.api.v1.CreateExpenseGroupRequest\x1a\".api.v1.CreateExpenseGroupResponse\"\x00\x12O\n" +
 	"\vUpdateGroup\x12\x1a.api.v1.UpdateGroupRequest\x1a\".api.v1.CreateExpenseGroupResponse\"\x00\x12I\n" +
 	"\x0eAddUserToGroup\x12\x1d.api.v1.AddUserToGroupRequest\x1a\x16.google.protobuf.Empty\"\x00\x12S\n" +
 	"\x13RemoveUserFromGroup\x12\".api.v1.RemoveUserFromGroupRequest\x1a\x16.google.protobuf.Empty\"\x00\x12H\n" +
-	"\rGetUserGroups\x12\x16.google.protobuf.Empty\x1a\x1d.api.v1.GetUserGroupsResponse\"\x00Bm\n" +
+	"\rGetUserGroups\x12\x16.google.protobuf.Empty\x1a\x1d.api.v1.GetUserGroupsResponse\"\x00\x12T\n" +
+	"\x0fGetGroupBalance\x12\x1e.api.v1.GetGroupBalanceRequest\x1a\x1f.api.v1.GetGroupBalanceResponse\"\x00Bm\n" +
 	"\n" +
 	"com.api.v1B\n" +
 	"GroupProtoP\x01Z\x1apennywise/gen/api/v1;apiv1\xa2\x02\x03AXX\xaa\x02\x06Api.V1\xca\x02\x06Api\\V1\xe2\x02\x12Api\\V1\\GPBMetadata\xea\x02\aApi::V1b\x06proto3"
@@ -473,7 +578,7 @@ func file_api_v1_group_proto_rawDescGZIP() []byte {
 	return file_api_v1_group_proto_rawDescData
 }
 
-var file_api_v1_group_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_api_v1_group_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_api_v1_group_proto_goTypes = []any{
 	(*CreateExpenseGroupRequest)(nil),  // 0: api.v1.CreateExpenseGroupRequest
 	(*CreateExpenseGroupResponse)(nil), // 1: api.v1.CreateExpenseGroupResponse
@@ -482,25 +587,31 @@ var file_api_v1_group_proto_goTypes = []any{
 	(*UpdateGroupRequest)(nil),         // 4: api.v1.UpdateGroupRequest
 	(*UserGroup)(nil),                  // 5: api.v1.UserGroup
 	(*GetUserGroupsResponse)(nil),      // 6: api.v1.GetUserGroupsResponse
-	(*emptypb.Empty)(nil),              // 7: google.protobuf.Empty
+	(*GetGroupBalanceRequest)(nil),     // 7: api.v1.GetGroupBalanceRequest
+	(*GetGroupBalanceResponse)(nil),    // 8: api.v1.GetGroupBalanceResponse
+	nil,                                // 9: api.v1.GetGroupBalanceResponse.BalanceEntry
+	(*emptypb.Empty)(nil),              // 10: google.protobuf.Empty
 }
 var file_api_v1_group_proto_depIdxs = []int32{
-	5, // 0: api.v1.GetUserGroupsResponse.groups:type_name -> api.v1.UserGroup
-	0, // 1: api.v1.GroupService.CreateExpenseGroup:input_type -> api.v1.CreateExpenseGroupRequest
-	4, // 2: api.v1.GroupService.UpdateGroup:input_type -> api.v1.UpdateGroupRequest
-	2, // 3: api.v1.GroupService.AddUserToGroup:input_type -> api.v1.AddUserToGroupRequest
-	3, // 4: api.v1.GroupService.RemoveUserFromGroup:input_type -> api.v1.RemoveUserFromGroupRequest
-	7, // 5: api.v1.GroupService.GetUserGroups:input_type -> google.protobuf.Empty
-	1, // 6: api.v1.GroupService.CreateExpenseGroup:output_type -> api.v1.CreateExpenseGroupResponse
-	1, // 7: api.v1.GroupService.UpdateGroup:output_type -> api.v1.CreateExpenseGroupResponse
-	7, // 8: api.v1.GroupService.AddUserToGroup:output_type -> google.protobuf.Empty
-	7, // 9: api.v1.GroupService.RemoveUserFromGroup:output_type -> google.protobuf.Empty
-	6, // 10: api.v1.GroupService.GetUserGroups:output_type -> api.v1.GetUserGroupsResponse
-	6, // [6:11] is the sub-list for method output_type
-	1, // [1:6] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	5,  // 0: api.v1.GetUserGroupsResponse.groups:type_name -> api.v1.UserGroup
+	9,  // 1: api.v1.GetGroupBalanceResponse.balance:type_name -> api.v1.GetGroupBalanceResponse.BalanceEntry
+	0,  // 2: api.v1.GroupService.CreateExpenseGroup:input_type -> api.v1.CreateExpenseGroupRequest
+	4,  // 3: api.v1.GroupService.UpdateGroup:input_type -> api.v1.UpdateGroupRequest
+	2,  // 4: api.v1.GroupService.AddUserToGroup:input_type -> api.v1.AddUserToGroupRequest
+	3,  // 5: api.v1.GroupService.RemoveUserFromGroup:input_type -> api.v1.RemoveUserFromGroupRequest
+	10, // 6: api.v1.GroupService.GetUserGroups:input_type -> google.protobuf.Empty
+	7,  // 7: api.v1.GroupService.GetGroupBalance:input_type -> api.v1.GetGroupBalanceRequest
+	1,  // 8: api.v1.GroupService.CreateExpenseGroup:output_type -> api.v1.CreateExpenseGroupResponse
+	1,  // 9: api.v1.GroupService.UpdateGroup:output_type -> api.v1.CreateExpenseGroupResponse
+	10, // 10: api.v1.GroupService.AddUserToGroup:output_type -> google.protobuf.Empty
+	10, // 11: api.v1.GroupService.RemoveUserFromGroup:output_type -> google.protobuf.Empty
+	6,  // 12: api.v1.GroupService.GetUserGroups:output_type -> api.v1.GetUserGroupsResponse
+	8,  // 13: api.v1.GroupService.GetGroupBalance:output_type -> api.v1.GetGroupBalanceResponse
+	8,  // [8:14] is the sub-list for method output_type
+	2,  // [2:8] is the sub-list for method input_type
+	2,  // [2:2] is the sub-list for extension type_name
+	2,  // [2:2] is the sub-list for extension extendee
+	0,  // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_api_v1_group_proto_init() }
@@ -514,7 +625,7 @@ func file_api_v1_group_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_v1_group_proto_rawDesc), len(file_api_v1_group_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

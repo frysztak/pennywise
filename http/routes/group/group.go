@@ -2,6 +2,7 @@ package group
 
 import (
 	"context"
+	"pennywise/calc"
 	"pennywise/db"
 	"pennywise/db/database"
 	apiv1 "pennywise/gen/api/v1"
@@ -21,10 +22,11 @@ func NewGroupService() *GroupService {
 func (s *GroupService) CreateExpenseGroup(ctx context.Context, r *apiv1.CreateExpenseGroupRequest) (*apiv1.CreateExpenseGroupResponse, error) {
 	session := helpers.GetSessionInfo(ctx)
 	group, err := db.Queries.CreateGroup(ctx, database.CreateGroupParams{
-		ID:          uuid.NewString(),
-		Name:        r.Name,
-		Description: &r.Description,
-		CreatedBy:   session.UserID,
+		ID:              uuid.NewString(),
+		Name:            r.Name,
+		Description:     &r.Description,
+		CreatedBy:       session.UserID,
+		DefaultCurrency: r.DefaultCurrency,
 	})
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -113,4 +115,29 @@ func (s *GroupService) GetUserGroups(ctx context.Context, r *emptypb.Empty) (*ap
 	return &apiv1.GetUserGroupsResponse{
 		Groups: pbGroups,
 	}, nil
+}
+
+func (s *GroupService) GetGroupBalance(ctx context.Context, r *apiv1.GetGroupBalanceRequest) (*apiv1.GetGroupBalanceResponse, error) {
+	session := helpers.GetSessionInfo(ctx)
+
+	groupInfo, err := db.Queries.GetGroupById(ctx, r.GroupId)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	members, err := db.Queries.GetGroupMembers(ctx, r.GroupId)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	expenses, err := db.Queries.GetGroupExpenses(ctx, r.GroupId)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	groupBalance := calc.ComputeGroupBalance(&members, &expenses, groupInfo.DefaultCurrency)
+
+	userBalance := groupBalance[session.UserID]
+
+	return &apiv1.GetGroupBalanceResponse{Balance: userBalance}, nil
 }

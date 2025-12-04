@@ -126,9 +126,10 @@ SELECT
   json_group_array(b.user_id) as beneficiaries_ids
 FROM 
   expenses e
-  LEFT JOIN expense_payers p ON p.expense_id = e.id
-  LEFT JOIN expense_beneficiaries b ON b.expense_id = e.id
-WHERE group_id = ?1
+  INNER JOIN expense_payers p ON p.expense_id = e.id
+  INNER JOIN expense_beneficiaries b ON b.expense_id = e.id
+WHERE e.group_id = ?1
+GROUP BY e.id
 `
 
 type GetGroupExpensesRow struct {
@@ -139,8 +140,8 @@ type GetGroupExpensesRow struct {
 	Name             string      `json:"name"`
 	Description      *string     `json:"description"`
 	Currency         string      `json:"currency"`
-	PayerID          *string     `json:"payer_id"`
-	Amount           *int64      `json:"amount"`
+	PayerID          string      `json:"payer_id"`
+	Amount           int64       `json:"amount"`
 	BeneficiariesIds interface{} `json:"beneficiaries_ids"`
 }
 

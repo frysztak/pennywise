@@ -25,11 +25,12 @@ type ExpenseBeneficiary struct {
 }
 
 type ExpenseGroup struct {
-	ID          string    `json:"id"`
-	CreatedAt   time.Time `json:"created_at"`
-	CreatedBy   string    `json:"created_by"`
-	Name        string    `json:"name"`
-	Description *string   `json:"description"`
+	ID              string    `json:"id"`
+	CreatedAt       time.Time `json:"created_at"`
+	CreatedBy       string    `json:"created_by"`
+	Name            string    `json:"name"`
+	DefaultCurrency string    `json:"default_currency"`
+	Description     *string   `json:"description"`
 }
 
 type ExpensePayer struct {

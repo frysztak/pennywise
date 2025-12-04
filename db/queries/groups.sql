@@ -4,15 +4,21 @@ INSERT INTO expense_groups
     id,
     created_by,
     description,
+    default_currency,
     name
 ) VALUES (
-    ?, ?, ?, ?
+    ?, ?, ?, ?, ?
 ) RETURNING * ;
 
 -- name: UpdateGroup :one
 UPDATE expense_groups SET name = ?, description = ?
 WHERE id = ?
 RETURNING *;
+
+-- name: GetGroupById :one
+SELECT *
+FROM expense_groups
+WHERE id = @group_id;
 
 -- name: AddUserToGroup :one
 INSERT INTO user_expense_groups

@@ -8,6 +8,7 @@ import "google/protobuf/empty.proto";
 message CreateExpenseGroupRequest {
   string name = 1 [(buf.validate.field).string.min_len = 2];
   string description = 2;
+  string default_currency = 3 [(buf.validate.field).string.min_len = 2];
 }
 
 message CreateExpenseGroupResponse {
@@ -45,10 +46,19 @@ message GetUserGroupsResponse {
   repeated UserGroup groups = 1;
 }
 
+message GetGroupBalanceRequest {
+  string group_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message GetGroupBalanceResponse {
+  map<string, int64> balance = 1;
+}
+
 service GroupService {
   rpc CreateExpenseGroup(CreateExpenseGroupRequest) returns (CreateExpenseGroupResponse) {}
   rpc UpdateGroup(UpdateGroupRequest) returns (CreateExpenseGroupResponse) {}
   rpc AddUserToGroup(AddUserToGroupRequest) returns (google.protobuf.Empty) {}
   rpc RemoveUserFromGroup(RemoveUserFromGroupRequest) returns (google.protobuf.Empty) {}
   rpc GetUserGroups(google.protobuf.Empty) returns (GetUserGroupsResponse) {}
+  rpc GetGroupBalance(GetGroupBalanceRequest) returns (GetGroupBalanceResponse) {}
 }
