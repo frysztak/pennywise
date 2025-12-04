@@ -28,3 +28,8 @@ export const removeUserFromGroup = GroupService.method.removeUserFromGroup;
  * @generated from rpc api.v1.GroupService.GetUserGroups
  */
 export const getUserGroups = GroupService.method.getUserGroups;
+
+/**
+ * @generated from rpc api.v1.GroupService.GetGroupBalance
+ */
+export const getGroupBalance = GroupService.method.getGroupBalance;

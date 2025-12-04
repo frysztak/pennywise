@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file api/v1/group.proto.
  */
 export const file_api_v1_group: GenFile = /*@__PURE__*/
-  fileDesc("ChJhcGkvdjEvZ3JvdXAucHJvdG8SBmFwaS52MSJHChlDcmVhdGVFeHBlbnNlR3JvdXBSZXF1ZXN0EhUKBG5hbWUYASABKAlCB7pIBHICEAISEwoLZGVzY3JpcHRpb24YAiABKAkiXwoaQ3JlYXRlRXhwZW5zZUdyb3VwUmVzcG9uc2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRISCgpjcmVhdGVkX2J5GAQgASgJIk4KFUFkZFVzZXJUb0dyb3VwUmVxdWVzdBIZCgd1c2VyX2lkGAEgASgJQgi6SAVyA7ABARIaCghncm91cF9pZBgCIAEoCUIIukgFcgOwAQEiUwoaUmVtb3ZlVXNlckZyb21Hcm91cFJlcXVlc3QSGQoHdXNlcl9pZBgBIAEoCUIIukgFcgOwAQESGgoIZ3JvdXBfaWQYAiABKAlCCLpIBXIDsAEBIlUKElVwZGF0ZUdyb3VwUmVxdWVzdBITCgJpZBgBIAEoCUIHukgEcgIQAhIVCgRuYW1lGAIgASgJQge6SARyAhACEhMKC2Rlc2NyaXB0aW9uGAMgASgJIl0KCVVzZXJHcm91cBIPCgd1c2VyX2lkGAEgASgJEhAKCGdyb3VwX2lkGAIgASgJEhIKCmdyb3VwX25hbWUYAyABKAkSGQoRZ3JvdXBfZGVzY3JpcHRpb24YBCABKAkiOgoVR2V0VXNlckdyb3Vwc1Jlc3BvbnNlEiEKBmdyb3VwcxgBIAMoCzIRLmFwaS52MS5Vc2VyR3JvdXAyqAMKDEdyb3VwU2VydmljZRJdChJDcmVhdGVFeHBlbnNlR3JvdXASIS5hcGkudjEuQ3JlYXRlRXhwZW5zZUdyb3VwUmVxdWVzdBoiLmFwaS52MS5DcmVhdGVFeHBlbnNlR3JvdXBSZXNwb25zZSIAEk8KC1VwZGF0ZUdyb3VwEhouYXBpLnYxLlVwZGF0ZUdyb3VwUmVxdWVzdBoiLmFwaS52MS5DcmVhdGVFeHBlbnNlR3JvdXBSZXNwb25zZSIAEkkKDkFkZFVzZXJUb0dyb3VwEh0uYXBpLnYxLkFkZFVzZXJUb0dyb3VwUmVxdWVzdBoWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eSIAElMKE1JlbW92ZVVzZXJGcm9tR3JvdXASIi5hcGkudjEuUmVtb3ZlVXNlckZyb21Hcm91cFJlcXVlc3QaFi5nb29nbGUucHJvdG9idWYuRW1wdHkiABJICg1HZXRVc2VyR3JvdXBzEhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5Gh0uYXBpLnYxLkdldFVzZXJHcm91cHNSZXNwb25zZSIAYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_empty]);
+  fileDesc("ChJhcGkvdjEvZ3JvdXAucHJvdG8SBmFwaS52MSJqChlDcmVhdGVFeHBlbnNlR3JvdXBSZXF1ZXN0EhUKBG5hbWUYASABKAlCB7pIBHICEAISEwoLZGVzY3JpcHRpb24YAiABKAkSIQoQZGVmYXVsdF9jdXJyZW5jeRgDIAEoCUIHukgEcgIQAiJfChpDcmVhdGVFeHBlbnNlR3JvdXBSZXNwb25zZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEhIKCmNyZWF0ZWRfYnkYBCABKAkiTgoVQWRkVXNlclRvR3JvdXBSZXF1ZXN0EhkKB3VzZXJfaWQYASABKAlCCLpIBXIDsAEBEhoKCGdyb3VwX2lkGAIgASgJQgi6SAVyA7ABASJTChpSZW1vdmVVc2VyRnJvbUdyb3VwUmVxdWVzdBIZCgd1c2VyX2lkGAEgASgJQgi6SAVyA7ABARIaCghncm91cF9pZBgCIAEoCUIIukgFcgOwAQEiVQoSVXBkYXRlR3JvdXBSZXF1ZXN0EhMKAmlkGAEgASgJQge6SARyAhACEhUKBG5hbWUYAiABKAlCB7pIBHICEAISEwoLZGVzY3JpcHRpb24YAyABKAkiXQoJVXNlckdyb3VwEg8KB3VzZXJfaWQYASABKAkSEAoIZ3JvdXBfaWQYAiABKAkSEgoKZ3JvdXBfbmFtZRgDIAEoCRIZChFncm91cF9kZXNjcmlwdGlvbhgEIAEoCSI6ChVHZXRVc2VyR3JvdXBzUmVzcG9uc2USIQoGZ3JvdXBzGAEgAygLMhEuYXBpLnYxLlVzZXJHcm91cCI0ChZHZXRHcm91cEJhbGFuY2VSZXF1ZXN0EhoKCGdyb3VwX2lkGAEgASgJQgi6SAVyA7ABASKIAQoXR2V0R3JvdXBCYWxhbmNlUmVzcG9uc2USPQoHYmFsYW5jZRgBIAMoCzIsLmFwaS52MS5HZXRHcm91cEJhbGFuY2VSZXNwb25zZS5CYWxhbmNlRW50cnkaLgoMQmFsYW5jZUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoAzoCOAEy/gMKDEdyb3VwU2VydmljZRJdChJDcmVhdGVFeHBlbnNlR3JvdXASIS5hcGkudjEuQ3JlYXRlRXhwZW5zZUdyb3VwUmVxdWVzdBoiLmFwaS52MS5DcmVhdGVFeHBlbnNlR3JvdXBSZXNwb25zZSIAEk8KC1VwZGF0ZUdyb3VwEhouYXBpLnYxLlVwZGF0ZUdyb3VwUmVxdWVzdBoiLmFwaS52MS5DcmVhdGVFeHBlbnNlR3JvdXBSZXNwb25zZSIAEkkKDkFkZFVzZXJUb0dyb3VwEh0uYXBpLnYxLkFkZFVzZXJUb0dyb3VwUmVxdWVzdBoWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eSIAElMKE1JlbW92ZVVzZXJGcm9tR3JvdXASIi5hcGkudjEuUmVtb3ZlVXNlckZyb21Hcm91cFJlcXVlc3QaFi5nb29nbGUucHJvdG9idWYuRW1wdHkiABJICg1HZXRVc2VyR3JvdXBzEhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5Gh0uYXBpLnYxLkdldFVzZXJHcm91cHNSZXNwb25zZSIAElQKD0dldEdyb3VwQmFsYW5jZRIeLmFwaS52MS5HZXRHcm91cEJhbGFuY2VSZXF1ZXN0Gh8uYXBpLnYxLkdldEdyb3VwQmFsYW5jZVJlc3BvbnNlIgBiBnByb3RvMw", [file_buf_validate_validate, file_google_protobuf_empty]);
 
 /**
  * @generated from message api.v1.CreateExpenseGroupRequest
@@ -28,6 +28,11 @@ export type CreateExpenseGroupRequest = Message<"api.v1.CreateExpenseGroupReques
    * @generated from field: string description = 2;
    */
   description: string;
+
+  /**
+   * @generated from field: string default_currency = 3;
+   */
+  defaultCurrency: string;
 };
 
 /**
@@ -192,6 +197,40 @@ export const GetUserGroupsResponseSchema: GenMessage<GetUserGroupsResponse> = /*
   messageDesc(file_api_v1_group, 6);
 
 /**
+ * @generated from message api.v1.GetGroupBalanceRequest
+ */
+export type GetGroupBalanceRequest = Message<"api.v1.GetGroupBalanceRequest"> & {
+  /**
+   * @generated from field: string group_id = 1;
+   */
+  groupId: string;
+};
+
+/**
+ * Describes the message api.v1.GetGroupBalanceRequest.
+ * Use `create(GetGroupBalanceRequestSchema)` to create a new message.
+ */
+export const GetGroupBalanceRequestSchema: GenMessage<GetGroupBalanceRequest> = /*@__PURE__*/
+  messageDesc(file_api_v1_group, 7);
+
+/**
+ * @generated from message api.v1.GetGroupBalanceResponse
+ */
+export type GetGroupBalanceResponse = Message<"api.v1.GetGroupBalanceResponse"> & {
+  /**
+   * @generated from field: map<string, int64> balance = 1;
+   */
+  balance: { [key: string]: bigint };
+};
+
+/**
+ * Describes the message api.v1.GetGroupBalanceResponse.
+ * Use `create(GetGroupBalanceResponseSchema)` to create a new message.
+ */
+export const GetGroupBalanceResponseSchema: GenMessage<GetGroupBalanceResponse> = /*@__PURE__*/
+  messageDesc(file_api_v1_group, 8);
+
+/**
  * @generated from service api.v1.GroupService
  */
 export const GroupService: GenService<{
@@ -234,6 +273,14 @@ export const GroupService: GenService<{
     methodKind: "unary";
     input: typeof EmptySchema;
     output: typeof GetUserGroupsResponseSchema;
+  },
+  /**
+   * @generated from rpc api.v1.GroupService.GetGroupBalance
+   */
+  getGroupBalance: {
+    methodKind: "unary";
+    input: typeof GetGroupBalanceRequestSchema;
+    output: typeof GetGroupBalanceResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_api_v1_group, 0);

@@ -11,7 +11,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file api/v1/expense.proto.
  */
 export const file_api_v1_expense: GenFile = /*@__PURE__*/
-  fileDesc("ChRhcGkvdjEvZXhwZW5zZS5wcm90bxIGYXBpLnYxIrABChRDcmVhdGVFeHBlbnNlUmVxdWVzdBIaCghncm91cF9pZBgBIAEoCUIIukgFcgOwAQESGQoHdXNlcl9pZBgCIAEoCUIIukgFcgOwAQESFQoEbmFtZRgDIAEoCUIHukgEcgIQAhITCgtkZXNjcmlwdGlvbhgEIAEoCRIaCgZhbW91bnQYBSABKAJCCrpIBwoFJQAAAAASGQoIY3VycmVuY3kYBiABKAlCB7pIBHICEAIiMQoVQ3JlYXRlRXhwZW5zZVJlc3BvbnNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkyYAoORXhwZW5zZVNlcnZpY2USTgoNQ3JlYXRlRXhwZW5zZRIcLmFwaS52MS5DcmVhdGVFeHBlbnNlUmVxdWVzdBodLmFwaS52MS5DcmVhdGVFeHBlbnNlUmVzcG9uc2UiAGIGcHJvdG8z", [file_buf_validate_validate]);
+  fileDesc("ChRhcGkvdjEvZXhwZW5zZS5wcm90bxIGYXBpLnYxIswBChRDcmVhdGVFeHBlbnNlUmVxdWVzdBIaCghncm91cF9pZBgBIAEoCUIIukgFcgOwAQESGgoIcGF5ZXJfaWQYAiABKAlCCLpIBXIDsAEBEhUKBG5hbWUYAyABKAlCB7pIBHICEAISEwoLZGVzY3JpcHRpb24YBCABKAkSGgoGYW1vdW50GAUgASgCQgq6SAcKBSUAAAAAEhkKCGN1cnJlbmN5GAYgASgJQge6SARyAhACEhkKEWJlbmVmaWNpYXJpZXNfaWRzGAcgAygJIjEKFUNyZWF0ZUV4cGVuc2VSZXNwb25zZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJMmAKDkV4cGVuc2VTZXJ2aWNlEk4KDUNyZWF0ZUV4cGVuc2USHC5hcGkudjEuQ3JlYXRlRXhwZW5zZVJlcXVlc3QaHS5hcGkudjEuQ3JlYXRlRXhwZW5zZVJlc3BvbnNlIgBiBnByb3RvMw", [file_buf_validate_validate]);
 
 /**
  * @generated from message api.v1.CreateExpenseRequest
@@ -23,9 +23,9 @@ export type CreateExpenseRequest = Message<"api.v1.CreateExpenseRequest"> & {
   groupId: string;
 
   /**
-   * @generated from field: string user_id = 2;
+   * @generated from field: string payer_id = 2;
    */
-  userId: string;
+  payerId: string;
 
   /**
    * @generated from field: string name = 3;
@@ -46,6 +46,11 @@ export type CreateExpenseRequest = Message<"api.v1.CreateExpenseRequest"> & {
    * @generated from field: string currency = 6;
    */
   currency: string;
+
+  /**
+   * @generated from field: repeated string beneficiaries_ids = 7;
+   */
+  beneficiariesIds: string[];
 };
 
 /**
