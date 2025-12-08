@@ -104,11 +104,48 @@ func (s *GroupService) GetUserGroups(ctx context.Context, r *emptypb.Empty) (*ap
 
 	pbGroups := make([]*apiv1.UserGroup, len(groups))
 	for i, v := range groups {
+		// Calculate balance for this group
+		members, err := db.Queries.GetGroupMembers(ctx, *v.GroupID)
+		if err != nil {
+			return nil, connect.NewError(connect.CodeInternal, err)
+		}
+
+		expenses, err := db.Queries.GetGroupExpenses(ctx, *v.GroupID)
+		if err != nil {
+			return nil, connect.NewError(connect.CodeInternal, err)
+		}
+
+		groupBalance := calc.ComputeGroupBalance(&members, &expenses, v.DefaultCurrency)
+
+		// Build member balances
+		memberBalances := make([]*apiv1.MemberBalance, 0, len(members))
+		for _, member := range members {
+			memberBalances = append(memberBalances, &apiv1.MemberBalance{
+				UserId:   member.UserID,
+				UserName: member.UserName,
+				Balance:  groupBalance[member.UserID],
+			})
+		}
+
+		// Get total spending for this group
+		totalSpendingRows, err := db.Queries.GetGroupTotalSpending(ctx, *v.GroupID)
+		if err != nil {
+			return nil, connect.NewError(connect.CodeInternal, err)
+		}
+
+		totalSpending := make(map[string]int64)
+		for _, row := range totalSpendingRows {
+			totalSpending[row.Currency] = row.TotalAmount
+		}
+
 		pbGroups[i] = &apiv1.UserGroup{
-			UserId:           *v.UserID,
-			GroupId:          *v.GroupID,
-			GroupName:        v.Name,
-			GroupDescription: *v.Description,
+			UserId:               *v.UserID,
+			GroupId:              *v.GroupID,
+			GroupName:            v.Name,
+			GroupDescription:     *v.Description,
+			GroupDefaultCurrency: v.DefaultCurrency,
+			MemberBalances:       memberBalances,
+			TotalSpending:        totalSpending,
 		}
 	}
 
@@ -117,27 +154,3 @@ func (s *GroupService) GetUserGroups(ctx context.Context, r *emptypb.Empty) (*ap
 	}, nil
 }
 
-func (s *GroupService) GetGroupBalance(ctx context.Context, r *apiv1.GetGroupBalanceRequest) (*apiv1.GetGroupBalanceResponse, error) {
-	session := helpers.GetSessionInfo(ctx)
-
-	groupInfo, err := db.Queries.GetGroupById(ctx, r.GroupId)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
-	}
-
-	members, err := db.Queries.GetGroupMembers(ctx, r.GroupId)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
-	}
-
-	expenses, err := db.Queries.GetGroupExpenses(ctx, r.GroupId)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
-	}
-
-	groupBalance := calc.ComputeGroupBalance(&members, &expenses, groupInfo.DefaultCurrency)
-
-	userBalance := groupBalance[session.UserID]
-
-	return &apiv1.GetGroupBalanceResponse{Balance: userBalance}, nil
-}

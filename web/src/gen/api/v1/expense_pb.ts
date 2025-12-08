@@ -11,7 +11,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file api/v1/expense.proto.
  */
 export const file_api_v1_expense: GenFile = /*@__PURE__*/
-  fileDesc("ChRhcGkvdjEvZXhwZW5zZS5wcm90bxIGYXBpLnYxIswBChRDcmVhdGVFeHBlbnNlUmVxdWVzdBIaCghncm91cF9pZBgBIAEoCUIIukgFcgOwAQESGgoIcGF5ZXJfaWQYAiABKAlCCLpIBXIDsAEBEhUKBG5hbWUYAyABKAlCB7pIBHICEAISEwoLZGVzY3JpcHRpb24YBCABKAkSGgoGYW1vdW50GAUgASgCQgq6SAcKBSUAAAAAEhkKCGN1cnJlbmN5GAYgASgJQge6SARyAhACEhkKEWJlbmVmaWNpYXJpZXNfaWRzGAcgAygJIjEKFUNyZWF0ZUV4cGVuc2VSZXNwb25zZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJMmAKDkV4cGVuc2VTZXJ2aWNlEk4KDUNyZWF0ZUV4cGVuc2USHC5hcGkudjEuQ3JlYXRlRXhwZW5zZVJlcXVlc3QaHS5hcGkudjEuQ3JlYXRlRXhwZW5zZVJlc3BvbnNlIgBiBnByb3RvMw", [file_buf_validate_validate]);
+  fileDesc("ChRhcGkvdjEvZXhwZW5zZS5wcm90bxIGYXBpLnYxIswBChRDcmVhdGVFeHBlbnNlUmVxdWVzdBIaCghncm91cF9pZBgBIAEoCUIIukgFcgOwAQESGgoIcGF5ZXJfaWQYAiABKAlCCLpIBXIDsAEBEhUKBG5hbWUYAyABKAlCB7pIBHICEAISEwoLZGVzY3JpcHRpb24YBCABKAkSGgoGYW1vdW50GAUgASgCQgq6SAcKBSUAAAAAEhkKCGN1cnJlbmN5GAYgASgJQge6SARyAhACEhkKEWJlbmVmaWNpYXJpZXNfaWRzGAcgAygJIjEKFUNyZWF0ZUV4cGVuc2VSZXNwb25zZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJIjUKF0dldEdyb3VwRXhwZW5zZXNSZXF1ZXN0EhoKCGdyb3VwX2lkGAEgASgJQgi6SAVyA7ABASKPAgoYR2V0R3JvdXBFeHBlbnNlc1Jlc3BvbnNlEjoKCGV4cGVuc2VzGAEgAygLMiguYXBpLnYxLkdldEdyb3VwRXhwZW5zZXNSZXNwb25zZS5FeHBlbnNlGrYBCgdFeHBlbnNlEgoKAmlkGAEgASgJEhIKCmNyZWF0ZWRfYXQYAiABKAkSDAoEbmFtZRgDIAEoCRIYCgtkZXNjcmlwdGlvbhgEIAEoCUgAiAEBEhAKCGN1cnJlbmN5GAUgASgJEhAKCHBheWVyX2lkGAYgASgJEg4KBmFtb3VudBgIIAEoAxIZChFiZW5lZmljaWFyaWVzX2lkcxgJIAMoCUIOCgxfZGVzY3JpcHRpb25KBAgHEAgyuQEKDkV4cGVuc2VTZXJ2aWNlEk4KDUNyZWF0ZUV4cGVuc2USHC5hcGkudjEuQ3JlYXRlRXhwZW5zZVJlcXVlc3QaHS5hcGkudjEuQ3JlYXRlRXhwZW5zZVJlc3BvbnNlIgASVwoQR2V0R3JvdXBFeHBlbnNlcxIfLmFwaS52MS5HZXRHcm91cEV4cGVuc2VzUmVxdWVzdBogLmFwaS52MS5HZXRHcm91cEV4cGVuc2VzUmVzcG9uc2UiAGIGcHJvdG8z", [file_buf_validate_validate]);
 
 /**
  * @generated from message api.v1.CreateExpenseRequest
@@ -83,6 +83,92 @@ export const CreateExpenseResponseSchema: GenMessage<CreateExpenseResponse> = /*
   messageDesc(file_api_v1_expense, 1);
 
 /**
+ * @generated from message api.v1.GetGroupExpensesRequest
+ */
+export type GetGroupExpensesRequest = Message<"api.v1.GetGroupExpensesRequest"> & {
+  /**
+   * @generated from field: string group_id = 1;
+   */
+  groupId: string;
+};
+
+/**
+ * Describes the message api.v1.GetGroupExpensesRequest.
+ * Use `create(GetGroupExpensesRequestSchema)` to create a new message.
+ */
+export const GetGroupExpensesRequestSchema: GenMessage<GetGroupExpensesRequest> = /*@__PURE__*/
+  messageDesc(file_api_v1_expense, 2);
+
+/**
+ * @generated from message api.v1.GetGroupExpensesResponse
+ */
+export type GetGroupExpensesResponse = Message<"api.v1.GetGroupExpensesResponse"> & {
+  /**
+   * @generated from field: repeated api.v1.GetGroupExpensesResponse.Expense expenses = 1;
+   */
+  expenses: GetGroupExpensesResponse_Expense[];
+};
+
+/**
+ * Describes the message api.v1.GetGroupExpensesResponse.
+ * Use `create(GetGroupExpensesResponseSchema)` to create a new message.
+ */
+export const GetGroupExpensesResponseSchema: GenMessage<GetGroupExpensesResponse> = /*@__PURE__*/
+  messageDesc(file_api_v1_expense, 3);
+
+/**
+ * @generated from message api.v1.GetGroupExpensesResponse.Expense
+ */
+export type GetGroupExpensesResponse_Expense = Message<"api.v1.GetGroupExpensesResponse.Expense"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string created_at = 2;
+   */
+  createdAt: string;
+
+  /**
+   * @generated from field: string name = 3;
+   */
+  name: string;
+
+  /**
+   * @generated from field: optional string description = 4;
+   */
+  description?: string;
+
+  /**
+   * @generated from field: string currency = 5;
+   */
+  currency: string;
+
+  /**
+   * @generated from field: string payer_id = 6;
+   */
+  payerId: string;
+
+  /**
+   * @generated from field: int64 amount = 8;
+   */
+  amount: bigint;
+
+  /**
+   * @generated from field: repeated string beneficiaries_ids = 9;
+   */
+  beneficiariesIds: string[];
+};
+
+/**
+ * Describes the message api.v1.GetGroupExpensesResponse.Expense.
+ * Use `create(GetGroupExpensesResponse_ExpenseSchema)` to create a new message.
+ */
+export const GetGroupExpensesResponse_ExpenseSchema: GenMessage<GetGroupExpensesResponse_Expense> = /*@__PURE__*/
+  messageDesc(file_api_v1_expense, 3, 0);
+
+/**
  * @generated from service api.v1.ExpenseService
  */
 export const ExpenseService: GenService<{
@@ -93,6 +179,14 @@ export const ExpenseService: GenService<{
     methodKind: "unary";
     input: typeof CreateExpenseRequestSchema;
     output: typeof CreateExpenseResponseSchema;
+  },
+  /**
+   * @generated from rpc api.v1.ExpenseService.GetGroupExpenses
+   */
+  getGroupExpenses: {
+    methodKind: "unary";
+    input: typeof GetGroupExpensesRequestSchema;
+    output: typeof GetGroupExpensesResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_api_v1_expense, 0);

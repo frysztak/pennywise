@@ -101,14 +101,19 @@ func (q *Queries) GetGroupById(ctx context.Context, groupID string) (ExpenseGrou
 }
 
 const getGroupMembers = `-- name: GetGroupMembers :many
-SELECT user_id, weight
-FROM user_expense_groups 
-WHERE group_id = ?1
+SELECT
+  ueg.user_id,
+  ueg.weight,
+  u.username as user_name
+FROM user_expense_groups ueg
+JOIN users u ON u.id = ueg.user_id
+WHERE ueg.group_id = ?1
 `
 
 type GetGroupMembersRow struct {
-	UserID string  `json:"user_id"`
-	Weight float64 `json:"weight"`
+	UserID   string  `json:"user_id"`
+	Weight   float64 `json:"weight"`
+	UserName string  `json:"user_name"`
 }
 
 func (q *Queries) GetGroupMembers(ctx context.Context, groupID string) ([]GetGroupMembersRow, error) {
@@ -120,7 +125,7 @@ func (q *Queries) GetGroupMembers(ctx context.Context, groupID string) ([]GetGro
 	var items []GetGroupMembersRow
 	for rows.Next() {
 		var i GetGroupMembersRow
-		if err := rows.Scan(&i.UserID, &i.Weight); err != nil {
+		if err := rows.Scan(&i.UserID, &i.Weight, &i.UserName); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

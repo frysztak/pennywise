@@ -5,6 +5,7 @@ import (
 	"pennywise/db"
 	"pennywise/db/database"
 	apiv1 "pennywise/gen/api/v1"
+	"pennywise/utils"
 	"time"
 
 	"connectrpc.com/connect"
@@ -69,4 +70,32 @@ func (s *ExpenseService) CreateExpense(ctx context.Context, r *apiv1.CreateExpen
 		Id:   expense.ID,
 		Name: expense.Name,
 	}, nil
+}
+
+func (s *ExpenseService) GetGroupExpenses(ctx context.Context, r *apiv1.GetGroupExpensesRequest) (*apiv1.GetGroupExpensesResponse, error) {
+	rows, err := db.Queries.GetGroupExpenses(ctx, r.GroupId)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	expenses := make([]*apiv1.GetGroupExpensesResponse_Expense, 0, len(rows))
+	for _, row := range rows {
+		beneficiariesIds, err := utils.JSONStringToSlice(row.BeneficiariesIds)
+		if err != nil {
+			return nil, connect.NewError(connect.CodeInternal, err)
+		}
+
+		expenses = append(expenses, &apiv1.GetGroupExpensesResponse_Expense{
+			Id:               row.ID,
+			CreatedAt:        row.CreatedAt.Format(time.RFC3339),
+			Name:             row.Name,
+			Description:      row.Description,
+			Currency:         row.Currency,
+			PayerId:          row.PayerID,
+			Amount:           row.Amount,
+			BeneficiariesIds: beneficiariesIds,
+		})
+	}
+
+	return &apiv1.GetGroupExpensesResponse{Expenses: expenses}, nil
 }

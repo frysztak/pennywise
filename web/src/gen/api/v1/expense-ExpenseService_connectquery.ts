@@ -8,3 +8,8 @@ import { ExpenseService } from "./expense_pb";
  * @generated from rpc api.v1.ExpenseService.CreateExpense
  */
 export const createExpense = ExpenseService.method.createExpense;
+
+/**
+ * @generated from rpc api.v1.ExpenseService.GetGroupExpenses
+ */
+export const getGroupExpenses = ExpenseService.method.getGroupExpenses;

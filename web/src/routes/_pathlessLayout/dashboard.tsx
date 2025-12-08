@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useSuspenseQuery } from '@connectrpc/connect-query';
-import { getUserGroups, getGroupBalance } from '@/gen/api/v1/group-GroupService_connectquery';
+import { getUserGroups } from '@/gen/api/v1/group-GroupService_connectquery';
 import { ExpenseGroupCard } from '@/components/expense-group-card';
 
 export const Route = createFileRoute('/_pathlessLayout/dashboard')({
@@ -29,45 +29,31 @@ function RouteComponent() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {groupsData.groups.map((group) => (
-            <Link
-              key={group.groupId}
-              to="/group/$groupId"
-              params={{ groupId: group.groupId }}
-              className="group"
-            >
-              <GroupCardWithBalance
-                groupId={group.groupId}
-                groupName={group.groupName}
-                groupDescription={group.groupDescription}
-              />
-            </Link>
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          {groupsData.groups.map((group) => {
+            // Find current user's balance from member balances
+            const currentUserBalance = group.memberBalances.find(
+              (mb) => mb.userId === group.userId
+            );
+
+            return (
+              <Link
+                key={group.groupId}
+                to="/group/$groupId"
+                params={{ groupId: group.groupId }}
+                className="group"
+              >
+                <ExpenseGroupCard
+                  groupName={group.groupName}
+                  groupDescription={group.groupDescription}
+                  groupDefaultCurrency={group.groupDefaultCurrency}
+                  balance={currentUserBalance?.balance || {}}
+                />
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
-  );
-}
-
-function GroupCardWithBalance({
-  groupId,
-  groupName,
-  groupDescription,
-}: {
-  groupId: string;
-  groupName: string;
-  groupDescription: string;
-}) {
-  const { data: balanceData } = useSuspenseQuery(getGroupBalance, {
-    groupId,
-  });
-
-  return (
-    <ExpenseGroupCard
-      groupName={groupName}
-      groupDescription={groupDescription}
-      balance={balanceData.balance}
-    />
   );
 }

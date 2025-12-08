@@ -119,12 +119,12 @@ func (q *Queries) CreateExpensePayer(ctx context.Context, arg CreateExpensePayer
 }
 
 const getGroupExpenses = `-- name: GetGroupExpenses :many
-SELECT 
-  e.id, e.created_at, e.group_id, e.recurring_id, e.name, e.description, e.currency, 
-  p.user_id as payer_id, 
-  p.amount, 
+SELECT
+  e.id, e.created_at, e.group_id, e.recurring_id, e.name, e.description, e.currency,
+  p.user_id as payer_id,
+  p.amount,
   json_group_array(b.user_id) as beneficiaries_ids
-FROM 
+FROM
   expenses e
   INNER JOIN expense_payers p ON p.expense_id = e.id
   INNER JOIN expense_beneficiaries b ON b.expense_id = e.id
@@ -166,6 +166,44 @@ func (q *Queries) GetGroupExpenses(ctx context.Context, groupID string) ([]GetGr
 			&i.Amount,
 			&i.BeneficiariesIds,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getGroupTotalSpending = `-- name: GetGroupTotalSpending :many
+SELECT
+  e.currency,
+  CAST(SUM(p.amount) AS INTEGER) as total_amount
+FROM expenses e
+JOIN expense_payers p ON p.expense_id = e.id
+WHERE e.group_id = ?1
+GROUP BY e.currency
+`
+
+type GetGroupTotalSpendingRow struct {
+	Currency    string `json:"currency"`
+	TotalAmount int64  `json:"total_amount"`
+}
+
+func (q *Queries) GetGroupTotalSpending(ctx context.Context, groupID string) ([]GetGroupTotalSpendingRow, error) {
+	rows, err := q.db.QueryContext(ctx, getGroupTotalSpending, groupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetGroupTotalSpendingRow
+	for rows.Next() {
+		var i GetGroupTotalSpendingRow
+		if err := rows.Scan(&i.Currency, &i.TotalAmount); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

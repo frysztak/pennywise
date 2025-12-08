@@ -34,31 +34,32 @@ message UpdateGroupRequest {
   string description = 3;
 }
 
+message MemberBalance {
+  string user_id = 1;
+  string user_name = 2;
+  map<string, int64> balance = 3;
+}
+
 message UserGroup {
   string user_id = 1;
   string group_id = 2;
   string group_name = 3;
   string group_description = 4;
-  // TODO: add balance?
+  string group_default_currency = 5;
+  repeated MemberBalance member_balances = 6;
+  map<string, int64> total_spending = 7;
 }
 
 message GetUserGroupsResponse {
   repeated UserGroup groups = 1;
 }
 
-message GetGroupBalanceRequest {
-  string group_id = 1 [(buf.validate.field).string.uuid = true];
-}
-
-message GetGroupBalanceResponse {
-  map<string, int64> balance = 1;
-}
-
 service GroupService {
   rpc CreateExpenseGroup(CreateExpenseGroupRequest) returns (CreateExpenseGroupResponse) {}
   rpc UpdateGroup(UpdateGroupRequest) returns (CreateExpenseGroupResponse) {}
+
   rpc AddUserToGroup(AddUserToGroupRequest) returns (google.protobuf.Empty) {}
   rpc RemoveUserFromGroup(RemoveUserFromGroupRequest) returns (google.protobuf.Empty) {}
+
   rpc GetUserGroups(google.protobuf.Empty) returns (GetUserGroupsResponse) {}
-  rpc GetGroupBalance(GetGroupBalanceRequest) returns (GetGroupBalanceResponse) {}
 }

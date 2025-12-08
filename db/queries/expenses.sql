@@ -34,14 +34,23 @@ INSERT INTO expense_beneficiaries
 ) RETURNING *;
 
 -- name: GetGroupExpenses :many
-SELECT 
-  e.*, 
-  p.user_id as payer_id, 
-  p.amount, 
+SELECT
+  e.*,
+  p.user_id as payer_id,
+  p.amount,
   json_group_array(b.user_id) as beneficiaries_ids
-FROM 
+FROM
   expenses e
   INNER JOIN expense_payers p ON p.expense_id = e.id
   INNER JOIN expense_beneficiaries b ON b.expense_id = e.id
 WHERE e.group_id = @group_id
 GROUP BY e.id;
+
+-- name: GetGroupTotalSpending :many
+SELECT
+  e.currency,
+  CAST(SUM(p.amount) AS INTEGER) as total_amount
+FROM expenses e
+JOIN expense_payers p ON p.expense_id = e.id
+WHERE e.group_id = @group_id
+GROUP BY e.currency;

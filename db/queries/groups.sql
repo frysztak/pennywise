@@ -42,6 +42,10 @@ FROM
 WHERE u.user_id = ?;
 
 -- name: GetGroupMembers :many
-SELECT user_id, weight
-FROM user_expense_groups 
-WHERE group_id = @group_id;
+SELECT
+  ueg.user_id,
+  ueg.weight,
+  u.username as user_name
+FROM user_expense_groups ueg
+JOIN users u ON u.id = ueg.user_id
+WHERE ueg.group_id = @group_id;

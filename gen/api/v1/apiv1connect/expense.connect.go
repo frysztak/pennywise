@@ -36,11 +36,15 @@ const (
 	// ExpenseServiceCreateExpenseProcedure is the fully-qualified name of the ExpenseService's
 	// CreateExpense RPC.
 	ExpenseServiceCreateExpenseProcedure = "/api.v1.ExpenseService/CreateExpense"
+	// ExpenseServiceGetGroupExpensesProcedure is the fully-qualified name of the ExpenseService's
+	// GetGroupExpenses RPC.
+	ExpenseServiceGetGroupExpensesProcedure = "/api.v1.ExpenseService/GetGroupExpenses"
 )
 
 // ExpenseServiceClient is a client for the api.v1.ExpenseService service.
 type ExpenseServiceClient interface {
 	CreateExpense(context.Context, *v1.CreateExpenseRequest) (*v1.CreateExpenseResponse, error)
+	GetGroupExpenses(context.Context, *v1.GetGroupExpensesRequest) (*v1.GetGroupExpensesResponse, error)
 }
 
 // NewExpenseServiceClient constructs a client for the api.v1.ExpenseService service. By default, it
@@ -60,12 +64,19 @@ func NewExpenseServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(expenseServiceMethods.ByName("CreateExpense")),
 			connect.WithClientOptions(opts...),
 		),
+		getGroupExpenses: connect.NewClient[v1.GetGroupExpensesRequest, v1.GetGroupExpensesResponse](
+			httpClient,
+			baseURL+ExpenseServiceGetGroupExpensesProcedure,
+			connect.WithSchema(expenseServiceMethods.ByName("GetGroupExpenses")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // expenseServiceClient implements ExpenseServiceClient.
 type expenseServiceClient struct {
-	createExpense *connect.Client[v1.CreateExpenseRequest, v1.CreateExpenseResponse]
+	createExpense    *connect.Client[v1.CreateExpenseRequest, v1.CreateExpenseResponse]
+	getGroupExpenses *connect.Client[v1.GetGroupExpensesRequest, v1.GetGroupExpensesResponse]
 }
 
 // CreateExpense calls api.v1.ExpenseService.CreateExpense.
@@ -77,9 +88,19 @@ func (c *expenseServiceClient) CreateExpense(ctx context.Context, req *v1.Create
 	return nil, err
 }
 
+// GetGroupExpenses calls api.v1.ExpenseService.GetGroupExpenses.
+func (c *expenseServiceClient) GetGroupExpenses(ctx context.Context, req *v1.GetGroupExpensesRequest) (*v1.GetGroupExpensesResponse, error) {
+	response, err := c.getGroupExpenses.CallUnary(ctx, connect.NewRequest(req))
+	if response != nil {
+		return response.Msg, err
+	}
+	return nil, err
+}
+
 // ExpenseServiceHandler is an implementation of the api.v1.ExpenseService service.
 type ExpenseServiceHandler interface {
 	CreateExpense(context.Context, *v1.CreateExpenseRequest) (*v1.CreateExpenseResponse, error)
+	GetGroupExpenses(context.Context, *v1.GetGroupExpensesRequest) (*v1.GetGroupExpensesResponse, error)
 }
 
 // NewExpenseServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -95,10 +116,18 @@ func NewExpenseServiceHandler(svc ExpenseServiceHandler, opts ...connect.Handler
 		connect.WithSchema(expenseServiceMethods.ByName("CreateExpense")),
 		connect.WithHandlerOptions(opts...),
 	)
+	expenseServiceGetGroupExpensesHandler := connect.NewUnaryHandlerSimple(
+		ExpenseServiceGetGroupExpensesProcedure,
+		svc.GetGroupExpenses,
+		connect.WithSchema(expenseServiceMethods.ByName("GetGroupExpenses")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/api.v1.ExpenseService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ExpenseServiceCreateExpenseProcedure:
 			expenseServiceCreateExpenseHandler.ServeHTTP(w, r)
+		case ExpenseServiceGetGroupExpensesProcedure:
+			expenseServiceGetGroupExpensesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -110,4 +139,8 @@ type UnimplementedExpenseServiceHandler struct{}
 
 func (UnimplementedExpenseServiceHandler) CreateExpense(context.Context, *v1.CreateExpenseRequest) (*v1.CreateExpenseResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.ExpenseService.CreateExpense is not implemented"))
+}
+
+func (UnimplementedExpenseServiceHandler) GetGroupExpenses(context.Context, *v1.GetGroupExpensesRequest) (*v1.GetGroupExpensesResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.ExpenseService.GetGroupExpenses is not implemented"))
 }

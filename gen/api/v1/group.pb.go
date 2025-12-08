@@ -315,19 +315,82 @@ func (x *UpdateGroupRequest) GetDescription() string {
 	return ""
 }
 
+type MemberBalance struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserName      string                 `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`
+	Balance       map[string]int64       `protobuf:"bytes,3,rep,name=balance,proto3" json:"balance,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MemberBalance) Reset() {
+	*x = MemberBalance{}
+	mi := &file_api_v1_group_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MemberBalance) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MemberBalance) ProtoMessage() {}
+
+func (x *MemberBalance) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_group_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MemberBalance.ProtoReflect.Descriptor instead.
+func (*MemberBalance) Descriptor() ([]byte, []int) {
+	return file_api_v1_group_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *MemberBalance) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *MemberBalance) GetUserName() string {
+	if x != nil {
+		return x.UserName
+	}
+	return ""
+}
+
+func (x *MemberBalance) GetBalance() map[string]int64 {
+	if x != nil {
+		return x.Balance
+	}
+	return nil
+}
+
 type UserGroup struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	UserId           string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	GroupId          string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
-	GroupName        string                 `protobuf:"bytes,3,opt,name=group_name,json=groupName,proto3" json:"group_name,omitempty"`
-	GroupDescription string                 `protobuf:"bytes,4,opt,name=group_description,json=groupDescription,proto3" json:"group_description,omitempty"` // TODO: add balance?
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	UserId               string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	GroupId              string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	GroupName            string                 `protobuf:"bytes,3,opt,name=group_name,json=groupName,proto3" json:"group_name,omitempty"`
+	GroupDescription     string                 `protobuf:"bytes,4,opt,name=group_description,json=groupDescription,proto3" json:"group_description,omitempty"`
+	GroupDefaultCurrency string                 `protobuf:"bytes,5,opt,name=group_default_currency,json=groupDefaultCurrency,proto3" json:"group_default_currency,omitempty"`
+	MemberBalances       []*MemberBalance       `protobuf:"bytes,6,rep,name=member_balances,json=memberBalances,proto3" json:"member_balances,omitempty"`
+	TotalSpending        map[string]int64       `protobuf:"bytes,7,rep,name=total_spending,json=totalSpending,proto3" json:"total_spending,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *UserGroup) Reset() {
 	*x = UserGroup{}
-	mi := &file_api_v1_group_proto_msgTypes[5]
+	mi := &file_api_v1_group_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -339,7 +402,7 @@ func (x *UserGroup) String() string {
 func (*UserGroup) ProtoMessage() {}
 
 func (x *UserGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[5]
+	mi := &file_api_v1_group_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -352,7 +415,7 @@ func (x *UserGroup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserGroup.ProtoReflect.Descriptor instead.
 func (*UserGroup) Descriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{5}
+	return file_api_v1_group_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UserGroup) GetUserId() string {
@@ -383,6 +446,27 @@ func (x *UserGroup) GetGroupDescription() string {
 	return ""
 }
 
+func (x *UserGroup) GetGroupDefaultCurrency() string {
+	if x != nil {
+		return x.GroupDefaultCurrency
+	}
+	return ""
+}
+
+func (x *UserGroup) GetMemberBalances() []*MemberBalance {
+	if x != nil {
+		return x.MemberBalances
+	}
+	return nil
+}
+
+func (x *UserGroup) GetTotalSpending() map[string]int64 {
+	if x != nil {
+		return x.TotalSpending
+	}
+	return nil
+}
+
 type GetUserGroupsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Groups        []*UserGroup           `protobuf:"bytes,1,rep,name=groups,proto3" json:"groups,omitempty"`
@@ -392,7 +476,7 @@ type GetUserGroupsResponse struct {
 
 func (x *GetUserGroupsResponse) Reset() {
 	*x = GetUserGroupsResponse{}
-	mi := &file_api_v1_group_proto_msgTypes[6]
+	mi := &file_api_v1_group_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -404,7 +488,7 @@ func (x *GetUserGroupsResponse) String() string {
 func (*GetUserGroupsResponse) ProtoMessage() {}
 
 func (x *GetUserGroupsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[6]
+	mi := &file_api_v1_group_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -417,100 +501,12 @@ func (x *GetUserGroupsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserGroupsResponse.ProtoReflect.Descriptor instead.
 func (*GetUserGroupsResponse) Descriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{6}
+	return file_api_v1_group_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetUserGroupsResponse) GetGroups() []*UserGroup {
 	if x != nil {
 		return x.Groups
-	}
-	return nil
-}
-
-type GetGroupBalanceRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	GroupId       string                 `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetGroupBalanceRequest) Reset() {
-	*x = GetGroupBalanceRequest{}
-	mi := &file_api_v1_group_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetGroupBalanceRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetGroupBalanceRequest) ProtoMessage() {}
-
-func (x *GetGroupBalanceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetGroupBalanceRequest.ProtoReflect.Descriptor instead.
-func (*GetGroupBalanceRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *GetGroupBalanceRequest) GetGroupId() string {
-	if x != nil {
-		return x.GroupId
-	}
-	return ""
-}
-
-type GetGroupBalanceResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Balance       map[string]int64       `protobuf:"bytes,1,rep,name=balance,proto3" json:"balance,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetGroupBalanceResponse) Reset() {
-	*x = GetGroupBalanceResponse{}
-	mi := &file_api_v1_group_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetGroupBalanceResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetGroupBalanceResponse) ProtoMessage() {}
-
-func (x *GetGroupBalanceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetGroupBalanceResponse.ProtoReflect.Descriptor instead.
-func (*GetGroupBalanceResponse) Descriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *GetGroupBalanceResponse) GetBalance() map[string]int64 {
-	if x != nil {
-		return x.Balance
 	}
 	return nil
 }
@@ -539,29 +535,34 @@ const file_api_v1_group_proto_rawDesc = "" +
 	"\x12UpdateGroupRequest\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\x02id\x12\x1b\n" +
 	"\x04name\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\x04name\x12 \n" +
-	"\vdescription\x18\x03 \x01(\tR\vdescription\"\x8b\x01\n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\"\xbf\x01\n" +
+	"\rMemberBalance\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1b\n" +
+	"\tuser_name\x18\x02 \x01(\tR\buserName\x12<\n" +
+	"\abalance\x18\x03 \x03(\v2\".api.v1.MemberBalance.BalanceEntryR\abalance\x1a:\n" +
+	"\fBalanceEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x01\"\x90\x03\n" +
 	"\tUserGroup\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x19\n" +
 	"\bgroup_id\x18\x02 \x01(\tR\agroupId\x12\x1d\n" +
 	"\n" +
 	"group_name\x18\x03 \x01(\tR\tgroupName\x12+\n" +
-	"\x11group_description\x18\x04 \x01(\tR\x10groupDescription\"B\n" +
-	"\x15GetUserGroupsResponse\x12)\n" +
-	"\x06groups\x18\x01 \x03(\v2\x11.api.v1.UserGroupR\x06groups\"=\n" +
-	"\x16GetGroupBalanceRequest\x12#\n" +
-	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\x9d\x01\n" +
-	"\x17GetGroupBalanceResponse\x12F\n" +
-	"\abalance\x18\x01 \x03(\v2,.api.v1.GetGroupBalanceResponse.BalanceEntryR\abalance\x1a:\n" +
-	"\fBalanceEntry\x12\x10\n" +
+	"\x11group_description\x18\x04 \x01(\tR\x10groupDescription\x124\n" +
+	"\x16group_default_currency\x18\x05 \x01(\tR\x14groupDefaultCurrency\x12>\n" +
+	"\x0fmember_balances\x18\x06 \x03(\v2\x15.api.v1.MemberBalanceR\x0ememberBalances\x12K\n" +
+	"\x0etotal_spending\x18\a \x03(\v2$.api.v1.UserGroup.TotalSpendingEntryR\rtotalSpending\x1a@\n" +
+	"\x12TotalSpendingEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x012\xfe\x03\n" +
+	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x01\"B\n" +
+	"\x15GetUserGroupsResponse\x12)\n" +
+	"\x06groups\x18\x01 \x03(\v2\x11.api.v1.UserGroupR\x06groups2\xa8\x03\n" +
 	"\fGroupService\x12]\n" +
 	"\x12CreateExpenseGroup\x12!.api.v1.CreateExpenseGroupRequest\x1a\".api.v1.CreateExpenseGroupResponse\"\x00\x12O\n" +
 	"\vUpdateGroup\x12\x1a.api.v1.UpdateGroupRequest\x1a\".api.v1.CreateExpenseGroupResponse\"\x00\x12I\n" +
 	"\x0eAddUserToGroup\x12\x1d.api.v1.AddUserToGroupRequest\x1a\x16.google.protobuf.Empty\"\x00\x12S\n" +
 	"\x13RemoveUserFromGroup\x12\".api.v1.RemoveUserFromGroupRequest\x1a\x16.google.protobuf.Empty\"\x00\x12H\n" +
-	"\rGetUserGroups\x12\x16.google.protobuf.Empty\x1a\x1d.api.v1.GetUserGroupsResponse\"\x00\x12T\n" +
-	"\x0fGetGroupBalance\x12\x1e.api.v1.GetGroupBalanceRequest\x1a\x1f.api.v1.GetGroupBalanceResponse\"\x00Bm\n" +
+	"\rGetUserGroups\x12\x16.google.protobuf.Empty\x1a\x1d.api.v1.GetUserGroupsResponse\"\x00Bm\n" +
 	"\n" +
 	"com.api.v1B\n" +
 	"GroupProtoP\x01Z\x1apennywise/gen/api/v1;apiv1\xa2\x02\x03AXX\xaa\x02\x06Api.V1\xca\x02\x06Api\\V1\xe2\x02\x12Api\\V1\\GPBMetadata\xea\x02\aApi::V1b\x06proto3"
@@ -585,33 +586,33 @@ var file_api_v1_group_proto_goTypes = []any{
 	(*AddUserToGroupRequest)(nil),      // 2: api.v1.AddUserToGroupRequest
 	(*RemoveUserFromGroupRequest)(nil), // 3: api.v1.RemoveUserFromGroupRequest
 	(*UpdateGroupRequest)(nil),         // 4: api.v1.UpdateGroupRequest
-	(*UserGroup)(nil),                  // 5: api.v1.UserGroup
-	(*GetUserGroupsResponse)(nil),      // 6: api.v1.GetUserGroupsResponse
-	(*GetGroupBalanceRequest)(nil),     // 7: api.v1.GetGroupBalanceRequest
-	(*GetGroupBalanceResponse)(nil),    // 8: api.v1.GetGroupBalanceResponse
-	nil,                                // 9: api.v1.GetGroupBalanceResponse.BalanceEntry
+	(*MemberBalance)(nil),              // 5: api.v1.MemberBalance
+	(*UserGroup)(nil),                  // 6: api.v1.UserGroup
+	(*GetUserGroupsResponse)(nil),      // 7: api.v1.GetUserGroupsResponse
+	nil,                                // 8: api.v1.MemberBalance.BalanceEntry
+	nil,                                // 9: api.v1.UserGroup.TotalSpendingEntry
 	(*emptypb.Empty)(nil),              // 10: google.protobuf.Empty
 }
 var file_api_v1_group_proto_depIdxs = []int32{
-	5,  // 0: api.v1.GetUserGroupsResponse.groups:type_name -> api.v1.UserGroup
-	9,  // 1: api.v1.GetGroupBalanceResponse.balance:type_name -> api.v1.GetGroupBalanceResponse.BalanceEntry
-	0,  // 2: api.v1.GroupService.CreateExpenseGroup:input_type -> api.v1.CreateExpenseGroupRequest
-	4,  // 3: api.v1.GroupService.UpdateGroup:input_type -> api.v1.UpdateGroupRequest
-	2,  // 4: api.v1.GroupService.AddUserToGroup:input_type -> api.v1.AddUserToGroupRequest
-	3,  // 5: api.v1.GroupService.RemoveUserFromGroup:input_type -> api.v1.RemoveUserFromGroupRequest
-	10, // 6: api.v1.GroupService.GetUserGroups:input_type -> google.protobuf.Empty
-	7,  // 7: api.v1.GroupService.GetGroupBalance:input_type -> api.v1.GetGroupBalanceRequest
-	1,  // 8: api.v1.GroupService.CreateExpenseGroup:output_type -> api.v1.CreateExpenseGroupResponse
-	1,  // 9: api.v1.GroupService.UpdateGroup:output_type -> api.v1.CreateExpenseGroupResponse
-	10, // 10: api.v1.GroupService.AddUserToGroup:output_type -> google.protobuf.Empty
-	10, // 11: api.v1.GroupService.RemoveUserFromGroup:output_type -> google.protobuf.Empty
-	6,  // 12: api.v1.GroupService.GetUserGroups:output_type -> api.v1.GetUserGroupsResponse
-	8,  // 13: api.v1.GroupService.GetGroupBalance:output_type -> api.v1.GetGroupBalanceResponse
-	8,  // [8:14] is the sub-list for method output_type
-	2,  // [2:8] is the sub-list for method input_type
-	2,  // [2:2] is the sub-list for extension type_name
-	2,  // [2:2] is the sub-list for extension extendee
-	0,  // [0:2] is the sub-list for field type_name
+	8,  // 0: api.v1.MemberBalance.balance:type_name -> api.v1.MemberBalance.BalanceEntry
+	5,  // 1: api.v1.UserGroup.member_balances:type_name -> api.v1.MemberBalance
+	9,  // 2: api.v1.UserGroup.total_spending:type_name -> api.v1.UserGroup.TotalSpendingEntry
+	6,  // 3: api.v1.GetUserGroupsResponse.groups:type_name -> api.v1.UserGroup
+	0,  // 4: api.v1.GroupService.CreateExpenseGroup:input_type -> api.v1.CreateExpenseGroupRequest
+	4,  // 5: api.v1.GroupService.UpdateGroup:input_type -> api.v1.UpdateGroupRequest
+	2,  // 6: api.v1.GroupService.AddUserToGroup:input_type -> api.v1.AddUserToGroupRequest
+	3,  // 7: api.v1.GroupService.RemoveUserFromGroup:input_type -> api.v1.RemoveUserFromGroupRequest
+	10, // 8: api.v1.GroupService.GetUserGroups:input_type -> google.protobuf.Empty
+	1,  // 9: api.v1.GroupService.CreateExpenseGroup:output_type -> api.v1.CreateExpenseGroupResponse
+	1,  // 10: api.v1.GroupService.UpdateGroup:output_type -> api.v1.CreateExpenseGroupResponse
+	10, // 11: api.v1.GroupService.AddUserToGroup:output_type -> google.protobuf.Empty
+	10, // 12: api.v1.GroupService.RemoveUserFromGroup:output_type -> google.protobuf.Empty
+	7,  // 13: api.v1.GroupService.GetUserGroups:output_type -> api.v1.GetUserGroupsResponse
+	9,  // [9:14] is the sub-list for method output_type
+	4,  // [4:9] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_api_v1_group_proto_init() }
