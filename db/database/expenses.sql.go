@@ -122,11 +122,13 @@ const getGroupExpenses = `-- name: GetGroupExpenses :many
 SELECT
   e.id, e.created_at, e.group_id, e.recurring_id, e.name, e.description, e.currency,
   p.user_id as payer_id,
+  u.username as payer_name,
   p.amount,
   json_group_array(b.user_id) as beneficiaries_ids
 FROM
   expenses e
   INNER JOIN expense_payers p ON p.expense_id = e.id
+  INNER JOIN users u ON u.id = p.user_id
   INNER JOIN expense_beneficiaries b ON b.expense_id = e.id
 WHERE e.group_id = ?1
 GROUP BY e.id
@@ -141,6 +143,7 @@ type GetGroupExpensesRow struct {
 	Description      *string     `json:"description"`
 	Currency         string      `json:"currency"`
 	PayerID          string      `json:"payer_id"`
+	PayerName        string      `json:"payer_name"`
 	Amount           int64       `json:"amount"`
 	BeneficiariesIds interface{} `json:"beneficiaries_ids"`
 }
@@ -163,6 +166,7 @@ func (q *Queries) GetGroupExpenses(ctx context.Context, groupID string) ([]GetGr
 			&i.Description,
 			&i.Currency,
 			&i.PayerID,
+			&i.PayerName,
 			&i.Amount,
 			&i.BeneficiariesIds,
 		); err != nil {

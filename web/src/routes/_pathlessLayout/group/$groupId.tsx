@@ -33,22 +33,6 @@ function RouteComponent() {
     (mb) => mb.userId === currentUser.id
   );
 
-  // Convert balance data to array format for AmountWithCurrency
-  const userBalanceArray = Object.entries(
-    currentUserBalance?.balance || {}
-  ).map(([currency, amount]) => ({
-    amount,
-    currency,
-  }));
-
-  // Convert total spending to array format for AmountWithCurrency
-  const totalSpendingArray = Object.entries(
-    groupInfo?.totalSpending || {}
-  ).map(([currency, amount]) => ({
-    amount,
-    currency,
-  }));
-
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto p-6 space-y-6">
@@ -71,7 +55,7 @@ function RouteComponent() {
             </CardHeader>
             <CardContent>
               <AmountWithCurrency
-                balance={userBalanceArray}
+                balance={currentUserBalance?.balance || {}}
                 defaultCurrency={groupInfo?.groupDefaultCurrency}
                 className="text-2xl"
               />
@@ -84,7 +68,7 @@ function RouteComponent() {
             </CardHeader>
             <CardContent>
               <AmountWithCurrency
-                balance={totalSpendingArray}
+                balance={groupInfo?.totalSpending || {}}
                 defaultCurrency={groupInfo?.groupDefaultCurrency}
                 disableColor
                 className="text-2xl"
@@ -99,38 +83,29 @@ function RouteComponent() {
           <div className="space-y-3">
             {groupInfo?.memberBalances
               .filter((member) => member.userId !== currentUser.id)
-              .map((member) => {
-                const balanceArray = Object.entries(member.balance).map(
-                  ([currency, amount]) => ({
-                    amount,
-                    currency,
-                  })
-                );
-
-                return (
-                  <Card key={member.userId} className="py-0">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-                            <span className="text-sm font-medium">
-                              {member.userName
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </span>
-                          </div>
-                          <span className="font-medium">{member.userName}</span>
+              .map((member) => (
+                <Card key={member.userId} className="py-0">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                          <span className="text-sm font-medium">
+                            {member.userName
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </span>
                         </div>
-                        <AmountWithCurrency
-                          balance={balanceArray}
-                          defaultCurrency={groupInfo?.groupDefaultCurrency}
-                        />
+                        <span className="font-medium">{member.userName}</span>
                       </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+                      <AmountWithCurrency
+                        balance={member.balance}
+                        defaultCurrency={groupInfo?.groupDefaultCurrency}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
           </div>
         </div>
 
@@ -184,11 +159,15 @@ function RouteComponent() {
                         <div className="flex items-center gap-2">
                           <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
                             <span className="text-xs">
-                              {expense.payerId.substring(0, 1).toUpperCase()}
+                              {expense.payerName
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")
+                                .toUpperCase()}
                             </span>
                           </div>
                           <span className="text-sm truncate max-w-[150px]">
-                            {expense.payerId}
+                            {expense.payerName}
                           </span>
                         </div>
                       </TableCell>

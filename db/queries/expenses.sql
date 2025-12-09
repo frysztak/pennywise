@@ -37,11 +37,13 @@ INSERT INTO expense_beneficiaries
 SELECT
   e.*,
   p.user_id as payer_id,
+  u.username as payer_name,
   p.amount,
   json_group_array(b.user_id) as beneficiaries_ids
 FROM
   expenses e
   INNER JOIN expense_payers p ON p.expense_id = e.id
+  INNER JOIN users u ON u.id = p.user_id
   INNER JOIN expense_beneficiaries b ON b.expense_id = e.id
 WHERE e.group_id = @group_id
 GROUP BY e.id;

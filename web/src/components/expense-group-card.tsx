@@ -22,11 +22,6 @@ export function ExpenseGroupCard({
   balance,
   recentExpenses,
 }: ExpenseGroupCardProps) {
-  const balanceArray = Object.entries(balance).map(([currency, amount]) => ({
-    amount,
-    currency,
-  }));
-
   return (
     <Card className="transition-all hover:shadow-md hover:border-primary/50 h-full">
       <CardHeader>
@@ -44,7 +39,7 @@ export function ExpenseGroupCard({
           <div className="text-sm text-muted-foreground mb-1">
             Your balance:
           </div>
-          <AmountWithCurrency className="text-lg" balance={balanceArray} defaultCurrency={groupDefaultCurrency} />
+          <AmountWithCurrency className="text-lg" balance={balance} defaultCurrency={groupDefaultCurrency} />
         </div>
 
         {recentExpenses && recentExpenses.length > 0 && (

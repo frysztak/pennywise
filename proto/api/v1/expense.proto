@@ -31,8 +31,7 @@ message GetGroupExpensesResponse {
     optional string description = 4;
     string currency = 5;
     string payer_id = 6;
-    // string payer_name = 7;
-    reserved 7;
+    string payer_name = 7;
     int64 amount = 8;
     repeated string beneficiaries_ids = 9;
   }

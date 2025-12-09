@@ -262,6 +262,7 @@ type GetGroupExpensesResponse_Expense struct {
 	Description      *string                `protobuf:"bytes,4,opt,name=description,proto3,oneof" json:"description,omitempty"`
 	Currency         string                 `protobuf:"bytes,5,opt,name=currency,proto3" json:"currency,omitempty"`
 	PayerId          string                 `protobuf:"bytes,6,opt,name=payer_id,json=payerId,proto3" json:"payer_id,omitempty"`
+	PayerName        string                 `protobuf:"bytes,7,opt,name=payer_name,json=payerName,proto3" json:"payer_name,omitempty"`
 	Amount           int64                  `protobuf:"varint,8,opt,name=amount,proto3" json:"amount,omitempty"`
 	BeneficiariesIds []string               `protobuf:"bytes,9,rep,name=beneficiaries_ids,json=beneficiariesIds,proto3" json:"beneficiaries_ids,omitempty"`
 	unknownFields    protoimpl.UnknownFields
@@ -340,6 +341,13 @@ func (x *GetGroupExpensesResponse_Expense) GetPayerId() string {
 	return ""
 }
 
+func (x *GetGroupExpensesResponse_Expense) GetPayerName() string {
+	if x != nil {
+		return x.PayerName
+	}
+	return ""
+}
+
 func (x *GetGroupExpensesResponse_Expense) GetAmount() int64 {
 	if x != nil {
 		return x.Amount
@@ -373,9 +381,9 @@ const file_api_v1_expense_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\">\n" +
 	"\x17GetGroupExpensesRequest\x12#\n" +
-	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\xe8\x02\n" +
+	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\x81\x03\n" +
 	"\x18GetGroupExpensesResponse\x12D\n" +
-	"\bexpenses\x18\x01 \x03(\v2(.api.v1.GetGroupExpensesResponse.ExpenseR\bexpenses\x1a\x85\x02\n" +
+	"\bexpenses\x18\x01 \x03(\v2(.api.v1.GetGroupExpensesResponse.ExpenseR\bexpenses\x1a\x9e\x02\n" +
 	"\aExpense\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -383,10 +391,12 @@ const file_api_v1_expense_proto_rawDesc = "" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12%\n" +
 	"\vdescription\x18\x04 \x01(\tH\x00R\vdescription\x88\x01\x01\x12\x1a\n" +
 	"\bcurrency\x18\x05 \x01(\tR\bcurrency\x12\x19\n" +
-	"\bpayer_id\x18\x06 \x01(\tR\apayerId\x12\x16\n" +
+	"\bpayer_id\x18\x06 \x01(\tR\apayerId\x12\x1d\n" +
+	"\n" +
+	"payer_name\x18\a \x01(\tR\tpayerName\x12\x16\n" +
 	"\x06amount\x18\b \x01(\x03R\x06amount\x12+\n" +
 	"\x11beneficiaries_ids\x18\t \x03(\tR\x10beneficiariesIdsB\x0e\n" +
-	"\f_descriptionJ\x04\b\a\x10\b2\xb9\x01\n" +
+	"\f_description2\xb9\x01\n" +
 	"\x0eExpenseService\x12N\n" +
 	"\rCreateExpense\x12\x1c.api.v1.CreateExpenseRequest\x1a\x1d.api.v1.CreateExpenseResponse\"\x00\x12W\n" +
 	"\x10GetGroupExpenses\x12\x1f.api.v1.GetGroupExpensesRequest\x1a .api.v1.GetGroupExpensesResponse\"\x00Bo\n" +

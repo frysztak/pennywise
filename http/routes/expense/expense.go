@@ -92,6 +92,7 @@ func (s *ExpenseService) GetGroupExpenses(ctx context.Context, r *apiv1.GetGroup
 			Description:      row.Description,
 			Currency:         row.Currency,
 			PayerId:          row.PayerID,
+			PayerName:        row.PayerName,
 			Amount:           row.Amount,
 			BeneficiariesIds: beneficiariesIds,
 		})
