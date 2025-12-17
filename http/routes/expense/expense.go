@@ -100,3 +100,70 @@ func (s *ExpenseService) GetGroupExpenses(ctx context.Context, r *apiv1.GetGroup
 
 	return &apiv1.GetGroupExpensesResponse{Expenses: expenses}, nil
 }
+
+func (s *ExpenseService) UpdateExpense(ctx context.Context, r *apiv1.UpdateExpenseRequest) (*apiv1.UpdateExpenseResponse, error) {
+	tx, err := db.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	defer tx.Rollback()
+
+	qtx := db.Queries.WithTx(tx)
+
+	// Update expense basic info
+	expense, err := qtx.UpdateExpense(ctx, database.UpdateExpenseParams{
+		ID:          r.Id,
+		Name:        r.Name,
+		Description: &r.Description,
+		Currency:    r.Currency,
+	})
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	// Update payer
+	err = qtx.UpdateExpensePayer(ctx, database.UpdateExpensePayerParams{
+		ExpenseID: r.Id,
+		UserID:    r.PayerId,
+		Amount:    int64(r.Amount * 100),
+	})
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	// Delete old beneficiaries and insert new ones
+	err = qtx.DeleteExpenseBeneficiaries(ctx, r.Id)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	for _, beneficiaryId := range r.BeneficiariesIds {
+		_, err = qtx.CreateExpenseBeneficiary(ctx, database.CreateExpenseBeneficiaryParams{
+			ID:        uuid.NewString(),
+			ExpenseID: r.Id,
+			UserID:    beneficiaryId,
+		})
+		if err != nil {
+			return nil, connect.NewError(connect.CodeInternal, err)
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	return &apiv1.UpdateExpenseResponse{
+		Id:   expense.ID,
+		Name: expense.Name,
+	}, nil
+}
+
+func (s *ExpenseService) DeleteExpense(ctx context.Context, r *apiv1.DeleteExpenseRequest) (*apiv1.DeleteExpenseResponse, error) {
+	err := db.Queries.DeleteExpense(ctx, r.Id)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	return &apiv1.DeleteExpenseResponse{}, nil
+}

@@ -10,6 +10,16 @@ import { ExpenseService } from "./expense_pb";
 export const createExpense = ExpenseService.method.createExpense;
 
 /**
+ * @generated from rpc api.v1.ExpenseService.UpdateExpense
+ */
+export const updateExpense = ExpenseService.method.updateExpense;
+
+/**
+ * @generated from rpc api.v1.ExpenseService.DeleteExpense
+ */
+export const deleteExpense = ExpenseService.method.deleteExpense;
+
+/**
  * @generated from rpc api.v1.ExpenseService.GetGroupExpenses
  */
 export const getGroupExpenses = ExpenseService.method.getGroupExpenses;

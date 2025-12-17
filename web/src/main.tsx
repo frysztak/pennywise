@@ -9,6 +9,7 @@ import "./index.css";
 import { ThemeProvider } from "./components/theme-provider";
 import { AuthProvider, useAuth } from "./auth";
 import { Toaster } from "sonner";
+import { transport } from "./transport";
 
 const router = createRouter({
   routeTree,
@@ -17,11 +18,8 @@ const router = createRouter({
   context: {
     // auth will be passed down from App component
     auth: undefined!,
+    queryClient: undefined!
   },
-});
-
-const finalTransport = createConnectTransport({
-  baseUrl: "http://localhost:3333",
 });
 
 const queryClient = new QueryClient();
@@ -35,7 +33,7 @@ declare module "@tanstack/react-router" {
 
 function InnerApp() {
   const auth = useAuth();
-  return <RouterProvider router={router} context={{ auth }} />;
+  return <RouterProvider router={router} context={{ auth, queryClient }} />;
 }
 
 const rootElement = document.getElementById("root")!;
@@ -44,7 +42,7 @@ if (!rootElement.innerHTML) {
   const root = createRoot(rootElement);
   root.render(
     <StrictMode>
-      <TransportProvider transport={finalTransport}>
+      <TransportProvider transport={transport}>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
             <AuthProvider>

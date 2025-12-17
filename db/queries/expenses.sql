@@ -46,7 +46,8 @@ FROM
   INNER JOIN users u ON u.id = p.user_id
   INNER JOIN expense_beneficiaries b ON b.expense_id = e.id
 WHERE e.group_id = @group_id
-GROUP BY e.id;
+GROUP BY e.id
+ORDER BY e.created_at DESC;
 
 -- name: GetGroupTotalSpending :many
 SELECT
@@ -56,3 +57,27 @@ FROM expenses e
 JOIN expense_payers p ON p.expense_id = e.id
 WHERE e.group_id = @group_id
 GROUP BY e.currency;
+
+-- name: UpdateExpense :one
+UPDATE expenses
+SET
+  name = @name,
+  description = @description,
+  currency = @currency
+WHERE id = @id
+RETURNING *;
+
+-- name: UpdateExpensePayer :exec
+UPDATE expense_payers
+SET
+  user_id = @user_id,
+  amount = @amount
+WHERE expense_id = @expense_id;
+
+-- name: DeleteExpenseBeneficiaries :exec
+DELETE FROM expense_beneficiaries
+WHERE expense_id = @expense_id;
+
+-- name: DeleteExpense :exec
+DELETE FROM expenses
+WHERE id = @id;

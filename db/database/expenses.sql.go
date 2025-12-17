@@ -118,6 +118,26 @@ func (q *Queries) CreateExpensePayer(ctx context.Context, arg CreateExpensePayer
 	return i, err
 }
 
+const deleteExpense = `-- name: DeleteExpense :exec
+DELETE FROM expenses
+WHERE id = ?1
+`
+
+func (q *Queries) DeleteExpense(ctx context.Context, id string) error {
+	_, err := q.db.ExecContext(ctx, deleteExpense, id)
+	return err
+}
+
+const deleteExpenseBeneficiaries = `-- name: DeleteExpenseBeneficiaries :exec
+DELETE FROM expense_beneficiaries
+WHERE expense_id = ?1
+`
+
+func (q *Queries) DeleteExpenseBeneficiaries(ctx context.Context, expenseID string) error {
+	_, err := q.db.ExecContext(ctx, deleteExpenseBeneficiaries, expenseID)
+	return err
+}
+
 const getGroupExpenses = `-- name: GetGroupExpenses :many
 SELECT
   e.id, e.created_at, e.group_id, e.recurring_id, e.name, e.description, e.currency,
@@ -132,6 +152,7 @@ FROM
   INNER JOIN expense_beneficiaries b ON b.expense_id = e.id
 WHERE e.group_id = ?1
 GROUP BY e.id
+ORDER BY e.created_at DESC
 `
 
 type GetGroupExpensesRow struct {
@@ -219,4 +240,60 @@ func (q *Queries) GetGroupTotalSpending(ctx context.Context, groupID string) ([]
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateExpense = `-- name: UpdateExpense :one
+UPDATE expenses
+SET
+  name = ?1,
+  description = ?2,
+  currency = ?3
+WHERE id = ?4
+RETURNING id, created_at, group_id, recurring_id, name, description, currency
+`
+
+type UpdateExpenseParams struct {
+	Name        string  `json:"name"`
+	Description *string `json:"description"`
+	Currency    string  `json:"currency"`
+	ID          string  `json:"id"`
+}
+
+func (q *Queries) UpdateExpense(ctx context.Context, arg UpdateExpenseParams) (Expense, error) {
+	row := q.db.QueryRowContext(ctx, updateExpense,
+		arg.Name,
+		arg.Description,
+		arg.Currency,
+		arg.ID,
+	)
+	var i Expense
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.GroupID,
+		&i.RecurringID,
+		&i.Name,
+		&i.Description,
+		&i.Currency,
+	)
+	return i, err
+}
+
+const updateExpensePayer = `-- name: UpdateExpensePayer :exec
+UPDATE expense_payers
+SET
+  user_id = ?1,
+  amount = ?2
+WHERE expense_id = ?3
+`
+
+type UpdateExpensePayerParams struct {
+	UserID    string `json:"user_id"`
+	Amount    int64  `json:"amount"`
+	ExpenseID string `json:"expense_id"`
+}
+
+func (q *Queries) UpdateExpensePayer(ctx context.Context, arg UpdateExpensePayerParams) error {
+	_, err := q.db.ExecContext(ctx, updateExpensePayer, arg.UserID, arg.Amount, arg.ExpenseID)
+	return err
 }

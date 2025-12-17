@@ -36,6 +36,12 @@ const (
 	// ExpenseServiceCreateExpenseProcedure is the fully-qualified name of the ExpenseService's
 	// CreateExpense RPC.
 	ExpenseServiceCreateExpenseProcedure = "/api.v1.ExpenseService/CreateExpense"
+	// ExpenseServiceUpdateExpenseProcedure is the fully-qualified name of the ExpenseService's
+	// UpdateExpense RPC.
+	ExpenseServiceUpdateExpenseProcedure = "/api.v1.ExpenseService/UpdateExpense"
+	// ExpenseServiceDeleteExpenseProcedure is the fully-qualified name of the ExpenseService's
+	// DeleteExpense RPC.
+	ExpenseServiceDeleteExpenseProcedure = "/api.v1.ExpenseService/DeleteExpense"
 	// ExpenseServiceGetGroupExpensesProcedure is the fully-qualified name of the ExpenseService's
 	// GetGroupExpenses RPC.
 	ExpenseServiceGetGroupExpensesProcedure = "/api.v1.ExpenseService/GetGroupExpenses"
@@ -44,6 +50,8 @@ const (
 // ExpenseServiceClient is a client for the api.v1.ExpenseService service.
 type ExpenseServiceClient interface {
 	CreateExpense(context.Context, *v1.CreateExpenseRequest) (*v1.CreateExpenseResponse, error)
+	UpdateExpense(context.Context, *v1.UpdateExpenseRequest) (*v1.UpdateExpenseResponse, error)
+	DeleteExpense(context.Context, *v1.DeleteExpenseRequest) (*v1.DeleteExpenseResponse, error)
 	GetGroupExpenses(context.Context, *v1.GetGroupExpensesRequest) (*v1.GetGroupExpensesResponse, error)
 }
 
@@ -64,6 +72,18 @@ func NewExpenseServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(expenseServiceMethods.ByName("CreateExpense")),
 			connect.WithClientOptions(opts...),
 		),
+		updateExpense: connect.NewClient[v1.UpdateExpenseRequest, v1.UpdateExpenseResponse](
+			httpClient,
+			baseURL+ExpenseServiceUpdateExpenseProcedure,
+			connect.WithSchema(expenseServiceMethods.ByName("UpdateExpense")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteExpense: connect.NewClient[v1.DeleteExpenseRequest, v1.DeleteExpenseResponse](
+			httpClient,
+			baseURL+ExpenseServiceDeleteExpenseProcedure,
+			connect.WithSchema(expenseServiceMethods.ByName("DeleteExpense")),
+			connect.WithClientOptions(opts...),
+		),
 		getGroupExpenses: connect.NewClient[v1.GetGroupExpensesRequest, v1.GetGroupExpensesResponse](
 			httpClient,
 			baseURL+ExpenseServiceGetGroupExpensesProcedure,
@@ -76,12 +96,32 @@ func NewExpenseServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 // expenseServiceClient implements ExpenseServiceClient.
 type expenseServiceClient struct {
 	createExpense    *connect.Client[v1.CreateExpenseRequest, v1.CreateExpenseResponse]
+	updateExpense    *connect.Client[v1.UpdateExpenseRequest, v1.UpdateExpenseResponse]
+	deleteExpense    *connect.Client[v1.DeleteExpenseRequest, v1.DeleteExpenseResponse]
 	getGroupExpenses *connect.Client[v1.GetGroupExpensesRequest, v1.GetGroupExpensesResponse]
 }
 
 // CreateExpense calls api.v1.ExpenseService.CreateExpense.
 func (c *expenseServiceClient) CreateExpense(ctx context.Context, req *v1.CreateExpenseRequest) (*v1.CreateExpenseResponse, error) {
 	response, err := c.createExpense.CallUnary(ctx, connect.NewRequest(req))
+	if response != nil {
+		return response.Msg, err
+	}
+	return nil, err
+}
+
+// UpdateExpense calls api.v1.ExpenseService.UpdateExpense.
+func (c *expenseServiceClient) UpdateExpense(ctx context.Context, req *v1.UpdateExpenseRequest) (*v1.UpdateExpenseResponse, error) {
+	response, err := c.updateExpense.CallUnary(ctx, connect.NewRequest(req))
+	if response != nil {
+		return response.Msg, err
+	}
+	return nil, err
+}
+
+// DeleteExpense calls api.v1.ExpenseService.DeleteExpense.
+func (c *expenseServiceClient) DeleteExpense(ctx context.Context, req *v1.DeleteExpenseRequest) (*v1.DeleteExpenseResponse, error) {
+	response, err := c.deleteExpense.CallUnary(ctx, connect.NewRequest(req))
 	if response != nil {
 		return response.Msg, err
 	}
@@ -100,6 +140,8 @@ func (c *expenseServiceClient) GetGroupExpenses(ctx context.Context, req *v1.Get
 // ExpenseServiceHandler is an implementation of the api.v1.ExpenseService service.
 type ExpenseServiceHandler interface {
 	CreateExpense(context.Context, *v1.CreateExpenseRequest) (*v1.CreateExpenseResponse, error)
+	UpdateExpense(context.Context, *v1.UpdateExpenseRequest) (*v1.UpdateExpenseResponse, error)
+	DeleteExpense(context.Context, *v1.DeleteExpenseRequest) (*v1.DeleteExpenseResponse, error)
 	GetGroupExpenses(context.Context, *v1.GetGroupExpensesRequest) (*v1.GetGroupExpensesResponse, error)
 }
 
@@ -116,6 +158,18 @@ func NewExpenseServiceHandler(svc ExpenseServiceHandler, opts ...connect.Handler
 		connect.WithSchema(expenseServiceMethods.ByName("CreateExpense")),
 		connect.WithHandlerOptions(opts...),
 	)
+	expenseServiceUpdateExpenseHandler := connect.NewUnaryHandlerSimple(
+		ExpenseServiceUpdateExpenseProcedure,
+		svc.UpdateExpense,
+		connect.WithSchema(expenseServiceMethods.ByName("UpdateExpense")),
+		connect.WithHandlerOptions(opts...),
+	)
+	expenseServiceDeleteExpenseHandler := connect.NewUnaryHandlerSimple(
+		ExpenseServiceDeleteExpenseProcedure,
+		svc.DeleteExpense,
+		connect.WithSchema(expenseServiceMethods.ByName("DeleteExpense")),
+		connect.WithHandlerOptions(opts...),
+	)
 	expenseServiceGetGroupExpensesHandler := connect.NewUnaryHandlerSimple(
 		ExpenseServiceGetGroupExpensesProcedure,
 		svc.GetGroupExpenses,
@@ -126,6 +180,10 @@ func NewExpenseServiceHandler(svc ExpenseServiceHandler, opts ...connect.Handler
 		switch r.URL.Path {
 		case ExpenseServiceCreateExpenseProcedure:
 			expenseServiceCreateExpenseHandler.ServeHTTP(w, r)
+		case ExpenseServiceUpdateExpenseProcedure:
+			expenseServiceUpdateExpenseHandler.ServeHTTP(w, r)
+		case ExpenseServiceDeleteExpenseProcedure:
+			expenseServiceDeleteExpenseHandler.ServeHTTP(w, r)
 		case ExpenseServiceGetGroupExpensesProcedure:
 			expenseServiceGetGroupExpensesHandler.ServeHTTP(w, r)
 		default:
@@ -139,6 +197,14 @@ type UnimplementedExpenseServiceHandler struct{}
 
 func (UnimplementedExpenseServiceHandler) CreateExpense(context.Context, *v1.CreateExpenseRequest) (*v1.CreateExpenseResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.ExpenseService.CreateExpense is not implemented"))
+}
+
+func (UnimplementedExpenseServiceHandler) UpdateExpense(context.Context, *v1.UpdateExpenseRequest) (*v1.UpdateExpenseResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.ExpenseService.UpdateExpense is not implemented"))
+}
+
+func (UnimplementedExpenseServiceHandler) DeleteExpense(context.Context, *v1.DeleteExpenseRequest) (*v1.DeleteExpenseResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.ExpenseService.DeleteExpense is not implemented"))
 }
 
 func (UnimplementedExpenseServiceHandler) GetGroupExpenses(context.Context, *v1.GetGroupExpensesRequest) (*v1.GetGroupExpensesResponse, error) {

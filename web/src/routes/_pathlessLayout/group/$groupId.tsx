@@ -1,8 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@connectrpc/connect-query";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import {
+  createQueryOptions,
+  useSuspenseQuery,
+} from "@connectrpc/connect-query";
 import { getGroupExpenses } from "@/gen/api/v1/expense-ExpenseService_connectquery";
 import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
 import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
+import type { GetGroupExpensesResponse_Expense } from "@/gen/api/v1/expense_pb";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AmountWithCurrency } from "@/components/amount-with-currency";
 import {
@@ -13,9 +17,52 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Plus, MoreHorizontal, Pencil, Trash } from "lucide-react";
+import { NewExpenseModal } from "@/components/expense/new-expense-modal";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
+import { deleteExpense } from "@/gen/api/v1/expense-ExpenseService_connectquery";
+import { handleError } from "@/lib/utils";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { transport } from "@/transport";
+
+const userGroupsKey = createConnectQueryKey({
+  schema: getUserGroups,
+  cardinality: "finite",
+});
 
 export const Route = createFileRoute("/_pathlessLayout/group/$groupId")({
   component: RouteComponent,
+  beforeLoad: async ({ context, params }) => {
+    const userGroups = await context.queryClient.ensureQueryData(
+      createQueryOptions(getUserGroups, undefined, { transport })
+    );
+
+    const group = userGroups.groups.find((g) => g.groupId === params.groupId);
+
+    if (!group) {
+      toast.error("Group not found");
+      throw redirect({ to: "/dashboard" });
+    }
+  },
 });
 
 function RouteComponent() {
@@ -24,27 +71,69 @@ function RouteComponent() {
     groupId,
   });
   const { data: groupInfo } = useSuspenseQuery(getUserGroups, undefined, {
-    select: (data) => data.groups.find((g) => g.groupId === groupId),
+    // Group is guaranteed to be found. We're checking if that group exists in `beforeLoad`
+    select: (data) => data.groups.find((g) => g.groupId === groupId)!,
   });
   const { data: currentUser } = useSuspenseQuery(userInfo);
+  const queryClient = useQueryClient();
+
+  const [editingExpense, setEditingExpense] =
+    useState<GetGroupExpensesResponse_Expense | null>(null);
+  const [deletingExpense, setDeletingExpense] =
+    useState<GetGroupExpensesResponse_Expense | null>(null);
 
   // Find current user's balance from member balances
-  const currentUserBalance = groupInfo?.memberBalances.find(
+  const currentUserBalance = groupInfo.memberBalances.find(
     (mb) => mb.userId === currentUser.id
-  );
+  )!;
+
+  const groupExpensesKey = createConnectQueryKey({
+    schema: getGroupExpenses,
+    cardinality: "finite",
+    input: { groupId },
+  });
+
+  const { mutate: deleteMutate } = useMutation(deleteExpense, {
+    onSuccess: () => {
+      toast.success("Expense deleted!");
+      queryClient.invalidateQueries({ queryKey: groupExpensesKey });
+      queryClient.invalidateQueries({ queryKey: userGroupsKey });
+      setDeletingExpense(null);
+    },
+    onError: handleError,
+  });
+
+  const handleDeleteConfirm = () => {
+    if (deletingExpense) {
+      deleteMutate({ id: deletingExpense.id });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
-            {groupInfo?.groupName || "Group"}
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            {groupInfo?.groupDescription ||
-              "Manage and track shared expenses for your group."}
-          </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
+              {groupInfo.groupName}
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              {groupInfo.groupDescription ||
+                "Manage and track shared expenses for your group."}
+            </p>
+          </div>
+          <NewExpenseModal
+            groupId={groupId}
+            groupMembers={groupInfo.memberBalances}
+            currentUserId={currentUser.id}
+            defaultCurrency={groupInfo.groupDefaultCurrency}
+          >
+            <Button>
+              <Plus className="h-4 w-4" />
+              Add Expense
+            </Button>
+          </NewExpenseModal>
         </div>
 
         {/* Balance Cards */}
@@ -55,8 +144,8 @@ function RouteComponent() {
             </CardHeader>
             <CardContent>
               <AmountWithCurrency
-                balance={currentUserBalance?.balance || {}}
-                defaultCurrency={groupInfo?.groupDefaultCurrency}
+                balance={currentUserBalance.balance}
+                defaultCurrency={groupInfo.groupDefaultCurrency}
                 className="text-2xl"
               />
             </CardContent>
@@ -68,8 +157,8 @@ function RouteComponent() {
             </CardHeader>
             <CardContent>
               <AmountWithCurrency
-                balance={groupInfo?.totalSpending || {}}
-                defaultCurrency={groupInfo?.groupDefaultCurrency}
+                balance={groupInfo.totalSpending}
+                defaultCurrency={groupInfo.groupDefaultCurrency}
                 disableColor
                 className="text-2xl"
               />
@@ -81,7 +170,7 @@ function RouteComponent() {
         <div>
           <h2 className="text-xl font-bold mb-4">Group Balances</h2>
           <div className="space-y-3">
-            {groupInfo?.memberBalances
+            {groupInfo.memberBalances
               .filter((member) => member.userId !== currentUser.id)
               .map((member) => (
                 <Card key={member.userId} className="py-0">
@@ -100,7 +189,7 @@ function RouteComponent() {
                       </div>
                       <AmountWithCurrency
                         balance={member.balance}
-                        defaultCurrency={groupInfo?.groupDefaultCurrency}
+                        defaultCurrency={groupInfo.groupDefaultCurrency}
                       />
                     </div>
                   </CardContent>
@@ -128,6 +217,7 @@ function RouteComponent() {
                   <TableHead>Expense</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
                   <TableHead>Paid by</TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -171,6 +261,35 @@ function RouteComponent() {
                           </span>
                         </div>
                       </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Open menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => setEditingExpense(expense)}
+                            >
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => setDeletingExpense(expense)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -178,6 +297,43 @@ function RouteComponent() {
             </Table>
           )}
         </div>
+
+        {/* Edit Expense Modal */}
+        {editingExpense && (
+          <NewExpenseModal
+            groupId={groupId}
+            groupMembers={groupInfo.memberBalances}
+            currentUserId={currentUser.id}
+            defaultCurrency={groupInfo.groupDefaultCurrency}
+            expense={editingExpense}
+            onClose={() => setEditingExpense(null)}
+          />
+        )}
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog
+          open={!!deletingExpense}
+          onOpenChange={(open) => !open && setDeletingExpense(null)}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete expense</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete "{deletingExpense?.name}"? This
+                action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteConfirm}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
