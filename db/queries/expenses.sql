@@ -2,7 +2,7 @@
 INSERT INTO expenses
 (
     id,
-    created_at,
+    date,
     group_id,
     recurring_id,
     name,
@@ -63,7 +63,8 @@ UPDATE expenses
 SET
   name = @name,
   description = @description,
-  currency = @currency
+  currency = @currency,
+  date = @date
 WHERE id = @id
 RETURNING *;
 

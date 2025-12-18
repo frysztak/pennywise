@@ -42,6 +42,7 @@ CREATE TABLE user_expense_groups (
 CREATE TABLE expenses (
     id TEXT PRIMARY KEY,
     created_at DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    date DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     group_id TEXT NOT NULL,
     recurring_id TEXT,
     name TEXT NOT NULL,

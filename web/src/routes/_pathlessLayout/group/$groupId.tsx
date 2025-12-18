@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Plus, MoreHorizontal, Pencil, Trash } from "lucide-react";
-import { NewExpenseModal } from "@/components/expense/new-expense-modal";
+import { ExpenseModal } from "@/components/expense/expense-modal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -77,8 +77,16 @@ function RouteComponent() {
   const { data: currentUser } = useSuspenseQuery(userInfo);
   const queryClient = useQueryClient();
 
-  const [editingExpense, setEditingExpense] =
-    useState<GetGroupExpensesResponse_Expense | null>(null);
+  const [modalState, setModalState] = useState<{
+    open: boolean;
+    mode: "create" | "edit";
+    expense?: GetGroupExpensesResponse_Expense;
+  }>({
+    open: false,
+    mode: "create",
+    expense: undefined,
+  });
+
   const [deletingExpense, setDeletingExpense] =
     useState<GetGroupExpensesResponse_Expense | null>(null);
 
@@ -109,6 +117,21 @@ function RouteComponent() {
     }
   };
 
+  // Modal handlers
+  const handleOpenCreate = () => {
+    setModalState({ open: true, mode: "create", expense: undefined });
+  };
+
+  const handleOpenEdit = (expense: GetGroupExpensesResponse_Expense) => {
+    setModalState({ open: true, mode: "edit", expense });
+  };
+
+  const handleModalClose = (open: boolean) => {
+    if (!open) {
+      setModalState((prev) => ({ ...prev, open: false }));
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto p-6 space-y-6">
@@ -123,17 +146,10 @@ function RouteComponent() {
                 "Manage and track shared expenses for your group."}
             </p>
           </div>
-          <NewExpenseModal
-            groupId={groupId}
-            groupMembers={groupInfo.memberBalances}
-            currentUserId={currentUser.id}
-            defaultCurrency={groupInfo.groupDefaultCurrency}
-          >
-            <Button>
-              <Plus className="h-4 w-4" />
-              Add Expense
-            </Button>
-          </NewExpenseModal>
+          <Button onClick={handleOpenCreate}>
+            <Plus className="h-4 w-4" />
+            Add Expense
+          </Button>
         </div>
 
         {/* Balance Cards */}
@@ -222,12 +238,11 @@ function RouteComponent() {
               </TableHeader>
               <TableBody>
                 {expensesData.expenses.map((expense) => {
-                  const date = new Date(expense.createdAt);
+                  const date = new Date(expense.date);
                   const formattedDate = date.toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
+                    year: "numeric",
                   });
 
                   return (
@@ -275,7 +290,7 @@ function RouteComponent() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem
-                              onClick={() => setEditingExpense(expense)}
+                              onClick={() => handleOpenEdit(expense)}
                             >
                               <Pencil className="mr-2 h-4 w-4" />
                               Edit
@@ -298,17 +313,17 @@ function RouteComponent() {
           )}
         </div>
 
-        {/* Edit Expense Modal */}
-        {editingExpense && (
-          <NewExpenseModal
-            groupId={groupId}
-            groupMembers={groupInfo.memberBalances}
-            currentUserId={currentUser.id}
-            defaultCurrency={groupInfo.groupDefaultCurrency}
-            expense={editingExpense}
-            onClose={() => setEditingExpense(null)}
-          />
-        )}
+        {/* Expense Modal (Create/Edit) */}
+        <ExpenseModal
+          open={modalState.open}
+          onOpenChange={handleModalClose}
+          mode={modalState.mode}
+          expense={modalState.expense}
+          groupId={groupId}
+          groupMembers={groupInfo.memberBalances}
+          currentUserId={currentUser.id}
+          defaultCurrency={groupInfo.groupDefaultCurrency}
+        />
 
         {/* Delete Confirmation Dialog */}
         <AlertDialog

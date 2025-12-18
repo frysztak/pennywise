@@ -12,6 +12,7 @@ message CreateExpenseRequest {
   float amount = 5 [(buf.validate.field).float.gt = 0.0];
   string currency = 6 [(buf.validate.field).string.min_len = 2];
   repeated string beneficiaries_ids = 7;
+  optional string date = 8; // RFC3339 format, defaults to now if not provided
 }
 
 message CreateExpenseResponse {
@@ -27,6 +28,7 @@ message UpdateExpenseRequest {
   float amount = 5 [(buf.validate.field).float.gt = 0.0];
   string currency = 6 [(buf.validate.field).string.min_len = 2];
   repeated string beneficiaries_ids = 7;
+  optional string date = 8; // RFC3339 format
 }
 
 message UpdateExpenseResponse {
@@ -55,6 +57,7 @@ message GetGroupExpensesResponse {
     string payer_name = 7;
     int64 amount = 8;
     repeated string beneficiaries_ids = 9;
+    string date = 10;
   }
 
   repeated Expense expenses = 1;

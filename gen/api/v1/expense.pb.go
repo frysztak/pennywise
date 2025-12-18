@@ -31,6 +31,7 @@ type CreateExpenseRequest struct {
 	Amount           float32                `protobuf:"fixed32,5,opt,name=amount,proto3" json:"amount,omitempty"`
 	Currency         string                 `protobuf:"bytes,6,opt,name=currency,proto3" json:"currency,omitempty"`
 	BeneficiariesIds []string               `protobuf:"bytes,7,rep,name=beneficiaries_ids,json=beneficiariesIds,proto3" json:"beneficiaries_ids,omitempty"`
+	Date             *string                `protobuf:"bytes,8,opt,name=date,proto3,oneof" json:"date,omitempty"` // RFC3339 format, defaults to now if not provided
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -114,6 +115,13 @@ func (x *CreateExpenseRequest) GetBeneficiariesIds() []string {
 	return nil
 }
 
+func (x *CreateExpenseRequest) GetDate() string {
+	if x != nil && x.Date != nil {
+		return *x.Date
+	}
+	return ""
+}
+
 type CreateExpenseResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -175,6 +183,7 @@ type UpdateExpenseRequest struct {
 	Amount           float32                `protobuf:"fixed32,5,opt,name=amount,proto3" json:"amount,omitempty"`
 	Currency         string                 `protobuf:"bytes,6,opt,name=currency,proto3" json:"currency,omitempty"`
 	BeneficiariesIds []string               `protobuf:"bytes,7,rep,name=beneficiaries_ids,json=beneficiariesIds,proto3" json:"beneficiaries_ids,omitempty"`
+	Date             *string                `protobuf:"bytes,8,opt,name=date,proto3,oneof" json:"date,omitempty"` // RFC3339 format
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -256,6 +265,13 @@ func (x *UpdateExpenseRequest) GetBeneficiariesIds() []string {
 		return x.BeneficiariesIds
 	}
 	return nil
+}
+
+func (x *UpdateExpenseRequest) GetDate() string {
+	if x != nil && x.Date != nil {
+		return *x.Date
+	}
+	return ""
 }
 
 type UpdateExpenseResponse struct {
@@ -489,6 +505,7 @@ type GetGroupExpensesResponse_Expense struct {
 	PayerName        string                 `protobuf:"bytes,7,opt,name=payer_name,json=payerName,proto3" json:"payer_name,omitempty"`
 	Amount           int64                  `protobuf:"varint,8,opt,name=amount,proto3" json:"amount,omitempty"`
 	BeneficiariesIds []string               `protobuf:"bytes,9,rep,name=beneficiaries_ids,json=beneficiariesIds,proto3" json:"beneficiaries_ids,omitempty"`
+	Date             string                 `protobuf:"bytes,10,opt,name=date,proto3" json:"date,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -586,11 +603,18 @@ func (x *GetGroupExpensesResponse_Expense) GetBeneficiariesIds() []string {
 	return nil
 }
 
+func (x *GetGroupExpensesResponse_Expense) GetDate() string {
+	if x != nil {
+		return x.Date
+	}
+	return ""
+}
+
 var File_api_v1_expense_proto protoreflect.FileDescriptor
 
 const file_api_v1_expense_proto_rawDesc = "" +
 	"\n" +
-	"\x14api/v1/expense.proto\x12\x06api.v1\x1a\x1bbuf/validate/validate.proto\"\x95\x02\n" +
+	"\x14api/v1/expense.proto\x12\x06api.v1\x1a\x1bbuf/validate/validate.proto\"\xb7\x02\n" +
 	"\x14CreateExpenseRequest\x12#\n" +
 	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\x12#\n" +
 	"\bpayer_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\apayerId\x12\x1b\n" +
@@ -600,10 +624,12 @@ const file_api_v1_expense_proto_rawDesc = "" +
 	"\xbaH\a\n" +
 	"\x05%\x00\x00\x00\x00R\x06amount\x12#\n" +
 	"\bcurrency\x18\x06 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\bcurrency\x12+\n" +
-	"\x11beneficiaries_ids\x18\a \x03(\tR\x10beneficiariesIds\";\n" +
+	"\x11beneficiaries_ids\x18\a \x03(\tR\x10beneficiariesIds\x12\x17\n" +
+	"\x04date\x18\b \x01(\tH\x00R\x04date\x88\x01\x01B\a\n" +
+	"\x05_date\";\n" +
 	"\x15CreateExpenseResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"\x8a\x02\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\xac\x02\n" +
 	"\x14UpdateExpenseRequest\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12#\n" +
 	"\bpayer_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\apayerId\x12\x1b\n" +
@@ -613,7 +639,9 @@ const file_api_v1_expense_proto_rawDesc = "" +
 	"\xbaH\a\n" +
 	"\x05%\x00\x00\x00\x00R\x06amount\x12#\n" +
 	"\bcurrency\x18\x06 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\bcurrency\x12+\n" +
-	"\x11beneficiaries_ids\x18\a \x03(\tR\x10beneficiariesIds\";\n" +
+	"\x11beneficiaries_ids\x18\a \x03(\tR\x10beneficiariesIds\x12\x17\n" +
+	"\x04date\x18\b \x01(\tH\x00R\x04date\x88\x01\x01B\a\n" +
+	"\x05_date\";\n" +
 	"\x15UpdateExpenseResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"0\n" +
@@ -621,9 +649,9 @@ const file_api_v1_expense_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\x17\n" +
 	"\x15DeleteExpenseResponse\">\n" +
 	"\x17GetGroupExpensesRequest\x12#\n" +
-	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\x81\x03\n" +
+	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\x95\x03\n" +
 	"\x18GetGroupExpensesResponse\x12D\n" +
-	"\bexpenses\x18\x01 \x03(\v2(.api.v1.GetGroupExpensesResponse.ExpenseR\bexpenses\x1a\x9e\x02\n" +
+	"\bexpenses\x18\x01 \x03(\v2(.api.v1.GetGroupExpensesResponse.ExpenseR\bexpenses\x1a\xb2\x02\n" +
 	"\aExpense\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -635,7 +663,9 @@ const file_api_v1_expense_proto_rawDesc = "" +
 	"\n" +
 	"payer_name\x18\a \x01(\tR\tpayerName\x12\x16\n" +
 	"\x06amount\x18\b \x01(\x03R\x06amount\x12+\n" +
-	"\x11beneficiaries_ids\x18\t \x03(\tR\x10beneficiariesIdsB\x0e\n" +
+	"\x11beneficiaries_ids\x18\t \x03(\tR\x10beneficiariesIds\x12\x12\n" +
+	"\x04date\x18\n" +
+	" \x01(\tR\x04dateB\x0e\n" +
 	"\f_description2\xd9\x02\n" +
 	"\x0eExpenseService\x12N\n" +
 	"\rCreateExpense\x12\x1c.api.v1.CreateExpenseRequest\x1a\x1d.api.v1.CreateExpenseResponse\"\x00\x12N\n" +
@@ -691,6 +721,8 @@ func file_api_v1_expense_proto_init() {
 	if File_api_v1_expense_proto != nil {
 		return
 	}
+	file_api_v1_expense_proto_msgTypes[0].OneofWrappers = []any{}
+	file_api_v1_expense_proto_msgTypes[2].OneofWrappers = []any{}
 	file_api_v1_expense_proto_msgTypes[8].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

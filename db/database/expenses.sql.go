@@ -14,7 +14,7 @@ const createExpense = `-- name: CreateExpense :one
 INSERT INTO expenses
 (
     id,
-    created_at,
+    date,
     group_id,
     recurring_id,
     name,
@@ -22,12 +22,12 @@ INSERT INTO expenses
     currency
 ) VALUES (
     ?, ?, ?, ?, ?, ?, ?
-) RETURNING id, created_at, group_id, recurring_id, name, description, currency
+) RETURNING id, created_at, date, group_id, recurring_id, name, description, currency
 `
 
 type CreateExpenseParams struct {
 	ID          string    `json:"id"`
-	CreatedAt   time.Time `json:"created_at"`
+	Date        time.Time `json:"date"`
 	GroupID     string    `json:"group_id"`
 	RecurringID *string   `json:"recurring_id"`
 	Name        string    `json:"name"`
@@ -38,7 +38,7 @@ type CreateExpenseParams struct {
 func (q *Queries) CreateExpense(ctx context.Context, arg CreateExpenseParams) (Expense, error) {
 	row := q.db.QueryRowContext(ctx, createExpense,
 		arg.ID,
-		arg.CreatedAt,
+		arg.Date,
 		arg.GroupID,
 		arg.RecurringID,
 		arg.Name,
@@ -49,6 +49,7 @@ func (q *Queries) CreateExpense(ctx context.Context, arg CreateExpenseParams) (E
 	err := row.Scan(
 		&i.ID,
 		&i.CreatedAt,
+		&i.Date,
 		&i.GroupID,
 		&i.RecurringID,
 		&i.Name,
@@ -140,7 +141,7 @@ func (q *Queries) DeleteExpenseBeneficiaries(ctx context.Context, expenseID stri
 
 const getGroupExpenses = `-- name: GetGroupExpenses :many
 SELECT
-  e.id, e.created_at, e.group_id, e.recurring_id, e.name, e.description, e.currency,
+  e.id, e.created_at, e.date, e.group_id, e.recurring_id, e.name, e.description, e.currency,
   p.user_id as payer_id,
   u.username as payer_name,
   p.amount,
@@ -158,6 +159,7 @@ ORDER BY e.created_at DESC
 type GetGroupExpensesRow struct {
 	ID               string      `json:"id"`
 	CreatedAt        time.Time   `json:"created_at"`
+	Date             time.Time   `json:"date"`
 	GroupID          string      `json:"group_id"`
 	RecurringID      *string     `json:"recurring_id"`
 	Name             string      `json:"name"`
@@ -181,6 +183,7 @@ func (q *Queries) GetGroupExpenses(ctx context.Context, groupID string) ([]GetGr
 		if err := rows.Scan(
 			&i.ID,
 			&i.CreatedAt,
+			&i.Date,
 			&i.GroupID,
 			&i.RecurringID,
 			&i.Name,
@@ -247,16 +250,18 @@ UPDATE expenses
 SET
   name = ?1,
   description = ?2,
-  currency = ?3
-WHERE id = ?4
-RETURNING id, created_at, group_id, recurring_id, name, description, currency
+  currency = ?3,
+  date = ?4
+WHERE id = ?5
+RETURNING id, created_at, date, group_id, recurring_id, name, description, currency
 `
 
 type UpdateExpenseParams struct {
-	Name        string  `json:"name"`
-	Description *string `json:"description"`
-	Currency    string  `json:"currency"`
-	ID          string  `json:"id"`
+	Name        string    `json:"name"`
+	Description *string   `json:"description"`
+	Currency    string    `json:"currency"`
+	Date        time.Time `json:"date"`
+	ID          string    `json:"id"`
 }
 
 func (q *Queries) UpdateExpense(ctx context.Context, arg UpdateExpenseParams) (Expense, error) {
@@ -264,12 +269,14 @@ func (q *Queries) UpdateExpense(ctx context.Context, arg UpdateExpenseParams) (E
 		arg.Name,
 		arg.Description,
 		arg.Currency,
+		arg.Date,
 		arg.ID,
 	)
 	var i Expense
 	err := row.Scan(
 		&i.ID,
 		&i.CreatedAt,
+		&i.Date,
 		&i.GroupID,
 		&i.RecurringID,
 		&i.Name,

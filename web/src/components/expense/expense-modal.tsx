@@ -5,7 +5,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "../ui/dialog";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,7 +21,7 @@ import {
 import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
 import { Spinner } from "../ui/spinner";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useCallback } from "react";
 import { handleError } from "@/lib/utils";
 import {
   Select,
@@ -46,6 +45,7 @@ const formSchema = z.object({
   currency: z.string().min(2, "Currency is required"),
   payerId: z.string().min(1, "Payer is required"),
   beneficiariesIds: z.array(z.string()).min(1, "At least one beneficiary is required"),
+  date: z.string().date("Invalid date format"),
 });
 
 const COMMON_CURRENCIES = [
@@ -82,54 +82,102 @@ const COMMON_CURRENCIES = [
   { value: "ARS", label: "ARS - Argentine Peso" },
 ];
 
-interface NewExpenseModalProps {
-  children?: React.ReactNode;
+// Helper functions for amount conversion
+const convertAmountToDisplay = (amount: bigint | number): string => {
+  return (Number(amount) / 100).toString();
+};
+
+const convertAmountToServer = (displayAmount: string): number => {
+  return parseFloat(displayAmount);
+};
+
+// Helper functions for date conversion
+const getTodayDateString = (): string => {
+  return new Date().toISOString().split("T")[0];
+};
+
+const convertDateToRFC3339 = (dateString: string): string => {
+  // Convert YYYY-MM-DD to RFC3339 format
+  return new Date(dateString).toISOString();
+};
+
+const convertRFC3339ToDateString = (rfc3339: string): string => {
+  // Convert RFC3339 to YYYY-MM-DD for input[type="date"]
+  return new Date(rfc3339).toISOString().split("T")[0];
+};
+
+type FormValues = z.infer<typeof formSchema>;
+
+interface ExpenseModalProps {
+  // Modal control
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+
+  // Mode specification
+  mode: "create" | "edit";
+  expense?: GetGroupExpensesResponse_Expense; // Required when mode='edit'
+
+  // Data dependencies
   groupId: string;
   groupMembers: MemberBalance[];
   currentUserId: string;
   defaultCurrency?: string;
-  expense?: GetGroupExpensesResponse_Expense;
-  onClose?: () => void;
 }
 
-export const NewExpenseModal = ({
-  children,
+export const ExpenseModal = ({
+  open,
+  onOpenChange,
+  mode,
+  expense,
   groupId,
   groupMembers,
   currentUserId,
   defaultCurrency = "USD",
-  expense,
-  onClose,
-}: NewExpenseModalProps) => {
-  const [open, setOpen] = useState(false);
-  const isEditMode = !!expense;
+}: ExpenseModalProps) => {
+  const isEditMode = mode === "edit";
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
+  // Memoize default beneficiary IDs to prevent unnecessary re-renders
+  const defaultBeneficiaryIds = useMemo(
+    () => groupMembers.map((m) => m.userId),
+    [groupMembers]
+  );
+
+  // Helper function to get form defaults based on mode
+  const getFormDefaults = useCallback((): FormValues => {
+    if (isEditMode && expense) {
+      return {
+        name: expense.name,
+        description: expense.description || "",
+        amount: convertAmountToDisplay(expense.amount),
+        currency: expense.currency,
+        payerId: expense.payerId,
+        beneficiariesIds: expense.beneficiariesIds,
+        date: convertRFC3339ToDateString(expense.date),
+      };
+    }
+
+    return {
       name: "",
       description: "",
       amount: "",
       currency: defaultCurrency,
       payerId: currentUserId,
-      beneficiariesIds: groupMembers.map((m) => m.userId),
-    },
+      beneficiariesIds: defaultBeneficiaryIds,
+      date: getTodayDateString(),
+    };
+  }, [isEditMode, expense, defaultCurrency, currentUserId, defaultBeneficiaryIds]);
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: getFormDefaults(),
   });
 
-  // Sync open state and form values with expense prop (for edit mode)
+  // Reset form when modal opens
   useEffect(() => {
-    if (expense) {
-      form.reset({
-        name: expense.name,
-        description: expense.description || "",
-        amount: (Number(expense.amount) / 100).toString(),
-        currency: expense.currency,
-        payerId: expense.payerId,
-        beneficiariesIds: expense.beneficiariesIds,
-      });
-      setOpen(true);
+    if (open) {
+      form.reset(getFormDefaults());
     }
-  }, [expense, form]);
+  }, [open, getFormDefaults, form]);
 
   const groupExpensesKey = createConnectQueryKey({
     schema: getGroupExpenses,
@@ -149,7 +197,7 @@ export const NewExpenseModal = ({
       toast.success("Expense created!");
       queryClient.invalidateQueries({ queryKey: groupExpensesKey });
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
-      setOpen(false);
+      onOpenChange(false);
     },
     onError: handleError,
   });
@@ -159,23 +207,24 @@ export const NewExpenseModal = ({
       toast.success("Expense updated!");
       queryClient.invalidateQueries({ queryKey: groupExpensesKey });
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
-      setOpen(false);
+      onOpenChange(false);
     },
     onError: handleError,
   });
 
   const isPending = isCreating || isUpdating;
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
+  const onSubmit = (data: FormValues) => {
     if (isEditMode && expense) {
       updateMutate({
         id: expense.id,
         payerId: data.payerId,
         name: data.name,
         description: data.description,
-        amount: parseFloat(data.amount),
+        amount: convertAmountToServer(data.amount),
         currency: data.currency,
         beneficiariesIds: data.beneficiariesIds,
+        date: convertDateToRFC3339(data.date),
       });
     } else {
       createMutate({
@@ -183,38 +232,20 @@ export const NewExpenseModal = ({
         payerId: data.payerId,
         name: data.name,
         description: data.description,
-        amount: parseFloat(data.amount),
+        amount: convertAmountToServer(data.amount),
         currency: data.currency,
         beneficiariesIds: data.beneficiariesIds,
+        date: convertDateToRFC3339(data.date),
       });
     }
   };
 
-  const handleOpenChange = (open: boolean) => {
-    if (open) {
-      form.reset(
-        expense
-          ? {
-              name: expense.name,
-              description: expense.description || "",
-              amount: (Number(expense.amount) / 100).toString(),
-              currency: expense.currency,
-              payerId: expense.payerId,
-              beneficiariesIds: expense.beneficiariesIds,
-            }
-          : {
-              name: "",
-              description: "",
-              amount: "",
-              currency: defaultCurrency,
-              payerId: currentUserId,
-              beneficiariesIds: groupMembers.map((m) => m.userId),
-            }
-      );
-    } else {
-      onClose?.();
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      // Clear form when closing
+      form.reset();
     }
-    setOpen(open);
+    onOpenChange(newOpen);
   };
 
   const beneficiariesIds = form.watch("beneficiariesIds");
@@ -230,7 +261,6 @@ export const NewExpenseModal = ({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEditMode ? "Edit expense" : "Add new expense"}</DialogTitle>
@@ -271,6 +301,26 @@ export const NewExpenseModal = ({
                     {...field}
                     id="expenseDesc"
                     placeholder="Additional details..."
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="date"
+              disabled={isPending}
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel htmlFor="expenseDate">Date</FieldLabel>
+                  <Input
+                    {...field}
+                    id="expenseDate"
+                    type="date"
+                    required
                     aria-invalid={fieldState.invalid}
                   />
                   {fieldState.invalid && (

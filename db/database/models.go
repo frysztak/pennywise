@@ -11,6 +11,7 @@ import (
 type Expense struct {
 	ID          string    `json:"id"`
 	CreatedAt   time.Time `json:"created_at"`
+	Date        time.Time `json:"date"`
 	GroupID     string    `json:"group_id"`
 	RecurringID *string   `json:"recurring_id"`
 	Name        string    `json:"name"`
