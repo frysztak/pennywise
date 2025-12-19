@@ -8,7 +8,7 @@ message CreateTransferRequest {
   string group_id = 1 [(buf.validate.field).string.uuid = true];
   string sender_id = 2 [(buf.validate.field).string.uuid = true];
   string receiver_id = 3 [(buf.validate.field).string.uuid = true];
-  float amount = 4 [(buf.validate.field).float.gt = 0.0];
+  double amount = 4 [(buf.validate.field).double.gt = 0.0];
   string currency = 5 [(buf.validate.field).string.min_len = 2];
   optional string date = 6; // RFC3339 format, defaults to now if not provided
 }
@@ -21,7 +21,7 @@ message UpdateTransferRequest {
   string id = 1 [(buf.validate.field).string.uuid = true];
   string sender_id = 2 [(buf.validate.field).string.uuid = true];
   string receiver_id = 3 [(buf.validate.field).string.uuid = true];
-  float amount = 4 [(buf.validate.field).float.gt = 0.0];
+  double amount = 4 [(buf.validate.field).double.gt = 0.0];
   string currency = 5 [(buf.validate.field).string.min_len = 2];
 }
 

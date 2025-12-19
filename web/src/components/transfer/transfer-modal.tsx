@@ -37,7 +37,7 @@ import type { GetGroupTransfersResponse_Transfer } from "@/gen/api/v1/transfer_p
 const formSchema = z.object({
   senderId: z.string().min(1, "Sender is required"),
   receiverId: z.string().min(1, "Receiver is required"),
-  amount: z.coerce.number().positive("Amount must be a positive number"),
+  amount: z.number().positive("Amount must be a positive number"),
   currency: z.string().min(2, "Currency is required"),
   date: z.string().date("Invalid date format"),
 }).refine((data) => data.senderId !== data.receiverId, {

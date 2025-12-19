@@ -27,7 +27,7 @@ type CreateTransferRequest struct {
 	GroupId       string                 `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	SenderId      string                 `protobuf:"bytes,2,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
 	ReceiverId    string                 `protobuf:"bytes,3,opt,name=receiver_id,json=receiverId,proto3" json:"receiver_id,omitempty"`
-	Amount        float32                `protobuf:"fixed32,4,opt,name=amount,proto3" json:"amount,omitempty"`
+	Amount        float64                `protobuf:"fixed64,4,opt,name=amount,proto3" json:"amount,omitempty"`
 	Currency      string                 `protobuf:"bytes,5,opt,name=currency,proto3" json:"currency,omitempty"`
 	Date          *string                `protobuf:"bytes,6,opt,name=date,proto3,oneof" json:"date,omitempty"` // RFC3339 format, defaults to now if not provided
 	unknownFields protoimpl.UnknownFields
@@ -85,7 +85,7 @@ func (x *CreateTransferRequest) GetReceiverId() string {
 	return ""
 }
 
-func (x *CreateTransferRequest) GetAmount() float32 {
+func (x *CreateTransferRequest) GetAmount() float64 {
 	if x != nil {
 		return x.Amount
 	}
@@ -155,7 +155,7 @@ type UpdateTransferRequest struct {
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	SenderId      string                 `protobuf:"bytes,2,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
 	ReceiverId    string                 `protobuf:"bytes,3,opt,name=receiver_id,json=receiverId,proto3" json:"receiver_id,omitempty"`
-	Amount        float32                `protobuf:"fixed32,4,opt,name=amount,proto3" json:"amount,omitempty"`
+	Amount        float64                `protobuf:"fixed64,4,opt,name=amount,proto3" json:"amount,omitempty"`
 	Currency      string                 `protobuf:"bytes,5,opt,name=currency,proto3" json:"currency,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -212,7 +212,7 @@ func (x *UpdateTransferRequest) GetReceiverId() string {
 	return ""
 }
 
-func (x *UpdateTransferRequest) GetAmount() float32 {
+func (x *UpdateTransferRequest) GetAmount() float64 {
 	if x != nil {
 		return x.Amount
 	}
@@ -542,28 +542,24 @@ var File_api_v1_transfer_proto protoreflect.FileDescriptor
 
 const file_api_v1_transfer_proto_rawDesc = "" +
 	"\n" +
-	"\x15api/v1/transfer.proto\x12\x06api.v1\x1a\x1bbuf/validate/validate.proto\"\xf9\x01\n" +
+	"\x15api/v1/transfer.proto\x12\x06api.v1\x1a\x1bbuf/validate/validate.proto\"\xfd\x01\n" +
 	"\x15CreateTransferRequest\x12#\n" +
 	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\x12%\n" +
 	"\tsender_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\bsenderId\x12)\n" +
 	"\vreceiver_id\x18\x03 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\n" +
-	"receiverId\x12\"\n" +
-	"\x06amount\x18\x04 \x01(\x02B\n" +
-	"\xbaH\a\n" +
-	"\x05%\x00\x00\x00\x00R\x06amount\x12#\n" +
+	"receiverId\x12&\n" +
+	"\x06amount\x18\x04 \x01(\x01B\x0e\xbaH\v\x12\t!\x00\x00\x00\x00\x00\x00\x00\x00R\x06amount\x12#\n" +
 	"\bcurrency\x18\x05 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\bcurrency\x12\x17\n" +
 	"\x04date\x18\x06 \x01(\tH\x00R\x04date\x88\x01\x01B\a\n" +
 	"\x05_date\"(\n" +
 	"\x16CreateTransferResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\xcc\x01\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\xd0\x01\n" +
 	"\x15UpdateTransferRequest\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12%\n" +
 	"\tsender_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\bsenderId\x12)\n" +
 	"\vreceiver_id\x18\x03 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\n" +
-	"receiverId\x12\"\n" +
-	"\x06amount\x18\x04 \x01(\x02B\n" +
-	"\xbaH\a\n" +
-	"\x05%\x00\x00\x00\x00R\x06amount\x12#\n" +
+	"receiverId\x12&\n" +
+	"\x06amount\x18\x04 \x01(\x01B\x0e\xbaH\v\x12\t!\x00\x00\x00\x00\x00\x00\x00\x00R\x06amount\x12#\n" +
 	"\bcurrency\x18\x05 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\bcurrency\"(\n" +
 	"\x16UpdateTransferResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"1\n" +

@@ -39,19 +39,18 @@ import { COMMON_CURRENCIES } from "@/lib/currencies";
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   description: z.string(),
-  amount: z.string().min(1, "Amount is required").refine((val) => {
-    const num = parseFloat(val);
-    return !isNaN(num) && num > 0;
-  }, "Amount must be a positive number"),
+  amount: z.number().positive("Amount must be a positive number"),
   currency: z.string().min(2, "Currency is required"),
   payerId: z.string().min(1, "Payer is required"),
-  beneficiariesIds: z.array(z.string()).min(1, "At least one beneficiary is required"),
+  beneficiariesIds: z
+    .array(z.string())
+    .min(1, "At least one beneficiary is required"),
   date: z.string().date("Invalid date format"),
 });
 
 // Helper functions for amount conversion
-const convertAmountToDisplay = (amount: bigint | number): string => {
-  return (Number(amount) / 100).toString();
+const convertAmountToDisplay = (amount: bigint | number): number => {
+  return Number(amount) / 100;
 };
 
 const convertAmountToServer = (displayAmount: string): number => {
@@ -126,13 +125,19 @@ export const ExpenseModal = ({
     return {
       name: "",
       description: "",
-      amount: "",
+      amount: 0,
       currency: defaultCurrency,
       payerId: currentUserId,
       beneficiariesIds: defaultBeneficiaryIds,
       date: getTodayDateString(),
     };
-  }, [isEditMode, expense, defaultCurrency, currentUserId, defaultBeneficiaryIds]);
+  }, [
+    isEditMode,
+    expense,
+    defaultCurrency,
+    currentUserId,
+    defaultBeneficiaryIds,
+  ]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -159,25 +164,31 @@ export const ExpenseModal = ({
 
   const queryClient = useQueryClient();
 
-  const { isPending: isCreating, mutate: createMutate } = useMutation(createExpense, {
-    onSuccess: () => {
-      toast.success("Expense created!");
-      queryClient.invalidateQueries({ queryKey: groupExpensesKey });
-      queryClient.invalidateQueries({ queryKey: userGroupsKey });
-      onOpenChange(false);
-    },
-    onError: handleError,
-  });
+  const { isPending: isCreating, mutate: createMutate } = useMutation(
+    createExpense,
+    {
+      onSuccess: () => {
+        toast.success("Expense created!");
+        queryClient.invalidateQueries({ queryKey: groupExpensesKey });
+        queryClient.invalidateQueries({ queryKey: userGroupsKey });
+        onOpenChange(false);
+      },
+      onError: handleError,
+    }
+  );
 
-  const { isPending: isUpdating, mutate: updateMutate } = useMutation(updateExpense, {
-    onSuccess: () => {
-      toast.success("Expense updated!");
-      queryClient.invalidateQueries({ queryKey: groupExpensesKey });
-      queryClient.invalidateQueries({ queryKey: userGroupsKey });
-      onOpenChange(false);
-    },
-    onError: handleError,
-  });
+  const { isPending: isUpdating, mutate: updateMutate } = useMutation(
+    updateExpense,
+    {
+      onSuccess: () => {
+        toast.success("Expense updated!");
+        queryClient.invalidateQueries({ queryKey: groupExpensesKey });
+        queryClient.invalidateQueries({ queryKey: userGroupsKey });
+        onOpenChange(false);
+      },
+      onError: handleError,
+    }
+  );
 
   const isPending = isCreating || isUpdating;
 
@@ -188,7 +199,7 @@ export const ExpenseModal = ({
         payerId: data.payerId,
         name: data.name,
         description: data.description,
-        amount: convertAmountToServer(data.amount),
+        amount: data.amount,
         currency: data.currency,
         beneficiariesIds: data.beneficiariesIds,
         date: convertDateToRFC3339(data.date),
@@ -199,7 +210,7 @@ export const ExpenseModal = ({
         payerId: data.payerId,
         name: data.name,
         description: data.description,
-        amount: convertAmountToServer(data.amount),
+        amount: data.amount,
         currency: data.currency,
         beneficiariesIds: data.beneficiariesIds,
         date: convertDateToRFC3339(data.date),
@@ -222,7 +233,10 @@ export const ExpenseModal = ({
     if (checked) {
       form.setValue("beneficiariesIds", [...current, userId]);
     } else {
-      form.setValue("beneficiariesIds", current.filter((id) => id !== userId));
+      form.setValue(
+        "beneficiariesIds",
+        current.filter((id) => id !== userId)
+      );
     }
   };
 
@@ -230,9 +244,13 @@ export const ExpenseModal = ({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEditMode ? "Edit expense" : "Add new expense"}</DialogTitle>
+          <DialogTitle>
+            {isEditMode ? "Edit expense" : "Add new expense"}
+          </DialogTitle>
           <DialogDescription>
-            {isEditMode ? "Update expense details." : "Create a new expense for this group."}
+            {isEditMode
+              ? "Update expense details."
+              : "Create a new expense for this group."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -263,7 +281,9 @@ export const ExpenseModal = ({
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel htmlFor="expenseDesc">Description (optional)</FieldLabel>
+                  <FieldLabel htmlFor="expenseDesc">
+                    Description (optional)
+                  </FieldLabel>
                   <Input
                     {...field}
                     id="expenseDesc"
@@ -312,6 +332,9 @@ export const ExpenseModal = ({
                       placeholder="0.00"
                       required
                       aria-invalid={fieldState.invalid}
+                      onChange={(e) =>
+                        field.onChange(e.target.valueAsNumber || 0)
+                      }
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -331,12 +354,18 @@ export const ExpenseModal = ({
                       onValueChange={field.onChange}
                       disabled={isPending}
                     >
-                      <SelectTrigger id="currency" aria-invalid={fieldState.invalid}>
+                      <SelectTrigger
+                        id="currency"
+                        aria-invalid={fieldState.invalid}
+                      >
                         <SelectValue placeholder="Select currency" />
                       </SelectTrigger>
                       <SelectContent>
                         {COMMON_CURRENCIES.map((currency) => (
-                          <SelectItem key={currency.value} value={currency.value}>
+                          <SelectItem
+                            key={currency.value}
+                            value={currency.value}
+                          >
                             {currency.label}
                           </SelectItem>
                         ))}
@@ -382,7 +411,10 @@ export const ExpenseModal = ({
               <FieldLabel>Split between</FieldLabel>
               <div className="space-y-3 mt-2">
                 {groupMembers.map((member) => (
-                  <div key={member.userId} className="flex items-center space-x-2">
+                  <div
+                    key={member.userId}
+                    className="flex items-center space-x-2"
+                  >
                     <Checkbox
                       id={`beneficiary-${member.userId}`}
                       checked={beneficiariesIds?.includes(member.userId)}
