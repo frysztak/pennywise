@@ -3,8 +3,14 @@ import {
   createQueryOptions,
   useSuspenseQuery,
 } from "@connectrpc/connect-query";
-import { getGroupExpenses, deleteExpense } from "@/gen/api/v1/expense-ExpenseService_connectquery";
-import { getGroupTransfers, deleteTransfer } from "@/gen/api/v1/transfer-TransferService_connectquery";
+import {
+  getGroupExpenses,
+  deleteExpense,
+} from "@/gen/api/v1/expense-ExpenseService_connectquery";
+import {
+  getGroupTransfers,
+  deleteTransfer,
+} from "@/gen/api/v1/transfer-TransferService_connectquery";
 import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
 import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
 import type { GetGroupExpensesResponse_Expense } from "@/gen/api/v1/expense_pb";
@@ -20,13 +26,27 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Plus, MoreHorizontal, Pencil, Trash, ArrowRight } from "lucide-react";
+import {
+  Plus,
+  MoreHorizontal,
+  Pencil,
+  Trash,
+  ArrowRight,
+  ChevronDownIcon,
+  TrashIcon,
+  Redo2Icon,
+  EditIcon,
+  UserRoundSearchIcon,
+  BanknoteIcon,
+} from "lucide-react";
 import { ExpenseModal } from "@/components/expense/expense-modal";
 import { TransferModal } from "@/components/transfer/transfer-modal";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -45,6 +65,10 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { transport } from "@/transport";
+import {
+  ButtonGroup,
+  ButtonGroupSeparator,
+} from "@/components/ui/button-group";
 
 const userGroupsKey = createConnectQueryKey({
   schema: getUserGroups,
@@ -177,7 +201,9 @@ function RouteComponent() {
     setTransferModalState({ open: true, mode: "create", transfer: undefined });
   };
 
-  const handleOpenEditTransfer = (transfer: GetGroupTransfersResponse_Transfer) => {
+  const handleOpenEditTransfer = (
+    transfer: GetGroupTransfersResponse_Transfer
+  ) => {
     setTransferModalState({ open: true, mode: "edit", transfer });
   };
 
@@ -190,7 +216,11 @@ function RouteComponent() {
   // Combine expenses and transfers for recent activity
   type ActivityItem =
     | { type: "expense"; data: GetGroupExpensesResponse_Expense; date: Date }
-    | { type: "transfer"; data: GetGroupTransfersResponse_Transfer; date: Date };
+    | {
+        type: "transfer";
+        data: GetGroupTransfersResponse_Transfer;
+        date: Date;
+      };
 
   const recentActivity: ActivityItem[] = [
     ...expensesData.expenses.map((expense) => ({
@@ -220,14 +250,45 @@ function RouteComponent() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleOpenCreateTransfer}>
-              <ArrowRight className="h-4 w-4" />
-              Record Transfer
-            </Button>
-            <Button onClick={handleOpenCreateExpense}>
-              <Plus className="h-4 w-4" />
-              Add Expense
-            </Button>
+            <ButtonGroup>
+              <Button onClick={handleOpenCreateExpense}>
+                <Plus />
+                Add Expense
+              </Button>
+              <ButtonGroupSeparator />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="pl-2!">
+                    <ChevronDownIcon />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="[--radius:1rem]">
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem onClick={handleOpenCreateTransfer}>
+                      <Redo2Icon />
+                      Add Transfer
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem>
+                      <EditIcon />
+                      Edit Group
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem>
+                      <UserRoundSearchIcon />
+                      Invite Members
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem variant="destructive">
+                      <TrashIcon />
+                      Delete Group
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </ButtonGroup>
           </div>
         </div>
 
@@ -327,9 +388,12 @@ function RouteComponent() {
                     const expense = item.data;
                     return (
                       <TableRow key={`expense-${expense.id}`}>
-                        <TableCell className="text-sm">{formattedDate}</TableCell>
+                        <TableCell className="text-sm">
+                          {formattedDate}
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
+                            <BanknoteIcon className="h-4 w-4" />
                             <span>{expense.name}</span>
                           </div>
                         </TableCell>
@@ -391,10 +455,12 @@ function RouteComponent() {
                     const transfer = item.data;
                     return (
                       <TableRow key={`transfer-${transfer.id}`}>
-                        <TableCell className="text-sm">{formattedDate}</TableCell>
+                        <TableCell className="text-sm">
+                          {formattedDate}
+                        </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2 text-muted-foreground">
-                            <ArrowRight className="h-4 w-4" />
+                          <div className="flex items-center gap-2">
+                            <Redo2Icon className="h-4 w-4" />
                             <span>Transfer</span>
                           </div>
                         </TableCell>
@@ -402,14 +468,23 @@ function RouteComponent() {
                           <AmountWithCurrency
                             disableColor
                             className="text-right"
-                            balance={[{ amount: transfer.amount, currency: transfer.currency }]}
+                            balance={[
+                              {
+                                amount: transfer.amount,
+                                currency: transfer.currency,
+                              },
+                            ]}
                           />
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1 text-sm">
-                            <span className="truncate max-w-[80px]">{transfer.senderName}</span>
+                            <span className="truncate max-w-[80px]">
+                              {transfer.senderName}
+                            </span>
                             <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                            <span className="truncate max-w-[80px]">{transfer.receiverName}</span>
+                            <span className="truncate max-w-[80px]">
+                              {transfer.receiverName}
+                            </span>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -509,8 +584,8 @@ function RouteComponent() {
               <AlertDialogTitle>Delete transfer</AlertDialogTitle>
               <AlertDialogDescription>
                 Are you sure you want to delete this transfer from{" "}
-                {deletingTransfer?.senderName} to {deletingTransfer?.receiverName}?
-                This action cannot be undone.
+                {deletingTransfer?.senderName} to{" "}
+                {deletingTransfer?.receiverName}? This action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
