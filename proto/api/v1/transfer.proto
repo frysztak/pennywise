@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package api.v1;
+
+import "buf/validate/validate.proto";
+
+message CreateTransferRequest {
+  string group_id = 1 [(buf.validate.field).string.uuid = true];
+  string sender_id = 2 [(buf.validate.field).string.uuid = true];
+  string receiver_id = 3 [(buf.validate.field).string.uuid = true];
+  float amount = 4 [(buf.validate.field).float.gt = 0.0];
+  string currency = 5 [(buf.validate.field).string.min_len = 2];
+  optional string date = 6; // RFC3339 format, defaults to now if not provided
+}
+
+message CreateTransferResponse {
+  string id = 1;
+}
+
+message UpdateTransferRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  string sender_id = 2 [(buf.validate.field).string.uuid = true];
+  string receiver_id = 3 [(buf.validate.field).string.uuid = true];
+  float amount = 4 [(buf.validate.field).float.gt = 0.0];
+  string currency = 5 [(buf.validate.field).string.min_len = 2];
+}
+
+message UpdateTransferResponse {
+  string id = 1;
+}
+
+message DeleteTransferRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message DeleteTransferResponse {}
+
+message GetGroupTransfersRequest {
+  string group_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message GetGroupTransfersResponse {
+  message Transfer {
+    string id = 1;
+    string created_at = 2;
+    string sender_id = 3;
+    string sender_name = 4;
+    string receiver_id = 5;
+    string receiver_name = 6;
+    int64 amount = 7;
+    string currency = 8;
+  }
+
+  repeated Transfer transfers = 1;
+}
+
+service TransferService {
+  rpc CreateTransfer(CreateTransferRequest) returns (CreateTransferResponse) {}
+
+  rpc UpdateTransfer(UpdateTransferRequest) returns (UpdateTransferResponse) {}
+
+  rpc DeleteTransfer(DeleteTransferRequest) returns (DeleteTransferResponse) {}
+
+  rpc GetGroupTransfers(GetGroupTransfersRequest) returns (GetGroupTransfersResponse) {}
+}

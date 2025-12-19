@@ -14,14 +14,14 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import {
-  createExpense,
-  updateExpense,
-  getGroupExpenses,
-} from "@/gen/api/v1/expense-ExpenseService_connectquery";
+  createTransfer,
+  updateTransfer,
+  getGroupTransfers,
+} from "@/gen/api/v1/transfer-TransferService_connectquery";
 import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
 import { Spinner } from "../ui/spinner";
 import { toast } from "sonner";
-import { useEffect, useMemo, useCallback } from "react";
+import { useEffect, useCallback } from "react";
 import { handleError } from "@/lib/utils";
 import {
   Select,
@@ -30,32 +30,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Checkbox } from "../ui/checkbox";
-import { Label } from "../ui/label";
-import type { MemberBalance } from "@/gen/api/v1/group_pb";
-import type { GetGroupExpensesResponse_Expense } from "@/gen/api/v1/expense_pb";
 import { COMMON_CURRENCIES } from "@/lib/currencies";
+import type { MemberBalance } from "@/gen/api/v1/group_pb";
+import type { GetGroupTransfersResponse_Transfer } from "@/gen/api/v1/transfer_pb";
 
 const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  description: z.string(),
-  amount: z.string().min(1, "Amount is required").refine((val) => {
-    const num = parseFloat(val);
-    return !isNaN(num) && num > 0;
-  }, "Amount must be a positive number"),
+  senderId: z.string().min(1, "Sender is required"),
+  receiverId: z.string().min(1, "Receiver is required"),
+  amount: z.coerce.number().positive("Amount must be a positive number"),
   currency: z.string().min(2, "Currency is required"),
-  payerId: z.string().min(1, "Payer is required"),
-  beneficiariesIds: z.array(z.string()).min(1, "At least one beneficiary is required"),
   date: z.string().date("Invalid date format"),
+}).refine((data) => data.senderId !== data.receiverId, {
+  message: "Sender and receiver must be different",
+  path: ["receiverId"],
 });
 
 // Helper functions for amount conversion
-const convertAmountToDisplay = (amount: bigint | number): string => {
-  return (Number(amount) / 100).toString();
-};
-
-const convertAmountToServer = (displayAmount: string): number => {
-  return parseFloat(displayAmount);
+const convertAmountToDisplay = (amount: bigint | number): number => {
+  return Number(amount) / 100;
 };
 
 // Helper functions for date conversion
@@ -64,90 +56,71 @@ const getTodayDateString = (): string => {
 };
 
 const convertDateToRFC3339 = (dateString: string): string => {
-  // Convert YYYY-MM-DD to RFC3339 format
   return new Date(dateString).toISOString();
 };
 
 const convertRFC3339ToDateString = (rfc3339: string): string => {
-  // Convert RFC3339 to YYYY-MM-DD for input[type="date"]
   return new Date(rfc3339).toISOString().split("T")[0];
 };
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface ExpenseModalProps {
-  // Modal control
+interface TransferModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-
-  // Mode specification
   mode: "create" | "edit";
-  expense?: GetGroupExpensesResponse_Expense; // Required when mode='edit'
-
-  // Data dependencies
+  transfer?: GetGroupTransfersResponse_Transfer;
   groupId: string;
   groupMembers: MemberBalance[];
   currentUserId: string;
   defaultCurrency?: string;
 }
 
-export const ExpenseModal = ({
+export const TransferModal = ({
   open,
   onOpenChange,
   mode,
-  expense,
+  transfer,
   groupId,
   groupMembers,
   currentUserId,
   defaultCurrency = "USD",
-}: ExpenseModalProps) => {
+}: TransferModalProps) => {
   const isEditMode = mode === "edit";
 
-  // Memoize default beneficiary IDs to prevent unnecessary re-renders
-  const defaultBeneficiaryIds = useMemo(
-    () => groupMembers.map((m) => m.userId),
-    [groupMembers]
-  );
-
-  // Helper function to get form defaults based on mode
   const getFormDefaults = useCallback((): FormValues => {
-    if (isEditMode && expense) {
+    if (isEditMode && transfer) {
       return {
-        name: expense.name,
-        description: expense.description || "",
-        amount: convertAmountToDisplay(expense.amount),
-        currency: expense.currency,
-        payerId: expense.payerId,
-        beneficiariesIds: expense.beneficiariesIds,
-        date: convertRFC3339ToDateString(expense.date),
+        senderId: transfer.senderId,
+        receiverId: transfer.receiverId,
+        amount: convertAmountToDisplay(transfer.amount),
+        currency: transfer.currency,
+        date: convertRFC3339ToDateString(transfer.createdAt),
       };
     }
 
     return {
-      name: "",
-      description: "",
-      amount: "",
+      senderId: currentUserId,
+      receiverId: "",
+      amount: 0,
       currency: defaultCurrency,
-      payerId: currentUserId,
-      beneficiariesIds: defaultBeneficiaryIds,
       date: getTodayDateString(),
     };
-  }, [isEditMode, expense, defaultCurrency, currentUserId, defaultBeneficiaryIds]);
+  }, [isEditMode, transfer, defaultCurrency, currentUserId]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: getFormDefaults(),
   });
 
-  // Reset form when modal opens
   useEffect(() => {
     if (open) {
       form.reset(getFormDefaults());
     }
   }, [open, getFormDefaults, form]);
 
-  const groupExpensesKey = createConnectQueryKey({
-    schema: getGroupExpenses,
+  const groupTransfersKey = createConnectQueryKey({
+    schema: getGroupTransfers,
     cardinality: "finite",
     input: { groupId },
   });
@@ -159,20 +132,20 @@ export const ExpenseModal = ({
 
   const queryClient = useQueryClient();
 
-  const { isPending: isCreating, mutate: createMutate } = useMutation(createExpense, {
+  const { isPending: isCreating, mutate: createMutate } = useMutation(createTransfer, {
     onSuccess: () => {
-      toast.success("Expense created!");
-      queryClient.invalidateQueries({ queryKey: groupExpensesKey });
+      toast.success("Transfer recorded!");
+      queryClient.invalidateQueries({ queryKey: groupTransfersKey });
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
       onOpenChange(false);
     },
     onError: handleError,
   });
 
-  const { isPending: isUpdating, mutate: updateMutate } = useMutation(updateExpense, {
+  const { isPending: isUpdating, mutate: updateMutate } = useMutation(updateTransfer, {
     onSuccess: () => {
-      toast.success("Expense updated!");
-      queryClient.invalidateQueries({ queryKey: groupExpensesKey });
+      toast.success("Transfer updated!");
+      queryClient.invalidateQueries({ queryKey: groupTransfersKey });
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
       onOpenChange(false);
     },
@@ -182,26 +155,21 @@ export const ExpenseModal = ({
   const isPending = isCreating || isUpdating;
 
   const onSubmit = (data: FormValues) => {
-    if (isEditMode && expense) {
+    if (isEditMode && transfer) {
       updateMutate({
-        id: expense.id,
-        payerId: data.payerId,
-        name: data.name,
-        description: data.description,
-        amount: convertAmountToServer(data.amount),
+        id: transfer.id,
+        senderId: data.senderId,
+        receiverId: data.receiverId,
+        amount: data.amount,
         currency: data.currency,
-        beneficiariesIds: data.beneficiariesIds,
-        date: convertDateToRFC3339(data.date),
       });
     } else {
       createMutate({
         groupId,
-        payerId: data.payerId,
-        name: data.name,
-        description: data.description,
-        amount: convertAmountToServer(data.amount),
+        senderId: data.senderId,
+        receiverId: data.receiverId,
+        amount: data.amount,
         currency: data.currency,
-        beneficiariesIds: data.beneficiariesIds,
         date: convertDateToRFC3339(data.date),
       });
     }
@@ -209,48 +177,45 @@ export const ExpenseModal = ({
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
-      // Clear form when closing
       form.reset();
     }
     onOpenChange(newOpen);
-  };
-
-  const beneficiariesIds = form.watch("beneficiariesIds");
-
-  const handleBeneficiaryToggle = (userId: string, checked: boolean) => {
-    const current = beneficiariesIds || [];
-    if (checked) {
-      form.setValue("beneficiariesIds", [...current, userId]);
-    } else {
-      form.setValue("beneficiariesIds", current.filter((id) => id !== userId));
-    }
   };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEditMode ? "Edit expense" : "Add new expense"}</DialogTitle>
+          <DialogTitle>{isEditMode ? "Edit transfer" : "Record transfer"}</DialogTitle>
           <DialogDescription>
-            {isEditMode ? "Update expense details." : "Create a new expense for this group."}
+            {isEditMode ? "Update transfer details." : "Record a payment between group members."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
             <Controller
-              name="name"
+              name="senderId"
               disabled={isPending}
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel htmlFor="expenseName">Expense name</FieldLabel>
-                  <Input
-                    {...field}
-                    id="expenseName"
-                    placeholder="Dinner, groceries, etc."
-                    required
-                    aria-invalid={fieldState.invalid}
-                  />
+                  <FieldLabel htmlFor="sender">From (sender)</FieldLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={isPending}
+                  >
+                    <SelectTrigger id="sender" aria-invalid={fieldState.invalid}>
+                      <SelectValue placeholder="Select sender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {groupMembers.map((member) => (
+                        <SelectItem key={member.userId} value={member.userId}>
+                          {member.userName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
@@ -258,18 +223,28 @@ export const ExpenseModal = ({
               )}
             />
             <Controller
-              name="description"
+              name="receiverId"
               disabled={isPending}
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel htmlFor="expenseDesc">Description (optional)</FieldLabel>
-                  <Input
-                    {...field}
-                    id="expenseDesc"
-                    placeholder="Additional details..."
-                    aria-invalid={fieldState.invalid}
-                  />
+                  <FieldLabel htmlFor="receiver">To (receiver)</FieldLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={isPending}
+                  >
+                    <SelectTrigger id="receiver" aria-invalid={fieldState.invalid}>
+                      <SelectValue placeholder="Select receiver" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {groupMembers.map((member) => (
+                        <SelectItem key={member.userId} value={member.userId}>
+                          {member.userName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
@@ -282,10 +257,10 @@ export const ExpenseModal = ({
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel htmlFor="expenseDate">Date</FieldLabel>
+                  <FieldLabel htmlFor="transferDate">Date</FieldLabel>
                   <Input
                     {...field}
-                    id="expenseDate"
+                    id="transferDate"
                     type="date"
                     required
                     aria-invalid={fieldState.invalid}
@@ -312,6 +287,7 @@ export const ExpenseModal = ({
                       placeholder="0.00"
                       required
                       aria-invalid={fieldState.invalid}
+                      onChange={(e) => field.onChange(e.target.valueAsNumber || 0)}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -349,65 +325,10 @@ export const ExpenseModal = ({
                 )}
               />
             </div>
-            <Controller
-              name="payerId"
-              disabled={isPending}
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel htmlFor="payer">Paid by</FieldLabel>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    disabled={isPending}
-                  >
-                    <SelectTrigger id="payer" aria-invalid={fieldState.invalid}>
-                      <SelectValue placeholder="Select payer" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {groupMembers.map((member) => (
-                        <SelectItem key={member.userId} value={member.userId}>
-                          {member.userName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <Field>
-              <FieldLabel>Split between</FieldLabel>
-              <div className="space-y-3 mt-2">
-                {groupMembers.map((member) => (
-                  <div key={member.userId} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`beneficiary-${member.userId}`}
-                      checked={beneficiariesIds?.includes(member.userId)}
-                      onCheckedChange={(checked) =>
-                        handleBeneficiaryToggle(member.userId, checked === true)
-                      }
-                      disabled={isPending}
-                    />
-                    <Label
-                      htmlFor={`beneficiary-${member.userId}`}
-                      className="text-sm font-normal cursor-pointer"
-                    >
-                      {member.userName}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-              {form.formState.errors.beneficiariesIds && (
-                <FieldError errors={[form.formState.errors.beneficiariesIds]} />
-              )}
-            </Field>
             <Field>
               <Button type="submit" disabled={isPending}>
                 {isPending && <Spinner />}
-                {isEditMode ? "Update Expense" : "Create Expense"}
+                {isEditMode ? "Update Transfer" : "Record Transfer"}
               </Button>
             </Field>
           </FieldGroup>

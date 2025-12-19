@@ -8,6 +8,7 @@ import (
 	"pennywise/http/routes/auth"
 	"pennywise/http/routes/expense"
 	"pennywise/http/routes/group"
+	"pennywise/http/routes/transfer"
 	"pennywise/http/routes/user"
 
 	"pennywise/gen/api/v1/apiv1connect"
@@ -37,6 +38,7 @@ func InitRouter(mux *http.ServeMux) {
 		apiv1connect.AdminServiceName,
 		apiv1connect.GroupServiceName,
 		apiv1connect.ExpenseServiceName,
+		apiv1connect.TransferServiceName,
 	)
 	mux.Handle(grpcreflect.NewHandlerV1(reflector))
 	mux.Handle(grpcreflect.NewHandlerV1Alpha(reflector))
@@ -67,6 +69,12 @@ func InitRouter(mux *http.ServeMux) {
 
 	path, handler = apiv1connect.NewExpenseServiceHandler(
 		expense.NewExpenseService(),
+		connect.WithInterceptors(validate.NewInterceptor()),
+	)
+	mux.Handle(path, session.Wrap(handler))
+
+	path, handler = apiv1connect.NewTransferServiceHandler(
+		transfer.NewTransferService(),
 		connect.WithInterceptors(validate.NewInterceptor()),
 	)
 	mux.Handle(path, session.Wrap(handler))

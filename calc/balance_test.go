@@ -18,6 +18,7 @@ func TestComputeGroupBalance(t *testing.T) {
 		name            string
 		members         []database.GetGroupMembersRow
 		expenses        []database.GetGroupExpensesRow
+		transfers       []database.GetGroupTransfersForBalanceRow
 		defaultCurrency string
 		want            GroupBalance
 	}{
@@ -280,11 +281,161 @@ func TestComputeGroupBalance(t *testing.T) {
 				},
 			},
 		},
+		// Transfer test cases
+		{
+			name: "transfer settles debt completely",
+			members: []database.GetGroupMembersRow{
+				{UserID: "uA", Weight: 1.0},
+				{UserID: "uB", Weight: 1.0},
+			},
+			expenses: []database.GetGroupExpensesRow{
+				{
+					ID:               "e1",
+					Currency:         "USD",
+					GroupID:          "g1",
+					PayerID:          "uA",
+					Amount:           amount(10.00),
+					BeneficiariesIds: utils.SliceToJSONString("uA", "uB"),
+				},
+			},
+			transfers: []database.GetGroupTransfersForBalanceRow{
+				{
+					SenderID:   "uB",
+					ReceiverID: "uA",
+					Amount:     amount(5.00),
+					Currency:   "USD",
+				},
+			},
+			defaultCurrency: "USD",
+			want: GroupBalance{
+				"uA": PerCurrencyBalance{"USD": 0},
+				"uB": PerCurrencyBalance{"USD": 0},
+			},
+		},
+		{
+			name: "transfer partially settles debt",
+			members: []database.GetGroupMembersRow{
+				{UserID: "uA", Weight: 1.0},
+				{UserID: "uB", Weight: 1.0},
+			},
+			expenses: []database.GetGroupExpensesRow{
+				{
+					ID:               "e1",
+					Currency:         "USD",
+					GroupID:          "g1",
+					PayerID:          "uA",
+					Amount:           amount(10.00),
+					BeneficiariesIds: utils.SliceToJSONString("uA", "uB"),
+				},
+			},
+			transfers: []database.GetGroupTransfersForBalanceRow{
+				{
+					SenderID:   "uB",
+					ReceiverID: "uA",
+					Amount:     amount(3.00),
+					Currency:   "USD",
+				},
+			},
+			defaultCurrency: "USD",
+			want: GroupBalance{
+				"uA": PerCurrencyBalance{"USD": amount(2.00)},
+				"uB": PerCurrencyBalance{"USD": amount(-2.00)},
+			},
+		},
+		{
+			name: "transfer in different currency than expense",
+			members: []database.GetGroupMembersRow{
+				{UserID: "uA", Weight: 1.0},
+				{UserID: "uB", Weight: 1.0},
+			},
+			expenses: []database.GetGroupExpensesRow{
+				{
+					ID:               "e1",
+					Currency:         "USD",
+					GroupID:          "g1",
+					PayerID:          "uA",
+					Amount:           amount(10.00),
+					BeneficiariesIds: utils.SliceToJSONString("uA", "uB"),
+				},
+			},
+			transfers: []database.GetGroupTransfersForBalanceRow{
+				{
+					SenderID:   "uB",
+					ReceiverID: "uA",
+					Amount:     amount(5.00),
+					Currency:   "EUR",
+				},
+			},
+			defaultCurrency: "USD",
+			want: GroupBalance{
+				"uA": PerCurrencyBalance{"USD": amount(5.00), "EUR": amount(-5.00)},
+				"uB": PerCurrencyBalance{"USD": amount(-5.00), "EUR": amount(5.00)},
+			},
+		},
+		{
+			name: "multiple transfers settle all debts",
+			members: []database.GetGroupMembersRow{
+				{UserID: "uA", Weight: 1.0},
+				{UserID: "uB", Weight: 1.0},
+				{UserID: "uC", Weight: 1.0},
+			},
+			expenses: []database.GetGroupExpensesRow{
+				{
+					ID:               "e1",
+					Currency:         "USD",
+					GroupID:          "g1",
+					PayerID:          "uA",
+					Amount:           amount(30.00),
+					BeneficiariesIds: utils.SliceToJSONString("uA", "uB", "uC"),
+				},
+			},
+			transfers: []database.GetGroupTransfersForBalanceRow{
+				{
+					SenderID:   "uB",
+					ReceiverID: "uA",
+					Amount:     amount(10.00),
+					Currency:   "USD",
+				},
+				{
+					SenderID:   "uC",
+					ReceiverID: "uA",
+					Amount:     amount(10.00),
+					Currency:   "USD",
+				},
+			},
+			defaultCurrency: "USD",
+			want: GroupBalance{
+				"uA": PerCurrencyBalance{"USD": 0},
+				"uB": PerCurrencyBalance{"USD": 0},
+				"uC": PerCurrencyBalance{"USD": 0},
+			},
+		},
+		{
+			name: "transfers only, no expenses",
+			members: []database.GetGroupMembersRow{
+				{UserID: "uA", Weight: 1.0},
+				{UserID: "uB", Weight: 1.0},
+			},
+			expenses: []database.GetGroupExpensesRow{},
+			transfers: []database.GetGroupTransfersForBalanceRow{
+				{
+					SenderID:   "uA",
+					ReceiverID: "uB",
+					Amount:     amount(10.00),
+					Currency:   "USD",
+				},
+			},
+			defaultCurrency: "USD",
+			want: GroupBalance{
+				"uA": PerCurrencyBalance{"USD": amount(10.00)},
+				"uB": PerCurrencyBalance{"USD": amount(-10.00)},
+			},
+		},
 	}
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := ComputeGroupBalance(&tc.members, &tc.expenses, tc.defaultCurrency)
+			got := ComputeGroupBalance(&tc.members, &tc.expenses, &tc.transfers, tc.defaultCurrency)
 
 			if !cmp.Equal(got, tc.want) {
 				t.Errorf("Wrong balance:\n%s", cmp.Diff(tc.want, got))

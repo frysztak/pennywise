@@ -11,6 +11,7 @@ type GroupBalance map[string]PerCurrencyBalance
 func ComputeGroupBalance(
 	members *[]database.GetGroupMembersRow,
 	expenses *[]database.GetGroupExpensesRow,
+	transfers *[]database.GetGroupTransfersForBalanceRow,
 	defaultCurrency string) GroupBalance {
 
 	userWeights := make(map[string]float64)
@@ -19,11 +20,14 @@ func ComputeGroupBalance(
 	}
 	balances := make(GroupBalance)
 
-	// Collect all currencies used in expenses, starting with default currency
+	// Collect all currencies used in expenses and transfers, starting with default currency
 	currencies := make(map[string]bool)
 	currencies[defaultCurrency] = true
 	for _, expense := range *expenses {
 		currencies[expense.Currency] = true
+	}
+	for _, transfer := range *transfers {
+		currencies[transfer.Currency] = true
 	}
 
 	// Initialize all members with zero balances for all currencies
@@ -53,7 +57,11 @@ func ComputeGroupBalance(
 		balances[expense.PayerID][expense.Currency] += expense.Amount
 	}
 
-	// TODO: add transfers
+	// Process transfers: sender gave money, receiver got money
+	for _, transfer := range *transfers {
+		balances[transfer.SenderID][transfer.Currency] += transfer.Amount
+		balances[transfer.ReceiverID][transfer.Currency] -= transfer.Amount
+	}
 
 	return balances
 }

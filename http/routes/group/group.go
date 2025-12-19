@@ -115,7 +115,12 @@ func (s *GroupService) GetUserGroups(ctx context.Context, r *emptypb.Empty) (*ap
 			return nil, connect.NewError(connect.CodeInternal, err)
 		}
 
-		groupBalance := calc.ComputeGroupBalance(&members, &expenses, v.DefaultCurrency)
+		transfers, err := db.Queries.GetGroupTransfersForBalance(ctx, *v.GroupID)
+		if err != nil {
+			return nil, connect.NewError(connect.CodeInternal, err)
+		}
+
+		groupBalance := calc.ComputeGroupBalance(&members, &expenses, &transfers, v.DefaultCurrency)
 
 		// Build member balances
 		memberBalances := make([]*apiv1.MemberBalance, 0, len(members))
