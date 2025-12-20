@@ -69,6 +69,7 @@ type Transfer struct {
 	Amount     int64     `json:"amount"`
 	Currency   string    `json:"currency"`
 	CreatedAt  time.Time `json:"created_at"`
+	Date       time.Time `json:"date"`
 }
 
 type User struct {

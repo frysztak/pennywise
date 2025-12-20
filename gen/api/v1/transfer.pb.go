@@ -157,6 +157,7 @@ type UpdateTransferRequest struct {
 	ReceiverId    string                 `protobuf:"bytes,3,opt,name=receiver_id,json=receiverId,proto3" json:"receiver_id,omitempty"`
 	Amount        float64                `protobuf:"fixed64,4,opt,name=amount,proto3" json:"amount,omitempty"`
 	Currency      string                 `protobuf:"bytes,5,opt,name=currency,proto3" json:"currency,omitempty"`
+	Date          string                 `protobuf:"bytes,6,opt,name=date,proto3" json:"date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -222,6 +223,13 @@ func (x *UpdateTransferRequest) GetAmount() float64 {
 func (x *UpdateTransferRequest) GetCurrency() string {
 	if x != nil {
 		return x.Currency
+	}
+	return ""
+}
+
+func (x *UpdateTransferRequest) GetDate() string {
+	if x != nil {
+		return x.Date
 	}
 	return ""
 }
@@ -448,6 +456,7 @@ type GetGroupTransfersResponse_Transfer struct {
 	ReceiverName  string                 `protobuf:"bytes,6,opt,name=receiver_name,json=receiverName,proto3" json:"receiver_name,omitempty"`
 	Amount        int64                  `protobuf:"varint,7,opt,name=amount,proto3" json:"amount,omitempty"`
 	Currency      string                 `protobuf:"bytes,8,opt,name=currency,proto3" json:"currency,omitempty"`
+	Date          string                 `protobuf:"bytes,9,opt,name=date,proto3" json:"date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -538,6 +547,13 @@ func (x *GetGroupTransfersResponse_Transfer) GetCurrency() string {
 	return ""
 }
 
+func (x *GetGroupTransfersResponse_Transfer) GetDate() string {
+	if x != nil {
+		return x.Date
+	}
+	return ""
+}
+
 var File_api_v1_transfer_proto protoreflect.FileDescriptor
 
 const file_api_v1_transfer_proto_rawDesc = "" +
@@ -553,23 +569,24 @@ const file_api_v1_transfer_proto_rawDesc = "" +
 	"\x04date\x18\x06 \x01(\tH\x00R\x04date\x88\x01\x01B\a\n" +
 	"\x05_date\"(\n" +
 	"\x16CreateTransferResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\xd0\x01\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\xe4\x01\n" +
 	"\x15UpdateTransferRequest\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12%\n" +
 	"\tsender_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\bsenderId\x12)\n" +
 	"\vreceiver_id\x18\x03 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\n" +
 	"receiverId\x12&\n" +
 	"\x06amount\x18\x04 \x01(\x01B\x0e\xbaH\v\x12\t!\x00\x00\x00\x00\x00\x00\x00\x00R\x06amount\x12#\n" +
-	"\bcurrency\x18\x05 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\bcurrency\"(\n" +
+	"\bcurrency\x18\x05 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\bcurrency\x12\x12\n" +
+	"\x04date\x18\x06 \x01(\tR\x04date\"(\n" +
 	"\x16UpdateTransferResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"1\n" +
 	"\x15DeleteTransferRequest\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\x18\n" +
 	"\x16DeleteTransferResponse\"?\n" +
 	"\x18GetGroupTransfersRequest\x12#\n" +
-	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\xd9\x02\n" +
+	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\xed\x02\n" +
 	"\x19GetGroupTransfersResponse\x12H\n" +
-	"\ttransfers\x18\x01 \x03(\v2*.api.v1.GetGroupTransfersResponse.TransferR\ttransfers\x1a\xf1\x01\n" +
+	"\ttransfers\x18\x01 \x03(\v2*.api.v1.GetGroupTransfersResponse.TransferR\ttransfers\x1a\x85\x02\n" +
 	"\bTransfer\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -581,7 +598,8 @@ const file_api_v1_transfer_proto_rawDesc = "" +
 	"receiverId\x12#\n" +
 	"\rreceiver_name\x18\x06 \x01(\tR\freceiverName\x12\x16\n" +
 	"\x06amount\x18\a \x01(\x03R\x06amount\x12\x1a\n" +
-	"\bcurrency\x18\b \x01(\tR\bcurrency2\xe6\x02\n" +
+	"\bcurrency\x18\b \x01(\tR\bcurrency\x12\x12\n" +
+	"\x04date\x18\t \x01(\tR\x04date2\xe6\x02\n" +
 	"\x0fTransferService\x12Q\n" +
 	"\x0eCreateTransfer\x12\x1d.api.v1.CreateTransferRequest\x1a\x1e.api.v1.CreateTransferResponse\"\x00\x12Q\n" +
 	"\x0eUpdateTransfer\x12\x1d.api.v1.UpdateTransferRequest\x1a\x1e.api.v1.UpdateTransferResponse\"\x00\x12Q\n" +

@@ -107,7 +107,7 @@ function RouteComponent() {
     ...transfersData.transfers.map((transfer) => ({
       type: "transfer" as const,
       data: transfer,
-      date: new Date(transfer.createdAt),
+      date: new Date(transfer.date),
     })),
   ].sort((a, b) => b.date.getTime() - a.date.getTime());
 

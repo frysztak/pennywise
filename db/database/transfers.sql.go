@@ -19,10 +19,10 @@ INSERT INTO transfers
     receiver_id,
     amount,
     currency,
-    created_at
+    date
 ) VALUES (
     ?1, ?2, ?3, ?4, ?5, ?6, ?7
-) RETURNING id, group_id, sender_id, receiver_id, amount, currency, created_at
+) RETURNING id, group_id, sender_id, receiver_id, amount, currency, created_at, date
 `
 
 type CreateTransferParams struct {
@@ -32,7 +32,7 @@ type CreateTransferParams struct {
 	ReceiverID string    `json:"receiver_id"`
 	Amount     int64     `json:"amount"`
 	Currency   string    `json:"currency"`
-	CreatedAt  time.Time `json:"created_at"`
+	Date       time.Time `json:"date"`
 }
 
 func (q *Queries) CreateTransfer(ctx context.Context, arg CreateTransferParams) (Transfer, error) {
@@ -43,7 +43,7 @@ func (q *Queries) CreateTransfer(ctx context.Context, arg CreateTransferParams) 
 		arg.ReceiverID,
 		arg.Amount,
 		arg.Currency,
-		arg.CreatedAt,
+		arg.Date,
 	)
 	var i Transfer
 	err := row.Scan(
@@ -54,6 +54,7 @@ func (q *Queries) CreateTransfer(ctx context.Context, arg CreateTransferParams) 
 		&i.Amount,
 		&i.Currency,
 		&i.CreatedAt,
+		&i.Date,
 	)
 	return i, err
 }
@@ -69,7 +70,7 @@ func (q *Queries) DeleteTransfer(ctx context.Context, id string) error {
 
 const getGroupTransfers = `-- name: GetGroupTransfers :many
 SELECT
-    t.id, t.group_id, t.sender_id, t.receiver_id, t.amount, t.currency, t.created_at,
+    t.id, t.group_id, t.sender_id, t.receiver_id, t.amount, t.currency, t.created_at, t.date,
     s.username as sender_name,
     r.username as receiver_name
 FROM transfers t
@@ -87,6 +88,7 @@ type GetGroupTransfersRow struct {
 	Amount       int64     `json:"amount"`
 	Currency     string    `json:"currency"`
 	CreatedAt    time.Time `json:"created_at"`
+	Date         time.Time `json:"date"`
 	SenderName   string    `json:"sender_name"`
 	ReceiverName string    `json:"receiver_name"`
 }
@@ -108,6 +110,7 @@ func (q *Queries) GetGroupTransfers(ctx context.Context, groupID string) ([]GetG
 			&i.Amount,
 			&i.Currency,
 			&i.CreatedAt,
+			&i.Date,
 			&i.SenderName,
 			&i.ReceiverName,
 		); err != nil {
@@ -170,7 +173,7 @@ func (q *Queries) GetGroupTransfersForBalance(ctx context.Context, groupID strin
 }
 
 const getTransferById = `-- name: GetTransferById :one
-SELECT id, group_id, sender_id, receiver_id, amount, currency, created_at FROM transfers WHERE id = ?1
+SELECT id, group_id, sender_id, receiver_id, amount, currency, created_at, date FROM transfers WHERE id = ?1
 `
 
 func (q *Queries) GetTransferById(ctx context.Context, id string) (Transfer, error) {
@@ -184,6 +187,7 @@ func (q *Queries) GetTransferById(ctx context.Context, id string) (Transfer, err
 		&i.Amount,
 		&i.Currency,
 		&i.CreatedAt,
+		&i.Date,
 	)
 	return i, err
 }
@@ -213,17 +217,19 @@ SET
     sender_id = ?1,
     receiver_id = ?2,
     amount = ?3,
-    currency = ?4
-WHERE id = ?5
-RETURNING id, group_id, sender_id, receiver_id, amount, currency, created_at
+    currency = ?4,
+    date = ?5
+WHERE id = ?6
+RETURNING id, group_id, sender_id, receiver_id, amount, currency, created_at, date
 `
 
 type UpdateTransferParams struct {
-	SenderID   string `json:"sender_id"`
-	ReceiverID string `json:"receiver_id"`
-	Amount     int64  `json:"amount"`
-	Currency   string `json:"currency"`
-	ID         string `json:"id"`
+	SenderID   string    `json:"sender_id"`
+	ReceiverID string    `json:"receiver_id"`
+	Amount     int64     `json:"amount"`
+	Currency   string    `json:"currency"`
+	Date       time.Time `json:"date"`
+	ID         string    `json:"id"`
 }
 
 func (q *Queries) UpdateTransfer(ctx context.Context, arg UpdateTransferParams) (Transfer, error) {
@@ -232,6 +238,7 @@ func (q *Queries) UpdateTransfer(ctx context.Context, arg UpdateTransferParams) 
 		arg.ReceiverID,
 		arg.Amount,
 		arg.Currency,
+		arg.Date,
 		arg.ID,
 	)
 	var i Transfer
@@ -243,6 +250,7 @@ func (q *Queries) UpdateTransfer(ctx context.Context, arg UpdateTransferParams) 
 		&i.Amount,
 		&i.Currency,
 		&i.CreatedAt,
+		&i.Date,
 	)
 	return i, err
 }

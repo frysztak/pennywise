@@ -68,7 +68,7 @@ func (s *TransferService) CreateTransfer(ctx context.Context, r *apiv1.CreateTra
 		ReceiverID: r.ReceiverId,
 		Amount:     int64(r.Amount * 100),
 		Currency:   r.Currency,
-		CreatedAt:  transferDate,
+		Date:       transferDate,
 	})
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -94,6 +94,7 @@ func (s *TransferService) GetGroupTransfers(ctx context.Context, r *apiv1.GetGro
 			ReceiverName: row.ReceiverName,
 			Amount:       row.Amount,
 			Currency:     row.Currency,
+			Date:         row.Date.Format(time.RFC3339),
 		})
 	}
 
@@ -139,12 +140,23 @@ func (s *TransferService) UpdateTransfer(ctx context.Context, r *apiv1.UpdateTra
 			errors.New("sender and receiver must be different users"))
 	}
 
+	// Parse date from request, default to now if not provided
+	var transferDate time.Time
+	if r.Date != "" {
+		parsed, err := time.Parse(time.RFC3339, r.Date)
+		if err != nil {
+			return nil, connect.NewError(connect.CodeInvalidArgument, err)
+		}
+		transferDate = parsed
+	}
+
 	transfer, err := db.Queries.UpdateTransfer(ctx, database.UpdateTransferParams{
 		ID:         r.Id,
 		SenderID:   r.SenderId,
 		ReceiverID: r.ReceiverId,
 		Amount:     int64(r.Amount * 100),
 		Currency:   r.Currency,
+		Date:       transferDate,
 	})
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)

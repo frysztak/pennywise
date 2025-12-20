@@ -7,9 +7,9 @@ INSERT INTO transfers
     receiver_id,
     amount,
     currency,
-    created_at
+    date
 ) VALUES (
-    @id, @group_id, @sender_id, @receiver_id, @amount, @currency, @created_at
+    @id, @group_id, @sender_id, @receiver_id, @amount, @currency, @date
 ) RETURNING *;
 
 -- name: GetTransferById :one
@@ -41,7 +41,8 @@ SET
     sender_id = @sender_id,
     receiver_id = @receiver_id,
     amount = @amount,
-    currency = @currency
+    currency = @currency,
+    date = @date
 WHERE id = @id
 RETURNING *;
 

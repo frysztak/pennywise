@@ -74,12 +74,13 @@ CREATE TABLE expense_beneficiaries (
 
 CREATE TABLE transfers (
     id              TEXT PRIMARY KEY,
-    group_id        TEXT NOT NULL REFERENCES groups(id),
-    sender_id       TEXT NOT NULL REFERENCES users(id),
-    receiver_id     TEXT NOT NULL REFERENCES users(id),
+    group_id        TEXT NOT NULL,
+    sender_id       TEXT NOT NULL,
+    receiver_id     TEXT NOT NULL,
     amount          INTEGER NOT NULL,
     currency        TEXT NOT NULL,
     created_at      DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    date            DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (group_id) REFERENCES expense_groups(id) ON DELETE CASCADE,
     FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,

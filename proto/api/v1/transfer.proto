@@ -23,6 +23,7 @@ message UpdateTransferRequest {
   string receiver_id = 3 [(buf.validate.field).string.uuid = true];
   double amount = 4 [(buf.validate.field).double.gt = 0.0];
   string currency = 5 [(buf.validate.field).string.min_len = 2];
+  string date = 6;
 }
 
 message UpdateTransferResponse {
@@ -49,6 +50,7 @@ message GetGroupTransfersResponse {
     string receiver_name = 6;
     int64 amount = 7;
     string currency = 8;
+    string date = 9;
   }
 
   repeated Transfer transfers = 1;
