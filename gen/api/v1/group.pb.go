@@ -23,6 +23,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type GetGroupActivityResponse_ActivityItem_Type int32
+
+const (
+	GetGroupActivityResponse_ActivityItem_TYPE_UNSPECIFIED GetGroupActivityResponse_ActivityItem_Type = 0
+	GetGroupActivityResponse_ActivityItem_TYPE_EXPENSE     GetGroupActivityResponse_ActivityItem_Type = 1
+	GetGroupActivityResponse_ActivityItem_TYPE_TRANSFER    GetGroupActivityResponse_ActivityItem_Type = 2
+)
+
+// Enum value maps for GetGroupActivityResponse_ActivityItem_Type.
+var (
+	GetGroupActivityResponse_ActivityItem_Type_name = map[int32]string{
+		0: "TYPE_UNSPECIFIED",
+		1: "TYPE_EXPENSE",
+		2: "TYPE_TRANSFER",
+	}
+	GetGroupActivityResponse_ActivityItem_Type_value = map[string]int32{
+		"TYPE_UNSPECIFIED": 0,
+		"TYPE_EXPENSE":     1,
+		"TYPE_TRANSFER":    2,
+	}
+)
+
+func (x GetGroupActivityResponse_ActivityItem_Type) Enum() *GetGroupActivityResponse_ActivityItem_Type {
+	p := new(GetGroupActivityResponse_ActivityItem_Type)
+	*p = x
+	return p
+}
+
+func (x GetGroupActivityResponse_ActivityItem_Type) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (GetGroupActivityResponse_ActivityItem_Type) Descriptor() protoreflect.EnumDescriptor {
+	return file_api_v1_group_proto_enumTypes[0].Descriptor()
+}
+
+func (GetGroupActivityResponse_ActivityItem_Type) Type() protoreflect.EnumType {
+	return &file_api_v1_group_proto_enumTypes[0]
+}
+
+func (x GetGroupActivityResponse_ActivityItem_Type) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use GetGroupActivityResponse_ActivityItem_Type.Descriptor instead.
+func (GetGroupActivityResponse_ActivityItem_Type) EnumDescriptor() ([]byte, []int) {
+	return file_api_v1_group_proto_rawDescGZIP(), []int{9, 0, 0}
+}
+
 type CreateExpenseGroupRequest struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Name            string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -511,6 +560,410 @@ func (x *GetUserGroupsResponse) GetGroups() []*UserGroup {
 	return nil
 }
 
+type GetGroupActivityRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	GroupId       string                 `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetGroupActivityRequest) Reset() {
+	*x = GetGroupActivityRequest{}
+	mi := &file_api_v1_group_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetGroupActivityRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetGroupActivityRequest) ProtoMessage() {}
+
+func (x *GetGroupActivityRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_group_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetGroupActivityRequest.ProtoReflect.Descriptor instead.
+func (*GetGroupActivityRequest) Descriptor() ([]byte, []int) {
+	return file_api_v1_group_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetGroupActivityRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
+type GetGroupActivityResponse struct {
+	state         protoimpl.MessageState                   `protogen:"open.v1"`
+	Items         []*GetGroupActivityResponse_ActivityItem `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetGroupActivityResponse) Reset() {
+	*x = GetGroupActivityResponse{}
+	mi := &file_api_v1_group_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetGroupActivityResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetGroupActivityResponse) ProtoMessage() {}
+
+func (x *GetGroupActivityResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_group_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetGroupActivityResponse.ProtoReflect.Descriptor instead.
+func (*GetGroupActivityResponse) Descriptor() ([]byte, []int) {
+	return file_api_v1_group_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetGroupActivityResponse) GetItems() []*GetGroupActivityResponse_ActivityItem {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+type GetGroupActivityResponse_ActivityItem struct {
+	state protoimpl.MessageState                     `protogen:"open.v1"`
+	Type  GetGroupActivityResponse_ActivityItem_Type `protobuf:"varint,1,opt,name=type,proto3,enum=api.v1.GetGroupActivityResponse_ActivityItem_Type" json:"type,omitempty"`
+	// Types that are valid to be assigned to Data:
+	//
+	//	*GetGroupActivityResponse_ActivityItem_Expense_
+	//	*GetGroupActivityResponse_ActivityItem_Transfer_
+	Data          isGetGroupActivityResponse_ActivityItem_Data `protobuf_oneof:"data"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetGroupActivityResponse_ActivityItem) Reset() {
+	*x = GetGroupActivityResponse_ActivityItem{}
+	mi := &file_api_v1_group_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetGroupActivityResponse_ActivityItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetGroupActivityResponse_ActivityItem) ProtoMessage() {}
+
+func (x *GetGroupActivityResponse_ActivityItem) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_group_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetGroupActivityResponse_ActivityItem.ProtoReflect.Descriptor instead.
+func (*GetGroupActivityResponse_ActivityItem) Descriptor() ([]byte, []int) {
+	return file_api_v1_group_proto_rawDescGZIP(), []int{9, 0}
+}
+
+func (x *GetGroupActivityResponse_ActivityItem) GetType() GetGroupActivityResponse_ActivityItem_Type {
+	if x != nil {
+		return x.Type
+	}
+	return GetGroupActivityResponse_ActivityItem_TYPE_UNSPECIFIED
+}
+
+func (x *GetGroupActivityResponse_ActivityItem) GetData() isGetGroupActivityResponse_ActivityItem_Data {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+func (x *GetGroupActivityResponse_ActivityItem) GetExpense() *GetGroupActivityResponse_ActivityItem_Expense {
+	if x != nil {
+		if x, ok := x.Data.(*GetGroupActivityResponse_ActivityItem_Expense_); ok {
+			return x.Expense
+		}
+	}
+	return nil
+}
+
+func (x *GetGroupActivityResponse_ActivityItem) GetTransfer() *GetGroupActivityResponse_ActivityItem_Transfer {
+	if x != nil {
+		if x, ok := x.Data.(*GetGroupActivityResponse_ActivityItem_Transfer_); ok {
+			return x.Transfer
+		}
+	}
+	return nil
+}
+
+type isGetGroupActivityResponse_ActivityItem_Data interface {
+	isGetGroupActivityResponse_ActivityItem_Data()
+}
+
+type GetGroupActivityResponse_ActivityItem_Expense_ struct {
+	Expense *GetGroupActivityResponse_ActivityItem_Expense `protobuf:"bytes,2,opt,name=expense,proto3,oneof"`
+}
+
+type GetGroupActivityResponse_ActivityItem_Transfer_ struct {
+	Transfer *GetGroupActivityResponse_ActivityItem_Transfer `protobuf:"bytes,3,opt,name=transfer,proto3,oneof"`
+}
+
+func (*GetGroupActivityResponse_ActivityItem_Expense_) isGetGroupActivityResponse_ActivityItem_Data() {
+}
+
+func (*GetGroupActivityResponse_ActivityItem_Transfer_) isGetGroupActivityResponse_ActivityItem_Data() {
+}
+
+type GetGroupActivityResponse_ActivityItem_Expense struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	CreatedAt        string                 `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	Name             string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Description      *string                `protobuf:"bytes,4,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Currency         string                 `protobuf:"bytes,5,opt,name=currency,proto3" json:"currency,omitempty"`
+	PayerId          string                 `protobuf:"bytes,6,opt,name=payer_id,json=payerId,proto3" json:"payer_id,omitempty"`
+	PayerName        string                 `protobuf:"bytes,7,opt,name=payer_name,json=payerName,proto3" json:"payer_name,omitempty"`
+	Amount           int64                  `protobuf:"varint,8,opt,name=amount,proto3" json:"amount,omitempty"`
+	BeneficiariesIds []string               `protobuf:"bytes,9,rep,name=beneficiaries_ids,json=beneficiariesIds,proto3" json:"beneficiaries_ids,omitempty"`
+	Date             string                 `protobuf:"bytes,10,opt,name=date,proto3" json:"date,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Expense) Reset() {
+	*x = GetGroupActivityResponse_ActivityItem_Expense{}
+	mi := &file_api_v1_group_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Expense) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetGroupActivityResponse_ActivityItem_Expense) ProtoMessage() {}
+
+func (x *GetGroupActivityResponse_ActivityItem_Expense) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_group_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetGroupActivityResponse_ActivityItem_Expense.ProtoReflect.Descriptor instead.
+func (*GetGroupActivityResponse_ActivityItem_Expense) Descriptor() ([]byte, []int) {
+	return file_api_v1_group_proto_rawDescGZIP(), []int{9, 0, 0}
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Expense) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Expense) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Expense) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Expense) GetDescription() string {
+	if x != nil && x.Description != nil {
+		return *x.Description
+	}
+	return ""
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Expense) GetCurrency() string {
+	if x != nil {
+		return x.Currency
+	}
+	return ""
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Expense) GetPayerId() string {
+	if x != nil {
+		return x.PayerId
+	}
+	return ""
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Expense) GetPayerName() string {
+	if x != nil {
+		return x.PayerName
+	}
+	return ""
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Expense) GetAmount() int64 {
+	if x != nil {
+		return x.Amount
+	}
+	return 0
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Expense) GetBeneficiariesIds() []string {
+	if x != nil {
+		return x.BeneficiariesIds
+	}
+	return nil
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Expense) GetDate() string {
+	if x != nil {
+		return x.Date
+	}
+	return ""
+}
+
+type GetGroupActivityResponse_ActivityItem_Transfer struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	CreatedAt     string                 `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	SenderId      string                 `protobuf:"bytes,3,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
+	SenderName    string                 `protobuf:"bytes,4,opt,name=sender_name,json=senderName,proto3" json:"sender_name,omitempty"`
+	ReceiverId    string                 `protobuf:"bytes,5,opt,name=receiver_id,json=receiverId,proto3" json:"receiver_id,omitempty"`
+	ReceiverName  string                 `protobuf:"bytes,6,opt,name=receiver_name,json=receiverName,proto3" json:"receiver_name,omitempty"`
+	Amount        int64                  `protobuf:"varint,7,opt,name=amount,proto3" json:"amount,omitempty"`
+	Currency      string                 `protobuf:"bytes,8,opt,name=currency,proto3" json:"currency,omitempty"`
+	Date          string                 `protobuf:"bytes,9,opt,name=date,proto3" json:"date,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Transfer) Reset() {
+	*x = GetGroupActivityResponse_ActivityItem_Transfer{}
+	mi := &file_api_v1_group_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Transfer) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetGroupActivityResponse_ActivityItem_Transfer) ProtoMessage() {}
+
+func (x *GetGroupActivityResponse_ActivityItem_Transfer) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_group_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetGroupActivityResponse_ActivityItem_Transfer.ProtoReflect.Descriptor instead.
+func (*GetGroupActivityResponse_ActivityItem_Transfer) Descriptor() ([]byte, []int) {
+	return file_api_v1_group_proto_rawDescGZIP(), []int{9, 0, 1}
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Transfer) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Transfer) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Transfer) GetSenderId() string {
+	if x != nil {
+		return x.SenderId
+	}
+	return ""
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Transfer) GetSenderName() string {
+	if x != nil {
+		return x.SenderName
+	}
+	return ""
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Transfer) GetReceiverId() string {
+	if x != nil {
+		return x.ReceiverId
+	}
+	return ""
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Transfer) GetReceiverName() string {
+	if x != nil {
+		return x.ReceiverName
+	}
+	return ""
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Transfer) GetAmount() int64 {
+	if x != nil {
+		return x.Amount
+	}
+	return 0
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Transfer) GetCurrency() string {
+	if x != nil {
+		return x.Currency
+	}
+	return ""
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Transfer) GetDate() string {
+	if x != nil {
+		return x.Date
+	}
+	return ""
+}
+
 var File_api_v1_group_proto protoreflect.FileDescriptor
 
 const file_api_v1_group_proto_rawDesc = "" +
@@ -556,13 +1009,55 @@ const file_api_v1_group_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x01\"B\n" +
 	"\x15GetUserGroupsResponse\x12)\n" +
-	"\x06groups\x18\x01 \x03(\v2\x11.api.v1.UserGroupR\x06groups2\xa8\x03\n" +
+	"\x06groups\x18\x01 \x03(\v2\x11.api.v1.UserGroupR\x06groups\">\n" +
+	"\x17GetGroupActivityRequest\x12#\n" +
+	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\xe9\a\n" +
+	"\x18GetGroupActivityResponse\x12C\n" +
+	"\x05items\x18\x01 \x03(\v2-.api.v1.GetGroupActivityResponse.ActivityItemR\x05items\x1a\x87\a\n" +
+	"\fActivityItem\x12F\n" +
+	"\x04type\x18\x01 \x01(\x0e22.api.v1.GetGroupActivityResponse.ActivityItem.TypeR\x04type\x12Q\n" +
+	"\aexpense\x18\x02 \x01(\v25.api.v1.GetGroupActivityResponse.ActivityItem.ExpenseH\x00R\aexpense\x12T\n" +
+	"\btransfer\x18\x03 \x01(\v26.api.v1.GetGroupActivityResponse.ActivityItem.TransferH\x00R\btransfer\x1a\xb2\x02\n" +
+	"\aExpense\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\x02 \x01(\tR\tcreatedAt\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12%\n" +
+	"\vdescription\x18\x04 \x01(\tH\x00R\vdescription\x88\x01\x01\x12\x1a\n" +
+	"\bcurrency\x18\x05 \x01(\tR\bcurrency\x12\x19\n" +
+	"\bpayer_id\x18\x06 \x01(\tR\apayerId\x12\x1d\n" +
+	"\n" +
+	"payer_name\x18\a \x01(\tR\tpayerName\x12\x16\n" +
+	"\x06amount\x18\b \x01(\x03R\x06amount\x12+\n" +
+	"\x11beneficiaries_ids\x18\t \x03(\tR\x10beneficiariesIds\x12\x12\n" +
+	"\x04date\x18\n" +
+	" \x01(\tR\x04dateB\x0e\n" +
+	"\f_description\x1a\x85\x02\n" +
+	"\bTransfer\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\x02 \x01(\tR\tcreatedAt\x12\x1b\n" +
+	"\tsender_id\x18\x03 \x01(\tR\bsenderId\x12\x1f\n" +
+	"\vsender_name\x18\x04 \x01(\tR\n" +
+	"senderName\x12\x1f\n" +
+	"\vreceiver_id\x18\x05 \x01(\tR\n" +
+	"receiverId\x12#\n" +
+	"\rreceiver_name\x18\x06 \x01(\tR\freceiverName\x12\x16\n" +
+	"\x06amount\x18\a \x01(\x03R\x06amount\x12\x1a\n" +
+	"\bcurrency\x18\b \x01(\tR\bcurrency\x12\x12\n" +
+	"\x04date\x18\t \x01(\tR\x04date\"A\n" +
+	"\x04Type\x12\x14\n" +
+	"\x10TYPE_UNSPECIFIED\x10\x00\x12\x10\n" +
+	"\fTYPE_EXPENSE\x10\x01\x12\x11\n" +
+	"\rTYPE_TRANSFER\x10\x02B\x06\n" +
+	"\x04data2\x81\x04\n" +
 	"\fGroupService\x12]\n" +
 	"\x12CreateExpenseGroup\x12!.api.v1.CreateExpenseGroupRequest\x1a\".api.v1.CreateExpenseGroupResponse\"\x00\x12O\n" +
 	"\vUpdateGroup\x12\x1a.api.v1.UpdateGroupRequest\x1a\".api.v1.CreateExpenseGroupResponse\"\x00\x12I\n" +
 	"\x0eAddUserToGroup\x12\x1d.api.v1.AddUserToGroupRequest\x1a\x16.google.protobuf.Empty\"\x00\x12S\n" +
 	"\x13RemoveUserFromGroup\x12\".api.v1.RemoveUserFromGroupRequest\x1a\x16.google.protobuf.Empty\"\x00\x12H\n" +
-	"\rGetUserGroups\x12\x16.google.protobuf.Empty\x1a\x1d.api.v1.GetUserGroupsResponse\"\x00Bm\n" +
+	"\rGetUserGroups\x12\x16.google.protobuf.Empty\x1a\x1d.api.v1.GetUserGroupsResponse\"\x00\x12W\n" +
+	"\x10GetGroupActivity\x12\x1f.api.v1.GetGroupActivityRequest\x1a .api.v1.GetGroupActivityResponse\"\x00Bm\n" +
 	"\n" +
 	"com.api.v1B\n" +
 	"GroupProtoP\x01Z\x1apennywise/gen/api/v1;apiv1\xa2\x02\x03AXX\xaa\x02\x06Api.V1\xca\x02\x06Api\\V1\xe2\x02\x12Api\\V1\\GPBMetadata\xea\x02\aApi::V1b\x06proto3"
@@ -579,40 +1074,53 @@ func file_api_v1_group_proto_rawDescGZIP() []byte {
 	return file_api_v1_group_proto_rawDescData
 }
 
-var file_api_v1_group_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_api_v1_group_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_api_v1_group_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_api_v1_group_proto_goTypes = []any{
-	(*CreateExpenseGroupRequest)(nil),  // 0: api.v1.CreateExpenseGroupRequest
-	(*CreateExpenseGroupResponse)(nil), // 1: api.v1.CreateExpenseGroupResponse
-	(*AddUserToGroupRequest)(nil),      // 2: api.v1.AddUserToGroupRequest
-	(*RemoveUserFromGroupRequest)(nil), // 3: api.v1.RemoveUserFromGroupRequest
-	(*UpdateGroupRequest)(nil),         // 4: api.v1.UpdateGroupRequest
-	(*MemberBalance)(nil),              // 5: api.v1.MemberBalance
-	(*UserGroup)(nil),                  // 6: api.v1.UserGroup
-	(*GetUserGroupsResponse)(nil),      // 7: api.v1.GetUserGroupsResponse
-	nil,                                // 8: api.v1.MemberBalance.BalanceEntry
-	nil,                                // 9: api.v1.UserGroup.TotalSpendingEntry
-	(*emptypb.Empty)(nil),              // 10: google.protobuf.Empty
+	(GetGroupActivityResponse_ActivityItem_Type)(0),        // 0: api.v1.GetGroupActivityResponse.ActivityItem.Type
+	(*CreateExpenseGroupRequest)(nil),                      // 1: api.v1.CreateExpenseGroupRequest
+	(*CreateExpenseGroupResponse)(nil),                     // 2: api.v1.CreateExpenseGroupResponse
+	(*AddUserToGroupRequest)(nil),                          // 3: api.v1.AddUserToGroupRequest
+	(*RemoveUserFromGroupRequest)(nil),                     // 4: api.v1.RemoveUserFromGroupRequest
+	(*UpdateGroupRequest)(nil),                             // 5: api.v1.UpdateGroupRequest
+	(*MemberBalance)(nil),                                  // 6: api.v1.MemberBalance
+	(*UserGroup)(nil),                                      // 7: api.v1.UserGroup
+	(*GetUserGroupsResponse)(nil),                          // 8: api.v1.GetUserGroupsResponse
+	(*GetGroupActivityRequest)(nil),                        // 9: api.v1.GetGroupActivityRequest
+	(*GetGroupActivityResponse)(nil),                       // 10: api.v1.GetGroupActivityResponse
+	nil,                                                    // 11: api.v1.MemberBalance.BalanceEntry
+	nil,                                                    // 12: api.v1.UserGroup.TotalSpendingEntry
+	(*GetGroupActivityResponse_ActivityItem)(nil),          // 13: api.v1.GetGroupActivityResponse.ActivityItem
+	(*GetGroupActivityResponse_ActivityItem_Expense)(nil),  // 14: api.v1.GetGroupActivityResponse.ActivityItem.Expense
+	(*GetGroupActivityResponse_ActivityItem_Transfer)(nil), // 15: api.v1.GetGroupActivityResponse.ActivityItem.Transfer
+	(*emptypb.Empty)(nil),                                  // 16: google.protobuf.Empty
 }
 var file_api_v1_group_proto_depIdxs = []int32{
-	8,  // 0: api.v1.MemberBalance.balance:type_name -> api.v1.MemberBalance.BalanceEntry
-	5,  // 1: api.v1.UserGroup.member_balances:type_name -> api.v1.MemberBalance
-	9,  // 2: api.v1.UserGroup.total_spending:type_name -> api.v1.UserGroup.TotalSpendingEntry
-	6,  // 3: api.v1.GetUserGroupsResponse.groups:type_name -> api.v1.UserGroup
-	0,  // 4: api.v1.GroupService.CreateExpenseGroup:input_type -> api.v1.CreateExpenseGroupRequest
-	4,  // 5: api.v1.GroupService.UpdateGroup:input_type -> api.v1.UpdateGroupRequest
-	2,  // 6: api.v1.GroupService.AddUserToGroup:input_type -> api.v1.AddUserToGroupRequest
-	3,  // 7: api.v1.GroupService.RemoveUserFromGroup:input_type -> api.v1.RemoveUserFromGroupRequest
-	10, // 8: api.v1.GroupService.GetUserGroups:input_type -> google.protobuf.Empty
-	1,  // 9: api.v1.GroupService.CreateExpenseGroup:output_type -> api.v1.CreateExpenseGroupResponse
-	1,  // 10: api.v1.GroupService.UpdateGroup:output_type -> api.v1.CreateExpenseGroupResponse
-	10, // 11: api.v1.GroupService.AddUserToGroup:output_type -> google.protobuf.Empty
-	10, // 12: api.v1.GroupService.RemoveUserFromGroup:output_type -> google.protobuf.Empty
-	7,  // 13: api.v1.GroupService.GetUserGroups:output_type -> api.v1.GetUserGroupsResponse
-	9,  // [9:14] is the sub-list for method output_type
-	4,  // [4:9] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	11, // 0: api.v1.MemberBalance.balance:type_name -> api.v1.MemberBalance.BalanceEntry
+	6,  // 1: api.v1.UserGroup.member_balances:type_name -> api.v1.MemberBalance
+	12, // 2: api.v1.UserGroup.total_spending:type_name -> api.v1.UserGroup.TotalSpendingEntry
+	7,  // 3: api.v1.GetUserGroupsResponse.groups:type_name -> api.v1.UserGroup
+	13, // 4: api.v1.GetGroupActivityResponse.items:type_name -> api.v1.GetGroupActivityResponse.ActivityItem
+	0,  // 5: api.v1.GetGroupActivityResponse.ActivityItem.type:type_name -> api.v1.GetGroupActivityResponse.ActivityItem.Type
+	14, // 6: api.v1.GetGroupActivityResponse.ActivityItem.expense:type_name -> api.v1.GetGroupActivityResponse.ActivityItem.Expense
+	15, // 7: api.v1.GetGroupActivityResponse.ActivityItem.transfer:type_name -> api.v1.GetGroupActivityResponse.ActivityItem.Transfer
+	1,  // 8: api.v1.GroupService.CreateExpenseGroup:input_type -> api.v1.CreateExpenseGroupRequest
+	5,  // 9: api.v1.GroupService.UpdateGroup:input_type -> api.v1.UpdateGroupRequest
+	3,  // 10: api.v1.GroupService.AddUserToGroup:input_type -> api.v1.AddUserToGroupRequest
+	4,  // 11: api.v1.GroupService.RemoveUserFromGroup:input_type -> api.v1.RemoveUserFromGroupRequest
+	16, // 12: api.v1.GroupService.GetUserGroups:input_type -> google.protobuf.Empty
+	9,  // 13: api.v1.GroupService.GetGroupActivity:input_type -> api.v1.GetGroupActivityRequest
+	2,  // 14: api.v1.GroupService.CreateExpenseGroup:output_type -> api.v1.CreateExpenseGroupResponse
+	2,  // 15: api.v1.GroupService.UpdateGroup:output_type -> api.v1.CreateExpenseGroupResponse
+	16, // 16: api.v1.GroupService.AddUserToGroup:output_type -> google.protobuf.Empty
+	16, // 17: api.v1.GroupService.RemoveUserFromGroup:output_type -> google.protobuf.Empty
+	8,  // 18: api.v1.GroupService.GetUserGroups:output_type -> api.v1.GetUserGroupsResponse
+	10, // 19: api.v1.GroupService.GetGroupActivity:output_type -> api.v1.GetGroupActivityResponse
+	14, // [14:20] is the sub-list for method output_type
+	8,  // [8:14] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_api_v1_group_proto_init() }
@@ -620,18 +1128,24 @@ func file_api_v1_group_proto_init() {
 	if File_api_v1_group_proto != nil {
 		return
 	}
+	file_api_v1_group_proto_msgTypes[12].OneofWrappers = []any{
+		(*GetGroupActivityResponse_ActivityItem_Expense_)(nil),
+		(*GetGroupActivityResponse_ActivityItem_Transfer_)(nil),
+	}
+	file_api_v1_group_proto_msgTypes[13].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_v1_group_proto_rawDesc), len(file_api_v1_group_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   10,
+			NumEnums:      1,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_api_v1_group_proto_goTypes,
 		DependencyIndexes: file_api_v1_group_proto_depIdxs,
+		EnumInfos:         file_api_v1_group_proto_enumTypes,
 		MessageInfos:      file_api_v1_group_proto_msgTypes,
 	}.Build()
 	File_api_v1_group_proto = out.File

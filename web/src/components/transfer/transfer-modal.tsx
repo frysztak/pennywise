@@ -16,9 +16,11 @@ import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import {
   createTransfer,
   updateTransfer,
-  getGroupTransfers,
 } from "@/gen/api/v1/transfer-TransferService_connectquery";
-import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
+import {
+  getGroupActivity,
+  getUserGroups,
+} from "@/gen/api/v1/group-GroupService_connectquery";
 import { Spinner } from "../ui/spinner";
 import { toast } from "sonner";
 import { useEffect, useCallback } from "react";
@@ -31,19 +33,23 @@ import {
   SelectValue,
 } from "../ui/select";
 import { COMMON_CURRENCIES } from "@/lib/currencies";
-import type { MemberBalance } from "@/gen/api/v1/group_pb";
-import type { GetGroupTransfersResponse_Transfer } from "@/gen/api/v1/transfer_pb";
+import type {
+  MemberBalance,
+  GetGroupActivityResponse_ActivityItem_Transfer,
+} from "@/gen/api/v1/group_pb";
 
-const formSchema = z.object({
-  senderId: z.string().min(1, "Sender is required"),
-  receiverId: z.string().min(1, "Receiver is required"),
-  amount: z.number().positive("Amount must be a positive number"),
-  currency: z.string().min(2, "Currency is required"),
-  date: z.string().date("Invalid date format"),
-}).refine((data) => data.senderId !== data.receiverId, {
-  message: "Sender and receiver must be different",
-  path: ["receiverId"],
-});
+const formSchema = z
+  .object({
+    senderId: z.string().min(1, "Sender is required"),
+    receiverId: z.string().min(1, "Receiver is required"),
+    amount: z.number().positive("Amount must be a positive number"),
+    currency: z.string().min(2, "Currency is required"),
+    date: z.string().date("Invalid date format"),
+  })
+  .refine((data) => data.senderId !== data.receiverId, {
+    message: "Sender and receiver must be different",
+    path: ["receiverId"],
+  });
 
 // Helper functions for amount conversion
 const convertAmountToDisplay = (amount: bigint | number): number => {
@@ -69,11 +75,11 @@ interface TransferModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   mode: "create" | "edit";
-  transfer?: GetGroupTransfersResponse_Transfer;
+  transfer?: GetGroupActivityResponse_ActivityItem_Transfer;
   groupId: string;
   groupMembers: MemberBalance[];
   currentUserId: string;
-  defaultCurrency?: string;
+  defaultCurrency: string;
 }
 
 export const TransferModal = ({
@@ -84,7 +90,7 @@ export const TransferModal = ({
   groupId,
   groupMembers,
   currentUserId,
-  defaultCurrency = "USD",
+  defaultCurrency,
 }: TransferModalProps) => {
   const isEditMode = mode === "edit";
 
@@ -119,8 +125,8 @@ export const TransferModal = ({
     }
   }, [open, getFormDefaults, form]);
 
-  const groupTransfersKey = createConnectQueryKey({
-    schema: getGroupTransfers,
+  const groupActivityKey = createConnectQueryKey({
+    schema: getGroupActivity,
     cardinality: "finite",
     input: { groupId },
   });
@@ -132,25 +138,31 @@ export const TransferModal = ({
 
   const queryClient = useQueryClient();
 
-  const { isPending: isCreating, mutate: createMutate } = useMutation(createTransfer, {
-    onSuccess: () => {
-      toast.success("Transfer recorded!");
-      queryClient.invalidateQueries({ queryKey: groupTransfersKey });
-      queryClient.invalidateQueries({ queryKey: userGroupsKey });
-      onOpenChange(false);
-    },
-    onError: handleError,
-  });
+  const { isPending: isCreating, mutate: createMutate } = useMutation(
+    createTransfer,
+    {
+      onSuccess: () => {
+        toast.success("Transfer recorded!");
+        queryClient.invalidateQueries({ queryKey: groupActivityKey });
+        queryClient.invalidateQueries({ queryKey: userGroupsKey });
+        onOpenChange(false);
+      },
+      onError: handleError,
+    }
+  );
 
-  const { isPending: isUpdating, mutate: updateMutate } = useMutation(updateTransfer, {
-    onSuccess: () => {
-      toast.success("Transfer updated!");
-      queryClient.invalidateQueries({ queryKey: groupTransfersKey });
-      queryClient.invalidateQueries({ queryKey: userGroupsKey });
-      onOpenChange(false);
-    },
-    onError: handleError,
-  });
+  const { isPending: isUpdating, mutate: updateMutate } = useMutation(
+    updateTransfer,
+    {
+      onSuccess: () => {
+        toast.success("Transfer updated!");
+        queryClient.invalidateQueries({ queryKey: groupActivityKey });
+        queryClient.invalidateQueries({ queryKey: userGroupsKey });
+        onOpenChange(false);
+      },
+      onError: handleError,
+    }
+  );
 
   const isPending = isCreating || isUpdating;
 
@@ -186,9 +198,13 @@ export const TransferModal = ({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEditMode ? "Edit transfer" : "Record transfer"}</DialogTitle>
+          <DialogTitle>
+            {isEditMode ? "Edit transfer" : "Record transfer"}
+          </DialogTitle>
           <DialogDescription>
-            {isEditMode ? "Update transfer details." : "Record a payment between group members."}
+            {isEditMode
+              ? "Update transfer details."
+              : "Record a payment between group members."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -205,7 +221,10 @@ export const TransferModal = ({
                     onValueChange={field.onChange}
                     disabled={isPending}
                   >
-                    <SelectTrigger id="sender" aria-invalid={fieldState.invalid}>
+                    <SelectTrigger
+                      id="sender"
+                      aria-invalid={fieldState.invalid}
+                    >
                       <SelectValue placeholder="Select sender" />
                     </SelectTrigger>
                     <SelectContent>
@@ -234,7 +253,10 @@ export const TransferModal = ({
                     onValueChange={field.onChange}
                     disabled={isPending}
                   >
-                    <SelectTrigger id="receiver" aria-invalid={fieldState.invalid}>
+                    <SelectTrigger
+                      id="receiver"
+                      aria-invalid={fieldState.invalid}
+                    >
                       <SelectValue placeholder="Select receiver" />
                     </SelectTrigger>
                     <SelectContent>
@@ -287,7 +309,9 @@ export const TransferModal = ({
                       placeholder="0.00"
                       required
                       aria-invalid={fieldState.invalid}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber || 0)}
+                      onChange={(e) =>
+                        field.onChange(e.target.valueAsNumber || 0)
+                      }
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -307,12 +331,18 @@ export const TransferModal = ({
                       onValueChange={field.onChange}
                       disabled={isPending}
                     >
-                      <SelectTrigger id="currency" aria-invalid={fieldState.invalid}>
+                      <SelectTrigger
+                        id="currency"
+                        aria-invalid={fieldState.invalid}
+                      >
                         <SelectValue placeholder="Select currency" />
                       </SelectTrigger>
                       <SelectContent>
                         {COMMON_CURRENCIES.map((currency) => (
-                          <SelectItem key={currency.value} value={currency.value}>
+                          <SelectItem
+                            key={currency.value}
+                            value={currency.value}
+                          >
                             {currency.label}
                           </SelectItem>
                         ))}

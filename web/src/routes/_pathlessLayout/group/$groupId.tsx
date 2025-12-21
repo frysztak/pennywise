@@ -3,9 +3,7 @@ import {
   createQueryOptions,
   useSuspenseQuery,
 } from "@connectrpc/connect-query";
-import { getGroupExpenses } from "@/gen/api/v1/expense-ExpenseService_connectquery";
-import { getGroupTransfers } from "@/gen/api/v1/transfer-TransferService_connectquery";
-import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
+import { getGroupActivity, getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
 import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
 import { ExpenseModal } from "@/components/expense/expense-modal";
 import { TransferModal } from "@/components/transfer/transfer-modal";
@@ -29,8 +27,7 @@ import { useExpenseModal } from "@/hooks/use-expense-modal";
 import { useTransferModal } from "@/hooks/use-transfer-modal";
 import { useDeleteConfirmation } from "@/hooks/use-delete-confirmation";
 import { useGroupMutations } from "@/hooks/use-group-mutations";
-import type { GetGroupExpensesResponse_Expense } from "@/gen/api/v1/expense_pb";
-import type { GetGroupTransfersResponse_Transfer } from "@/gen/api/v1/transfer_pb";
+import type { GetGroupActivityResponse_ActivityItem_Expense, GetGroupActivityResponse_ActivityItem_Transfer } from "@/gen/api/v1/group_pb";
 
 export const Route = createFileRoute("/_pathlessLayout/group/$groupId")({
   component: RouteComponent,
@@ -50,10 +47,7 @@ export const Route = createFileRoute("/_pathlessLayout/group/$groupId")({
 
 function RouteComponent() {
   const { groupId } = Route.useParams();
-  const { data: expensesData } = useSuspenseQuery(getGroupExpenses, {
-    groupId,
-  });
-  const { data: transfersData } = useSuspenseQuery(getGroupTransfers, {
+  const { data: activityData } = useSuspenseQuery(getGroupActivity, {
     groupId,
   });
   const { data: groupInfo } = useSuspenseQuery(getUserGroups, undefined, {
@@ -65,9 +59,9 @@ function RouteComponent() {
   const expenseModal = useExpenseModal();
   const transferModal = useTransferModal();
   const expenseDelete =
-    useDeleteConfirmation<GetGroupExpensesResponse_Expense>();
+    useDeleteConfirmation<GetGroupActivityResponse_ActivityItem_Expense>();
   const transferDelete =
-    useDeleteConfirmation<GetGroupTransfersResponse_Transfer>();
+    useDeleteConfirmation<GetGroupActivityResponse_ActivityItem_Transfer>();
   const { deleteExpense, deleteTransfer } = useGroupMutations(groupId);
 
   // Find current user's balance from member balances
@@ -89,27 +83,21 @@ function RouteComponent() {
     });
   };
 
-  // Combine expenses and transfers for recent activity
-  type ActivityItem =
-    | { type: "expense"; data: GetGroupExpensesResponse_Expense; date: Date }
-    | {
-        type: "transfer";
-        data: GetGroupTransfersResponse_Transfer;
-        date: Date;
+  // Transform backend activity items into format expected by ActivityTable
+  const recentActivity = activityData.items.map((item) => {
+    if (item.data.case === "expense") {
+      return {
+        type: "expense" as const,
+        data: item.data.value,
       };
-
-  const recentActivity: ActivityItem[] = [
-    ...expensesData.expenses.map((expense) => ({
-      type: "expense" as const,
-      data: expense,
-      date: new Date(expense.date),
-    })),
-    ...transfersData.transfers.map((transfer) => ({
-      type: "transfer" as const,
-      data: transfer,
-      date: new Date(transfer.date),
-    })),
-  ].sort((a, b) => b.date.getTime() - a.date.getTime());
+    } else if (item.data.case === "transfer") {
+      return {
+        type: "transfer" as const,
+        data: item.data.value,
+      };
+    }
+    throw new Error("Unknown activity item type");
+  });
 
   return (
     <div className="min-h-screen bg-background">

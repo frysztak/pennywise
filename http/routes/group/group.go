@@ -7,6 +7,9 @@ import (
 	"pennywise/db/database"
 	apiv1 "pennywise/gen/api/v1"
 	"pennywise/http/helpers"
+	"pennywise/utils"
+	"sort"
+	"time"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
@@ -159,3 +162,85 @@ func (s *GroupService) GetUserGroups(ctx context.Context, r *emptypb.Empty) (*ap
 	}, nil
 }
 
+func (s *GroupService) GetGroupActivity(ctx context.Context, r *apiv1.GetGroupActivityRequest) (*apiv1.GetGroupActivityResponse, error) {
+	// Fetch expenses
+	expenses, err := db.Queries.GetGroupExpenses(ctx, r.GroupId)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	// Fetch transfers
+	transfers, err := db.Queries.GetGroupTransfers(ctx, r.GroupId)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	// Combine into activity items
+	items := make([]*apiv1.GetGroupActivityResponse_ActivityItem, 0, len(expenses)+len(transfers))
+
+	// Add expenses
+	for _, expense := range expenses {
+		beneficiariesIds, err := utils.JSONStringToSlice(expense.BeneficiariesIds)
+		if err != nil {
+			return nil, connect.NewError(connect.CodeInternal, err)
+		}
+
+		items = append(items, &apiv1.GetGroupActivityResponse_ActivityItem{
+			Type: apiv1.GetGroupActivityResponse_ActivityItem_TYPE_EXPENSE,
+			Data: &apiv1.GetGroupActivityResponse_ActivityItem_Expense_{
+				Expense: &apiv1.GetGroupActivityResponse_ActivityItem_Expense{
+					Id:               expense.ID,
+					CreatedAt:        expense.CreatedAt.Format(time.RFC3339),
+					Name:             expense.Name,
+					Description:      expense.Description,
+					Currency:         expense.Currency,
+					PayerId:          expense.PayerID,
+					PayerName:        expense.PayerName,
+					Amount:           expense.Amount,
+					BeneficiariesIds: beneficiariesIds,
+					Date:             expense.Date.Format(time.RFC3339),
+				},
+			},
+		})
+	}
+
+	// Add transfers
+	for _, transfer := range transfers {
+		items = append(items, &apiv1.GetGroupActivityResponse_ActivityItem{
+			Type: apiv1.GetGroupActivityResponse_ActivityItem_TYPE_TRANSFER,
+			Data: &apiv1.GetGroupActivityResponse_ActivityItem_Transfer_{
+				Transfer: &apiv1.GetGroupActivityResponse_ActivityItem_Transfer{
+					Id:           transfer.ID,
+					CreatedAt:    transfer.CreatedAt.Format(time.RFC3339),
+					SenderId:     transfer.SenderID,
+					SenderName:   transfer.SenderName,
+					ReceiverId:   transfer.ReceiverID,
+					ReceiverName: transfer.ReceiverName,
+					Amount:       transfer.Amount,
+					Currency:     transfer.Currency,
+					Date:         transfer.Date.Format(time.RFC3339),
+				},
+			},
+		})
+	}
+
+	// Sort by date descending (most recent first)
+	sort.Slice(items, func(i, j int) bool {
+		var dateI, dateJ string
+		if items[i].Type == apiv1.GetGroupActivityResponse_ActivityItem_TYPE_EXPENSE {
+			dateI = items[i].GetExpense().Date
+		} else {
+			dateI = items[i].GetTransfer().Date
+		}
+		if items[j].Type == apiv1.GetGroupActivityResponse_ActivityItem_TYPE_EXPENSE {
+			dateJ = items[j].GetExpense().Date
+		} else {
+			dateJ = items[j].GetTransfer().Date
+		}
+		return dateI > dateJ
+	})
+
+	return &apiv1.GetGroupActivityResponse{
+		Items: items,
+	}, nil
+}

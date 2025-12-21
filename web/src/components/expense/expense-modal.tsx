@@ -16,9 +16,11 @@ import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import {
   createExpense,
   updateExpense,
-  getGroupExpenses,
 } from "@/gen/api/v1/expense-ExpenseService_connectquery";
-import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
+import {
+  getGroupActivity,
+  getUserGroups,
+} from "@/gen/api/v1/group-GroupService_connectquery";
 import { Spinner } from "../ui/spinner";
 import { toast } from "sonner";
 import { useEffect, useMemo, useCallback } from "react";
@@ -33,7 +35,7 @@ import {
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
 import type { MemberBalance } from "@/gen/api/v1/group_pb";
-import type { GetGroupExpensesResponse_Expense } from "@/gen/api/v1/expense_pb";
+import type { GetGroupActivityResponse_ActivityItem_Expense } from "@/gen/api/v1/group_pb";
 import { COMMON_CURRENCIES } from "@/lib/currencies";
 
 const formSchema = z.object({
@@ -51,10 +53,6 @@ const formSchema = z.object({
 // Helper functions for amount conversion
 const convertAmountToDisplay = (amount: bigint | number): number => {
   return Number(amount) / 100;
-};
-
-const convertAmountToServer = (displayAmount: string): number => {
-  return parseFloat(displayAmount);
 };
 
 // Helper functions for date conversion
@@ -81,13 +79,13 @@ interface ExpenseModalProps {
 
   // Mode specification
   mode: "create" | "edit";
-  expense?: GetGroupExpensesResponse_Expense; // Required when mode='edit'
+  expense?: GetGroupActivityResponse_ActivityItem_Expense; // Required when mode='edit'
 
   // Data dependencies
   groupId: string;
   groupMembers: MemberBalance[];
   currentUserId: string;
-  defaultCurrency?: string;
+  defaultCurrency: string;
 }
 
 export const ExpenseModal = ({
@@ -98,7 +96,7 @@ export const ExpenseModal = ({
   groupId,
   groupMembers,
   currentUserId,
-  defaultCurrency = "USD",
+  defaultCurrency,
 }: ExpenseModalProps) => {
   const isEditMode = mode === "edit";
 
@@ -151,15 +149,15 @@ export const ExpenseModal = ({
     }
   }, [open, getFormDefaults, form]);
 
-  const groupExpensesKey = createConnectQueryKey({
-    schema: getGroupExpenses,
-    cardinality: "finite",
-    input: { groupId },
-  });
-
   const userGroupsKey = createConnectQueryKey({
     schema: getUserGroups,
     cardinality: "finite",
+  });
+
+  const groupActivityKey = createConnectQueryKey({
+    schema: getGroupActivity,
+    cardinality: "finite",
+    input: { groupId },
   });
 
   const queryClient = useQueryClient();
@@ -169,7 +167,7 @@ export const ExpenseModal = ({
     {
       onSuccess: () => {
         toast.success("Expense created!");
-        queryClient.invalidateQueries({ queryKey: groupExpensesKey });
+        queryClient.invalidateQueries({ queryKey: groupActivityKey });
         queryClient.invalidateQueries({ queryKey: userGroupsKey });
         onOpenChange(false);
       },
@@ -182,7 +180,7 @@ export const ExpenseModal = ({
     {
       onSuccess: () => {
         toast.success("Expense updated!");
-        queryClient.invalidateQueries({ queryKey: groupExpensesKey });
+        queryClient.invalidateQueries({ queryKey: groupActivityKey });
         queryClient.invalidateQueries({ queryKey: userGroupsKey });
         onOpenChange(false);
       },

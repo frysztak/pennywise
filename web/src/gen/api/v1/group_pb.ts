@@ -2,8 +2,8 @@
 // @generated from file api/v1/group.proto (package api.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
-import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
+import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../buf/validate/validate_pb";
 import type { EmptySchema } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_empty } from "@bufbuild/protobuf/wkt";
@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file api/v1/group.proto.
  */
 export const file_api_v1_group: GenFile = /*@__PURE__*/
-  fileDesc("ChJhcGkvdjEvZ3JvdXAucHJvdG8SBmFwaS52MSJqChlDcmVhdGVFeHBlbnNlR3JvdXBSZXF1ZXN0EhUKBG5hbWUYASABKAlCB7pIBHICEAISEwoLZGVzY3JpcHRpb24YAiABKAkSIQoQZGVmYXVsdF9jdXJyZW5jeRgDIAEoCUIHukgEcgIQAiJfChpDcmVhdGVFeHBlbnNlR3JvdXBSZXNwb25zZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEhIKCmNyZWF0ZWRfYnkYBCABKAkiTgoVQWRkVXNlclRvR3JvdXBSZXF1ZXN0EhkKB3VzZXJfaWQYASABKAlCCLpIBXIDsAEBEhoKCGdyb3VwX2lkGAIgASgJQgi6SAVyA7ABASJTChpSZW1vdmVVc2VyRnJvbUdyb3VwUmVxdWVzdBIZCgd1c2VyX2lkGAEgASgJQgi6SAVyA7ABARIaCghncm91cF9pZBgCIAEoCUIIukgFcgOwAQEiVQoSVXBkYXRlR3JvdXBSZXF1ZXN0EhMKAmlkGAEgASgJQge6SARyAhACEhUKBG5hbWUYAiABKAlCB7pIBHICEAISEwoLZGVzY3JpcHRpb24YAyABKAkimAEKDU1lbWJlckJhbGFuY2USDwoHdXNlcl9pZBgBIAEoCRIRCgl1c2VyX25hbWUYAiABKAkSMwoHYmFsYW5jZRgDIAMoCzIiLmFwaS52MS5NZW1iZXJCYWxhbmNlLkJhbGFuY2VFbnRyeRouCgxCYWxhbmNlRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgDOgI4ASKhAgoJVXNlckdyb3VwEg8KB3VzZXJfaWQYASABKAkSEAoIZ3JvdXBfaWQYAiABKAkSEgoKZ3JvdXBfbmFtZRgDIAEoCRIZChFncm91cF9kZXNjcmlwdGlvbhgEIAEoCRIeChZncm91cF9kZWZhdWx0X2N1cnJlbmN5GAUgASgJEi4KD21lbWJlcl9iYWxhbmNlcxgGIAMoCzIVLmFwaS52MS5NZW1iZXJCYWxhbmNlEjwKDnRvdGFsX3NwZW5kaW5nGAcgAygLMiQuYXBpLnYxLlVzZXJHcm91cC5Ub3RhbFNwZW5kaW5nRW50cnkaNAoSVG90YWxTcGVuZGluZ0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoAzoCOAEiOgoVR2V0VXNlckdyb3Vwc1Jlc3BvbnNlEiEKBmdyb3VwcxgBIAMoCzIRLmFwaS52MS5Vc2VyR3JvdXAyqAMKDEdyb3VwU2VydmljZRJdChJDcmVhdGVFeHBlbnNlR3JvdXASIS5hcGkudjEuQ3JlYXRlRXhwZW5zZUdyb3VwUmVxdWVzdBoiLmFwaS52MS5DcmVhdGVFeHBlbnNlR3JvdXBSZXNwb25zZSIAEk8KC1VwZGF0ZUdyb3VwEhouYXBpLnYxLlVwZGF0ZUdyb3VwUmVxdWVzdBoiLmFwaS52MS5DcmVhdGVFeHBlbnNlR3JvdXBSZXNwb25zZSIAEkkKDkFkZFVzZXJUb0dyb3VwEh0uYXBpLnYxLkFkZFVzZXJUb0dyb3VwUmVxdWVzdBoWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eSIAElMKE1JlbW92ZVVzZXJGcm9tR3JvdXASIi5hcGkudjEuUmVtb3ZlVXNlckZyb21Hcm91cFJlcXVlc3QaFi5nb29nbGUucHJvdG9idWYuRW1wdHkiABJICg1HZXRVc2VyR3JvdXBzEhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5Gh0uYXBpLnYxLkdldFVzZXJHcm91cHNSZXNwb25zZSIAYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_empty]);
+  fileDesc("ChJhcGkvdjEvZ3JvdXAucHJvdG8SBmFwaS52MSJqChlDcmVhdGVFeHBlbnNlR3JvdXBSZXF1ZXN0EhUKBG5hbWUYASABKAlCB7pIBHICEAISEwoLZGVzY3JpcHRpb24YAiABKAkSIQoQZGVmYXVsdF9jdXJyZW5jeRgDIAEoCUIHukgEcgIQAiJfChpDcmVhdGVFeHBlbnNlR3JvdXBSZXNwb25zZRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEhIKCmNyZWF0ZWRfYnkYBCABKAkiTgoVQWRkVXNlclRvR3JvdXBSZXF1ZXN0EhkKB3VzZXJfaWQYASABKAlCCLpIBXIDsAEBEhoKCGdyb3VwX2lkGAIgASgJQgi6SAVyA7ABASJTChpSZW1vdmVVc2VyRnJvbUdyb3VwUmVxdWVzdBIZCgd1c2VyX2lkGAEgASgJQgi6SAVyA7ABARIaCghncm91cF9pZBgCIAEoCUIIukgFcgOwAQEiVQoSVXBkYXRlR3JvdXBSZXF1ZXN0EhMKAmlkGAEgASgJQge6SARyAhACEhUKBG5hbWUYAiABKAlCB7pIBHICEAISEwoLZGVzY3JpcHRpb24YAyABKAkimAEKDU1lbWJlckJhbGFuY2USDwoHdXNlcl9pZBgBIAEoCRIRCgl1c2VyX25hbWUYAiABKAkSMwoHYmFsYW5jZRgDIAMoCzIiLmFwaS52MS5NZW1iZXJCYWxhbmNlLkJhbGFuY2VFbnRyeRouCgxCYWxhbmNlRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgDOgI4ASKhAgoJVXNlckdyb3VwEg8KB3VzZXJfaWQYASABKAkSEAoIZ3JvdXBfaWQYAiABKAkSEgoKZ3JvdXBfbmFtZRgDIAEoCRIZChFncm91cF9kZXNjcmlwdGlvbhgEIAEoCRIeChZncm91cF9kZWZhdWx0X2N1cnJlbmN5GAUgASgJEi4KD21lbWJlcl9iYWxhbmNlcxgGIAMoCzIVLmFwaS52MS5NZW1iZXJCYWxhbmNlEjwKDnRvdGFsX3NwZW5kaW5nGAcgAygLMiQuYXBpLnYxLlVzZXJHcm91cC5Ub3RhbFNwZW5kaW5nRW50cnkaNAoSVG90YWxTcGVuZGluZ0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoAzoCOAEiOgoVR2V0VXNlckdyb3Vwc1Jlc3BvbnNlEiEKBmdyb3VwcxgBIAMoCzIRLmFwaS52MS5Vc2VyR3JvdXAiNQoXR2V0R3JvdXBBY3Rpdml0eVJlcXVlc3QSGgoIZ3JvdXBfaWQYASABKAlCCLpIBXIDsAEBIpIGChhHZXRHcm91cEFjdGl2aXR5UmVzcG9uc2USPAoFaXRlbXMYASADKAsyLS5hcGkudjEuR2V0R3JvdXBBY3Rpdml0eVJlc3BvbnNlLkFjdGl2aXR5SXRlbRq3BQoMQWN0aXZpdHlJdGVtEkAKBHR5cGUYASABKA4yMi5hcGkudjEuR2V0R3JvdXBBY3Rpdml0eVJlc3BvbnNlLkFjdGl2aXR5SXRlbS5UeXBlEkgKB2V4cGVuc2UYAiABKAsyNS5hcGkudjEuR2V0R3JvdXBBY3Rpdml0eVJlc3BvbnNlLkFjdGl2aXR5SXRlbS5FeHBlbnNlSAASSgoIdHJhbnNmZXIYAyABKAsyNi5hcGkudjEuR2V0R3JvdXBBY3Rpdml0eVJlc3BvbnNlLkFjdGl2aXR5SXRlbS5UcmFuc2ZlckgAGtIBCgdFeHBlbnNlEgoKAmlkGAEgASgJEhIKCmNyZWF0ZWRfYXQYAiABKAkSDAoEbmFtZRgDIAEoCRIYCgtkZXNjcmlwdGlvbhgEIAEoCUgAiAEBEhAKCGN1cnJlbmN5GAUgASgJEhAKCHBheWVyX2lkGAYgASgJEhIKCnBheWVyX25hbWUYByABKAkSDgoGYW1vdW50GAggASgDEhkKEWJlbmVmaWNpYXJpZXNfaWRzGAkgAygJEgwKBGRhdGUYCiABKAlCDgoMX2Rlc2NyaXB0aW9uGq4BCghUcmFuc2ZlchIKCgJpZBgBIAEoCRISCgpjcmVhdGVkX2F0GAIgASgJEhEKCXNlbmRlcl9pZBgDIAEoCRITCgtzZW5kZXJfbmFtZRgEIAEoCRITCgtyZWNlaXZlcl9pZBgFIAEoCRIVCg1yZWNlaXZlcl9uYW1lGAYgASgJEg4KBmFtb3VudBgHIAEoAxIQCghjdXJyZW5jeRgIIAEoCRIMCgRkYXRlGAkgASgJIkEKBFR5cGUSFAoQVFlQRV9VTlNQRUNJRklFRBAAEhAKDFRZUEVfRVhQRU5TRRABEhEKDVRZUEVfVFJBTlNGRVIQAkIGCgRkYXRhMoEECgxHcm91cFNlcnZpY2USXQoSQ3JlYXRlRXhwZW5zZUdyb3VwEiEuYXBpLnYxLkNyZWF0ZUV4cGVuc2VHcm91cFJlcXVlc3QaIi5hcGkudjEuQ3JlYXRlRXhwZW5zZUdyb3VwUmVzcG9uc2UiABJPCgtVcGRhdGVHcm91cBIaLmFwaS52MS5VcGRhdGVHcm91cFJlcXVlc3QaIi5hcGkudjEuQ3JlYXRlRXhwZW5zZUdyb3VwUmVzcG9uc2UiABJJCg5BZGRVc2VyVG9Hcm91cBIdLmFwaS52MS5BZGRVc2VyVG9Hcm91cFJlcXVlc3QaFi5nb29nbGUucHJvdG9idWYuRW1wdHkiABJTChNSZW1vdmVVc2VyRnJvbUdyb3VwEiIuYXBpLnYxLlJlbW92ZVVzZXJGcm9tR3JvdXBSZXF1ZXN0GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5IgASSAoNR2V0VXNlckdyb3VwcxIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eRodLmFwaS52MS5HZXRVc2VyR3JvdXBzUmVzcG9uc2UiABJXChBHZXRHcm91cEFjdGl2aXR5Eh8uYXBpLnYxLkdldEdyb3VwQWN0aXZpdHlSZXF1ZXN0GiAuYXBpLnYxLkdldEdyb3VwQWN0aXZpdHlSZXNwb25zZSIAYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_empty]);
 
 /**
  * @generated from message api.v1.CreateExpenseGroupRequest
@@ -237,6 +237,219 @@ export const GetUserGroupsResponseSchema: GenMessage<GetUserGroupsResponse> = /*
   messageDesc(file_api_v1_group, 7);
 
 /**
+ * @generated from message api.v1.GetGroupActivityRequest
+ */
+export type GetGroupActivityRequest = Message<"api.v1.GetGroupActivityRequest"> & {
+  /**
+   * @generated from field: string group_id = 1;
+   */
+  groupId: string;
+};
+
+/**
+ * Describes the message api.v1.GetGroupActivityRequest.
+ * Use `create(GetGroupActivityRequestSchema)` to create a new message.
+ */
+export const GetGroupActivityRequestSchema: GenMessage<GetGroupActivityRequest> = /*@__PURE__*/
+  messageDesc(file_api_v1_group, 8);
+
+/**
+ * @generated from message api.v1.GetGroupActivityResponse
+ */
+export type GetGroupActivityResponse = Message<"api.v1.GetGroupActivityResponse"> & {
+  /**
+   * @generated from field: repeated api.v1.GetGroupActivityResponse.ActivityItem items = 1;
+   */
+  items: GetGroupActivityResponse_ActivityItem[];
+};
+
+/**
+ * Describes the message api.v1.GetGroupActivityResponse.
+ * Use `create(GetGroupActivityResponseSchema)` to create a new message.
+ */
+export const GetGroupActivityResponseSchema: GenMessage<GetGroupActivityResponse> = /*@__PURE__*/
+  messageDesc(file_api_v1_group, 9);
+
+/**
+ * @generated from message api.v1.GetGroupActivityResponse.ActivityItem
+ */
+export type GetGroupActivityResponse_ActivityItem = Message<"api.v1.GetGroupActivityResponse.ActivityItem"> & {
+  /**
+   * @generated from field: api.v1.GetGroupActivityResponse.ActivityItem.Type type = 1;
+   */
+  type: GetGroupActivityResponse_ActivityItem_Type;
+
+  /**
+   * @generated from oneof api.v1.GetGroupActivityResponse.ActivityItem.data
+   */
+  data: {
+    /**
+     * @generated from field: api.v1.GetGroupActivityResponse.ActivityItem.Expense expense = 2;
+     */
+    value: GetGroupActivityResponse_ActivityItem_Expense;
+    case: "expense";
+  } | {
+    /**
+     * @generated from field: api.v1.GetGroupActivityResponse.ActivityItem.Transfer transfer = 3;
+     */
+    value: GetGroupActivityResponse_ActivityItem_Transfer;
+    case: "transfer";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * Describes the message api.v1.GetGroupActivityResponse.ActivityItem.
+ * Use `create(GetGroupActivityResponse_ActivityItemSchema)` to create a new message.
+ */
+export const GetGroupActivityResponse_ActivityItemSchema: GenMessage<GetGroupActivityResponse_ActivityItem> = /*@__PURE__*/
+  messageDesc(file_api_v1_group, 9, 0);
+
+/**
+ * @generated from message api.v1.GetGroupActivityResponse.ActivityItem.Expense
+ */
+export type GetGroupActivityResponse_ActivityItem_Expense = Message<"api.v1.GetGroupActivityResponse.ActivityItem.Expense"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string created_at = 2;
+   */
+  createdAt: string;
+
+  /**
+   * @generated from field: string name = 3;
+   */
+  name: string;
+
+  /**
+   * @generated from field: optional string description = 4;
+   */
+  description?: string;
+
+  /**
+   * @generated from field: string currency = 5;
+   */
+  currency: string;
+
+  /**
+   * @generated from field: string payer_id = 6;
+   */
+  payerId: string;
+
+  /**
+   * @generated from field: string payer_name = 7;
+   */
+  payerName: string;
+
+  /**
+   * @generated from field: int64 amount = 8;
+   */
+  amount: bigint;
+
+  /**
+   * @generated from field: repeated string beneficiaries_ids = 9;
+   */
+  beneficiariesIds: string[];
+
+  /**
+   * @generated from field: string date = 10;
+   */
+  date: string;
+};
+
+/**
+ * Describes the message api.v1.GetGroupActivityResponse.ActivityItem.Expense.
+ * Use `create(GetGroupActivityResponse_ActivityItem_ExpenseSchema)` to create a new message.
+ */
+export const GetGroupActivityResponse_ActivityItem_ExpenseSchema: GenMessage<GetGroupActivityResponse_ActivityItem_Expense> = /*@__PURE__*/
+  messageDesc(file_api_v1_group, 9, 0, 0);
+
+/**
+ * @generated from message api.v1.GetGroupActivityResponse.ActivityItem.Transfer
+ */
+export type GetGroupActivityResponse_ActivityItem_Transfer = Message<"api.v1.GetGroupActivityResponse.ActivityItem.Transfer"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string created_at = 2;
+   */
+  createdAt: string;
+
+  /**
+   * @generated from field: string sender_id = 3;
+   */
+  senderId: string;
+
+  /**
+   * @generated from field: string sender_name = 4;
+   */
+  senderName: string;
+
+  /**
+   * @generated from field: string receiver_id = 5;
+   */
+  receiverId: string;
+
+  /**
+   * @generated from field: string receiver_name = 6;
+   */
+  receiverName: string;
+
+  /**
+   * @generated from field: int64 amount = 7;
+   */
+  amount: bigint;
+
+  /**
+   * @generated from field: string currency = 8;
+   */
+  currency: string;
+
+  /**
+   * @generated from field: string date = 9;
+   */
+  date: string;
+};
+
+/**
+ * Describes the message api.v1.GetGroupActivityResponse.ActivityItem.Transfer.
+ * Use `create(GetGroupActivityResponse_ActivityItem_TransferSchema)` to create a new message.
+ */
+export const GetGroupActivityResponse_ActivityItem_TransferSchema: GenMessage<GetGroupActivityResponse_ActivityItem_Transfer> = /*@__PURE__*/
+  messageDesc(file_api_v1_group, 9, 0, 1);
+
+/**
+ * @generated from enum api.v1.GetGroupActivityResponse.ActivityItem.Type
+ */
+export enum GetGroupActivityResponse_ActivityItem_Type {
+  /**
+   * @generated from enum value: TYPE_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * @generated from enum value: TYPE_EXPENSE = 1;
+   */
+  EXPENSE = 1,
+
+  /**
+   * @generated from enum value: TYPE_TRANSFER = 2;
+   */
+  TRANSFER = 2,
+}
+
+/**
+ * Describes the enum api.v1.GetGroupActivityResponse.ActivityItem.Type.
+ */
+export const GetGroupActivityResponse_ActivityItem_TypeSchema: GenEnum<GetGroupActivityResponse_ActivityItem_Type> = /*@__PURE__*/
+  enumDesc(file_api_v1_group, 9, 0, 0);
+
+/**
  * @generated from service api.v1.GroupService
  */
 export const GroupService: GenService<{
@@ -279,6 +492,14 @@ export const GroupService: GenService<{
     methodKind: "unary";
     input: typeof EmptySchema;
     output: typeof GetUserGroupsResponseSchema;
+  },
+  /**
+   * @generated from rpc api.v1.GroupService.GetGroupActivity
+   */
+  getGroupActivity: {
+    methodKind: "unary";
+    input: typeof GetGroupActivityRequestSchema;
+    output: typeof GetGroupActivityResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_api_v1_group, 0);

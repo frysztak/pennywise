@@ -1,11 +1,11 @@
 import { useState } from "react";
-import type { GetGroupExpensesResponse_Expense } from "@/gen/api/v1/expense_pb";
+import type { GetGroupActivityResponse_ActivityItem_Expense } from "@/gen/api/v1/group_pb";
 
 export function useExpenseModal() {
   const [modalState, setModalState] = useState<{
     open: boolean;
     mode: "create" | "edit";
-    expense?: GetGroupExpensesResponse_Expense;
+    expense?: GetGroupActivityResponse_ActivityItem_Expense;
   }>({
     open: false,
     mode: "create",
@@ -16,7 +16,7 @@ export function useExpenseModal() {
     setModalState({ open: true, mode: "create", expense: undefined });
   };
 
-  const openEdit = (expense: GetGroupExpensesResponse_Expense) => {
+  const openEdit = (expense: GetGroupActivityResponse_ActivityItem_Expense) => {
     setModalState({ open: true, mode: "edit", expense });
   };
 

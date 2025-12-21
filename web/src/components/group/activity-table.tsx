@@ -23,19 +23,19 @@ import {
   Redo2Icon,
   BanknoteIcon,
 } from "lucide-react";
-import type { GetGroupExpensesResponse_Expense } from "@/gen/api/v1/expense_pb";
-import type { GetGroupTransfersResponse_Transfer } from "@/gen/api/v1/transfer_pb";
+import type { GetGroupActivityResponse_ActivityItem_Expense } from "@/gen/api/v1/group_pb";
+import type { GetGroupActivityResponse_ActivityItem_Transfer } from "@/gen/api/v1/group_pb";
 
 type ActivityItem =
-  | { type: "expense"; data: GetGroupExpensesResponse_Expense; date: Date }
-  | { type: "transfer"; data: GetGroupTransfersResponse_Transfer; date: Date };
+  | { type: "expense"; data: GetGroupActivityResponse_ActivityItem_Expense }
+  | { type: "transfer"; data: GetGroupActivityResponse_ActivityItem_Transfer };
 
 interface ActivityTableProps {
   recentActivity: ActivityItem[];
-  onEditExpense: (expense: GetGroupExpensesResponse_Expense) => void;
-  onDeleteExpense: (expense: GetGroupExpensesResponse_Expense) => void;
-  onEditTransfer: (transfer: GetGroupTransfersResponse_Transfer) => void;
-  onDeleteTransfer: (transfer: GetGroupTransfersResponse_Transfer) => void;
+  onEditExpense: (expense: GetGroupActivityResponse_ActivityItem_Expense) => void;
+  onDeleteExpense: (expense: GetGroupActivityResponse_ActivityItem_Expense) => void;
+  onEditTransfer: (transfer: GetGroupActivityResponse_ActivityItem_Transfer) => void;
+  onDeleteTransfer: (transfer: GetGroupActivityResponse_ActivityItem_Transfer) => void;
 }
 
 export function ActivityTable({
@@ -68,7 +68,8 @@ export function ActivityTable({
       </TableHeader>
       <TableBody>
         {recentActivity.map((item) => {
-          const formattedDate = item.date.toLocaleDateString("en-US", {
+          const date = new Date(item.data.date);
+          const formattedDate = date.toLocaleDateString("en-US", {
             month: "short",
             day: "numeric",
             year: "numeric",
