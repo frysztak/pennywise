@@ -37,6 +37,7 @@ import { Label } from "../ui/label";
 import type { MemberBalance } from "@/gen/api/v1/group_pb";
 import type { GetGroupActivityResponse_ActivityItem_Expense } from "@/gen/api/v1/group_pb";
 import { COMMON_CURRENCIES } from "@/lib/currencies";
+import { timestampDate, timestampFromDate } from "@bufbuild/protobuf/wkt";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -60,12 +61,7 @@ const getTodayDateString = (): string => {
   return new Date().toISOString().split("T")[0];
 };
 
-const convertDateToRFC3339 = (dateString: string): string => {
-  // Convert YYYY-MM-DD to RFC3339 format
-  return new Date(dateString).toISOString();
-};
-
-const convertRFC3339ToDateString = (rfc3339: string): string => {
+const convertRFC3339ToDateString = (rfc3339: string | Date): string => {
   // Convert RFC3339 to YYYY-MM-DD for input[type="date"]
   return new Date(rfc3339).toISOString().split("T")[0];
 };
@@ -116,7 +112,7 @@ export const ExpenseModal = ({
         currency: expense.currency,
         payerId: expense.payerId,
         beneficiariesIds: expense.beneficiariesIds,
-        date: convertRFC3339ToDateString(expense.date),
+        date: convertRFC3339ToDateString(timestampDate(expense.date!)),
       };
     }
 
@@ -200,7 +196,7 @@ export const ExpenseModal = ({
         amount: data.amount,
         currency: data.currency,
         beneficiariesIds: data.beneficiariesIds,
-        date: convertDateToRFC3339(data.date),
+        date: timestampFromDate(new Date(data.date)),
       });
     } else {
       createMutate({
@@ -211,7 +207,7 @@ export const ExpenseModal = ({
         amount: data.amount,
         currency: data.currency,
         beneficiariesIds: data.beneficiariesIds,
-        date: convertDateToRFC3339(data.date),
+        date: timestampFromDate(new Date(data.date)),
       });
     }
   };

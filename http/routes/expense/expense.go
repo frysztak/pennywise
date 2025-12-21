@@ -6,10 +6,10 @@ import (
 	"pennywise/db/database"
 	apiv1 "pennywise/gen/api/v1"
 	"pennywise/utils"
-	"time"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type ExpenseService struct{}
@@ -27,23 +27,13 @@ func (s *ExpenseService) CreateExpense(ctx context.Context, r *apiv1.CreateExpen
 
 	qtx := db.Queries.WithTx(tx)
 
-	// Parse date from request, default to now if not provided
-	expenseDate := time.Now()
-	if r.Date != nil && *r.Date != "" {
-		parsed, err := time.Parse(time.RFC3339, *r.Date)
-		if err != nil {
-			return nil, connect.NewError(connect.CodeInvalidArgument, err)
-		}
-		expenseDate = parsed
-	}
-
 	expense, err := qtx.CreateExpense(ctx, database.CreateExpenseParams{
 		ID:          uuid.NewString(),
 		Name:        r.Name,
 		Description: &r.Description,
 		GroupID:     r.GroupId,
 		RecurringID: nil,
-		Date:        expenseDate,
+		Date:        r.Date.AsTime(),
 		Currency:    r.Currency,
 	})
 	if err != nil {
@@ -97,8 +87,8 @@ func (s *ExpenseService) GetGroupExpenses(ctx context.Context, r *apiv1.GetGroup
 
 		expenses = append(expenses, &apiv1.GetGroupExpensesResponse_Expense{
 			Id:               row.ID,
-			CreatedAt:        row.CreatedAt.Format(time.RFC3339),
-			Date:             row.Date.Format(time.RFC3339),
+			CreatedAt:        timestamppb.New(row.CreatedAt),
+			Date:             timestamppb.New(row.Date),
 			Name:             row.Name,
 			Description:      row.Description,
 			Currency:         row.Currency,
@@ -121,23 +111,13 @@ func (s *ExpenseService) UpdateExpense(ctx context.Context, r *apiv1.UpdateExpen
 
 	qtx := db.Queries.WithTx(tx)
 
-	// Parse date from request
-	var expenseDate time.Time
-	if r.Date != nil && *r.Date != "" {
-		parsed, err := time.Parse(time.RFC3339, *r.Date)
-		if err != nil {
-			return nil, connect.NewError(connect.CodeInvalidArgument, err)
-		}
-		expenseDate = parsed
-	}
-
 	// Update expense basic info
 	expense, err := qtx.UpdateExpense(ctx, database.UpdateExpenseParams{
 		ID:          r.Id,
 		Name:        r.Name,
 		Description: &r.Description,
 		Currency:    r.Currency,
-		Date:        expenseDate,
+		Date:        r.Date.AsTime(),
 	})
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)

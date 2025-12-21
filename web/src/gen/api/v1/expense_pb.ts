@@ -5,13 +5,15 @@
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../buf/validate/validate_pb";
+import type { Timestamp } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file api/v1/expense.proto.
  */
 export const file_api_v1_expense: GenFile = /*@__PURE__*/
-  fileDesc("ChRhcGkvdjEvZXhwZW5zZS5wcm90bxIGYXBpLnYxIugBChRDcmVhdGVFeHBlbnNlUmVxdWVzdBIaCghncm91cF9pZBgBIAEoCUIIukgFcgOwAQESGgoIcGF5ZXJfaWQYAiABKAlCCLpIBXIDsAEBEhUKBG5hbWUYAyABKAlCB7pIBHICEAISEwoLZGVzY3JpcHRpb24YBCABKAkSGgoGYW1vdW50GAUgASgCQgq6SAcKBSUAAAAAEhkKCGN1cnJlbmN5GAYgASgJQge6SARyAhACEhkKEWJlbmVmaWNpYXJpZXNfaWRzGAcgAygJEhEKBGRhdGUYCCABKAlIAIgBAUIHCgVfZGF0ZSIxChVDcmVhdGVFeHBlbnNlUmVzcG9uc2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCSLiAQoUVXBkYXRlRXhwZW5zZVJlcXVlc3QSFAoCaWQYASABKAlCCLpIBXIDsAEBEhoKCHBheWVyX2lkGAIgASgJQgi6SAVyA7ABARIVCgRuYW1lGAMgASgJQge6SARyAhACEhMKC2Rlc2NyaXB0aW9uGAQgASgJEhoKBmFtb3VudBgFIAEoAkIKukgHCgUlAAAAABIZCghjdXJyZW5jeRgGIAEoCUIHukgEcgIQAhIZChFiZW5lZmljaWFyaWVzX2lkcxgHIAMoCRIRCgRkYXRlGAggASgJSACIAQFCBwoFX2RhdGUiMQoVVXBkYXRlRXhwZW5zZVJlc3BvbnNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkiLAoURGVsZXRlRXhwZW5zZVJlcXVlc3QSFAoCaWQYASABKAlCCLpIBXIDsAEBIhcKFURlbGV0ZUV4cGVuc2VSZXNwb25zZSI1ChdHZXRHcm91cEV4cGVuc2VzUmVxdWVzdBIaCghncm91cF9pZBgBIAEoCUIIukgFcgOwAQEiqwIKGEdldEdyb3VwRXhwZW5zZXNSZXNwb25zZRI6CghleHBlbnNlcxgBIAMoCzIoLmFwaS52MS5HZXRHcm91cEV4cGVuc2VzUmVzcG9uc2UuRXhwZW5zZRrSAQoHRXhwZW5zZRIKCgJpZBgBIAEoCRISCgpjcmVhdGVkX2F0GAIgASgJEgwKBG5hbWUYAyABKAkSGAoLZGVzY3JpcHRpb24YBCABKAlIAIgBARIQCghjdXJyZW5jeRgFIAEoCRIQCghwYXllcl9pZBgGIAEoCRISCgpwYXllcl9uYW1lGAcgASgJEg4KBmFtb3VudBgIIAEoAxIZChFiZW5lZmljaWFyaWVzX2lkcxgJIAMoCRIMCgRkYXRlGAogASgJQg4KDF9kZXNjcmlwdGlvbjLZAgoORXhwZW5zZVNlcnZpY2USTgoNQ3JlYXRlRXhwZW5zZRIcLmFwaS52MS5DcmVhdGVFeHBlbnNlUmVxdWVzdBodLmFwaS52MS5DcmVhdGVFeHBlbnNlUmVzcG9uc2UiABJOCg1VcGRhdGVFeHBlbnNlEhwuYXBpLnYxLlVwZGF0ZUV4cGVuc2VSZXF1ZXN0Gh0uYXBpLnYxLlVwZGF0ZUV4cGVuc2VSZXNwb25zZSIAEk4KDURlbGV0ZUV4cGVuc2USHC5hcGkudjEuRGVsZXRlRXhwZW5zZVJlcXVlc3QaHS5hcGkudjEuRGVsZXRlRXhwZW5zZVJlc3BvbnNlIgASVwoQR2V0R3JvdXBFeHBlbnNlcxIfLmFwaS52MS5HZXRHcm91cEV4cGVuc2VzUmVxdWVzdBogLmFwaS52MS5HZXRHcm91cEV4cGVuc2VzUmVzcG9uc2UiAGIGcHJvdG8z", [file_buf_validate_validate]);
+  fileDesc("ChRhcGkvdjEvZXhwZW5zZS5wcm90bxIGYXBpLnYxIvoBChRDcmVhdGVFeHBlbnNlUmVxdWVzdBIaCghncm91cF9pZBgBIAEoCUIIukgFcgOwAQESGgoIcGF5ZXJfaWQYAiABKAlCCLpIBXIDsAEBEhUKBG5hbWUYAyABKAlCB7pIBHICEAISEwoLZGVzY3JpcHRpb24YBCABKAkSHgoGYW1vdW50GAUgASgBQg66SAsSCSEAAAAAAAAAABIZCghjdXJyZW5jeRgGIAEoCUIHukgEcgIQAhIZChFiZW5lZmljaWFyaWVzX2lkcxgHIAMoCRIoCgRkYXRlGAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCIxChVDcmVhdGVFeHBlbnNlUmVzcG9uc2USCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCSL0AQoUVXBkYXRlRXhwZW5zZVJlcXVlc3QSFAoCaWQYASABKAlCCLpIBXIDsAEBEhoKCHBheWVyX2lkGAIgASgJQgi6SAVyA7ABARIVCgRuYW1lGAMgASgJQge6SARyAhACEhMKC2Rlc2NyaXB0aW9uGAQgASgJEh4KBmFtb3VudBgFIAEoAUIOukgLEgkhAAAAAAAAAAASGQoIY3VycmVuY3kYBiABKAlCB7pIBHICEAISGQoRYmVuZWZpY2lhcmllc19pZHMYByADKAkSKAoEZGF0ZRgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiMQoVVXBkYXRlRXhwZW5zZVJlc3BvbnNlEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkiLAoURGVsZXRlRXhwZW5zZVJlcXVlc3QSFAoCaWQYASABKAlCCLpIBXIDsAEBIhcKFURlbGV0ZUV4cGVuc2VSZXNwb25zZSI1ChdHZXRHcm91cEV4cGVuc2VzUmVxdWVzdBIaCghncm91cF9pZBgBIAEoCUIIukgFcgOwAQEi4wIKGEdldEdyb3VwRXhwZW5zZXNSZXNwb25zZRI6CghleHBlbnNlcxgBIAMoCzIoLmFwaS52MS5HZXRHcm91cEV4cGVuc2VzUmVzcG9uc2UuRXhwZW5zZRqKAgoHRXhwZW5zZRIKCgJpZBgBIAEoCRIuCgpjcmVhdGVkX2F0GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIMCgRuYW1lGAMgASgJEhgKC2Rlc2NyaXB0aW9uGAQgASgJSACIAQESEAoIY3VycmVuY3kYBSABKAkSEAoIcGF5ZXJfaWQYBiABKAkSEgoKcGF5ZXJfbmFtZRgHIAEoCRIOCgZhbW91bnQYCCABKAMSGQoRYmVuZWZpY2lhcmllc19pZHMYCSADKAkSKAoEZGF0ZRgKIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCDgoMX2Rlc2NyaXB0aW9uMtkCCg5FeHBlbnNlU2VydmljZRJOCg1DcmVhdGVFeHBlbnNlEhwuYXBpLnYxLkNyZWF0ZUV4cGVuc2VSZXF1ZXN0Gh0uYXBpLnYxLkNyZWF0ZUV4cGVuc2VSZXNwb25zZSIAEk4KDVVwZGF0ZUV4cGVuc2USHC5hcGkudjEuVXBkYXRlRXhwZW5zZVJlcXVlc3QaHS5hcGkudjEuVXBkYXRlRXhwZW5zZVJlc3BvbnNlIgASTgoNRGVsZXRlRXhwZW5zZRIcLmFwaS52MS5EZWxldGVFeHBlbnNlUmVxdWVzdBodLmFwaS52MS5EZWxldGVFeHBlbnNlUmVzcG9uc2UiABJXChBHZXRHcm91cEV4cGVuc2VzEh8uYXBpLnYxLkdldEdyb3VwRXhwZW5zZXNSZXF1ZXN0GiAuYXBpLnYxLkdldEdyb3VwRXhwZW5zZXNSZXNwb25zZSIAYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_timestamp]);
 
 /**
  * @generated from message api.v1.CreateExpenseRequest
@@ -38,7 +40,7 @@ export type CreateExpenseRequest = Message<"api.v1.CreateExpenseRequest"> & {
   description: string;
 
   /**
-   * @generated from field: float amount = 5;
+   * @generated from field: double amount = 5;
    */
   amount: number;
 
@@ -53,11 +55,9 @@ export type CreateExpenseRequest = Message<"api.v1.CreateExpenseRequest"> & {
   beneficiariesIds: string[];
 
   /**
-   * RFC3339 format, defaults to now if not provided
-   *
-   * @generated from field: optional string date = 8;
+   * @generated from field: google.protobuf.Timestamp date = 8;
    */
-  date?: string;
+  date?: Timestamp;
 };
 
 /**
@@ -114,7 +114,7 @@ export type UpdateExpenseRequest = Message<"api.v1.UpdateExpenseRequest"> & {
   description: string;
 
   /**
-   * @generated from field: float amount = 5;
+   * @generated from field: double amount = 5;
    */
   amount: number;
 
@@ -129,11 +129,9 @@ export type UpdateExpenseRequest = Message<"api.v1.UpdateExpenseRequest"> & {
   beneficiariesIds: string[];
 
   /**
-   * RFC3339 format
-   *
-   * @generated from field: optional string date = 8;
+   * @generated from field: google.protobuf.Timestamp date = 8;
    */
-  date?: string;
+  date?: Timestamp;
 };
 
 /**
@@ -239,9 +237,9 @@ export type GetGroupExpensesResponse_Expense = Message<"api.v1.GetGroupExpensesR
   id: string;
 
   /**
-   * @generated from field: string created_at = 2;
+   * @generated from field: google.protobuf.Timestamp created_at = 2;
    */
-  createdAt: string;
+  createdAt?: Timestamp;
 
   /**
    * @generated from field: string name = 3;
@@ -279,9 +277,9 @@ export type GetGroupExpensesResponse_Expense = Message<"api.v1.GetGroupExpensesR
   beneficiariesIds: string[];
 
   /**
-   * @generated from field: string date = 10;
+   * @generated from field: google.protobuf.Timestamp date = 10;
    */
-  date: string;
+  date?: Timestamp;
 };
 
 /**

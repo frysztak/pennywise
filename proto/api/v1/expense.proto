@@ -3,16 +3,17 @@ syntax = "proto3";
 package api.v1;
 
 import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
 
 message CreateExpenseRequest {
   string group_id = 1 [(buf.validate.field).string.uuid = true];
   string payer_id = 2 [(buf.validate.field).string.uuid = true];
   string name = 3 [(buf.validate.field).string.min_len = 2];
   string description = 4;
-  float amount = 5 [(buf.validate.field).float.gt = 0.0];
+  double amount = 5 [(buf.validate.field).double.gt = 0.0];
   string currency = 6 [(buf.validate.field).string.min_len = 2];
   repeated string beneficiaries_ids = 7;
-  optional string date = 8; // RFC3339 format, defaults to now if not provided
+  google.protobuf.Timestamp date = 8;
 }
 
 message CreateExpenseResponse {
@@ -25,10 +26,10 @@ message UpdateExpenseRequest {
   string payer_id = 2 [(buf.validate.field).string.uuid = true];
   string name = 3 [(buf.validate.field).string.min_len = 2];
   string description = 4;
-  float amount = 5 [(buf.validate.field).float.gt = 0.0];
+  double amount = 5 [(buf.validate.field).double.gt = 0.0];
   string currency = 6 [(buf.validate.field).string.min_len = 2];
   repeated string beneficiaries_ids = 7;
-  optional string date = 8; // RFC3339 format
+  google.protobuf.Timestamp date = 8;
 }
 
 message UpdateExpenseResponse {
@@ -49,7 +50,7 @@ message GetGroupExpensesRequest {
 message GetGroupExpensesResponse {
   message Expense {
     string id = 1;
-    string created_at = 2;
+    google.protobuf.Timestamp created_at = 2;
     string name = 3;
     optional string description = 4;
     string currency = 5;
@@ -57,7 +58,7 @@ message GetGroupExpensesResponse {
     string payer_name = 7;
     int64 amount = 8;
     repeated string beneficiaries_ids = 9;
-    string date = 10;
+    google.protobuf.Timestamp date = 10;
   }
 
   repeated Expense expenses = 1;

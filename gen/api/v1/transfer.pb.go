@@ -10,6 +10,7 @@ import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -29,7 +30,7 @@ type CreateTransferRequest struct {
 	ReceiverId    string                 `protobuf:"bytes,3,opt,name=receiver_id,json=receiverId,proto3" json:"receiver_id,omitempty"`
 	Amount        float64                `protobuf:"fixed64,4,opt,name=amount,proto3" json:"amount,omitempty"`
 	Currency      string                 `protobuf:"bytes,5,opt,name=currency,proto3" json:"currency,omitempty"`
-	Date          *string                `protobuf:"bytes,6,opt,name=date,proto3,oneof" json:"date,omitempty"` // RFC3339 format, defaults to now if not provided
+	Date          *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=date,proto3" json:"date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -99,11 +100,11 @@ func (x *CreateTransferRequest) GetCurrency() string {
 	return ""
 }
 
-func (x *CreateTransferRequest) GetDate() string {
-	if x != nil && x.Date != nil {
-		return *x.Date
+func (x *CreateTransferRequest) GetDate() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Date
 	}
-	return ""
+	return nil
 }
 
 type CreateTransferResponse struct {
@@ -157,7 +158,7 @@ type UpdateTransferRequest struct {
 	ReceiverId    string                 `protobuf:"bytes,3,opt,name=receiver_id,json=receiverId,proto3" json:"receiver_id,omitempty"`
 	Amount        float64                `protobuf:"fixed64,4,opt,name=amount,proto3" json:"amount,omitempty"`
 	Currency      string                 `protobuf:"bytes,5,opt,name=currency,proto3" json:"currency,omitempty"`
-	Date          string                 `protobuf:"bytes,6,opt,name=date,proto3" json:"date,omitempty"`
+	Date          *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=date,proto3" json:"date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -227,11 +228,11 @@ func (x *UpdateTransferRequest) GetCurrency() string {
 	return ""
 }
 
-func (x *UpdateTransferRequest) GetDate() string {
+func (x *UpdateTransferRequest) GetDate() *timestamppb.Timestamp {
 	if x != nil {
 		return x.Date
 	}
-	return ""
+	return nil
 }
 
 type UpdateTransferResponse struct {
@@ -449,14 +450,14 @@ func (x *GetGroupTransfersResponse) GetTransfers() []*GetGroupTransfersResponse_
 type GetGroupTransfersResponse_Transfer struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	CreatedAt     string                 `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	SenderId      string                 `protobuf:"bytes,3,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
 	SenderName    string                 `protobuf:"bytes,4,opt,name=sender_name,json=senderName,proto3" json:"sender_name,omitempty"`
 	ReceiverId    string                 `protobuf:"bytes,5,opt,name=receiver_id,json=receiverId,proto3" json:"receiver_id,omitempty"`
 	ReceiverName  string                 `protobuf:"bytes,6,opt,name=receiver_name,json=receiverName,proto3" json:"receiver_name,omitempty"`
 	Amount        int64                  `protobuf:"varint,7,opt,name=amount,proto3" json:"amount,omitempty"`
 	Currency      string                 `protobuf:"bytes,8,opt,name=currency,proto3" json:"currency,omitempty"`
-	Date          string                 `protobuf:"bytes,9,opt,name=date,proto3" json:"date,omitempty"`
+	Date          *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=date,proto3" json:"date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -498,11 +499,11 @@ func (x *GetGroupTransfersResponse_Transfer) GetId() string {
 	return ""
 }
 
-func (x *GetGroupTransfersResponse_Transfer) GetCreatedAt() string {
+func (x *GetGroupTransfersResponse_Transfer) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
-	return ""
+	return nil
 }
 
 func (x *GetGroupTransfersResponse_Transfer) GetSenderId() string {
@@ -547,50 +548,49 @@ func (x *GetGroupTransfersResponse_Transfer) GetCurrency() string {
 	return ""
 }
 
-func (x *GetGroupTransfersResponse_Transfer) GetDate() string {
+func (x *GetGroupTransfersResponse_Transfer) GetDate() *timestamppb.Timestamp {
 	if x != nil {
 		return x.Date
 	}
-	return ""
+	return nil
 }
 
 var File_api_v1_transfer_proto protoreflect.FileDescriptor
 
 const file_api_v1_transfer_proto_rawDesc = "" +
 	"\n" +
-	"\x15api/v1/transfer.proto\x12\x06api.v1\x1a\x1bbuf/validate/validate.proto\"\xfd\x01\n" +
+	"\x15api/v1/transfer.proto\x12\x06api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8b\x02\n" +
 	"\x15CreateTransferRequest\x12#\n" +
 	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\x12%\n" +
 	"\tsender_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\bsenderId\x12)\n" +
 	"\vreceiver_id\x18\x03 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\n" +
 	"receiverId\x12&\n" +
 	"\x06amount\x18\x04 \x01(\x01B\x0e\xbaH\v\x12\t!\x00\x00\x00\x00\x00\x00\x00\x00R\x06amount\x12#\n" +
-	"\bcurrency\x18\x05 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\bcurrency\x12\x17\n" +
-	"\x04date\x18\x06 \x01(\tH\x00R\x04date\x88\x01\x01B\a\n" +
-	"\x05_date\"(\n" +
+	"\bcurrency\x18\x05 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\bcurrency\x12.\n" +
+	"\x04date\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x04date\"(\n" +
 	"\x16CreateTransferResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\xe4\x01\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\x80\x02\n" +
 	"\x15UpdateTransferRequest\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12%\n" +
 	"\tsender_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\bsenderId\x12)\n" +
 	"\vreceiver_id\x18\x03 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\n" +
 	"receiverId\x12&\n" +
 	"\x06amount\x18\x04 \x01(\x01B\x0e\xbaH\v\x12\t!\x00\x00\x00\x00\x00\x00\x00\x00R\x06amount\x12#\n" +
-	"\bcurrency\x18\x05 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\bcurrency\x12\x12\n" +
-	"\x04date\x18\x06 \x01(\tR\x04date\"(\n" +
+	"\bcurrency\x18\x05 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\bcurrency\x12.\n" +
+	"\x04date\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x04date\"(\n" +
 	"\x16UpdateTransferResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"1\n" +
 	"\x15DeleteTransferRequest\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\x18\n" +
 	"\x16DeleteTransferResponse\"?\n" +
 	"\x18GetGroupTransfersRequest\x12#\n" +
-	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\xed\x02\n" +
+	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\xa5\x03\n" +
 	"\x19GetGroupTransfersResponse\x12H\n" +
-	"\ttransfers\x18\x01 \x03(\v2*.api.v1.GetGroupTransfersResponse.TransferR\ttransfers\x1a\x85\x02\n" +
+	"\ttransfers\x18\x01 \x03(\v2*.api.v1.GetGroupTransfersResponse.TransferR\ttransfers\x1a\xbd\x02\n" +
 	"\bTransfer\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x129\n" +
 	"\n" +
-	"created_at\x18\x02 \x01(\tR\tcreatedAt\x12\x1b\n" +
+	"created_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x1b\n" +
 	"\tsender_id\x18\x03 \x01(\tR\bsenderId\x12\x1f\n" +
 	"\vsender_name\x18\x04 \x01(\tR\n" +
 	"senderName\x12\x1f\n" +
@@ -598,8 +598,8 @@ const file_api_v1_transfer_proto_rawDesc = "" +
 	"receiverId\x12#\n" +
 	"\rreceiver_name\x18\x06 \x01(\tR\freceiverName\x12\x16\n" +
 	"\x06amount\x18\a \x01(\x03R\x06amount\x12\x1a\n" +
-	"\bcurrency\x18\b \x01(\tR\bcurrency\x12\x12\n" +
-	"\x04date\x18\t \x01(\tR\x04date2\xe6\x02\n" +
+	"\bcurrency\x18\b \x01(\tR\bcurrency\x12.\n" +
+	"\x04date\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\x04date2\xe6\x02\n" +
 	"\x0fTransferService\x12Q\n" +
 	"\x0eCreateTransfer\x12\x1d.api.v1.CreateTransferRequest\x1a\x1e.api.v1.CreateTransferResponse\"\x00\x12Q\n" +
 	"\x0eUpdateTransfer\x12\x1d.api.v1.UpdateTransferRequest\x1a\x1e.api.v1.UpdateTransferResponse\"\x00\x12Q\n" +
@@ -631,22 +631,27 @@ var file_api_v1_transfer_proto_goTypes = []any{
 	(*GetGroupTransfersRequest)(nil),           // 6: api.v1.GetGroupTransfersRequest
 	(*GetGroupTransfersResponse)(nil),          // 7: api.v1.GetGroupTransfersResponse
 	(*GetGroupTransfersResponse_Transfer)(nil), // 8: api.v1.GetGroupTransfersResponse.Transfer
+	(*timestamppb.Timestamp)(nil),              // 9: google.protobuf.Timestamp
 }
 var file_api_v1_transfer_proto_depIdxs = []int32{
-	8, // 0: api.v1.GetGroupTransfersResponse.transfers:type_name -> api.v1.GetGroupTransfersResponse.Transfer
-	0, // 1: api.v1.TransferService.CreateTransfer:input_type -> api.v1.CreateTransferRequest
-	2, // 2: api.v1.TransferService.UpdateTransfer:input_type -> api.v1.UpdateTransferRequest
-	4, // 3: api.v1.TransferService.DeleteTransfer:input_type -> api.v1.DeleteTransferRequest
-	6, // 4: api.v1.TransferService.GetGroupTransfers:input_type -> api.v1.GetGroupTransfersRequest
-	1, // 5: api.v1.TransferService.CreateTransfer:output_type -> api.v1.CreateTransferResponse
-	3, // 6: api.v1.TransferService.UpdateTransfer:output_type -> api.v1.UpdateTransferResponse
-	5, // 7: api.v1.TransferService.DeleteTransfer:output_type -> api.v1.DeleteTransferResponse
-	7, // 8: api.v1.TransferService.GetGroupTransfers:output_type -> api.v1.GetGroupTransfersResponse
-	5, // [5:9] is the sub-list for method output_type
-	1, // [1:5] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	9, // 0: api.v1.CreateTransferRequest.date:type_name -> google.protobuf.Timestamp
+	9, // 1: api.v1.UpdateTransferRequest.date:type_name -> google.protobuf.Timestamp
+	8, // 2: api.v1.GetGroupTransfersResponse.transfers:type_name -> api.v1.GetGroupTransfersResponse.Transfer
+	9, // 3: api.v1.GetGroupTransfersResponse.Transfer.created_at:type_name -> google.protobuf.Timestamp
+	9, // 4: api.v1.GetGroupTransfersResponse.Transfer.date:type_name -> google.protobuf.Timestamp
+	0, // 5: api.v1.TransferService.CreateTransfer:input_type -> api.v1.CreateTransferRequest
+	2, // 6: api.v1.TransferService.UpdateTransfer:input_type -> api.v1.UpdateTransferRequest
+	4, // 7: api.v1.TransferService.DeleteTransfer:input_type -> api.v1.DeleteTransferRequest
+	6, // 8: api.v1.TransferService.GetGroupTransfers:input_type -> api.v1.GetGroupTransfersRequest
+	1, // 9: api.v1.TransferService.CreateTransfer:output_type -> api.v1.CreateTransferResponse
+	3, // 10: api.v1.TransferService.UpdateTransfer:output_type -> api.v1.UpdateTransferResponse
+	5, // 11: api.v1.TransferService.DeleteTransfer:output_type -> api.v1.DeleteTransferResponse
+	7, // 12: api.v1.TransferService.GetGroupTransfers:output_type -> api.v1.GetGroupTransfersResponse
+	9, // [9:13] is the sub-list for method output_type
+	5, // [5:9] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_api_v1_transfer_proto_init() }
@@ -654,7 +659,6 @@ func file_api_v1_transfer_proto_init() {
 	if File_api_v1_transfer_proto != nil {
 		return
 	}
-	file_api_v1_transfer_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

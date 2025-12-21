@@ -37,6 +37,7 @@ import type {
   MemberBalance,
   GetGroupActivityResponse_ActivityItem_Transfer,
 } from "@/gen/api/v1/group_pb";
+import { timestampDate, timestampFromDate } from "@bufbuild/protobuf/wkt";
 
 const formSchema = z
   .object({
@@ -61,11 +62,7 @@ const getTodayDateString = (): string => {
   return new Date().toISOString().split("T")[0];
 };
 
-const convertDateToRFC3339 = (dateString: string): string => {
-  return new Date(dateString).toISOString();
-};
-
-const convertRFC3339ToDateString = (rfc3339: string): string => {
+const convertRFC3339ToDateString = (rfc3339: string | Date): string => {
   return new Date(rfc3339).toISOString().split("T")[0];
 };
 
@@ -101,7 +98,7 @@ export const TransferModal = ({
         receiverId: transfer.receiverId,
         amount: convertAmountToDisplay(transfer.amount),
         currency: transfer.currency,
-        date: convertRFC3339ToDateString(transfer.createdAt),
+        date: convertRFC3339ToDateString(timestampDate(transfer.date!)),
       };
     }
 
@@ -174,6 +171,7 @@ export const TransferModal = ({
         receiverId: data.receiverId,
         amount: data.amount,
         currency: data.currency,
+        date: timestampFromDate(new Date(data.date)),
       });
     } else {
       createMutate({
@@ -182,7 +180,7 @@ export const TransferModal = ({
         receiverId: data.receiverId,
         amount: data.amount,
         currency: data.currency,
-        date: convertDateToRFC3339(data.date),
+        date: timestampFromDate(new Date(data.date)),
       });
     }
   };

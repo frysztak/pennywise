@@ -10,6 +10,7 @@ import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -28,10 +29,10 @@ type CreateExpenseRequest struct {
 	PayerId          string                 `protobuf:"bytes,2,opt,name=payer_id,json=payerId,proto3" json:"payer_id,omitempty"`
 	Name             string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	Description      string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
-	Amount           float32                `protobuf:"fixed32,5,opt,name=amount,proto3" json:"amount,omitempty"`
+	Amount           float64                `protobuf:"fixed64,5,opt,name=amount,proto3" json:"amount,omitempty"`
 	Currency         string                 `protobuf:"bytes,6,opt,name=currency,proto3" json:"currency,omitempty"`
 	BeneficiariesIds []string               `protobuf:"bytes,7,rep,name=beneficiaries_ids,json=beneficiariesIds,proto3" json:"beneficiaries_ids,omitempty"`
-	Date             *string                `protobuf:"bytes,8,opt,name=date,proto3,oneof" json:"date,omitempty"` // RFC3339 format, defaults to now if not provided
+	Date             *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=date,proto3" json:"date,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -94,7 +95,7 @@ func (x *CreateExpenseRequest) GetDescription() string {
 	return ""
 }
 
-func (x *CreateExpenseRequest) GetAmount() float32 {
+func (x *CreateExpenseRequest) GetAmount() float64 {
 	if x != nil {
 		return x.Amount
 	}
@@ -115,11 +116,11 @@ func (x *CreateExpenseRequest) GetBeneficiariesIds() []string {
 	return nil
 }
 
-func (x *CreateExpenseRequest) GetDate() string {
-	if x != nil && x.Date != nil {
-		return *x.Date
+func (x *CreateExpenseRequest) GetDate() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Date
 	}
-	return ""
+	return nil
 }
 
 type CreateExpenseResponse struct {
@@ -180,10 +181,10 @@ type UpdateExpenseRequest struct {
 	PayerId          string                 `protobuf:"bytes,2,opt,name=payer_id,json=payerId,proto3" json:"payer_id,omitempty"`
 	Name             string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	Description      string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
-	Amount           float32                `protobuf:"fixed32,5,opt,name=amount,proto3" json:"amount,omitempty"`
+	Amount           float64                `protobuf:"fixed64,5,opt,name=amount,proto3" json:"amount,omitempty"`
 	Currency         string                 `protobuf:"bytes,6,opt,name=currency,proto3" json:"currency,omitempty"`
 	BeneficiariesIds []string               `protobuf:"bytes,7,rep,name=beneficiaries_ids,json=beneficiariesIds,proto3" json:"beneficiaries_ids,omitempty"`
-	Date             *string                `protobuf:"bytes,8,opt,name=date,proto3,oneof" json:"date,omitempty"` // RFC3339 format
+	Date             *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=date,proto3" json:"date,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -246,7 +247,7 @@ func (x *UpdateExpenseRequest) GetDescription() string {
 	return ""
 }
 
-func (x *UpdateExpenseRequest) GetAmount() float32 {
+func (x *UpdateExpenseRequest) GetAmount() float64 {
 	if x != nil {
 		return x.Amount
 	}
@@ -267,11 +268,11 @@ func (x *UpdateExpenseRequest) GetBeneficiariesIds() []string {
 	return nil
 }
 
-func (x *UpdateExpenseRequest) GetDate() string {
-	if x != nil && x.Date != nil {
-		return *x.Date
+func (x *UpdateExpenseRequest) GetDate() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Date
 	}
-	return ""
+	return nil
 }
 
 type UpdateExpenseResponse struct {
@@ -497,7 +498,7 @@ func (x *GetGroupExpensesResponse) GetExpenses() []*GetGroupExpensesResponse_Exp
 type GetGroupExpensesResponse_Expense struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	CreatedAt        string                 `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	CreatedAt        *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	Name             string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	Description      *string                `protobuf:"bytes,4,opt,name=description,proto3,oneof" json:"description,omitempty"`
 	Currency         string                 `protobuf:"bytes,5,opt,name=currency,proto3" json:"currency,omitempty"`
@@ -505,7 +506,7 @@ type GetGroupExpensesResponse_Expense struct {
 	PayerName        string                 `protobuf:"bytes,7,opt,name=payer_name,json=payerName,proto3" json:"payer_name,omitempty"`
 	Amount           int64                  `protobuf:"varint,8,opt,name=amount,proto3" json:"amount,omitempty"`
 	BeneficiariesIds []string               `protobuf:"bytes,9,rep,name=beneficiaries_ids,json=beneficiariesIds,proto3" json:"beneficiaries_ids,omitempty"`
-	Date             string                 `protobuf:"bytes,10,opt,name=date,proto3" json:"date,omitempty"`
+	Date             *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=date,proto3" json:"date,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -547,11 +548,11 @@ func (x *GetGroupExpensesResponse_Expense) GetId() string {
 	return ""
 }
 
-func (x *GetGroupExpensesResponse_Expense) GetCreatedAt() string {
+func (x *GetGroupExpensesResponse_Expense) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
-	return ""
+	return nil
 }
 
 func (x *GetGroupExpensesResponse_Expense) GetName() string {
@@ -603,45 +604,39 @@ func (x *GetGroupExpensesResponse_Expense) GetBeneficiariesIds() []string {
 	return nil
 }
 
-func (x *GetGroupExpensesResponse_Expense) GetDate() string {
+func (x *GetGroupExpensesResponse_Expense) GetDate() *timestamppb.Timestamp {
 	if x != nil {
 		return x.Date
 	}
-	return ""
+	return nil
 }
 
 var File_api_v1_expense_proto protoreflect.FileDescriptor
 
 const file_api_v1_expense_proto_rawDesc = "" +
 	"\n" +
-	"\x14api/v1/expense.proto\x12\x06api.v1\x1a\x1bbuf/validate/validate.proto\"\xb7\x02\n" +
+	"\x14api/v1/expense.proto\x12\x06api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc9\x02\n" +
 	"\x14CreateExpenseRequest\x12#\n" +
 	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\x12#\n" +
 	"\bpayer_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\apayerId\x12\x1b\n" +
 	"\x04name\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\x04name\x12 \n" +
-	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\"\n" +
-	"\x06amount\x18\x05 \x01(\x02B\n" +
-	"\xbaH\a\n" +
-	"\x05%\x00\x00\x00\x00R\x06amount\x12#\n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12&\n" +
+	"\x06amount\x18\x05 \x01(\x01B\x0e\xbaH\v\x12\t!\x00\x00\x00\x00\x00\x00\x00\x00R\x06amount\x12#\n" +
 	"\bcurrency\x18\x06 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\bcurrency\x12+\n" +
-	"\x11beneficiaries_ids\x18\a \x03(\tR\x10beneficiariesIds\x12\x17\n" +
-	"\x04date\x18\b \x01(\tH\x00R\x04date\x88\x01\x01B\a\n" +
-	"\x05_date\";\n" +
+	"\x11beneficiaries_ids\x18\a \x03(\tR\x10beneficiariesIds\x12.\n" +
+	"\x04date\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\x04date\";\n" +
 	"\x15CreateExpenseResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"\xac\x02\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\xbe\x02\n" +
 	"\x14UpdateExpenseRequest\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12#\n" +
 	"\bpayer_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\apayerId\x12\x1b\n" +
 	"\x04name\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\x04name\x12 \n" +
-	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\"\n" +
-	"\x06amount\x18\x05 \x01(\x02B\n" +
-	"\xbaH\a\n" +
-	"\x05%\x00\x00\x00\x00R\x06amount\x12#\n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12&\n" +
+	"\x06amount\x18\x05 \x01(\x01B\x0e\xbaH\v\x12\t!\x00\x00\x00\x00\x00\x00\x00\x00R\x06amount\x12#\n" +
 	"\bcurrency\x18\x06 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\bcurrency\x12+\n" +
-	"\x11beneficiaries_ids\x18\a \x03(\tR\x10beneficiariesIds\x12\x17\n" +
-	"\x04date\x18\b \x01(\tH\x00R\x04date\x88\x01\x01B\a\n" +
-	"\x05_date\";\n" +
+	"\x11beneficiaries_ids\x18\a \x03(\tR\x10beneficiariesIds\x12.\n" +
+	"\x04date\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\x04date\";\n" +
 	"\x15UpdateExpenseResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"0\n" +
@@ -649,13 +644,13 @@ const file_api_v1_expense_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\x17\n" +
 	"\x15DeleteExpenseResponse\">\n" +
 	"\x17GetGroupExpensesRequest\x12#\n" +
-	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\x95\x03\n" +
+	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\xcd\x03\n" +
 	"\x18GetGroupExpensesResponse\x12D\n" +
-	"\bexpenses\x18\x01 \x03(\v2(.api.v1.GetGroupExpensesResponse.ExpenseR\bexpenses\x1a\xb2\x02\n" +
+	"\bexpenses\x18\x01 \x03(\v2(.api.v1.GetGroupExpensesResponse.ExpenseR\bexpenses\x1a\xea\x02\n" +
 	"\aExpense\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x129\n" +
 	"\n" +
-	"created_at\x18\x02 \x01(\tR\tcreatedAt\x12\x12\n" +
+	"created_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12%\n" +
 	"\vdescription\x18\x04 \x01(\tH\x00R\vdescription\x88\x01\x01\x12\x1a\n" +
 	"\bcurrency\x18\x05 \x01(\tR\bcurrency\x12\x19\n" +
@@ -663,9 +658,9 @@ const file_api_v1_expense_proto_rawDesc = "" +
 	"\n" +
 	"payer_name\x18\a \x01(\tR\tpayerName\x12\x16\n" +
 	"\x06amount\x18\b \x01(\x03R\x06amount\x12+\n" +
-	"\x11beneficiaries_ids\x18\t \x03(\tR\x10beneficiariesIds\x12\x12\n" +
+	"\x11beneficiaries_ids\x18\t \x03(\tR\x10beneficiariesIds\x12.\n" +
 	"\x04date\x18\n" +
-	" \x01(\tR\x04dateB\x0e\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\x04dateB\x0e\n" +
 	"\f_description2\xd9\x02\n" +
 	"\x0eExpenseService\x12N\n" +
 	"\rCreateExpense\x12\x1c.api.v1.CreateExpenseRequest\x1a\x1d.api.v1.CreateExpenseResponse\"\x00\x12N\n" +
@@ -698,22 +693,27 @@ var file_api_v1_expense_proto_goTypes = []any{
 	(*GetGroupExpensesRequest)(nil),          // 6: api.v1.GetGroupExpensesRequest
 	(*GetGroupExpensesResponse)(nil),         // 7: api.v1.GetGroupExpensesResponse
 	(*GetGroupExpensesResponse_Expense)(nil), // 8: api.v1.GetGroupExpensesResponse.Expense
+	(*timestamppb.Timestamp)(nil),            // 9: google.protobuf.Timestamp
 }
 var file_api_v1_expense_proto_depIdxs = []int32{
-	8, // 0: api.v1.GetGroupExpensesResponse.expenses:type_name -> api.v1.GetGroupExpensesResponse.Expense
-	0, // 1: api.v1.ExpenseService.CreateExpense:input_type -> api.v1.CreateExpenseRequest
-	2, // 2: api.v1.ExpenseService.UpdateExpense:input_type -> api.v1.UpdateExpenseRequest
-	4, // 3: api.v1.ExpenseService.DeleteExpense:input_type -> api.v1.DeleteExpenseRequest
-	6, // 4: api.v1.ExpenseService.GetGroupExpenses:input_type -> api.v1.GetGroupExpensesRequest
-	1, // 5: api.v1.ExpenseService.CreateExpense:output_type -> api.v1.CreateExpenseResponse
-	3, // 6: api.v1.ExpenseService.UpdateExpense:output_type -> api.v1.UpdateExpenseResponse
-	5, // 7: api.v1.ExpenseService.DeleteExpense:output_type -> api.v1.DeleteExpenseResponse
-	7, // 8: api.v1.ExpenseService.GetGroupExpenses:output_type -> api.v1.GetGroupExpensesResponse
-	5, // [5:9] is the sub-list for method output_type
-	1, // [1:5] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	9, // 0: api.v1.CreateExpenseRequest.date:type_name -> google.protobuf.Timestamp
+	9, // 1: api.v1.UpdateExpenseRequest.date:type_name -> google.protobuf.Timestamp
+	8, // 2: api.v1.GetGroupExpensesResponse.expenses:type_name -> api.v1.GetGroupExpensesResponse.Expense
+	9, // 3: api.v1.GetGroupExpensesResponse.Expense.created_at:type_name -> google.protobuf.Timestamp
+	9, // 4: api.v1.GetGroupExpensesResponse.Expense.date:type_name -> google.protobuf.Timestamp
+	0, // 5: api.v1.ExpenseService.CreateExpense:input_type -> api.v1.CreateExpenseRequest
+	2, // 6: api.v1.ExpenseService.UpdateExpense:input_type -> api.v1.UpdateExpenseRequest
+	4, // 7: api.v1.ExpenseService.DeleteExpense:input_type -> api.v1.DeleteExpenseRequest
+	6, // 8: api.v1.ExpenseService.GetGroupExpenses:input_type -> api.v1.GetGroupExpensesRequest
+	1, // 9: api.v1.ExpenseService.CreateExpense:output_type -> api.v1.CreateExpenseResponse
+	3, // 10: api.v1.ExpenseService.UpdateExpense:output_type -> api.v1.UpdateExpenseResponse
+	5, // 11: api.v1.ExpenseService.DeleteExpense:output_type -> api.v1.DeleteExpenseResponse
+	7, // 12: api.v1.ExpenseService.GetGroupExpenses:output_type -> api.v1.GetGroupExpensesResponse
+	9, // [9:13] is the sub-list for method output_type
+	5, // [5:9] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_api_v1_expense_proto_init() }
@@ -721,8 +721,6 @@ func file_api_v1_expense_proto_init() {
 	if File_api_v1_expense_proto != nil {
 		return
 	}
-	file_api_v1_expense_proto_msgTypes[0].OneofWrappers = []any{}
-	file_api_v1_expense_proto_msgTypes[2].OneofWrappers = []any{}
 	file_api_v1_expense_proto_msgTypes[8].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

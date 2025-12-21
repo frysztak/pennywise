@@ -11,6 +11,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -743,7 +744,7 @@ func (*GetGroupActivityResponse_ActivityItem_Transfer_) isGetGroupActivityRespon
 type GetGroupActivityResponse_ActivityItem_Expense struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	CreatedAt        string                 `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	CreatedAt        *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	Name             string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	Description      *string                `protobuf:"bytes,4,opt,name=description,proto3,oneof" json:"description,omitempty"`
 	Currency         string                 `protobuf:"bytes,5,opt,name=currency,proto3" json:"currency,omitempty"`
@@ -751,7 +752,7 @@ type GetGroupActivityResponse_ActivityItem_Expense struct {
 	PayerName        string                 `protobuf:"bytes,7,opt,name=payer_name,json=payerName,proto3" json:"payer_name,omitempty"`
 	Amount           int64                  `protobuf:"varint,8,opt,name=amount,proto3" json:"amount,omitempty"`
 	BeneficiariesIds []string               `protobuf:"bytes,9,rep,name=beneficiaries_ids,json=beneficiariesIds,proto3" json:"beneficiaries_ids,omitempty"`
-	Date             string                 `protobuf:"bytes,10,opt,name=date,proto3" json:"date,omitempty"`
+	Date             *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=date,proto3" json:"date,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -793,11 +794,11 @@ func (x *GetGroupActivityResponse_ActivityItem_Expense) GetId() string {
 	return ""
 }
 
-func (x *GetGroupActivityResponse_ActivityItem_Expense) GetCreatedAt() string {
+func (x *GetGroupActivityResponse_ActivityItem_Expense) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
-	return ""
+	return nil
 }
 
 func (x *GetGroupActivityResponse_ActivityItem_Expense) GetName() string {
@@ -849,24 +850,24 @@ func (x *GetGroupActivityResponse_ActivityItem_Expense) GetBeneficiariesIds() []
 	return nil
 }
 
-func (x *GetGroupActivityResponse_ActivityItem_Expense) GetDate() string {
+func (x *GetGroupActivityResponse_ActivityItem_Expense) GetDate() *timestamppb.Timestamp {
 	if x != nil {
 		return x.Date
 	}
-	return ""
+	return nil
 }
 
 type GetGroupActivityResponse_ActivityItem_Transfer struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	CreatedAt     string                 `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	SenderId      string                 `protobuf:"bytes,3,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
 	SenderName    string                 `protobuf:"bytes,4,opt,name=sender_name,json=senderName,proto3" json:"sender_name,omitempty"`
 	ReceiverId    string                 `protobuf:"bytes,5,opt,name=receiver_id,json=receiverId,proto3" json:"receiver_id,omitempty"`
 	ReceiverName  string                 `protobuf:"bytes,6,opt,name=receiver_name,json=receiverName,proto3" json:"receiver_name,omitempty"`
 	Amount        int64                  `protobuf:"varint,7,opt,name=amount,proto3" json:"amount,omitempty"`
 	Currency      string                 `protobuf:"bytes,8,opt,name=currency,proto3" json:"currency,omitempty"`
-	Date          string                 `protobuf:"bytes,9,opt,name=date,proto3" json:"date,omitempty"`
+	Date          *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=date,proto3" json:"date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -908,11 +909,11 @@ func (x *GetGroupActivityResponse_ActivityItem_Transfer) GetId() string {
 	return ""
 }
 
-func (x *GetGroupActivityResponse_ActivityItem_Transfer) GetCreatedAt() string {
+func (x *GetGroupActivityResponse_ActivityItem_Transfer) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
-	return ""
+	return nil
 }
 
 func (x *GetGroupActivityResponse_ActivityItem_Transfer) GetSenderId() string {
@@ -957,18 +958,18 @@ func (x *GetGroupActivityResponse_ActivityItem_Transfer) GetCurrency() string {
 	return ""
 }
 
-func (x *GetGroupActivityResponse_ActivityItem_Transfer) GetDate() string {
+func (x *GetGroupActivityResponse_ActivityItem_Transfer) GetDate() *timestamppb.Timestamp {
 	if x != nil {
 		return x.Date
 	}
-	return ""
+	return nil
 }
 
 var File_api_v1_group_proto protoreflect.FileDescriptor
 
 const file_api_v1_group_proto_rawDesc = "" +
 	"\n" +
-	"\x12api/v1/group.proto\x12\x06api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x8e\x01\n" +
+	"\x12api/v1/group.proto\x12\x06api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8e\x01\n" +
 	"\x19CreateExpenseGroupRequest\x12\x1b\n" +
 	"\x04name\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x122\n" +
@@ -1011,17 +1012,17 @@ const file_api_v1_group_proto_rawDesc = "" +
 	"\x15GetUserGroupsResponse\x12)\n" +
 	"\x06groups\x18\x01 \x03(\v2\x11.api.v1.UserGroupR\x06groups\">\n" +
 	"\x17GetGroupActivityRequest\x12#\n" +
-	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\xe9\a\n" +
+	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\xd9\b\n" +
 	"\x18GetGroupActivityResponse\x12C\n" +
-	"\x05items\x18\x01 \x03(\v2-.api.v1.GetGroupActivityResponse.ActivityItemR\x05items\x1a\x87\a\n" +
+	"\x05items\x18\x01 \x03(\v2-.api.v1.GetGroupActivityResponse.ActivityItemR\x05items\x1a\xf7\a\n" +
 	"\fActivityItem\x12F\n" +
 	"\x04type\x18\x01 \x01(\x0e22.api.v1.GetGroupActivityResponse.ActivityItem.TypeR\x04type\x12Q\n" +
 	"\aexpense\x18\x02 \x01(\v25.api.v1.GetGroupActivityResponse.ActivityItem.ExpenseH\x00R\aexpense\x12T\n" +
-	"\btransfer\x18\x03 \x01(\v26.api.v1.GetGroupActivityResponse.ActivityItem.TransferH\x00R\btransfer\x1a\xb2\x02\n" +
+	"\btransfer\x18\x03 \x01(\v26.api.v1.GetGroupActivityResponse.ActivityItem.TransferH\x00R\btransfer\x1a\xea\x02\n" +
 	"\aExpense\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x129\n" +
 	"\n" +
-	"created_at\x18\x02 \x01(\tR\tcreatedAt\x12\x12\n" +
+	"created_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12%\n" +
 	"\vdescription\x18\x04 \x01(\tH\x00R\vdescription\x88\x01\x01\x12\x1a\n" +
 	"\bcurrency\x18\x05 \x01(\tR\bcurrency\x12\x19\n" +
@@ -1029,14 +1030,14 @@ const file_api_v1_group_proto_rawDesc = "" +
 	"\n" +
 	"payer_name\x18\a \x01(\tR\tpayerName\x12\x16\n" +
 	"\x06amount\x18\b \x01(\x03R\x06amount\x12+\n" +
-	"\x11beneficiaries_ids\x18\t \x03(\tR\x10beneficiariesIds\x12\x12\n" +
+	"\x11beneficiaries_ids\x18\t \x03(\tR\x10beneficiariesIds\x12.\n" +
 	"\x04date\x18\n" +
-	" \x01(\tR\x04dateB\x0e\n" +
-	"\f_description\x1a\x85\x02\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\x04dateB\x0e\n" +
+	"\f_description\x1a\xbd\x02\n" +
 	"\bTransfer\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x129\n" +
 	"\n" +
-	"created_at\x18\x02 \x01(\tR\tcreatedAt\x12\x1b\n" +
+	"created_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x1b\n" +
 	"\tsender_id\x18\x03 \x01(\tR\bsenderId\x12\x1f\n" +
 	"\vsender_name\x18\x04 \x01(\tR\n" +
 	"senderName\x12\x1f\n" +
@@ -1044,8 +1045,8 @@ const file_api_v1_group_proto_rawDesc = "" +
 	"receiverId\x12#\n" +
 	"\rreceiver_name\x18\x06 \x01(\tR\freceiverName\x12\x16\n" +
 	"\x06amount\x18\a \x01(\x03R\x06amount\x12\x1a\n" +
-	"\bcurrency\x18\b \x01(\tR\bcurrency\x12\x12\n" +
-	"\x04date\x18\t \x01(\tR\x04date\"A\n" +
+	"\bcurrency\x18\b \x01(\tR\bcurrency\x12.\n" +
+	"\x04date\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\x04date\"A\n" +
 	"\x04Type\x12\x14\n" +
 	"\x10TYPE_UNSPECIFIED\x10\x00\x12\x10\n" +
 	"\fTYPE_EXPENSE\x10\x01\x12\x11\n" +
@@ -1093,7 +1094,8 @@ var file_api_v1_group_proto_goTypes = []any{
 	(*GetGroupActivityResponse_ActivityItem)(nil),          // 13: api.v1.GetGroupActivityResponse.ActivityItem
 	(*GetGroupActivityResponse_ActivityItem_Expense)(nil),  // 14: api.v1.GetGroupActivityResponse.ActivityItem.Expense
 	(*GetGroupActivityResponse_ActivityItem_Transfer)(nil), // 15: api.v1.GetGroupActivityResponse.ActivityItem.Transfer
-	(*emptypb.Empty)(nil),                                  // 16: google.protobuf.Empty
+	(*timestamppb.Timestamp)(nil),                          // 16: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),                                  // 17: google.protobuf.Empty
 }
 var file_api_v1_group_proto_depIdxs = []int32{
 	11, // 0: api.v1.MemberBalance.balance:type_name -> api.v1.MemberBalance.BalanceEntry
@@ -1104,23 +1106,27 @@ var file_api_v1_group_proto_depIdxs = []int32{
 	0,  // 5: api.v1.GetGroupActivityResponse.ActivityItem.type:type_name -> api.v1.GetGroupActivityResponse.ActivityItem.Type
 	14, // 6: api.v1.GetGroupActivityResponse.ActivityItem.expense:type_name -> api.v1.GetGroupActivityResponse.ActivityItem.Expense
 	15, // 7: api.v1.GetGroupActivityResponse.ActivityItem.transfer:type_name -> api.v1.GetGroupActivityResponse.ActivityItem.Transfer
-	1,  // 8: api.v1.GroupService.CreateExpenseGroup:input_type -> api.v1.CreateExpenseGroupRequest
-	5,  // 9: api.v1.GroupService.UpdateGroup:input_type -> api.v1.UpdateGroupRequest
-	3,  // 10: api.v1.GroupService.AddUserToGroup:input_type -> api.v1.AddUserToGroupRequest
-	4,  // 11: api.v1.GroupService.RemoveUserFromGroup:input_type -> api.v1.RemoveUserFromGroupRequest
-	16, // 12: api.v1.GroupService.GetUserGroups:input_type -> google.protobuf.Empty
-	9,  // 13: api.v1.GroupService.GetGroupActivity:input_type -> api.v1.GetGroupActivityRequest
-	2,  // 14: api.v1.GroupService.CreateExpenseGroup:output_type -> api.v1.CreateExpenseGroupResponse
-	2,  // 15: api.v1.GroupService.UpdateGroup:output_type -> api.v1.CreateExpenseGroupResponse
-	16, // 16: api.v1.GroupService.AddUserToGroup:output_type -> google.protobuf.Empty
-	16, // 17: api.v1.GroupService.RemoveUserFromGroup:output_type -> google.protobuf.Empty
-	8,  // 18: api.v1.GroupService.GetUserGroups:output_type -> api.v1.GetUserGroupsResponse
-	10, // 19: api.v1.GroupService.GetGroupActivity:output_type -> api.v1.GetGroupActivityResponse
-	14, // [14:20] is the sub-list for method output_type
-	8,  // [8:14] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	16, // 8: api.v1.GetGroupActivityResponse.ActivityItem.Expense.created_at:type_name -> google.protobuf.Timestamp
+	16, // 9: api.v1.GetGroupActivityResponse.ActivityItem.Expense.date:type_name -> google.protobuf.Timestamp
+	16, // 10: api.v1.GetGroupActivityResponse.ActivityItem.Transfer.created_at:type_name -> google.protobuf.Timestamp
+	16, // 11: api.v1.GetGroupActivityResponse.ActivityItem.Transfer.date:type_name -> google.protobuf.Timestamp
+	1,  // 12: api.v1.GroupService.CreateExpenseGroup:input_type -> api.v1.CreateExpenseGroupRequest
+	5,  // 13: api.v1.GroupService.UpdateGroup:input_type -> api.v1.UpdateGroupRequest
+	3,  // 14: api.v1.GroupService.AddUserToGroup:input_type -> api.v1.AddUserToGroupRequest
+	4,  // 15: api.v1.GroupService.RemoveUserFromGroup:input_type -> api.v1.RemoveUserFromGroupRequest
+	17, // 16: api.v1.GroupService.GetUserGroups:input_type -> google.protobuf.Empty
+	9,  // 17: api.v1.GroupService.GetGroupActivity:input_type -> api.v1.GetGroupActivityRequest
+	2,  // 18: api.v1.GroupService.CreateExpenseGroup:output_type -> api.v1.CreateExpenseGroupResponse
+	2,  // 19: api.v1.GroupService.UpdateGroup:output_type -> api.v1.CreateExpenseGroupResponse
+	17, // 20: api.v1.GroupService.AddUserToGroup:output_type -> google.protobuf.Empty
+	17, // 21: api.v1.GroupService.RemoveUserFromGroup:output_type -> google.protobuf.Empty
+	8,  // 22: api.v1.GroupService.GetUserGroups:output_type -> api.v1.GetUserGroupsResponse
+	10, // 23: api.v1.GroupService.GetGroupActivity:output_type -> api.v1.GetGroupActivityResponse
+	18, // [18:24] is the sub-list for method output_type
+	12, // [12:18] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_api_v1_group_proto_init() }

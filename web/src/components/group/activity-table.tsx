@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import type { GetGroupActivityResponse_ActivityItem_Expense } from "@/gen/api/v1/group_pb";
 import type { GetGroupActivityResponse_ActivityItem_Transfer } from "@/gen/api/v1/group_pb";
+import { timestampDate } from "@bufbuild/protobuf/wkt";
 
 type ActivityItem =
   | { type: "expense"; data: GetGroupActivityResponse_ActivityItem_Expense }
@@ -68,7 +69,7 @@ export function ActivityTable({
       </TableHeader>
       <TableBody>
         {recentActivity.map((item) => {
-          const date = new Date(item.data.date);
+          const date = timestampDate(item.data.date!);
           const formattedDate = date.toLocaleDateString("en-US", {
             month: "short",
             day: "numeric",

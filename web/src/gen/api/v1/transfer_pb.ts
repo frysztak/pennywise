@@ -5,13 +5,15 @@
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../buf/validate/validate_pb";
+import type { Timestamp } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file api/v1/transfer.proto.
  */
 export const file_api_v1_transfer: GenFile = /*@__PURE__*/
-  fileDesc("ChVhcGkvdjEvdHJhbnNmZXIucHJvdG8SBmFwaS52MSLGAQoVQ3JlYXRlVHJhbnNmZXJSZXF1ZXN0EhoKCGdyb3VwX2lkGAEgASgJQgi6SAVyA7ABARIbCglzZW5kZXJfaWQYAiABKAlCCLpIBXIDsAEBEh0KC3JlY2VpdmVyX2lkGAMgASgJQgi6SAVyA7ABARIeCgZhbW91bnQYBCABKAFCDrpICxIJIQAAAAAAAAAAEhkKCGN1cnJlbmN5GAUgASgJQge6SARyAhACEhEKBGRhdGUYBiABKAlIAIgBAUIHCgVfZGF0ZSIkChZDcmVhdGVUcmFuc2ZlclJlc3BvbnNlEgoKAmlkGAEgASgJIrIBChVVcGRhdGVUcmFuc2ZlclJlcXVlc3QSFAoCaWQYASABKAlCCLpIBXIDsAEBEhsKCXNlbmRlcl9pZBgCIAEoCUIIukgFcgOwAQESHQoLcmVjZWl2ZXJfaWQYAyABKAlCCLpIBXIDsAEBEh4KBmFtb3VudBgEIAEoAUIOukgLEgkhAAAAAAAAAAASGQoIY3VycmVuY3kYBSABKAlCB7pIBHICEAISDAoEZGF0ZRgGIAEoCSIkChZVcGRhdGVUcmFuc2ZlclJlc3BvbnNlEgoKAmlkGAEgASgJIi0KFURlbGV0ZVRyYW5zZmVyUmVxdWVzdBIUCgJpZBgBIAEoCUIIukgFcgOwAQEiGAoWRGVsZXRlVHJhbnNmZXJSZXNwb25zZSI2ChhHZXRHcm91cFRyYW5zZmVyc1JlcXVlc3QSGgoIZ3JvdXBfaWQYASABKAlCCLpIBXIDsAEBIosCChlHZXRHcm91cFRyYW5zZmVyc1Jlc3BvbnNlEj0KCXRyYW5zZmVycxgBIAMoCzIqLmFwaS52MS5HZXRHcm91cFRyYW5zZmVyc1Jlc3BvbnNlLlRyYW5zZmVyGq4BCghUcmFuc2ZlchIKCgJpZBgBIAEoCRISCgpjcmVhdGVkX2F0GAIgASgJEhEKCXNlbmRlcl9pZBgDIAEoCRITCgtzZW5kZXJfbmFtZRgEIAEoCRITCgtyZWNlaXZlcl9pZBgFIAEoCRIVCg1yZWNlaXZlcl9uYW1lGAYgASgJEg4KBmFtb3VudBgHIAEoAxIQCghjdXJyZW5jeRgIIAEoCRIMCgRkYXRlGAkgASgJMuYCCg9UcmFuc2ZlclNlcnZpY2USUQoOQ3JlYXRlVHJhbnNmZXISHS5hcGkudjEuQ3JlYXRlVHJhbnNmZXJSZXF1ZXN0Gh4uYXBpLnYxLkNyZWF0ZVRyYW5zZmVyUmVzcG9uc2UiABJRCg5VcGRhdGVUcmFuc2ZlchIdLmFwaS52MS5VcGRhdGVUcmFuc2ZlclJlcXVlc3QaHi5hcGkudjEuVXBkYXRlVHJhbnNmZXJSZXNwb25zZSIAElEKDkRlbGV0ZVRyYW5zZmVyEh0uYXBpLnYxLkRlbGV0ZVRyYW5zZmVyUmVxdWVzdBoeLmFwaS52MS5EZWxldGVUcmFuc2ZlclJlc3BvbnNlIgASWgoRR2V0R3JvdXBUcmFuc2ZlcnMSIC5hcGkudjEuR2V0R3JvdXBUcmFuc2ZlcnNSZXF1ZXN0GiEuYXBpLnYxLkdldEdyb3VwVHJhbnNmZXJzUmVzcG9uc2UiAGIGcHJvdG8z", [file_buf_validate_validate]);
+  fileDesc("ChVhcGkvdjEvdHJhbnNmZXIucHJvdG8SBmFwaS52MSLUAQoVQ3JlYXRlVHJhbnNmZXJSZXF1ZXN0EhoKCGdyb3VwX2lkGAEgASgJQgi6SAVyA7ABARIbCglzZW5kZXJfaWQYAiABKAlCCLpIBXIDsAEBEh0KC3JlY2VpdmVyX2lkGAMgASgJQgi6SAVyA7ABARIeCgZhbW91bnQYBCABKAFCDrpICxIJIQAAAAAAAAAAEhkKCGN1cnJlbmN5GAUgASgJQge6SARyAhACEigKBGRhdGUYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIiQKFkNyZWF0ZVRyYW5zZmVyUmVzcG9uc2USCgoCaWQYASABKAkizgEKFVVwZGF0ZVRyYW5zZmVyUmVxdWVzdBIUCgJpZBgBIAEoCUIIukgFcgOwAQESGwoJc2VuZGVyX2lkGAIgASgJQgi6SAVyA7ABARIdCgtyZWNlaXZlcl9pZBgDIAEoCUIIukgFcgOwAQESHgoGYW1vdW50GAQgASgBQg66SAsSCSEAAAAAAAAAABIZCghjdXJyZW5jeRgFIAEoCUIHukgEcgIQAhIoCgRkYXRlGAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCIkChZVcGRhdGVUcmFuc2ZlclJlc3BvbnNlEgoKAmlkGAEgASgJIi0KFURlbGV0ZVRyYW5zZmVyUmVxdWVzdBIUCgJpZBgBIAEoCUIIukgFcgOwAQEiGAoWRGVsZXRlVHJhbnNmZXJSZXNwb25zZSI2ChhHZXRHcm91cFRyYW5zZmVyc1JlcXVlc3QSGgoIZ3JvdXBfaWQYASABKAlCCLpIBXIDsAEBIsMCChlHZXRHcm91cFRyYW5zZmVyc1Jlc3BvbnNlEj0KCXRyYW5zZmVycxgBIAMoCzIqLmFwaS52MS5HZXRHcm91cFRyYW5zZmVyc1Jlc3BvbnNlLlRyYW5zZmVyGuYBCghUcmFuc2ZlchIKCgJpZBgBIAEoCRIuCgpjcmVhdGVkX2F0GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIRCglzZW5kZXJfaWQYAyABKAkSEwoLc2VuZGVyX25hbWUYBCABKAkSEwoLcmVjZWl2ZXJfaWQYBSABKAkSFQoNcmVjZWl2ZXJfbmFtZRgGIAEoCRIOCgZhbW91bnQYByABKAMSEAoIY3VycmVuY3kYCCABKAkSKAoEZGF0ZRgJIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAy5gIKD1RyYW5zZmVyU2VydmljZRJRCg5DcmVhdGVUcmFuc2ZlchIdLmFwaS52MS5DcmVhdGVUcmFuc2ZlclJlcXVlc3QaHi5hcGkudjEuQ3JlYXRlVHJhbnNmZXJSZXNwb25zZSIAElEKDlVwZGF0ZVRyYW5zZmVyEh0uYXBpLnYxLlVwZGF0ZVRyYW5zZmVyUmVxdWVzdBoeLmFwaS52MS5VcGRhdGVUcmFuc2ZlclJlc3BvbnNlIgASUQoORGVsZXRlVHJhbnNmZXISHS5hcGkudjEuRGVsZXRlVHJhbnNmZXJSZXF1ZXN0Gh4uYXBpLnYxLkRlbGV0ZVRyYW5zZmVyUmVzcG9uc2UiABJaChFHZXRHcm91cFRyYW5zZmVycxIgLmFwaS52MS5HZXRHcm91cFRyYW5zZmVyc1JlcXVlc3QaIS5hcGkudjEuR2V0R3JvdXBUcmFuc2ZlcnNSZXNwb25zZSIAYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_timestamp]);
 
 /**
  * @generated from message api.v1.CreateTransferRequest
@@ -43,11 +45,9 @@ export type CreateTransferRequest = Message<"api.v1.CreateTransferRequest"> & {
   currency: string;
 
   /**
-   * RFC3339 format, defaults to now if not provided
-   *
-   * @generated from field: optional string date = 6;
+   * @generated from field: google.protobuf.Timestamp date = 6;
    */
-  date?: string;
+  date?: Timestamp;
 };
 
 /**
@@ -104,9 +104,9 @@ export type UpdateTransferRequest = Message<"api.v1.UpdateTransferRequest"> & {
   currency: string;
 
   /**
-   * @generated from field: string date = 6;
+   * @generated from field: google.protobuf.Timestamp date = 6;
    */
-  date: string;
+  date?: Timestamp;
 };
 
 /**
@@ -207,9 +207,9 @@ export type GetGroupTransfersResponse_Transfer = Message<"api.v1.GetGroupTransfe
   id: string;
 
   /**
-   * @generated from field: string created_at = 2;
+   * @generated from field: google.protobuf.Timestamp created_at = 2;
    */
-  createdAt: string;
+  createdAt?: Timestamp;
 
   /**
    * @generated from field: string sender_id = 3;
@@ -242,9 +242,9 @@ export type GetGroupTransfersResponse_Transfer = Message<"api.v1.GetGroupTransfe
   currency: string;
 
   /**
-   * @generated from field: string date = 9;
+   * @generated from field: google.protobuf.Timestamp date = 9;
    */
-  date: string;
+  date?: Timestamp;
 };
 
 /**

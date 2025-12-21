@@ -3,6 +3,7 @@ syntax = "proto3";
 package api.v1;
 
 import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
 
 message CreateTransferRequest {
   string group_id = 1 [(buf.validate.field).string.uuid = true];
@@ -10,7 +11,7 @@ message CreateTransferRequest {
   string receiver_id = 3 [(buf.validate.field).string.uuid = true];
   double amount = 4 [(buf.validate.field).double.gt = 0.0];
   string currency = 5 [(buf.validate.field).string.min_len = 2];
-  optional string date = 6; // RFC3339 format, defaults to now if not provided
+  google.protobuf.Timestamp date = 6;
 }
 
 message CreateTransferResponse {
@@ -23,7 +24,7 @@ message UpdateTransferRequest {
   string receiver_id = 3 [(buf.validate.field).string.uuid = true];
   double amount = 4 [(buf.validate.field).double.gt = 0.0];
   string currency = 5 [(buf.validate.field).string.min_len = 2];
-  string date = 6;
+  google.protobuf.Timestamp date = 6;
 }
 
 message UpdateTransferResponse {
@@ -43,14 +44,14 @@ message GetGroupTransfersRequest {
 message GetGroupTransfersResponse {
   message Transfer {
     string id = 1;
-    string created_at = 2;
+    google.protobuf.Timestamp created_at = 2;
     string sender_id = 3;
     string sender_name = 4;
     string receiver_id = 5;
     string receiver_name = 6;
     int64 amount = 7;
     string currency = 8;
-    string date = 9;
+    google.protobuf.Timestamp date = 9;
   }
 
   repeated Transfer transfers = 1;

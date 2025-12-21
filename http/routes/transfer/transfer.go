@@ -6,10 +6,10 @@ import (
 	"pennywise/db"
 	"pennywise/db/database"
 	apiv1 "pennywise/gen/api/v1"
-	"time"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type TransferService struct{}
@@ -51,16 +51,6 @@ func (s *TransferService) CreateTransfer(ctx context.Context, r *apiv1.CreateTra
 			errors.New("sender and receiver must be different users"))
 	}
 
-	// Parse date from request, default to now if not provided
-	transferDate := time.Now()
-	if r.Date != nil && *r.Date != "" {
-		parsed, err := time.Parse(time.RFC3339, *r.Date)
-		if err != nil {
-			return nil, connect.NewError(connect.CodeInvalidArgument, err)
-		}
-		transferDate = parsed
-	}
-
 	transfer, err := db.Queries.CreateTransfer(ctx, database.CreateTransferParams{
 		ID:         uuid.NewString(),
 		GroupID:    r.GroupId,
@@ -68,7 +58,7 @@ func (s *TransferService) CreateTransfer(ctx context.Context, r *apiv1.CreateTra
 		ReceiverID: r.ReceiverId,
 		Amount:     int64(r.Amount * 100),
 		Currency:   r.Currency,
-		Date:       transferDate,
+		Date:       r.Date.AsTime(),
 	})
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -87,14 +77,14 @@ func (s *TransferService) GetGroupTransfers(ctx context.Context, r *apiv1.GetGro
 	for _, row := range rows {
 		transfers = append(transfers, &apiv1.GetGroupTransfersResponse_Transfer{
 			Id:           row.ID,
-			CreatedAt:    row.CreatedAt.Format(time.RFC3339),
+			CreatedAt:    timestamppb.New(row.CreatedAt),
 			SenderId:     row.SenderID,
 			SenderName:   row.SenderName,
 			ReceiverId:   row.ReceiverID,
 			ReceiverName: row.ReceiverName,
 			Amount:       row.Amount,
 			Currency:     row.Currency,
-			Date:         row.Date.Format(time.RFC3339),
+			Date:         timestamppb.New(row.Date),
 		})
 	}
 
@@ -140,23 +130,13 @@ func (s *TransferService) UpdateTransfer(ctx context.Context, r *apiv1.UpdateTra
 			errors.New("sender and receiver must be different users"))
 	}
 
-	// Parse date from request, default to now if not provided
-	var transferDate time.Time
-	if r.Date != "" {
-		parsed, err := time.Parse(time.RFC3339, r.Date)
-		if err != nil {
-			return nil, connect.NewError(connect.CodeInvalidArgument, err)
-		}
-		transferDate = parsed
-	}
-
 	transfer, err := db.Queries.UpdateTransfer(ctx, database.UpdateTransferParams{
 		ID:         r.Id,
 		SenderID:   r.SenderId,
 		ReceiverID: r.ReceiverId,
 		Amount:     int64(r.Amount * 100),
 		Currency:   r.Currency,
-		Date:       transferDate,
+		Date:       r.Date.AsTime(),
 	})
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)

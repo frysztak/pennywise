@@ -14,6 +14,7 @@ import (
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type GroupService struct{}
@@ -190,7 +191,7 @@ func (s *GroupService) GetGroupActivity(ctx context.Context, r *apiv1.GetGroupAc
 			Data: &apiv1.GetGroupActivityResponse_ActivityItem_Expense_{
 				Expense: &apiv1.GetGroupActivityResponse_ActivityItem_Expense{
 					Id:               expense.ID,
-					CreatedAt:        expense.CreatedAt.Format(time.RFC3339),
+					CreatedAt:        timestamppb.New(expense.CreatedAt),
 					Name:             expense.Name,
 					Description:      expense.Description,
 					Currency:         expense.Currency,
@@ -198,7 +199,7 @@ func (s *GroupService) GetGroupActivity(ctx context.Context, r *apiv1.GetGroupAc
 					PayerName:        expense.PayerName,
 					Amount:           expense.Amount,
 					BeneficiariesIds: beneficiariesIds,
-					Date:             expense.Date.Format(time.RFC3339),
+					Date:             timestamppb.New(expense.Date),
 				},
 			},
 		})
@@ -211,14 +212,14 @@ func (s *GroupService) GetGroupActivity(ctx context.Context, r *apiv1.GetGroupAc
 			Data: &apiv1.GetGroupActivityResponse_ActivityItem_Transfer_{
 				Transfer: &apiv1.GetGroupActivityResponse_ActivityItem_Transfer{
 					Id:           transfer.ID,
-					CreatedAt:    transfer.CreatedAt.Format(time.RFC3339),
+					CreatedAt:    timestamppb.New(transfer.CreatedAt),
 					SenderId:     transfer.SenderID,
 					SenderName:   transfer.SenderName,
 					ReceiverId:   transfer.ReceiverID,
 					ReceiverName: transfer.ReceiverName,
 					Amount:       transfer.Amount,
 					Currency:     transfer.Currency,
-					Date:         transfer.Date.Format(time.RFC3339),
+					Date:         timestamppb.New(transfer.Date),
 				},
 			},
 		})
@@ -226,18 +227,18 @@ func (s *GroupService) GetGroupActivity(ctx context.Context, r *apiv1.GetGroupAc
 
 	// Sort by date descending (most recent first)
 	sort.Slice(items, func(i, j int) bool {
-		var dateI, dateJ string
+		var dateI, dateJ time.Time
 		if items[i].Type == apiv1.GetGroupActivityResponse_ActivityItem_TYPE_EXPENSE {
-			dateI = items[i].GetExpense().Date
+			dateI = items[i].GetExpense().Date.AsTime()
 		} else {
-			dateI = items[i].GetTransfer().Date
+			dateI = items[i].GetTransfer().Date.AsTime()
 		}
 		if items[j].Type == apiv1.GetGroupActivityResponse_ActivityItem_TYPE_EXPENSE {
-			dateJ = items[j].GetExpense().Date
+			dateJ = items[j].GetExpense().Date.AsTime()
 		} else {
-			dateJ = items[j].GetTransfer().Date
+			dateJ = items[j].GetTransfer().Date.AsTime()
 		}
-		return dateI > dateJ
+		return dateI.After(dateJ)
 	})
 
 	return &apiv1.GetGroupActivityResponse{

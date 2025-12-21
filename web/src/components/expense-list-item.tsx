@@ -1,4 +1,5 @@
 import type { GetGroupExpensesResponse_Expense } from "@/gen/api/v1/expense_pb";
+import { timestampDate } from "@bufbuild/protobuf/wkt";
 
 interface ExpenseListItemProps {
   expense: GetGroupExpensesResponse_Expense;
@@ -25,21 +26,25 @@ export function ExpenseListItem({ expense }: ExpenseListItemProps) {
         {/* Metadata row */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs sm:text-sm text-muted-foreground">
           <time className="font-medium">
-            {new Date(expense.createdAt).toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric',
+            {timestampDate(expense.createdAt!).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
             })}
           </time>
           <span className="hidden sm:inline text-muted-foreground/40">•</span>
           <span className="truncate max-w-[200px]">
-            <span className="text-muted-foreground/60">Paid by</span> {expense.payerId}
+            <span className="text-muted-foreground/60">Paid by</span>{" "}
+            {expense.payerId}
           </span>
           {expense.beneficiariesIds.length > 0 && (
             <>
-              <span className="hidden sm:inline text-muted-foreground/40">•</span>
+              <span className="hidden sm:inline text-muted-foreground/40">
+                •
+              </span>
               <span className="text-muted-foreground/60">
-                Split {expense.beneficiariesIds.length} {expense.beneficiariesIds.length === 1 ? 'way' : 'ways'}
+                Split {expense.beneficiariesIds.length}{" "}
+                {expense.beneficiariesIds.length === 1 ? "way" : "ways"}
               </span>
             </>
           )}
