@@ -2,3 +2,4 @@
 *.sqbpro
 *.sqlite3
 tmp
+web/stats.html

@@ -1,9 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { AmountWithCurrency } from "@/components/amount-with-currency";
-import type { GetUserGroupsResponse_Group_MemberBalance } from "@/gen/api/v1/group_pb";
+import type { MemberBalance } from "@/gen/api/v1/group_pb";
 
 interface GroupBalancesProps {
-  memberBalances: GetUserGroupsResponse_Group_MemberBalance[];
+  memberBalances: MemberBalance[];
   currentUserId: string;
   defaultCurrency: string;
 }
