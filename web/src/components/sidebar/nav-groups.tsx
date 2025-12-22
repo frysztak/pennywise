@@ -24,11 +24,14 @@ import { useSuspenseQuery } from "@connectrpc/connect-query";
 import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
 import { NewGroupModal } from "./new-group-modal";
 import { Link } from "@tanstack/react-router";
+import { AmountWithCurrency } from "../amount-with-currency";
+import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
 
 export function NavGroups() {
   const { isMobile } = useSidebar();
 
   const { data } = useSuspenseQuery(getUserGroups);
+  const { data: currentUser } = useSuspenseQuery(userInfo);
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -44,9 +47,18 @@ export function NavGroups() {
         <SidebarMenu>
           {data.groups.map((item) => (
             <SidebarMenuItem key={item.groupId}>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton asChild className="h-auto">
                 <Link to="/group/$groupId" params={{ groupId: item.groupId }}>
-                  <span>{item.groupName}</span>
+                  <div className="flex flex-col">
+                    <strong>{item.groupName}</strong>
+                    <AmountWithCurrency
+                      balance={
+                        item.memberBalances.find(
+                          (balance) => balance.userId === currentUser.id
+                        )!.balance
+                      }
+                    />
+                  </div>
                 </Link>
               </SidebarMenuButton>
               <DropdownMenu>
@@ -78,12 +90,6 @@ export function NavGroups() {
               </DropdownMenu>
             </SidebarMenuItem>
           ))}
-          <SidebarMenuItem>
-            <SidebarMenuButton>
-              <MoreHorizontal />
-              <span>More</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

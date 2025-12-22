@@ -3,7 +3,6 @@ package middleware
 import (
 	"context"
 	"errors"
-	"log"
 	"net/http"
 	"pennywise/db"
 	"pennywise/gen/api/v1/apiv1connect"
@@ -51,7 +50,7 @@ func SessionMiddleware() *authn.Middleware {
 		}
 
 		// TODO: check if session needs to be renewed
-		log.Println(session)
+		// log.Println(session)
 
 		// The request is authenticated!
 		return session, nil
