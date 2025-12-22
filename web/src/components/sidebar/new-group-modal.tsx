@@ -22,10 +22,19 @@ import { Spinner } from "../ui/spinner";
 import { toast } from "sonner";
 import { useState } from "react";
 import { handleError } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { COMMON_CURRENCIES } from "@/lib/currencies";
 
 const formSchema = z.object({
   name: z.string().min(2),
   description: z.string(),
+  defaultCurrency: z.string().min(2, "Currency is required"),
 });
 const userGroupsKey = createConnectQueryKey({
   schema: getUserGroups,
@@ -40,6 +49,7 @@ export const NewGroupModal = ({ children }: { children: React.ReactNode }) => {
     defaultValues: {
       name: "",
       description: "",
+      defaultCurrency: "EUR",
     },
   });
 
@@ -106,6 +116,40 @@ export const NewGroupModal = ({ children }: { children: React.ReactNode }) => {
                     id="groupDesc"
                     aria-invalid={fieldState.invalid}
                   />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="defaultCurrency"
+              disabled={isPending}
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel htmlFor="defaultCurrency">
+                    Default currency
+                  </FieldLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={isPending}
+                  >
+                    <SelectTrigger
+                      id="defaultCurrency"
+                      aria-invalid={fieldState.invalid}
+                    >
+                      <SelectValue placeholder="Select currency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {COMMON_CURRENCIES.map((currency) => (
+                        <SelectItem key={currency.value} value={currency.value}>
+                          {currency.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
