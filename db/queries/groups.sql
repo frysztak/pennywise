@@ -49,3 +49,7 @@ SELECT
 FROM user_expense_groups ueg
 JOIN users u ON u.id = ueg.user_id
 WHERE ueg.group_id = @group_id;
+
+-- name: DeleteGroup :exec
+DELETE FROM expense_groups
+WHERE id = @group_id;

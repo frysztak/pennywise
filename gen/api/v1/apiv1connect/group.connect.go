@@ -40,6 +40,9 @@ const (
 	// GroupServiceUpdateGroupProcedure is the fully-qualified name of the GroupService's UpdateGroup
 	// RPC.
 	GroupServiceUpdateGroupProcedure = "/api.v1.GroupService/UpdateGroup"
+	// GroupServiceDeleteGroupProcedure is the fully-qualified name of the GroupService's DeleteGroup
+	// RPC.
+	GroupServiceDeleteGroupProcedure = "/api.v1.GroupService/DeleteGroup"
 	// GroupServiceAddUserToGroupProcedure is the fully-qualified name of the GroupService's
 	// AddUserToGroup RPC.
 	GroupServiceAddUserToGroupProcedure = "/api.v1.GroupService/AddUserToGroup"
@@ -58,6 +61,7 @@ const (
 type GroupServiceClient interface {
 	CreateExpenseGroup(context.Context, *v1.CreateExpenseGroupRequest) (*v1.CreateExpenseGroupResponse, error)
 	UpdateGroup(context.Context, *v1.UpdateGroupRequest) (*v1.CreateExpenseGroupResponse, error)
+	DeleteGroup(context.Context, *v1.DeleteGroupRequest) (*emptypb.Empty, error)
 	AddUserToGroup(context.Context, *v1.AddUserToGroupRequest) (*emptypb.Empty, error)
 	RemoveUserFromGroup(context.Context, *v1.RemoveUserFromGroupRequest) (*emptypb.Empty, error)
 	GetUserGroups(context.Context, *emptypb.Empty) (*v1.GetUserGroupsResponse, error)
@@ -85,6 +89,12 @@ func NewGroupServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			httpClient,
 			baseURL+GroupServiceUpdateGroupProcedure,
 			connect.WithSchema(groupServiceMethods.ByName("UpdateGroup")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteGroup: connect.NewClient[v1.DeleteGroupRequest, emptypb.Empty](
+			httpClient,
+			baseURL+GroupServiceDeleteGroupProcedure,
+			connect.WithSchema(groupServiceMethods.ByName("DeleteGroup")),
 			connect.WithClientOptions(opts...),
 		),
 		addUserToGroup: connect.NewClient[v1.AddUserToGroupRequest, emptypb.Empty](
@@ -118,6 +128,7 @@ func NewGroupServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 type groupServiceClient struct {
 	createExpenseGroup  *connect.Client[v1.CreateExpenseGroupRequest, v1.CreateExpenseGroupResponse]
 	updateGroup         *connect.Client[v1.UpdateGroupRequest, v1.CreateExpenseGroupResponse]
+	deleteGroup         *connect.Client[v1.DeleteGroupRequest, emptypb.Empty]
 	addUserToGroup      *connect.Client[v1.AddUserToGroupRequest, emptypb.Empty]
 	removeUserFromGroup *connect.Client[v1.RemoveUserFromGroupRequest, emptypb.Empty]
 	getUserGroups       *connect.Client[emptypb.Empty, v1.GetUserGroupsResponse]
@@ -136,6 +147,15 @@ func (c *groupServiceClient) CreateExpenseGroup(ctx context.Context, req *v1.Cre
 // UpdateGroup calls api.v1.GroupService.UpdateGroup.
 func (c *groupServiceClient) UpdateGroup(ctx context.Context, req *v1.UpdateGroupRequest) (*v1.CreateExpenseGroupResponse, error) {
 	response, err := c.updateGroup.CallUnary(ctx, connect.NewRequest(req))
+	if response != nil {
+		return response.Msg, err
+	}
+	return nil, err
+}
+
+// DeleteGroup calls api.v1.GroupService.DeleteGroup.
+func (c *groupServiceClient) DeleteGroup(ctx context.Context, req *v1.DeleteGroupRequest) (*emptypb.Empty, error) {
+	response, err := c.deleteGroup.CallUnary(ctx, connect.NewRequest(req))
 	if response != nil {
 		return response.Msg, err
 	}
@@ -182,6 +202,7 @@ func (c *groupServiceClient) GetGroupActivity(ctx context.Context, req *v1.GetGr
 type GroupServiceHandler interface {
 	CreateExpenseGroup(context.Context, *v1.CreateExpenseGroupRequest) (*v1.CreateExpenseGroupResponse, error)
 	UpdateGroup(context.Context, *v1.UpdateGroupRequest) (*v1.CreateExpenseGroupResponse, error)
+	DeleteGroup(context.Context, *v1.DeleteGroupRequest) (*emptypb.Empty, error)
 	AddUserToGroup(context.Context, *v1.AddUserToGroupRequest) (*emptypb.Empty, error)
 	RemoveUserFromGroup(context.Context, *v1.RemoveUserFromGroupRequest) (*emptypb.Empty, error)
 	GetUserGroups(context.Context, *emptypb.Empty) (*v1.GetUserGroupsResponse, error)
@@ -205,6 +226,12 @@ func NewGroupServiceHandler(svc GroupServiceHandler, opts ...connect.HandlerOpti
 		GroupServiceUpdateGroupProcedure,
 		svc.UpdateGroup,
 		connect.WithSchema(groupServiceMethods.ByName("UpdateGroup")),
+		connect.WithHandlerOptions(opts...),
+	)
+	groupServiceDeleteGroupHandler := connect.NewUnaryHandlerSimple(
+		GroupServiceDeleteGroupProcedure,
+		svc.DeleteGroup,
+		connect.WithSchema(groupServiceMethods.ByName("DeleteGroup")),
 		connect.WithHandlerOptions(opts...),
 	)
 	groupServiceAddUserToGroupHandler := connect.NewUnaryHandlerSimple(
@@ -237,6 +264,8 @@ func NewGroupServiceHandler(svc GroupServiceHandler, opts ...connect.HandlerOpti
 			groupServiceCreateExpenseGroupHandler.ServeHTTP(w, r)
 		case GroupServiceUpdateGroupProcedure:
 			groupServiceUpdateGroupHandler.ServeHTTP(w, r)
+		case GroupServiceDeleteGroupProcedure:
+			groupServiceDeleteGroupHandler.ServeHTTP(w, r)
 		case GroupServiceAddUserToGroupProcedure:
 			groupServiceAddUserToGroupHandler.ServeHTTP(w, r)
 		case GroupServiceRemoveUserFromGroupProcedure:
@@ -260,6 +289,10 @@ func (UnimplementedGroupServiceHandler) CreateExpenseGroup(context.Context, *v1.
 
 func (UnimplementedGroupServiceHandler) UpdateGroup(context.Context, *v1.UpdateGroupRequest) (*v1.CreateExpenseGroupResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.GroupService.UpdateGroup is not implemented"))
+}
+
+func (UnimplementedGroupServiceHandler) DeleteGroup(context.Context, *v1.DeleteGroupRequest) (*emptypb.Empty, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.GroupService.DeleteGroup is not implemented"))
 }
 
 func (UnimplementedGroupServiceHandler) AddUserToGroup(context.Context, *v1.AddUserToGroupRequest) (*emptypb.Empty, error) {

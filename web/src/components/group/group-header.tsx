@@ -25,6 +25,7 @@ interface GroupHeaderProps {
   groupDescription?: string;
   onCreateExpense: () => void;
   onCreateTransfer: () => void;
+  onDeleteGroup: () => void;
 }
 
 export function GroupHeader({
@@ -32,6 +33,7 @@ export function GroupHeader({
   groupDescription,
   onCreateExpense,
   onCreateTransfer,
+  onDeleteGroup,
 }: GroupHeaderProps) {
   return (
     <div className="flex items-start justify-between">
@@ -75,7 +77,7 @@ export function GroupHeader({
                   Invite Members
                 </DropdownMenuItem>
 
-                <DropdownMenuItem variant="destructive">
+                <DropdownMenuItem variant="destructive" onClick={onDeleteGroup}>
                   <TrashIcon />
                   Delete Group
                 </DropdownMenuItem>

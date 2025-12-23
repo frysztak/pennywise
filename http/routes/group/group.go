@@ -73,6 +73,29 @@ func (s *GroupService) UpdateGroup(ctx context.Context, r *apiv1.UpdateGroupRequ
 	}, nil
 }
 
+func (s *GroupService) DeleteGroup(ctx context.Context, r *apiv1.DeleteGroupRequest) (*emptypb.Empty, error) {
+	session := helpers.GetSessionInfo(ctx)
+
+	// Fetch the group to check who created it
+	group, err := db.Queries.GetGroupById(ctx, r.GroupId)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeNotFound, err)
+	}
+
+	// Check if the current user is the creator
+	if group.CreatedBy != session.UserID {
+		return nil, connect.NewError(connect.CodePermissionDenied, nil)
+	}
+
+	// Delete the group (CASCADE will handle related records)
+	err = db.Queries.DeleteGroup(ctx, r.GroupId)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
 func (s *GroupService) AddUserToGroup(ctx context.Context, r *apiv1.AddUserToGroupRequest) (*emptypb.Empty, error) {
 	_, err := db.Queries.AddUserToGroup(ctx, database.AddUserToGroupParams{
 		UserID:  r.UserId,

@@ -102,9 +102,14 @@ message GetGroupActivityResponse {
   repeated ActivityItem items = 1;
 }
 
+message DeleteGroupRequest {
+  string group_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
 service GroupService {
   rpc CreateExpenseGroup(CreateExpenseGroupRequest) returns (CreateExpenseGroupResponse) {}
   rpc UpdateGroup(UpdateGroupRequest) returns (CreateExpenseGroupResponse) {}
+  rpc DeleteGroup(DeleteGroupRequest) returns (google.protobuf.Empty) {}
 
   rpc AddUserToGroup(AddUserToGroupRequest) returns (google.protobuf.Empty) {}
   rpc RemoveUserFromGroup(RemoveUserFromGroupRequest) returns (google.protobuf.Empty) {}

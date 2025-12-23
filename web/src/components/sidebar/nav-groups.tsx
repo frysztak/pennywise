@@ -26,12 +26,16 @@ import { NewGroupModal } from "./new-group-modal";
 import { Link } from "@tanstack/react-router";
 import { AmountWithCurrency } from "../amount-with-currency";
 import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
+import { DeleteGroupDialog } from "../group/delete-group-dialog";
+import { useDeleteGroupModal } from "@/hooks/use-delete-group-modal";
 
 export function NavGroups() {
   const { isMobile } = useSidebar();
 
   const { data } = useSuspenseQuery(getUserGroups);
   const { data: currentUser } = useSuspenseQuery(userInfo);
+
+  const deleteGroupModal = useDeleteGroupModal();
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -82,9 +86,17 @@ export function NavGroups() {
                     <span>Share Project</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={() =>
+                      deleteGroupModal.confirmDelete({
+                        groupId: item.groupId,
+                        groupName: item.groupName,
+                      })
+                    }
+                  >
                     <Trash2 className="text-muted-foreground" />
-                    <span>Delete Project</span>
+                    <span>Delete Group</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -92,6 +104,9 @@ export function NavGroups() {
           ))}
         </SidebarMenu>
       </SidebarGroupContent>
+
+      {/* Delete Group Confirmation Dialog */}
+      <DeleteGroupDialog {...deleteGroupModal.dialogProps} />
     </SidebarGroup>
   );
 }

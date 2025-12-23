@@ -15,6 +15,11 @@ export const createExpenseGroup = GroupService.method.createExpenseGroup;
 export const updateGroup = GroupService.method.updateGroup;
 
 /**
+ * @generated from rpc api.v1.GroupService.DeleteGroup
+ */
+export const deleteGroup = GroupService.method.deleteGroup;
+
+/**
  * @generated from rpc api.v1.GroupService.AddUserToGroup
  */
 export const addUserToGroup = GroupService.method.addUserToGroup;

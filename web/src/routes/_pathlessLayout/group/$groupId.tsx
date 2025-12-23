@@ -23,10 +23,12 @@ import { GroupHeader } from "@/components/group/group-header";
 import { BalanceCards } from "@/components/group/balance-cards";
 import { GroupBalances } from "@/components/group/group-balances";
 import { ActivityTable } from "@/components/group/activity-table";
+import { DeleteGroupDialog } from "@/components/group/delete-group-dialog";
 import { useExpenseModal } from "@/hooks/use-expense-modal";
 import { useTransferModal } from "@/hooks/use-transfer-modal";
 import { useDeleteConfirmation } from "@/hooks/use-delete-confirmation";
 import { useGroupMutations } from "@/hooks/use-group-mutations";
+import { useDeleteGroupModal } from "@/hooks/use-delete-group-modal";
 import type { GetGroupActivityResponse_ActivityItem_Expense, GetGroupActivityResponse_ActivityItem_Transfer } from "@/gen/api/v1/group_pb";
 
 export const Route = createFileRoute("/_pathlessLayout/group/$groupId")({
@@ -62,6 +64,7 @@ function RouteComponent() {
     useDeleteConfirmation<GetGroupActivityResponse_ActivityItem_Expense>();
   const transferDelete =
     useDeleteConfirmation<GetGroupActivityResponse_ActivityItem_Transfer>();
+  const deleteGroupModal = useDeleteGroupModal();
   const { deleteExpense, deleteTransfer } = useGroupMutations(groupId);
 
   // Find current user's balance from member balances
@@ -108,6 +111,7 @@ function RouteComponent() {
           groupDescription={groupInfo.groupDescription}
           onCreateExpense={expenseModal.openCreate}
           onCreateTransfer={transferModal.openCreate}
+          onDeleteGroup={() => deleteGroupModal.confirmDelete({ groupId, groupName: groupInfo.groupName })}
         />
 
         {/* Balance Cards */}
@@ -212,6 +216,9 @@ function RouteComponent() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Delete Group Confirmation Dialog */}
+        <DeleteGroupDialog {...deleteGroupModal.dialogProps} />
       </div>
     </div>
   );
