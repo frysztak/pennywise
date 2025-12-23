@@ -7,16 +7,6 @@ import { getGroupActivity, getUserGroups } from "@/gen/api/v1/group-GroupService
 import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
 import { ExpenseModal } from "@/components/expense/expense-modal";
 import { TransferModal } from "@/components/transfer/transfer-modal";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { transport } from "@/transport";
 import { GroupHeader } from "@/components/group/group-header";
@@ -24,12 +14,13 @@ import { BalanceCards } from "@/components/group/balance-cards";
 import { GroupBalances } from "@/components/group/group-balances";
 import { ActivityTable } from "@/components/group/activity-table";
 import { DeleteGroupDialog } from "@/components/group/delete-group-dialog";
+import { DeleteExpenseDialog } from "@/components/group/delete-expense-dialog";
+import { DeleteTransferDialog } from "@/components/group/delete-transfer-dialog";
 import { useExpenseModal } from "@/hooks/use-expense-modal";
 import { useTransferModal } from "@/hooks/use-transfer-modal";
-import { useDeleteConfirmation } from "@/hooks/use-delete-confirmation";
-import { useGroupMutations } from "@/hooks/use-group-mutations";
+import { useDeleteExpenseModal } from "@/hooks/use-delete-expense-modal";
+import { useDeleteTransferModal } from "@/hooks/use-delete-transfer-modal";
 import { useDeleteGroupModal } from "@/hooks/use-delete-group-modal";
-import type { GetGroupActivityResponse_ActivityItem_Expense, GetGroupActivityResponse_ActivityItem_Transfer } from "@/gen/api/v1/group_pb";
 
 export const Route = createFileRoute("/_pathlessLayout/group/$groupId")({
   component: RouteComponent,
@@ -60,31 +51,14 @@ function RouteComponent() {
 
   const expenseModal = useExpenseModal();
   const transferModal = useTransferModal();
-  const expenseDelete =
-    useDeleteConfirmation<GetGroupActivityResponse_ActivityItem_Expense>();
-  const transferDelete =
-    useDeleteConfirmation<GetGroupActivityResponse_ActivityItem_Transfer>();
+  const deleteExpenseModal = useDeleteExpenseModal(groupId);
+  const deleteTransferModal = useDeleteTransferModal(groupId);
   const deleteGroupModal = useDeleteGroupModal();
-  const { deleteExpense, deleteTransfer } = useGroupMutations(groupId);
 
   // Find current user's balance from member balances
   const currentUserBalance = groupInfo.memberBalances.find(
     (mb) => mb.userId === currentUser.id
   )!;
-
-  const handleDeleteExpenseConfirm = () => {
-    expenseDelete.handleConfirm((expense) => {
-      deleteExpense({ id: expense.id });
-      expenseDelete.cancelDelete();
-    });
-  };
-
-  const handleDeleteTransferConfirm = () => {
-    transferDelete.handleConfirm((transfer) => {
-      deleteTransfer({ id: transfer.id });
-      transferDelete.cancelDelete();
-    });
-  };
 
   // Transform backend activity items into format expected by ActivityTable
   const recentActivity = activityData.items.map((item) => {
@@ -134,9 +108,9 @@ function RouteComponent() {
           <ActivityTable
             recentActivity={recentActivity}
             onEditExpense={expenseModal.openEdit}
-            onDeleteExpense={expenseDelete.confirmDelete}
+            onDeleteExpense={deleteExpenseModal.confirmDelete}
             onEditTransfer={transferModal.openEdit}
-            onDeleteTransfer={transferDelete.confirmDelete}
+            onDeleteTransfer={deleteTransferModal.confirmDelete}
           />
         </div>
 
@@ -164,60 +138,8 @@ function RouteComponent() {
           defaultCurrency={groupInfo.groupDefaultCurrency}
         />
 
-        {/* Delete Expense Confirmation Dialog */}
-        <AlertDialog
-          open={!!expenseDelete.deletingItem}
-          onOpenChange={(open) => !open && expenseDelete.cancelDelete()}
-        >
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete expense</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete "
-                {expenseDelete.deletingItem?.name}"? This action cannot be
-                undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleDeleteExpenseConfirm}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-
-        {/* Delete Transfer Confirmation Dialog */}
-        <AlertDialog
-          open={!!transferDelete.deletingItem}
-          onOpenChange={(open) => !open && transferDelete.cancelDelete()}
-        >
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete transfer</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete this transfer from{" "}
-                {transferDelete.deletingItem?.senderName} to{" "}
-                {transferDelete.deletingItem?.receiverName}? This action cannot
-                be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleDeleteTransferConfirm}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-
-        {/* Delete Group Confirmation Dialog */}
+        <DeleteExpenseDialog {...deleteExpenseModal.dialogProps} />
+        <DeleteTransferDialog {...deleteTransferModal.dialogProps} />
         <DeleteGroupDialog {...deleteGroupModal.dialogProps} />
       </div>
     </div>
