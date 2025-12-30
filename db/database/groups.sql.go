@@ -204,6 +204,25 @@ func (q *Queries) GetGroupsByUserId(ctx context.Context, userID string) ([]GetGr
 	return items, nil
 }
 
+const isUserInGroup = `-- name: IsUserInGroup :one
+SELECT EXISTS(
+    SELECT 1 FROM user_expense_groups
+    WHERE user_id = ?1 AND group_id = ?2
+) as is_member
+`
+
+type IsUserInGroupParams struct {
+	UserID  string `json:"user_id"`
+	GroupID string `json:"group_id"`
+}
+
+func (q *Queries) IsUserInGroup(ctx context.Context, arg IsUserInGroupParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, isUserInGroup, arg.UserID, arg.GroupID)
+	var is_member int64
+	err := row.Scan(&is_member)
+	return is_member, err
+}
+
 const removeUserFromGroup = `-- name: RemoveUserFromGroup :exec
 ;
 

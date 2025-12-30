@@ -13,3 +13,8 @@ export const userRegister = UserService.method.userRegister;
  * @generated from rpc api.v1.UserService.UserInfo
  */
 export const userInfo = UserService.method.userInfo;
+
+/**
+ * @generated from rpc api.v1.UserService.GetUsers
+ */
+export const getUsers = UserService.method.getUsers;

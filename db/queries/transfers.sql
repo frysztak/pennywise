@@ -48,9 +48,3 @@ RETURNING *;
 
 -- name: DeleteTransfer :exec
 DELETE FROM transfers WHERE id = @id;
-
--- name: IsUserInGroup :one
-SELECT EXISTS(
-    SELECT 1 FROM user_expense_groups
-    WHERE user_id = @user_id AND group_id = @group_id
-) as is_member;

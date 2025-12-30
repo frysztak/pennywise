@@ -3,7 +3,10 @@ import {
   createQueryOptions,
   useSuspenseQuery,
 } from "@connectrpc/connect-query";
-import { getGroupActivity, getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
+import {
+  getGroupActivity,
+  getUserGroups,
+} from "@/gen/api/v1/group-GroupService_connectquery";
 import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
 import { ExpenseModal } from "@/components/expense/expense-modal";
 import { TransferModal } from "@/components/transfer/transfer-modal";
@@ -16,11 +19,13 @@ import { ActivityTable } from "@/components/group/activity-table";
 import { DeleteGroupDialog } from "@/components/group/delete-group-dialog";
 import { DeleteExpenseDialog } from "@/components/group/delete-expense-dialog";
 import { DeleteTransferDialog } from "@/components/group/delete-transfer-dialog";
+import { AddMemberDialog } from "@/components/group/add-member-dialog";
 import { useExpenseModal } from "@/hooks/use-expense-modal";
 import { useTransferModal } from "@/hooks/use-transfer-modal";
 import { useDeleteExpenseModal } from "@/hooks/use-delete-expense-modal";
 import { useDeleteTransferModal } from "@/hooks/use-delete-transfer-modal";
 import { useDeleteGroupModal } from "@/hooks/use-delete-group-modal";
+import { useAddMemberModal } from "@/hooks/use-add-member-modal";
 
 export const Route = createFileRoute("/_pathlessLayout/group/$groupId")({
   component: RouteComponent,
@@ -54,6 +59,7 @@ function RouteComponent() {
   const deleteExpenseModal = useDeleteExpenseModal(groupId);
   const deleteTransferModal = useDeleteTransferModal(groupId);
   const deleteGroupModal = useDeleteGroupModal();
+  const addMemberModal = useAddMemberModal();
 
   // Find current user's balance from member balances
   const currentUserBalance = groupInfo.memberBalances.find(
@@ -85,7 +91,13 @@ function RouteComponent() {
           groupDescription={groupInfo.groupDescription}
           onCreateExpense={expenseModal.openCreate}
           onCreateTransfer={transferModal.openCreate}
-          onDeleteGroup={() => deleteGroupModal.confirmDelete({ groupId, groupName: groupInfo.groupName })}
+          onInviteMembers={() => addMemberModal.openModal(groupId)}
+          onDeleteGroup={() =>
+            deleteGroupModal.confirmDelete({
+              groupId,
+              groupName: groupInfo.groupName,
+            })
+          }
         />
 
         {/* Balance Cards */}
@@ -141,6 +153,9 @@ function RouteComponent() {
         <DeleteExpenseDialog {...deleteExpenseModal.dialogProps} />
         <DeleteTransferDialog {...deleteTransferModal.dialogProps} />
         <DeleteGroupDialog {...deleteGroupModal.dialogProps} />
+        {addMemberModal.dialogProps.open && (
+          <AddMemberDialog {...addMemberModal.dialogProps} />
+        )}
       </div>
     </div>
   );

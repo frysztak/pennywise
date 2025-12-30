@@ -61,3 +61,24 @@ func (s *UserService) UserInfo(ctx context.Context, r *emptypb.Empty) (*apiv1.Us
 		Role:     apiv1.UserRole(user.Role),
 	}, nil
 }
+
+func (s *UserService) GetUsers(ctx context.Context, r *emptypb.Empty) (*apiv1.GetUsersResponse, error) {
+	users, err := db.Queries.GetUsers(ctx)
+
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	var responseUsers []*apiv1.GetUsersResponse_User
+	for _, user := range users {
+		responseUsers = append(responseUsers, &apiv1.GetUsersResponse_User{
+			Id:       user.ID,
+			Username: user.Username,
+			Email:    user.Email,
+		})
+	}
+
+	return &apiv1.GetUsersResponse{
+		Users: responseUsers,
+	}, nil
+}

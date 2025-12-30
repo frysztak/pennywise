@@ -2,6 +2,7 @@ package group
 
 import (
 	"context"
+	"errors"
 	"pennywise/calc"
 	"pennywise/db"
 	"pennywise/db/database"
@@ -97,7 +98,19 @@ func (s *GroupService) DeleteGroup(ctx context.Context, r *apiv1.DeleteGroupRequ
 }
 
 func (s *GroupService) AddUserToGroup(ctx context.Context, r *apiv1.AddUserToGroupRequest) (*emptypb.Empty, error) {
-	_, err := db.Queries.AddUserToGroup(ctx, database.AddUserToGroupParams{
+	userInGroup, err := db.Queries.IsUserInGroup(ctx, database.IsUserInGroupParams{
+		UserID:  r.UserId,
+		GroupID: r.GroupId,
+	})
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if userInGroup == 1 {
+		return nil, connect.NewError(connect.CodeInvalidArgument,
+			errors.New("user is already a member of this group"))
+	}
+
+	_, err = db.Queries.AddUserToGroup(ctx, database.AddUserToGroupParams{
 		UserID:  r.UserId,
 		GroupID: r.GroupId,
 		Weight:  1.0,

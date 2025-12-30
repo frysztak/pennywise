@@ -39,12 +39,15 @@ const (
 	UserServiceUserRegisterProcedure = "/api.v1.UserService/UserRegister"
 	// UserServiceUserInfoProcedure is the fully-qualified name of the UserService's UserInfo RPC.
 	UserServiceUserInfoProcedure = "/api.v1.UserService/UserInfo"
+	// UserServiceGetUsersProcedure is the fully-qualified name of the UserService's GetUsers RPC.
+	UserServiceGetUsersProcedure = "/api.v1.UserService/GetUsers"
 )
 
 // UserServiceClient is a client for the api.v1.UserService service.
 type UserServiceClient interface {
 	UserRegister(context.Context, *v1.UserRegisterRequest) (*v1.UserRegisterResponse, error)
 	UserInfo(context.Context, *emptypb.Empty) (*v1.UserInfoResponse, error)
+	GetUsers(context.Context, *emptypb.Empty) (*v1.GetUsersResponse, error)
 }
 
 // NewUserServiceClient constructs a client for the api.v1.UserService service. By default, it uses
@@ -70,6 +73,12 @@ func NewUserServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(userServiceMethods.ByName("UserInfo")),
 			connect.WithClientOptions(opts...),
 		),
+		getUsers: connect.NewClient[emptypb.Empty, v1.GetUsersResponse](
+			httpClient,
+			baseURL+UserServiceGetUsersProcedure,
+			connect.WithSchema(userServiceMethods.ByName("GetUsers")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -77,6 +86,7 @@ func NewUserServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 type userServiceClient struct {
 	userRegister *connect.Client[v1.UserRegisterRequest, v1.UserRegisterResponse]
 	userInfo     *connect.Client[emptypb.Empty, v1.UserInfoResponse]
+	getUsers     *connect.Client[emptypb.Empty, v1.GetUsersResponse]
 }
 
 // UserRegister calls api.v1.UserService.UserRegister.
@@ -97,10 +107,20 @@ func (c *userServiceClient) UserInfo(ctx context.Context, req *emptypb.Empty) (*
 	return nil, err
 }
 
+// GetUsers calls api.v1.UserService.GetUsers.
+func (c *userServiceClient) GetUsers(ctx context.Context, req *emptypb.Empty) (*v1.GetUsersResponse, error) {
+	response, err := c.getUsers.CallUnary(ctx, connect.NewRequest(req))
+	if response != nil {
+		return response.Msg, err
+	}
+	return nil, err
+}
+
 // UserServiceHandler is an implementation of the api.v1.UserService service.
 type UserServiceHandler interface {
 	UserRegister(context.Context, *v1.UserRegisterRequest) (*v1.UserRegisterResponse, error)
 	UserInfo(context.Context, *emptypb.Empty) (*v1.UserInfoResponse, error)
+	GetUsers(context.Context, *emptypb.Empty) (*v1.GetUsersResponse, error)
 }
 
 // NewUserServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -122,12 +142,20 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(userServiceMethods.ByName("UserInfo")),
 		connect.WithHandlerOptions(opts...),
 	)
+	userServiceGetUsersHandler := connect.NewUnaryHandlerSimple(
+		UserServiceGetUsersProcedure,
+		svc.GetUsers,
+		connect.WithSchema(userServiceMethods.ByName("GetUsers")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/api.v1.UserService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case UserServiceUserRegisterProcedure:
 			userServiceUserRegisterHandler.ServeHTTP(w, r)
 		case UserServiceUserInfoProcedure:
 			userServiceUserInfoHandler.ServeHTTP(w, r)
+		case UserServiceGetUsersProcedure:
+			userServiceGetUsersHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -143,4 +171,8 @@ func (UnimplementedUserServiceHandler) UserRegister(context.Context, *v1.UserReg
 
 func (UnimplementedUserServiceHandler) UserInfo(context.Context, *emptypb.Empty) (*v1.UserInfoResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.UserService.UserInfo is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) GetUsers(context.Context, *emptypb.Empty) (*v1.GetUsersResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.UserService.GetUsers is not implemented"))
 }
