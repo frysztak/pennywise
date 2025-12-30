@@ -20,12 +20,14 @@ import { DeleteGroupDialog } from "@/components/group/delete-group-dialog";
 import { DeleteExpenseDialog } from "@/components/group/delete-expense-dialog";
 import { DeleteTransferDialog } from "@/components/group/delete-transfer-dialog";
 import { AddMemberDialog } from "@/components/group/add-member-dialog";
+import { EditGroupDialog } from "@/components/group/edit-group-dialog";
 import { useExpenseModal } from "@/hooks/use-expense-modal";
 import { useTransferModal } from "@/hooks/use-transfer-modal";
 import { useDeleteExpenseModal } from "@/hooks/use-delete-expense-modal";
 import { useDeleteTransferModal } from "@/hooks/use-delete-transfer-modal";
 import { useDeleteGroupModal } from "@/hooks/use-delete-group-modal";
 import { useAddMemberModal } from "@/hooks/use-add-member-modal";
+import { useEditGroupModal } from "@/hooks/use-edit-group-modal";
 
 export const Route = createFileRoute("/_pathlessLayout/group/$groupId")({
   component: RouteComponent,
@@ -60,6 +62,7 @@ function RouteComponent() {
   const deleteTransferModal = useDeleteTransferModal(groupId);
   const deleteGroupModal = useDeleteGroupModal();
   const addMemberModal = useAddMemberModal();
+  const editGroupModal = useEditGroupModal();
 
   // Find current user's balance from member balances
   const currentUserBalance = groupInfo.memberBalances.find(
@@ -92,6 +95,14 @@ function RouteComponent() {
           onCreateExpense={expenseModal.openCreate}
           onCreateTransfer={transferModal.openCreate}
           onInviteMembers={() => addMemberModal.openModal(groupId)}
+          onEditGroup={() =>
+            editGroupModal.openModal({
+              groupId,
+              groupName: groupInfo.groupName,
+              groupDescription: groupInfo.groupDescription,
+              defaultCurrency: groupInfo.groupDefaultCurrency,
+            })
+          }
           onDeleteGroup={() =>
             deleteGroupModal.confirmDelete({
               groupId,
@@ -155,6 +166,13 @@ function RouteComponent() {
         <DeleteGroupDialog {...deleteGroupModal.dialogProps} />
         {addMemberModal.dialogProps.open && (
           <AddMemberDialog {...addMemberModal.dialogProps} />
+        )}
+        {editGroupModal.dialogProps.open && editGroupModal.dialogProps.group && (
+          <EditGroupDialog
+            {...editGroupModal.dialogProps}
+            group={editGroupModal.dialogProps.group}
+            memberBalances={groupInfo.memberBalances}
+          />
         )}
       </div>
     </div>

@@ -243,19 +243,25 @@ func (q *Queries) RemoveUserFromGroup(ctx context.Context, arg RemoveUserFromGro
 const updateGroup = `-- name: UpdateGroup :one
 ;
 
-UPDATE expense_groups SET name = ?, description = ?
+UPDATE expense_groups SET name = ?, description = ?, default_currency = ?
 WHERE id = ?
 RETURNING id, created_at, created_by, name, default_currency, description
 `
 
 type UpdateGroupParams struct {
-	Name        string  `json:"name"`
-	Description *string `json:"description"`
-	ID          string  `json:"id"`
+	Name            string  `json:"name"`
+	Description     *string `json:"description"`
+	DefaultCurrency string  `json:"default_currency"`
+	ID              string  `json:"id"`
 }
 
 func (q *Queries) UpdateGroup(ctx context.Context, arg UpdateGroupParams) (ExpenseGroup, error) {
-	row := q.db.QueryRowContext(ctx, updateGroup, arg.Name, arg.Description, arg.ID)
+	row := q.db.QueryRowContext(ctx, updateGroup,
+		arg.Name,
+		arg.Description,
+		arg.DefaultCurrency,
+		arg.ID,
+	)
 	var i ExpenseGroup
 	err := row.Scan(
 		&i.ID,
@@ -266,4 +272,21 @@ func (q *Queries) UpdateGroup(ctx context.Context, arg UpdateGroupParams) (Expen
 		&i.Description,
 	)
 	return i, err
+}
+
+const updateUserWeight = `-- name: UpdateUserWeight :exec
+UPDATE user_expense_groups
+SET weight = ?1
+WHERE user_id = ?2 AND group_id = ?3
+`
+
+type UpdateUserWeightParams struct {
+	Weight  float64 `json:"weight"`
+	UserID  string  `json:"user_id"`
+	GroupID string  `json:"group_id"`
+}
+
+func (q *Queries) UpdateUserWeight(ctx context.Context, arg UpdateUserWeightParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserWeight, arg.Weight, arg.UserID, arg.GroupID)
+	return err
 }

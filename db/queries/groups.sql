@@ -11,7 +11,7 @@ INSERT INTO expense_groups
 ) RETURNING * ;
 
 -- name: UpdateGroup :one
-UPDATE expense_groups SET name = ?, description = ?
+UPDATE expense_groups SET name = ?, description = ?, default_currency = ?
 WHERE id = ?
 RETURNING *;
 
@@ -33,6 +33,11 @@ INSERT INTO user_expense_groups
 -- name: RemoveUserFromGroup :exec
 DELETE FROM user_expense_groups
 WHERE user_id = ? AND group_id = ?;
+
+-- name: UpdateUserWeight :exec
+UPDATE user_expense_groups
+SET weight = @weight
+WHERE user_id = @user_id AND group_id = @group_id;
 
 -- name: GetGroupsByUserId :many
 SELECT *

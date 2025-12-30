@@ -70,7 +70,7 @@ func (x GetGroupActivityResponse_ActivityItem_Type) Number() protoreflect.EnumNu
 
 // Deprecated: Use GetGroupActivityResponse_ActivityItem_Type.Descriptor instead.
 func (GetGroupActivityResponse_ActivityItem_Type) EnumDescriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{9, 0, 0}
+	return file_api_v1_group_proto_rawDescGZIP(), []int{10, 0, 0}
 }
 
 type CreateExpenseGroupRequest struct {
@@ -305,18 +305,79 @@ func (x *RemoveUserFromGroupRequest) GetGroupId() string {
 	return ""
 }
 
-type UpdateGroupRequest struct {
+type UpdateUserWeightRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	GroupId       string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	Weight        float64                `protobuf:"fixed64,3,opt,name=weight,proto3" json:"weight,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
+func (x *UpdateUserWeightRequest) Reset() {
+	*x = UpdateUserWeightRequest{}
+	mi := &file_api_v1_group_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateUserWeightRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateUserWeightRequest) ProtoMessage() {}
+
+func (x *UpdateUserWeightRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_group_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateUserWeightRequest.ProtoReflect.Descriptor instead.
+func (*UpdateUserWeightRequest) Descriptor() ([]byte, []int) {
+	return file_api_v1_group_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *UpdateUserWeightRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *UpdateUserWeightRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
+func (x *UpdateUserWeightRequest) GetWeight() float64 {
+	if x != nil {
+		return x.Weight
+	}
+	return 0
+}
+
+type UpdateGroupRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name            string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Description     string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	DefaultCurrency string                 `protobuf:"bytes,4,opt,name=default_currency,json=defaultCurrency,proto3" json:"default_currency,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
 func (x *UpdateGroupRequest) Reset() {
 	*x = UpdateGroupRequest{}
-	mi := &file_api_v1_group_proto_msgTypes[4]
+	mi := &file_api_v1_group_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -328,7 +389,7 @@ func (x *UpdateGroupRequest) String() string {
 func (*UpdateGroupRequest) ProtoMessage() {}
 
 func (x *UpdateGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[4]
+	mi := &file_api_v1_group_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -341,7 +402,7 @@ func (x *UpdateGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateGroupRequest.ProtoReflect.Descriptor instead.
 func (*UpdateGroupRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{4}
+	return file_api_v1_group_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *UpdateGroupRequest) GetId() string {
@@ -365,18 +426,26 @@ func (x *UpdateGroupRequest) GetDescription() string {
 	return ""
 }
 
+func (x *UpdateGroupRequest) GetDefaultCurrency() string {
+	if x != nil {
+		return x.DefaultCurrency
+	}
+	return ""
+}
+
 type MemberBalance struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	UserName      string                 `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`
 	Balance       map[string]int64       `protobuf:"bytes,3,rep,name=balance,proto3" json:"balance,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	Weight        float64                `protobuf:"fixed64,4,opt,name=weight,proto3" json:"weight,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *MemberBalance) Reset() {
 	*x = MemberBalance{}
-	mi := &file_api_v1_group_proto_msgTypes[5]
+	mi := &file_api_v1_group_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -388,7 +457,7 @@ func (x *MemberBalance) String() string {
 func (*MemberBalance) ProtoMessage() {}
 
 func (x *MemberBalance) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[5]
+	mi := &file_api_v1_group_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -401,7 +470,7 @@ func (x *MemberBalance) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MemberBalance.ProtoReflect.Descriptor instead.
 func (*MemberBalance) Descriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{5}
+	return file_api_v1_group_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *MemberBalance) GetUserId() string {
@@ -425,6 +494,13 @@ func (x *MemberBalance) GetBalance() map[string]int64 {
 	return nil
 }
 
+func (x *MemberBalance) GetWeight() float64 {
+	if x != nil {
+		return x.Weight
+	}
+	return 0
+}
+
 type UserGroup struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
 	UserId               string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -440,7 +516,7 @@ type UserGroup struct {
 
 func (x *UserGroup) Reset() {
 	*x = UserGroup{}
-	mi := &file_api_v1_group_proto_msgTypes[6]
+	mi := &file_api_v1_group_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -452,7 +528,7 @@ func (x *UserGroup) String() string {
 func (*UserGroup) ProtoMessage() {}
 
 func (x *UserGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[6]
+	mi := &file_api_v1_group_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -465,7 +541,7 @@ func (x *UserGroup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserGroup.ProtoReflect.Descriptor instead.
 func (*UserGroup) Descriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{6}
+	return file_api_v1_group_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *UserGroup) GetUserId() string {
@@ -526,7 +602,7 @@ type GetUserGroupsResponse struct {
 
 func (x *GetUserGroupsResponse) Reset() {
 	*x = GetUserGroupsResponse{}
-	mi := &file_api_v1_group_proto_msgTypes[7]
+	mi := &file_api_v1_group_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -538,7 +614,7 @@ func (x *GetUserGroupsResponse) String() string {
 func (*GetUserGroupsResponse) ProtoMessage() {}
 
 func (x *GetUserGroupsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[7]
+	mi := &file_api_v1_group_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -551,7 +627,7 @@ func (x *GetUserGroupsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserGroupsResponse.ProtoReflect.Descriptor instead.
 func (*GetUserGroupsResponse) Descriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{7}
+	return file_api_v1_group_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetUserGroupsResponse) GetGroups() []*UserGroup {
@@ -570,7 +646,7 @@ type GetGroupActivityRequest struct {
 
 func (x *GetGroupActivityRequest) Reset() {
 	*x = GetGroupActivityRequest{}
-	mi := &file_api_v1_group_proto_msgTypes[8]
+	mi := &file_api_v1_group_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -582,7 +658,7 @@ func (x *GetGroupActivityRequest) String() string {
 func (*GetGroupActivityRequest) ProtoMessage() {}
 
 func (x *GetGroupActivityRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[8]
+	mi := &file_api_v1_group_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -595,7 +671,7 @@ func (x *GetGroupActivityRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGroupActivityRequest.ProtoReflect.Descriptor instead.
 func (*GetGroupActivityRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{8}
+	return file_api_v1_group_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetGroupActivityRequest) GetGroupId() string {
@@ -614,7 +690,7 @@ type GetGroupActivityResponse struct {
 
 func (x *GetGroupActivityResponse) Reset() {
 	*x = GetGroupActivityResponse{}
-	mi := &file_api_v1_group_proto_msgTypes[9]
+	mi := &file_api_v1_group_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -626,7 +702,7 @@ func (x *GetGroupActivityResponse) String() string {
 func (*GetGroupActivityResponse) ProtoMessage() {}
 
 func (x *GetGroupActivityResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[9]
+	mi := &file_api_v1_group_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -639,7 +715,7 @@ func (x *GetGroupActivityResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGroupActivityResponse.ProtoReflect.Descriptor instead.
 func (*GetGroupActivityResponse) Descriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{9}
+	return file_api_v1_group_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetGroupActivityResponse) GetItems() []*GetGroupActivityResponse_ActivityItem {
@@ -658,7 +734,7 @@ type DeleteGroupRequest struct {
 
 func (x *DeleteGroupRequest) Reset() {
 	*x = DeleteGroupRequest{}
-	mi := &file_api_v1_group_proto_msgTypes[10]
+	mi := &file_api_v1_group_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -670,7 +746,7 @@ func (x *DeleteGroupRequest) String() string {
 func (*DeleteGroupRequest) ProtoMessage() {}
 
 func (x *DeleteGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[10]
+	mi := &file_api_v1_group_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -683,7 +759,7 @@ func (x *DeleteGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteGroupRequest.ProtoReflect.Descriptor instead.
 func (*DeleteGroupRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{10}
+	return file_api_v1_group_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *DeleteGroupRequest) GetGroupId() string {
@@ -707,7 +783,7 @@ type GetGroupActivityResponse_ActivityItem struct {
 
 func (x *GetGroupActivityResponse_ActivityItem) Reset() {
 	*x = GetGroupActivityResponse_ActivityItem{}
-	mi := &file_api_v1_group_proto_msgTypes[13]
+	mi := &file_api_v1_group_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -719,7 +795,7 @@ func (x *GetGroupActivityResponse_ActivityItem) String() string {
 func (*GetGroupActivityResponse_ActivityItem) ProtoMessage() {}
 
 func (x *GetGroupActivityResponse_ActivityItem) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[13]
+	mi := &file_api_v1_group_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -732,7 +808,7 @@ func (x *GetGroupActivityResponse_ActivityItem) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use GetGroupActivityResponse_ActivityItem.ProtoReflect.Descriptor instead.
 func (*GetGroupActivityResponse_ActivityItem) Descriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{9, 0}
+	return file_api_v1_group_proto_rawDescGZIP(), []int{10, 0}
 }
 
 func (x *GetGroupActivityResponse_ActivityItem) GetType() GetGroupActivityResponse_ActivityItem_Type {
@@ -803,7 +879,7 @@ type GetGroupActivityResponse_ActivityItem_Expense struct {
 
 func (x *GetGroupActivityResponse_ActivityItem_Expense) Reset() {
 	*x = GetGroupActivityResponse_ActivityItem_Expense{}
-	mi := &file_api_v1_group_proto_msgTypes[14]
+	mi := &file_api_v1_group_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -815,7 +891,7 @@ func (x *GetGroupActivityResponse_ActivityItem_Expense) String() string {
 func (*GetGroupActivityResponse_ActivityItem_Expense) ProtoMessage() {}
 
 func (x *GetGroupActivityResponse_ActivityItem_Expense) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[14]
+	mi := &file_api_v1_group_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -828,7 +904,7 @@ func (x *GetGroupActivityResponse_ActivityItem_Expense) ProtoReflect() protorefl
 
 // Deprecated: Use GetGroupActivityResponse_ActivityItem_Expense.ProtoReflect.Descriptor instead.
 func (*GetGroupActivityResponse_ActivityItem_Expense) Descriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{9, 0, 0}
+	return file_api_v1_group_proto_rawDescGZIP(), []int{10, 0, 0}
 }
 
 func (x *GetGroupActivityResponse_ActivityItem_Expense) GetId() string {
@@ -918,7 +994,7 @@ type GetGroupActivityResponse_ActivityItem_Transfer struct {
 
 func (x *GetGroupActivityResponse_ActivityItem_Transfer) Reset() {
 	*x = GetGroupActivityResponse_ActivityItem_Transfer{}
-	mi := &file_api_v1_group_proto_msgTypes[15]
+	mi := &file_api_v1_group_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -930,7 +1006,7 @@ func (x *GetGroupActivityResponse_ActivityItem_Transfer) String() string {
 func (*GetGroupActivityResponse_ActivityItem_Transfer) ProtoMessage() {}
 
 func (x *GetGroupActivityResponse_ActivityItem_Transfer) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[15]
+	mi := &file_api_v1_group_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -943,7 +1019,7 @@ func (x *GetGroupActivityResponse_ActivityItem_Transfer) ProtoReflect() protoref
 
 // Deprecated: Use GetGroupActivityResponse_ActivityItem_Transfer.ProtoReflect.Descriptor instead.
 func (*GetGroupActivityResponse_ActivityItem_Transfer) Descriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{9, 0, 1}
+	return file_api_v1_group_proto_rawDescGZIP(), []int{10, 0, 1}
 }
 
 func (x *GetGroupActivityResponse_ActivityItem_Transfer) GetId() string {
@@ -1029,15 +1105,21 @@ const file_api_v1_group_proto_rawDesc = "" +
 	"\bgroup_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"d\n" +
 	"\x1aRemoveUserFromGroupRequest\x12!\n" +
 	"\auser_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06userId\x12#\n" +
-	"\bgroup_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"l\n" +
+	"\bgroup_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\x89\x01\n" +
+	"\x17UpdateUserWeightRequest\x12!\n" +
+	"\auser_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06userId\x12#\n" +
+	"\bgroup_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\x12&\n" +
+	"\x06weight\x18\x03 \x01(\x01B\x0e\xbaH\v\x12\t!\x00\x00\x00\x00\x00\x00\x00\x00R\x06weight\"\xa0\x01\n" +
 	"\x12UpdateGroupRequest\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\x02id\x12\x1b\n" +
 	"\x04name\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\x04name\x12 \n" +
-	"\vdescription\x18\x03 \x01(\tR\vdescription\"\xbf\x01\n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x122\n" +
+	"\x10default_currency\x18\x04 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\x0fdefaultCurrency\"\xd7\x01\n" +
 	"\rMemberBalance\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1b\n" +
 	"\tuser_name\x18\x02 \x01(\tR\buserName\x12<\n" +
-	"\abalance\x18\x03 \x03(\v2\".api.v1.MemberBalance.BalanceEntryR\abalance\x1a:\n" +
+	"\abalance\x18\x03 \x03(\v2\".api.v1.MemberBalance.BalanceEntryR\abalance\x12\x16\n" +
+	"\x06weight\x18\x04 \x01(\x01R\x06weight\x1a:\n" +
 	"\fBalanceEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x01\"\x90\x03\n" +
@@ -1097,13 +1179,14 @@ const file_api_v1_group_proto_rawDesc = "" +
 	"\rTYPE_TRANSFER\x10\x02B\x06\n" +
 	"\x04data\"9\n" +
 	"\x12DeleteGroupRequest\x12#\n" +
-	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId2\xc6\x04\n" +
+	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId2\x95\x05\n" +
 	"\fGroupService\x12]\n" +
 	"\x12CreateExpenseGroup\x12!.api.v1.CreateExpenseGroupRequest\x1a\".api.v1.CreateExpenseGroupResponse\"\x00\x12O\n" +
 	"\vUpdateGroup\x12\x1a.api.v1.UpdateGroupRequest\x1a\".api.v1.CreateExpenseGroupResponse\"\x00\x12C\n" +
 	"\vDeleteGroup\x12\x1a.api.v1.DeleteGroupRequest\x1a\x16.google.protobuf.Empty\"\x00\x12I\n" +
 	"\x0eAddUserToGroup\x12\x1d.api.v1.AddUserToGroupRequest\x1a\x16.google.protobuf.Empty\"\x00\x12S\n" +
-	"\x13RemoveUserFromGroup\x12\".api.v1.RemoveUserFromGroupRequest\x1a\x16.google.protobuf.Empty\"\x00\x12H\n" +
+	"\x13RemoveUserFromGroup\x12\".api.v1.RemoveUserFromGroupRequest\x1a\x16.google.protobuf.Empty\"\x00\x12M\n" +
+	"\x10UpdateUserWeight\x12\x1f.api.v1.UpdateUserWeightRequest\x1a\x16.google.protobuf.Empty\"\x00\x12H\n" +
 	"\rGetUserGroups\x12\x16.google.protobuf.Empty\x1a\x1d.api.v1.GetUserGroupsResponse\"\x00\x12W\n" +
 	"\x10GetGroupActivity\x12\x1f.api.v1.GetGroupActivityRequest\x1a .api.v1.GetGroupActivityResponse\"\x00Bm\n" +
 	"\n" +
@@ -1123,57 +1206,60 @@ func file_api_v1_group_proto_rawDescGZIP() []byte {
 }
 
 var file_api_v1_group_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_api_v1_group_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_api_v1_group_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_api_v1_group_proto_goTypes = []any{
 	(GetGroupActivityResponse_ActivityItem_Type)(0),        // 0: api.v1.GetGroupActivityResponse.ActivityItem.Type
 	(*CreateExpenseGroupRequest)(nil),                      // 1: api.v1.CreateExpenseGroupRequest
 	(*CreateExpenseGroupResponse)(nil),                     // 2: api.v1.CreateExpenseGroupResponse
 	(*AddUserToGroupRequest)(nil),                          // 3: api.v1.AddUserToGroupRequest
 	(*RemoveUserFromGroupRequest)(nil),                     // 4: api.v1.RemoveUserFromGroupRequest
-	(*UpdateGroupRequest)(nil),                             // 5: api.v1.UpdateGroupRequest
-	(*MemberBalance)(nil),                                  // 6: api.v1.MemberBalance
-	(*UserGroup)(nil),                                      // 7: api.v1.UserGroup
-	(*GetUserGroupsResponse)(nil),                          // 8: api.v1.GetUserGroupsResponse
-	(*GetGroupActivityRequest)(nil),                        // 9: api.v1.GetGroupActivityRequest
-	(*GetGroupActivityResponse)(nil),                       // 10: api.v1.GetGroupActivityResponse
-	(*DeleteGroupRequest)(nil),                             // 11: api.v1.DeleteGroupRequest
-	nil,                                                    // 12: api.v1.MemberBalance.BalanceEntry
-	nil,                                                    // 13: api.v1.UserGroup.TotalSpendingEntry
-	(*GetGroupActivityResponse_ActivityItem)(nil),          // 14: api.v1.GetGroupActivityResponse.ActivityItem
-	(*GetGroupActivityResponse_ActivityItem_Expense)(nil),  // 15: api.v1.GetGroupActivityResponse.ActivityItem.Expense
-	(*GetGroupActivityResponse_ActivityItem_Transfer)(nil), // 16: api.v1.GetGroupActivityResponse.ActivityItem.Transfer
-	(*timestamppb.Timestamp)(nil),                          // 17: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),                                  // 18: google.protobuf.Empty
+	(*UpdateUserWeightRequest)(nil),                        // 5: api.v1.UpdateUserWeightRequest
+	(*UpdateGroupRequest)(nil),                             // 6: api.v1.UpdateGroupRequest
+	(*MemberBalance)(nil),                                  // 7: api.v1.MemberBalance
+	(*UserGroup)(nil),                                      // 8: api.v1.UserGroup
+	(*GetUserGroupsResponse)(nil),                          // 9: api.v1.GetUserGroupsResponse
+	(*GetGroupActivityRequest)(nil),                        // 10: api.v1.GetGroupActivityRequest
+	(*GetGroupActivityResponse)(nil),                       // 11: api.v1.GetGroupActivityResponse
+	(*DeleteGroupRequest)(nil),                             // 12: api.v1.DeleteGroupRequest
+	nil,                                                    // 13: api.v1.MemberBalance.BalanceEntry
+	nil,                                                    // 14: api.v1.UserGroup.TotalSpendingEntry
+	(*GetGroupActivityResponse_ActivityItem)(nil),          // 15: api.v1.GetGroupActivityResponse.ActivityItem
+	(*GetGroupActivityResponse_ActivityItem_Expense)(nil),  // 16: api.v1.GetGroupActivityResponse.ActivityItem.Expense
+	(*GetGroupActivityResponse_ActivityItem_Transfer)(nil), // 17: api.v1.GetGroupActivityResponse.ActivityItem.Transfer
+	(*timestamppb.Timestamp)(nil),                          // 18: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),                                  // 19: google.protobuf.Empty
 }
 var file_api_v1_group_proto_depIdxs = []int32{
-	12, // 0: api.v1.MemberBalance.balance:type_name -> api.v1.MemberBalance.BalanceEntry
-	6,  // 1: api.v1.UserGroup.member_balances:type_name -> api.v1.MemberBalance
-	13, // 2: api.v1.UserGroup.total_spending:type_name -> api.v1.UserGroup.TotalSpendingEntry
-	7,  // 3: api.v1.GetUserGroupsResponse.groups:type_name -> api.v1.UserGroup
-	14, // 4: api.v1.GetGroupActivityResponse.items:type_name -> api.v1.GetGroupActivityResponse.ActivityItem
+	13, // 0: api.v1.MemberBalance.balance:type_name -> api.v1.MemberBalance.BalanceEntry
+	7,  // 1: api.v1.UserGroup.member_balances:type_name -> api.v1.MemberBalance
+	14, // 2: api.v1.UserGroup.total_spending:type_name -> api.v1.UserGroup.TotalSpendingEntry
+	8,  // 3: api.v1.GetUserGroupsResponse.groups:type_name -> api.v1.UserGroup
+	15, // 4: api.v1.GetGroupActivityResponse.items:type_name -> api.v1.GetGroupActivityResponse.ActivityItem
 	0,  // 5: api.v1.GetGroupActivityResponse.ActivityItem.type:type_name -> api.v1.GetGroupActivityResponse.ActivityItem.Type
-	15, // 6: api.v1.GetGroupActivityResponse.ActivityItem.expense:type_name -> api.v1.GetGroupActivityResponse.ActivityItem.Expense
-	16, // 7: api.v1.GetGroupActivityResponse.ActivityItem.transfer:type_name -> api.v1.GetGroupActivityResponse.ActivityItem.Transfer
-	17, // 8: api.v1.GetGroupActivityResponse.ActivityItem.Expense.created_at:type_name -> google.protobuf.Timestamp
-	17, // 9: api.v1.GetGroupActivityResponse.ActivityItem.Expense.date:type_name -> google.protobuf.Timestamp
-	17, // 10: api.v1.GetGroupActivityResponse.ActivityItem.Transfer.created_at:type_name -> google.protobuf.Timestamp
-	17, // 11: api.v1.GetGroupActivityResponse.ActivityItem.Transfer.date:type_name -> google.protobuf.Timestamp
+	16, // 6: api.v1.GetGroupActivityResponse.ActivityItem.expense:type_name -> api.v1.GetGroupActivityResponse.ActivityItem.Expense
+	17, // 7: api.v1.GetGroupActivityResponse.ActivityItem.transfer:type_name -> api.v1.GetGroupActivityResponse.ActivityItem.Transfer
+	18, // 8: api.v1.GetGroupActivityResponse.ActivityItem.Expense.created_at:type_name -> google.protobuf.Timestamp
+	18, // 9: api.v1.GetGroupActivityResponse.ActivityItem.Expense.date:type_name -> google.protobuf.Timestamp
+	18, // 10: api.v1.GetGroupActivityResponse.ActivityItem.Transfer.created_at:type_name -> google.protobuf.Timestamp
+	18, // 11: api.v1.GetGroupActivityResponse.ActivityItem.Transfer.date:type_name -> google.protobuf.Timestamp
 	1,  // 12: api.v1.GroupService.CreateExpenseGroup:input_type -> api.v1.CreateExpenseGroupRequest
-	5,  // 13: api.v1.GroupService.UpdateGroup:input_type -> api.v1.UpdateGroupRequest
-	11, // 14: api.v1.GroupService.DeleteGroup:input_type -> api.v1.DeleteGroupRequest
+	6,  // 13: api.v1.GroupService.UpdateGroup:input_type -> api.v1.UpdateGroupRequest
+	12, // 14: api.v1.GroupService.DeleteGroup:input_type -> api.v1.DeleteGroupRequest
 	3,  // 15: api.v1.GroupService.AddUserToGroup:input_type -> api.v1.AddUserToGroupRequest
 	4,  // 16: api.v1.GroupService.RemoveUserFromGroup:input_type -> api.v1.RemoveUserFromGroupRequest
-	18, // 17: api.v1.GroupService.GetUserGroups:input_type -> google.protobuf.Empty
-	9,  // 18: api.v1.GroupService.GetGroupActivity:input_type -> api.v1.GetGroupActivityRequest
-	2,  // 19: api.v1.GroupService.CreateExpenseGroup:output_type -> api.v1.CreateExpenseGroupResponse
-	2,  // 20: api.v1.GroupService.UpdateGroup:output_type -> api.v1.CreateExpenseGroupResponse
-	18, // 21: api.v1.GroupService.DeleteGroup:output_type -> google.protobuf.Empty
-	18, // 22: api.v1.GroupService.AddUserToGroup:output_type -> google.protobuf.Empty
-	18, // 23: api.v1.GroupService.RemoveUserFromGroup:output_type -> google.protobuf.Empty
-	8,  // 24: api.v1.GroupService.GetUserGroups:output_type -> api.v1.GetUserGroupsResponse
-	10, // 25: api.v1.GroupService.GetGroupActivity:output_type -> api.v1.GetGroupActivityResponse
-	19, // [19:26] is the sub-list for method output_type
-	12, // [12:19] is the sub-list for method input_type
+	5,  // 17: api.v1.GroupService.UpdateUserWeight:input_type -> api.v1.UpdateUserWeightRequest
+	19, // 18: api.v1.GroupService.GetUserGroups:input_type -> google.protobuf.Empty
+	10, // 19: api.v1.GroupService.GetGroupActivity:input_type -> api.v1.GetGroupActivityRequest
+	2,  // 20: api.v1.GroupService.CreateExpenseGroup:output_type -> api.v1.CreateExpenseGroupResponse
+	2,  // 21: api.v1.GroupService.UpdateGroup:output_type -> api.v1.CreateExpenseGroupResponse
+	19, // 22: api.v1.GroupService.DeleteGroup:output_type -> google.protobuf.Empty
+	19, // 23: api.v1.GroupService.AddUserToGroup:output_type -> google.protobuf.Empty
+	19, // 24: api.v1.GroupService.RemoveUserFromGroup:output_type -> google.protobuf.Empty
+	19, // 25: api.v1.GroupService.UpdateUserWeight:output_type -> google.protobuf.Empty
+	9,  // 26: api.v1.GroupService.GetUserGroups:output_type -> api.v1.GetUserGroupsResponse
+	11, // 27: api.v1.GroupService.GetGroupActivity:output_type -> api.v1.GetGroupActivityResponse
+	20, // [20:28] is the sub-list for method output_type
+	12, // [12:20] is the sub-list for method input_type
 	12, // [12:12] is the sub-list for extension type_name
 	12, // [12:12] is the sub-list for extension extendee
 	0,  // [0:12] is the sub-list for field type_name
@@ -1184,18 +1270,18 @@ func file_api_v1_group_proto_init() {
 	if File_api_v1_group_proto != nil {
 		return
 	}
-	file_api_v1_group_proto_msgTypes[13].OneofWrappers = []any{
+	file_api_v1_group_proto_msgTypes[14].OneofWrappers = []any{
 		(*GetGroupActivityResponse_ActivityItem_Expense_)(nil),
 		(*GetGroupActivityResponse_ActivityItem_Transfer_)(nil),
 	}
-	file_api_v1_group_proto_msgTypes[14].OneofWrappers = []any{}
+	file_api_v1_group_proto_msgTypes[15].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_v1_group_proto_rawDesc), len(file_api_v1_group_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   16,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

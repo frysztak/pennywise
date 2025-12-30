@@ -29,16 +29,24 @@ message RemoveUserFromGroupRequest {
   string group_id = 2 [(buf.validate.field).string.uuid = true];
 }
 
+message UpdateUserWeightRequest {
+  string user_id = 1 [(buf.validate.field).string.uuid = true];
+  string group_id = 2 [(buf.validate.field).string.uuid = true];
+  double weight = 3 [(buf.validate.field).double.gt = 0];
+}
+
 message UpdateGroupRequest {
   string id = 1 [(buf.validate.field).string.min_len = 2];
   string name = 2 [(buf.validate.field).string.min_len = 2];
   string description = 3;
+  string default_currency = 4 [(buf.validate.field).string.min_len = 2];
 }
 
 message MemberBalance {
   string user_id = 1;
   string user_name = 2;
   map<string, int64> balance = 3;
+  double weight = 4;
 }
 
 message UserGroup {
@@ -113,6 +121,7 @@ service GroupService {
 
   rpc AddUserToGroup(AddUserToGroupRequest) returns (google.protobuf.Empty) {}
   rpc RemoveUserFromGroup(RemoveUserFromGroupRequest) returns (google.protobuf.Empty) {}
+  rpc UpdateUserWeight(UpdateUserWeightRequest) returns (google.protobuf.Empty) {}
 
   rpc GetUserGroups(google.protobuf.Empty) returns (GetUserGroupsResponse) {}
   rpc GetGroupActivity(GetGroupActivityRequest) returns (GetGroupActivityResponse) {}

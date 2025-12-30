@@ -26,6 +26,7 @@ interface GroupHeaderProps {
   onCreateExpense: () => void;
   onCreateTransfer: () => void;
   onInviteMembers: () => void;
+  onEditGroup: () => void;
   onDeleteGroup: () => void;
 }
 
@@ -35,6 +36,7 @@ export function GroupHeader({
   onCreateExpense,
   onCreateTransfer,
   onInviteMembers,
+  onEditGroup,
   onDeleteGroup,
 }: GroupHeaderProps) {
   return (
@@ -69,7 +71,7 @@ export function GroupHeader({
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={onEditGroup}>
                   <EditIcon />
                   Edit Group
                 </DropdownMenuItem>

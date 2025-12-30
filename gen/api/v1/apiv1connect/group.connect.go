@@ -49,6 +49,9 @@ const (
 	// GroupServiceRemoveUserFromGroupProcedure is the fully-qualified name of the GroupService's
 	// RemoveUserFromGroup RPC.
 	GroupServiceRemoveUserFromGroupProcedure = "/api.v1.GroupService/RemoveUserFromGroup"
+	// GroupServiceUpdateUserWeightProcedure is the fully-qualified name of the GroupService's
+	// UpdateUserWeight RPC.
+	GroupServiceUpdateUserWeightProcedure = "/api.v1.GroupService/UpdateUserWeight"
 	// GroupServiceGetUserGroupsProcedure is the fully-qualified name of the GroupService's
 	// GetUserGroups RPC.
 	GroupServiceGetUserGroupsProcedure = "/api.v1.GroupService/GetUserGroups"
@@ -64,6 +67,7 @@ type GroupServiceClient interface {
 	DeleteGroup(context.Context, *v1.DeleteGroupRequest) (*emptypb.Empty, error)
 	AddUserToGroup(context.Context, *v1.AddUserToGroupRequest) (*emptypb.Empty, error)
 	RemoveUserFromGroup(context.Context, *v1.RemoveUserFromGroupRequest) (*emptypb.Empty, error)
+	UpdateUserWeight(context.Context, *v1.UpdateUserWeightRequest) (*emptypb.Empty, error)
 	GetUserGroups(context.Context, *emptypb.Empty) (*v1.GetUserGroupsResponse, error)
 	GetGroupActivity(context.Context, *v1.GetGroupActivityRequest) (*v1.GetGroupActivityResponse, error)
 }
@@ -109,6 +113,12 @@ func NewGroupServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(groupServiceMethods.ByName("RemoveUserFromGroup")),
 			connect.WithClientOptions(opts...),
 		),
+		updateUserWeight: connect.NewClient[v1.UpdateUserWeightRequest, emptypb.Empty](
+			httpClient,
+			baseURL+GroupServiceUpdateUserWeightProcedure,
+			connect.WithSchema(groupServiceMethods.ByName("UpdateUserWeight")),
+			connect.WithClientOptions(opts...),
+		),
 		getUserGroups: connect.NewClient[emptypb.Empty, v1.GetUserGroupsResponse](
 			httpClient,
 			baseURL+GroupServiceGetUserGroupsProcedure,
@@ -131,6 +141,7 @@ type groupServiceClient struct {
 	deleteGroup         *connect.Client[v1.DeleteGroupRequest, emptypb.Empty]
 	addUserToGroup      *connect.Client[v1.AddUserToGroupRequest, emptypb.Empty]
 	removeUserFromGroup *connect.Client[v1.RemoveUserFromGroupRequest, emptypb.Empty]
+	updateUserWeight    *connect.Client[v1.UpdateUserWeightRequest, emptypb.Empty]
 	getUserGroups       *connect.Client[emptypb.Empty, v1.GetUserGroupsResponse]
 	getGroupActivity    *connect.Client[v1.GetGroupActivityRequest, v1.GetGroupActivityResponse]
 }
@@ -180,6 +191,15 @@ func (c *groupServiceClient) RemoveUserFromGroup(ctx context.Context, req *v1.Re
 	return nil, err
 }
 
+// UpdateUserWeight calls api.v1.GroupService.UpdateUserWeight.
+func (c *groupServiceClient) UpdateUserWeight(ctx context.Context, req *v1.UpdateUserWeightRequest) (*emptypb.Empty, error) {
+	response, err := c.updateUserWeight.CallUnary(ctx, connect.NewRequest(req))
+	if response != nil {
+		return response.Msg, err
+	}
+	return nil, err
+}
+
 // GetUserGroups calls api.v1.GroupService.GetUserGroups.
 func (c *groupServiceClient) GetUserGroups(ctx context.Context, req *emptypb.Empty) (*v1.GetUserGroupsResponse, error) {
 	response, err := c.getUserGroups.CallUnary(ctx, connect.NewRequest(req))
@@ -205,6 +225,7 @@ type GroupServiceHandler interface {
 	DeleteGroup(context.Context, *v1.DeleteGroupRequest) (*emptypb.Empty, error)
 	AddUserToGroup(context.Context, *v1.AddUserToGroupRequest) (*emptypb.Empty, error)
 	RemoveUserFromGroup(context.Context, *v1.RemoveUserFromGroupRequest) (*emptypb.Empty, error)
+	UpdateUserWeight(context.Context, *v1.UpdateUserWeightRequest) (*emptypb.Empty, error)
 	GetUserGroups(context.Context, *emptypb.Empty) (*v1.GetUserGroupsResponse, error)
 	GetGroupActivity(context.Context, *v1.GetGroupActivityRequest) (*v1.GetGroupActivityResponse, error)
 }
@@ -246,6 +267,12 @@ func NewGroupServiceHandler(svc GroupServiceHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(groupServiceMethods.ByName("RemoveUserFromGroup")),
 		connect.WithHandlerOptions(opts...),
 	)
+	groupServiceUpdateUserWeightHandler := connect.NewUnaryHandlerSimple(
+		GroupServiceUpdateUserWeightProcedure,
+		svc.UpdateUserWeight,
+		connect.WithSchema(groupServiceMethods.ByName("UpdateUserWeight")),
+		connect.WithHandlerOptions(opts...),
+	)
 	groupServiceGetUserGroupsHandler := connect.NewUnaryHandlerSimple(
 		GroupServiceGetUserGroupsProcedure,
 		svc.GetUserGroups,
@@ -270,6 +297,8 @@ func NewGroupServiceHandler(svc GroupServiceHandler, opts ...connect.HandlerOpti
 			groupServiceAddUserToGroupHandler.ServeHTTP(w, r)
 		case GroupServiceRemoveUserFromGroupProcedure:
 			groupServiceRemoveUserFromGroupHandler.ServeHTTP(w, r)
+		case GroupServiceUpdateUserWeightProcedure:
+			groupServiceUpdateUserWeightHandler.ServeHTTP(w, r)
 		case GroupServiceGetUserGroupsProcedure:
 			groupServiceGetUserGroupsHandler.ServeHTTP(w, r)
 		case GroupServiceGetGroupActivityProcedure:
@@ -301,6 +330,10 @@ func (UnimplementedGroupServiceHandler) AddUserToGroup(context.Context, *v1.AddU
 
 func (UnimplementedGroupServiceHandler) RemoveUserFromGroup(context.Context, *v1.RemoveUserFromGroupRequest) (*emptypb.Empty, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.GroupService.RemoveUserFromGroup is not implemented"))
+}
+
+func (UnimplementedGroupServiceHandler) UpdateUserWeight(context.Context, *v1.UpdateUserWeightRequest) (*emptypb.Empty, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.GroupService.UpdateUserWeight is not implemented"))
 }
 
 func (UnimplementedGroupServiceHandler) GetUserGroups(context.Context, *emptypb.Empty) (*v1.GetUserGroupsResponse, error) {

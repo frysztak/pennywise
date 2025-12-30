@@ -30,6 +30,11 @@ export const addUserToGroup = GroupService.method.addUserToGroup;
 export const removeUserFromGroup = GroupService.method.removeUserFromGroup;
 
 /**
+ * @generated from rpc api.v1.GroupService.UpdateUserWeight
+ */
+export const updateUserWeight = GroupService.method.updateUserWeight;
+
+/**
  * @generated from rpc api.v1.GroupService.GetUserGroups
  */
 export const getUserGroups = GroupService.method.getUserGroups;

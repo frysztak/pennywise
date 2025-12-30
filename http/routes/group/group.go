@@ -58,9 +58,10 @@ func (s *GroupService) UpdateGroup(ctx context.Context, r *apiv1.UpdateGroupRequ
 	// TODO: check if user is admin
 
 	group, err := db.Queries.UpdateGroup(ctx, database.UpdateGroupParams{
-		ID:          r.Id,
-		Name:        r.Name,
-		Description: &r.Description,
+		ID:              r.Id,
+		Name:            r.Name,
+		Description:     &r.Description,
+		DefaultCurrency: r.DefaultCurrency,
 	})
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -134,6 +135,33 @@ func (s *GroupService) RemoveUserFromGroup(ctx context.Context, r *apiv1.RemoveU
 	return &emptypb.Empty{}, nil
 }
 
+func (s *GroupService) UpdateUserWeight(ctx context.Context, r *apiv1.UpdateUserWeightRequest) (*emptypb.Empty, error) {
+	// Verify the user is in the group
+	userInGroup, err := db.Queries.IsUserInGroup(ctx, database.IsUserInGroupParams{
+		UserID:  r.UserId,
+		GroupID: r.GroupId,
+	})
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if userInGroup != 1 {
+		return nil, connect.NewError(connect.CodeNotFound,
+			errors.New("user is not a member of this group"))
+	}
+
+	// Update the user's weight
+	err = db.Queries.UpdateUserWeight(ctx, database.UpdateUserWeightParams{
+		UserID:  r.UserId,
+		GroupID: r.GroupId,
+		Weight:  r.Weight,
+	})
+
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *GroupService) GetUserGroups(ctx context.Context, r *emptypb.Empty) (*apiv1.GetUserGroupsResponse, error) {
 	session := helpers.GetSessionInfo(ctx)
 
@@ -169,6 +197,7 @@ func (s *GroupService) GetUserGroups(ctx context.Context, r *emptypb.Empty) (*ap
 				UserId:   member.UserID,
 				UserName: member.UserName,
 				Balance:  groupBalance[member.UserID],
+				Weight:   member.Weight,
 			})
 		}
 
