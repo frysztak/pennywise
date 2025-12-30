@@ -290,20 +290,23 @@ func (s *GroupService) GetGroupActivity(ctx context.Context, r *apiv1.GetGroupAc
 		})
 	}
 
-	// Sort by date descending (most recent first)
+	// Helper to extract timestamps from activity items
+	getItemTimes := func(item *apiv1.GetGroupActivityResponse_ActivityItem) (date, createdAt time.Time) {
+		if item.Type == apiv1.GetGroupActivityResponse_ActivityItem_TYPE_EXPENSE {
+			return item.GetExpense().Date.AsTime(), item.GetExpense().CreatedAt.AsTime()
+		}
+		return item.GetTransfer().Date.AsTime(), item.GetTransfer().CreatedAt.AsTime()
+	}
+
+	// Sort by date descending (most recent first), then by created_at descending
 	sort.Slice(items, func(i, j int) bool {
-		var dateI, dateJ time.Time
-		if items[i].Type == apiv1.GetGroupActivityResponse_ActivityItem_TYPE_EXPENSE {
-			dateI = items[i].GetExpense().Date.AsTime()
-		} else {
-			dateI = items[i].GetTransfer().Date.AsTime()
+		dateI, createdAtI := getItemTimes(items[i])
+		dateJ, createdAtJ := getItemTimes(items[j])
+
+		if !dateI.Equal(dateJ) {
+			return dateI.After(dateJ)
 		}
-		if items[j].Type == apiv1.GetGroupActivityResponse_ActivityItem_TYPE_EXPENSE {
-			dateJ = items[j].GetExpense().Date.AsTime()
-		} else {
-			dateJ = items[j].GetTransfer().Date.AsTime()
-		}
-		return dateI.After(dateJ)
+		return createdAtI.After(createdAtJ)
 	})
 
 	return &apiv1.GetGroupActivityResponse{
