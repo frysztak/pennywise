@@ -10,6 +10,7 @@ import (
 	"pennywise/http/routes/group"
 	"pennywise/http/routes/transfer"
 	"pennywise/http/routes/user"
+	"pennywise/log"
 
 	"pennywise/gen/api/v1/apiv1connect"
 
@@ -32,6 +33,13 @@ func InitRouter(mux *http.ServeMux) {
 	//})
 	session := middleware.SessionMiddleware()
 
+	// Create interceptors once and reuse them across all services
+	// Order matters: Logging -> Validation
+	interceptors := connect.WithInterceptors(
+		log.LoggingInterceptor(),
+		validate.NewInterceptor(),
+	)
+
 	reflector := grpcreflect.NewStaticReflector(
 		apiv1connect.AuthServiceName,
 		apiv1connect.UserServiceName,
@@ -45,37 +53,37 @@ func InitRouter(mux *http.ServeMux) {
 
 	path, handler := apiv1connect.NewAuthServiceHandler(
 		auth.NewAuthService(),
-		connect.WithInterceptors(validate.NewInterceptor()),
+		interceptors,
 	)
 	mux.Handle(path, session.Wrap(handler))
 
 	path, handler = apiv1connect.NewUserServiceHandler(
 		user.NewUserService(),
-		connect.WithInterceptors(validate.NewInterceptor()),
+		interceptors,
 	)
 	mux.Handle(path, session.Wrap(handler))
 
 	path, handler = apiv1connect.NewAdminServiceHandler(
 		admin.NewAdminService(),
-		connect.WithInterceptors(validate.NewInterceptor()),
+		interceptors,
 	)
 	mux.Handle(path, session.Wrap(handler))
 
 	path, handler = apiv1connect.NewGroupServiceHandler(
 		group.NewGroupService(),
-		connect.WithInterceptors(validate.NewInterceptor()),
+		interceptors,
 	)
 	mux.Handle(path, session.Wrap(handler))
 
 	path, handler = apiv1connect.NewExpenseServiceHandler(
 		expense.NewExpenseService(),
-		connect.WithInterceptors(validate.NewInterceptor()),
+		interceptors,
 	)
 	mux.Handle(path, session.Wrap(handler))
 
 	path, handler = apiv1connect.NewTransferServiceHandler(
 		transfer.NewTransferService(),
-		connect.WithInterceptors(validate.NewInterceptor()),
+		interceptors,
 	)
 	mux.Handle(path, session.Wrap(handler))
 

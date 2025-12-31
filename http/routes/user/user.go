@@ -6,6 +6,7 @@ import (
 	"pennywise/db/database"
 	apiv1 "pennywise/gen/api/v1"
 	"pennywise/http/helpers"
+	"pennywise/log"
 	"time"
 
 	"connectrpc.com/connect"
@@ -20,8 +21,11 @@ func NewUserService() *UserService {
 }
 
 func (s *UserService) UserRegister(ctx context.Context, r *apiv1.UserRegisterRequest) (*apiv1.UserRegisterResponse, error) {
+	logger := log.FromContext(ctx)
+
 	hash, err := argon2id.CreateHash(r.Password, argon2id.DefaultParams)
 	if err != nil {
+		logger.Error("failed to hash password", "error", err, "email", r.Email)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
@@ -34,8 +38,11 @@ func (s *UserService) UserRegister(ctx context.Context, r *apiv1.UserRegisterReq
 		Role:         int64(apiv1.UserRole_USER_ROLE_REGULAR),
 	})
 	if err != nil {
+		logger.Error("failed to create user", "error", err, "email", r.Email, "username", r.Username)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
+
+	logger.Info("user registered successfully", "user_id", user.ID, "email", user.Email, "username", user.Username)
 
 	return &apiv1.UserRegisterResponse{
 		Id:       user.ID,
@@ -46,13 +53,17 @@ func (s *UserService) UserRegister(ctx context.Context, r *apiv1.UserRegisterReq
 }
 
 func (s *UserService) UserInfo(ctx context.Context, r *apiv1.UserInfoRequest) (*apiv1.UserInfoResponse, error) {
+	logger := log.FromContext(ctx)
 	session := helpers.GetSessionInfo(ctx)
 	user, err := db.Queries.GetUserById(ctx, session.UserID)
 
 	if err != nil {
+		logger.Error("failed to get user info", "error", err, "user_id", session.UserID)
 		return nil, connect.NewError(connect.CodeInternal, err)
-
 	}
+
+	logger.Info("user info retrieved", "user_id", user.ID)
+
 	return &apiv1.UserInfoResponse{
 		Id:       user.ID,
 		Email:    user.Email,
@@ -62,9 +73,11 @@ func (s *UserService) UserInfo(ctx context.Context, r *apiv1.UserInfoRequest) (*
 }
 
 func (s *UserService) GetUsers(ctx context.Context, r *apiv1.GetUsersRequest) (*apiv1.GetUsersResponse, error) {
+	logger := log.FromContext(ctx)
 	users, err := db.Queries.GetUsers(ctx)
 
 	if err != nil {
+		logger.Error("failed to get users", "error", err)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
@@ -76,6 +89,8 @@ func (s *UserService) GetUsers(ctx context.Context, r *apiv1.GetUsersRequest) (*
 			Email:    user.Email,
 		})
 	}
+
+	logger.Info("users retrieved", "count", len(users))
 
 	return &apiv1.GetUsersResponse{
 		Users: responseUsers,

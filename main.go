@@ -5,12 +5,13 @@ import (
 	"flag"
 	"html/template"
 	"io/fs"
-	"log"
+	stdlog "log"
 	"net/http"
 	"os"
 	"pennywise/config"
 	"pennywise/db"
 	"pennywise/http/router"
+	"pennywise/log"
 
 	"github.com/olivere/vite"
 	"golang.org/x/net/http2"
@@ -31,12 +32,15 @@ func main() {
 
 	err := config.InitConfig()
 	if err != nil {
-		log.Fatalf("Failed to parse config: %v", err)
+		stdlog.Fatalf("Failed to parse config: %v", err)
 	}
+
+	// Initialize logger
+	log.Init(config.Config.LogLevel, config.Config.LogFormat)
 
 	err = db.InitDB()
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		stdlog.Fatalf("Failed to connect to database: %v", err)
 	}
 	defer db.CloseDB()
 
@@ -47,7 +51,7 @@ func main() {
 	router.InitRouter(mux)
 
 	addr := ":3333"
-	log.Printf("Starting server on %v\n", addr)
+	log.Info("Starting server", "addr", addr, "dev_mode", *isDev)
 	http.ListenAndServe(addr, h2c.NewHandler(mux, &http2.Server{}))
 }
 
@@ -59,13 +63,13 @@ func setupVite(isDev bool, mux *http.ServeMux) {
 	} else {
 		distFS, err := fs.Sub(dist, "dist")
 		if err != nil {
-			log.Fatalf("creating sub-filesystem for 'dist' directory: %v", err)
+			stdlog.Fatalf("creating sub-filesystem for 'dist' directory: %v", err)
 		}
 		appFS = distFS
 
 		publicSub, err := fs.Sub(public, "public")
 		if err != nil {
-			log.Fatalf("creating sub-filesystem for 'public' directory: %v", err)
+			stdlog.Fatalf("creating sub-filesystem for 'public' directory: %v", err)
 		}
 		publicFS = publicSub
 	}

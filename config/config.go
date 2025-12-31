@@ -12,6 +12,8 @@ type config struct {
 	OIDCClientId     string `env:"OIDC_CLIENT_ID"`
 	OIDCClientSecret string `env:"OIDC_CLIENT_SECRET"`
 	OIDCRedirectUrl  string `env:"OIDC_REDIRECT_URL"`
+	LogLevel         string `env:"LOG_LEVEL" envDefault:"info"`
+	LogFormat        string `env:"LOG_FORMAT" envDefault:"text"`
 }
 
 // Global variables to hold the config

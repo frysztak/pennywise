@@ -5,6 +5,7 @@ import (
 	"pennywise/db"
 	"pennywise/db/database"
 	apiv1 "pennywise/gen/api/v1"
+	"pennywise/log"
 	"pennywise/utils"
 
 	"connectrpc.com/connect"
@@ -19,8 +20,10 @@ func NewExpenseService() *ExpenseService {
 }
 
 func (s *ExpenseService) CreateExpense(ctx context.Context, r *apiv1.CreateExpenseRequest) (*apiv1.CreateExpenseResponse, error) {
+	logger := log.FromContext(ctx)
 	tx, err := db.DB.BeginTx(ctx, nil)
 	if err != nil {
+		logger.Error("failed to begin transaction", "error", err)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	defer tx.Rollback()
@@ -37,6 +40,7 @@ func (s *ExpenseService) CreateExpense(ctx context.Context, r *apiv1.CreateExpen
 		Currency:    r.Currency,
 	})
 	if err != nil {
+		logger.Error("failed to create expense", "error", err, "group_id", r.GroupId, "name", r.Name)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
@@ -47,6 +51,7 @@ func (s *ExpenseService) CreateExpense(ctx context.Context, r *apiv1.CreateExpen
 		Amount:    int64(r.Amount * 100),
 	})
 	if err != nil {
+		logger.Error("failed to create expense payer", "error", err, "expense_id", expense.ID, "payer_id", r.PayerId)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
@@ -57,14 +62,18 @@ func (s *ExpenseService) CreateExpense(ctx context.Context, r *apiv1.CreateExpen
 			UserID:    beneficiaryId,
 		})
 		if err != nil {
+			logger.Error("failed to create expense beneficiary", "error", err, "expense_id", expense.ID, "beneficiary_id", beneficiaryId)
 			return nil, connect.NewError(connect.CodeInternal, err)
 		}
 	}
 
 	err = tx.Commit()
 	if err != nil {
+		logger.Error("failed to commit transaction", "error", err, "expense_id", expense.ID)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
+
+	logger.Info("expense created successfully", "expense_id", expense.ID, "group_id", r.GroupId, "name", r.Name, "amount", r.Amount, "currency", r.Currency)
 
 	return &apiv1.CreateExpenseResponse{
 		Id:   expense.ID,
@@ -73,8 +82,10 @@ func (s *ExpenseService) CreateExpense(ctx context.Context, r *apiv1.CreateExpen
 }
 
 func (s *ExpenseService) GetGroupExpenses(ctx context.Context, r *apiv1.GetGroupExpensesRequest) (*apiv1.GetGroupExpensesResponse, error) {
+	logger := log.FromContext(ctx)
 	rows, err := db.Queries.GetGroupExpenses(ctx, r.GroupId)
 	if err != nil {
+		logger.Error("failed to get group expenses", "error", err, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
@@ -82,6 +93,7 @@ func (s *ExpenseService) GetGroupExpenses(ctx context.Context, r *apiv1.GetGroup
 	for _, row := range rows {
 		beneficiariesIds, err := utils.JSONStringToSlice(row.BeneficiariesIds)
 		if err != nil {
+			logger.Error("failed to parse beneficiaries IDs", "error", err, "expense_id", row.ID, "beneficiaries_ids", row.BeneficiariesIds)
 			return nil, connect.NewError(connect.CodeInternal, err)
 		}
 
@@ -99,12 +111,16 @@ func (s *ExpenseService) GetGroupExpenses(ctx context.Context, r *apiv1.GetGroup
 		})
 	}
 
+	logger.Info("group expenses retrieved", "group_id", r.GroupId, "count", len(expenses))
+
 	return &apiv1.GetGroupExpensesResponse{Expenses: expenses}, nil
 }
 
 func (s *ExpenseService) UpdateExpense(ctx context.Context, r *apiv1.UpdateExpenseRequest) (*apiv1.UpdateExpenseResponse, error) {
+	logger := log.FromContext(ctx)
 	tx, err := db.DB.BeginTx(ctx, nil)
 	if err != nil {
+		logger.Error("failed to begin transaction", "error", err)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	defer tx.Rollback()
@@ -120,6 +136,7 @@ func (s *ExpenseService) UpdateExpense(ctx context.Context, r *apiv1.UpdateExpen
 		Date:        r.Date.AsTime(),
 	})
 	if err != nil {
+		logger.Error("failed to update expense", "error", err, "expense_id", r.Id)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
@@ -130,12 +147,14 @@ func (s *ExpenseService) UpdateExpense(ctx context.Context, r *apiv1.UpdateExpen
 		Amount:    int64(r.Amount * 100),
 	})
 	if err != nil {
+		logger.Error("failed to update expense payer", "error", err, "expense_id", r.Id, "payer_id", r.PayerId)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
 	// Delete old beneficiaries and insert new ones
 	err = qtx.DeleteExpenseBeneficiaries(ctx, r.Id)
 	if err != nil {
+		logger.Error("failed to delete expense beneficiaries", "error", err, "expense_id", r.Id)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
@@ -146,14 +165,18 @@ func (s *ExpenseService) UpdateExpense(ctx context.Context, r *apiv1.UpdateExpen
 			UserID:    beneficiaryId,
 		})
 		if err != nil {
+			logger.Error("failed to create expense beneficiary", "error", err, "expense_id", r.Id, "beneficiary_id", beneficiaryId)
 			return nil, connect.NewError(connect.CodeInternal, err)
 		}
 	}
 
 	err = tx.Commit()
 	if err != nil {
+		logger.Error("failed to commit transaction", "error", err, "expense_id", r.Id)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
+
+	logger.Info("expense updated successfully", "expense_id", r.Id, "name", r.Name, "amount", r.Amount, "currency", r.Currency)
 
 	return &apiv1.UpdateExpenseResponse{
 		Id:   expense.ID,
@@ -162,10 +185,14 @@ func (s *ExpenseService) UpdateExpense(ctx context.Context, r *apiv1.UpdateExpen
 }
 
 func (s *ExpenseService) DeleteExpense(ctx context.Context, r *apiv1.DeleteExpenseRequest) (*apiv1.DeleteExpenseResponse, error) {
+	logger := log.FromContext(ctx)
 	err := db.Queries.DeleteExpense(ctx, r.Id)
 	if err != nil {
+		logger.Error("failed to delete expense", "error", err, "expense_id", r.Id)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
+
+	logger.Info("expense deleted successfully", "expense_id", r.Id)
 
 	return &apiv1.DeleteExpenseResponse{}, nil
 }

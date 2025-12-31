@@ -8,6 +8,7 @@ import (
 	"pennywise/db/database"
 	apiv1 "pennywise/gen/api/v1"
 	"pennywise/http/helpers"
+	"pennywise/log"
 	"pennywise/utils"
 	"sort"
 	"time"
@@ -25,6 +26,7 @@ func NewGroupService() *GroupService {
 }
 
 func (s *GroupService) CreateExpenseGroup(ctx context.Context, r *apiv1.CreateExpenseGroupRequest) (*apiv1.CreateExpenseGroupResponse, error) {
+	logger := log.FromContext(ctx)
 	session := helpers.GetSessionInfo(ctx)
 	group, err := db.Queries.CreateGroup(ctx, database.CreateGroupParams{
 		ID:              uuid.NewString(),
@@ -34,6 +36,7 @@ func (s *GroupService) CreateExpenseGroup(ctx context.Context, r *apiv1.CreateEx
 		DefaultCurrency: r.DefaultCurrency,
 	})
 	if err != nil {
+		logger.Error("failed to create group", "error", err, "name", r.Name)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
@@ -43,8 +46,11 @@ func (s *GroupService) CreateExpenseGroup(ctx context.Context, r *apiv1.CreateEx
 		Weight:  1.0,
 	})
 	if err != nil {
+		logger.Error("failed to add creator to group", "error", err, "group_id", group.ID)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
+
+	logger.Info("group created successfully", "group_id", group.ID, "name", group.Name)
 
 	return &apiv1.CreateExpenseGroupResponse{
 		Id:          group.ID,
@@ -55,6 +61,7 @@ func (s *GroupService) CreateExpenseGroup(ctx context.Context, r *apiv1.CreateEx
 }
 
 func (s *GroupService) UpdateGroup(ctx context.Context, r *apiv1.UpdateGroupRequest) (*apiv1.UpdateGroupResponse, error) {
+	logger := log.FromContext(ctx)
 	// TODO: check if user is admin
 
 	group, err := db.Queries.UpdateGroup(ctx, database.UpdateGroupParams{
@@ -64,8 +71,11 @@ func (s *GroupService) UpdateGroup(ctx context.Context, r *apiv1.UpdateGroupRequ
 		DefaultCurrency: r.DefaultCurrency,
 	})
 	if err != nil {
+		logger.Error("failed to update group", "error", err, "group_id", r.Id)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
+
+	logger.Info("group updated successfully", "group_id", group.ID, "name", group.Name)
 
 	return &apiv1.UpdateGroupResponse{
 		Id:          group.ID,
@@ -76,37 +86,46 @@ func (s *GroupService) UpdateGroup(ctx context.Context, r *apiv1.UpdateGroupRequ
 }
 
 func (s *GroupService) DeleteGroup(ctx context.Context, r *apiv1.DeleteGroupRequest) (*emptypb.Empty, error) {
+	logger := log.FromContext(ctx)
 	session := helpers.GetSessionInfo(ctx)
 
 	// Fetch the group to check who created it
 	group, err := db.Queries.GetGroupById(ctx, r.GroupId)
 	if err != nil {
+		logger.Error("failed to get group for deletion", "error", err, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeNotFound, err)
 	}
 
 	// Check if the current user is the creator
 	if group.CreatedBy != session.UserID {
+		logger.Warn("unauthorized group deletion attempt", "group_id", r.GroupId, "created_by", group.CreatedBy)
 		return nil, connect.NewError(connect.CodePermissionDenied, nil)
 	}
 
 	// Delete the group (CASCADE will handle related records)
 	err = db.Queries.DeleteGroup(ctx, r.GroupId)
 	if err != nil {
+		logger.Error("failed to delete group", "error", err, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
+
+	logger.Info("group deleted successfully", "group_id", r.GroupId)
 
 	return &emptypb.Empty{}, nil
 }
 
 func (s *GroupService) AddUserToGroup(ctx context.Context, r *apiv1.AddUserToGroupRequest) (*emptypb.Empty, error) {
+	logger := log.FromContext(ctx)
 	userInGroup, err := db.Queries.IsUserInGroup(ctx, database.IsUserInGroupParams{
 		UserID:  r.UserId,
 		GroupID: r.GroupId,
 	})
 	if err != nil {
+		logger.Error("failed to check if user in group", "error", err, "target_user_id", r.UserId, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if userInGroup == 1 {
+		logger.Warn("attempt to add user already in group", "target_user_id", r.UserId, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInvalidArgument,
 			errors.New("user is already a member of this group"))
 	}
@@ -118,33 +137,45 @@ func (s *GroupService) AddUserToGroup(ctx context.Context, r *apiv1.AddUserToGro
 	})
 
 	if err != nil {
+		logger.Error("failed to add user to group", "error", err, "target_user_id", r.UserId, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
+
+	logger.Info("user added to group successfully", "target_user_id", r.UserId, "group_id", r.GroupId)
+
 	return &emptypb.Empty{}, nil
 }
 
 func (s *GroupService) RemoveUserFromGroup(ctx context.Context, r *apiv1.RemoveUserFromGroupRequest) (*emptypb.Empty, error) {
+	logger := log.FromContext(ctx)
 	err := db.Queries.RemoveUserFromGroup(ctx, database.RemoveUserFromGroupParams{
 		UserID:  r.UserId,
 		GroupID: r.GroupId,
 	})
 
 	if err != nil {
+		logger.Error("failed to remove user from group", "error", err, "target_user_id", r.UserId, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
+
+	logger.Info("user removed from group successfully", "target_user_id", r.UserId, "group_id", r.GroupId)
+
 	return &emptypb.Empty{}, nil
 }
 
 func (s *GroupService) UpdateUserWeight(ctx context.Context, r *apiv1.UpdateUserWeightRequest) (*emptypb.Empty, error) {
+	logger := log.FromContext(ctx)
 	// Verify the user is in the group
 	userInGroup, err := db.Queries.IsUserInGroup(ctx, database.IsUserInGroupParams{
 		UserID:  r.UserId,
 		GroupID: r.GroupId,
 	})
 	if err != nil {
+		logger.Error("failed to check if user in group", "error", err, "target_user_id", r.UserId, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if userInGroup != 1 {
+		logger.Warn("attempt to update weight for user not in group", "target_user_id", r.UserId, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeNotFound,
 			errors.New("user is not a member of this group"))
 	}
@@ -157,16 +188,22 @@ func (s *GroupService) UpdateUserWeight(ctx context.Context, r *apiv1.UpdateUser
 	})
 
 	if err != nil {
+		logger.Error("failed to update user weight", "error", err, "target_user_id", r.UserId, "group_id", r.GroupId, "weight", r.Weight)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
+
+	logger.Info("user weight updated successfully", "target_user_id", r.UserId, "group_id", r.GroupId, "weight", r.Weight)
+
 	return &emptypb.Empty{}, nil
 }
 
 func (s *GroupService) GetUserGroups(ctx context.Context, r *apiv1.GetUserGroupsRequest) (*apiv1.GetUserGroupsResponse, error) {
+	logger := log.FromContext(ctx)
 	session := helpers.GetSessionInfo(ctx)
 
 	groups, err := db.Queries.GetGroupsByUserId(ctx, session.UserID)
 	if err != nil {
+		logger.Error("failed to get user groups", "error", err)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
@@ -175,16 +212,19 @@ func (s *GroupService) GetUserGroups(ctx context.Context, r *apiv1.GetUserGroups
 		// Calculate balance for this group
 		members, err := db.Queries.GetGroupMembers(ctx, *v.GroupID)
 		if err != nil {
+			logger.Error("failed to get group members", "error", err, "group_id", *v.GroupID)
 			return nil, connect.NewError(connect.CodeInternal, err)
 		}
 
 		expenses, err := db.Queries.GetGroupExpenses(ctx, *v.GroupID)
 		if err != nil {
+			logger.Error("failed to get group expenses", "error", err, "group_id", *v.GroupID)
 			return nil, connect.NewError(connect.CodeInternal, err)
 		}
 
 		transfers, err := db.Queries.GetGroupTransfersForBalance(ctx, *v.GroupID)
 		if err != nil {
+			logger.Error("failed to get group transfers", "error", err, "group_id", *v.GroupID)
 			return nil, connect.NewError(connect.CodeInternal, err)
 		}
 
@@ -204,6 +244,7 @@ func (s *GroupService) GetUserGroups(ctx context.Context, r *apiv1.GetUserGroups
 		// Get total spending for this group
 		totalSpendingRows, err := db.Queries.GetGroupTotalSpending(ctx, *v.GroupID)
 		if err != nil {
+			logger.Error("failed to get group total spending", "error", err, "group_id", *v.GroupID)
 			return nil, connect.NewError(connect.CodeInternal, err)
 		}
 
@@ -223,21 +264,26 @@ func (s *GroupService) GetUserGroups(ctx context.Context, r *apiv1.GetUserGroups
 		}
 	}
 
+	logger.Info("user groups retrieved", "count", len(groups))
+
 	return &apiv1.GetUserGroupsResponse{
 		Groups: pbGroups,
 	}, nil
 }
 
 func (s *GroupService) GetGroupActivity(ctx context.Context, r *apiv1.GetGroupActivityRequest) (*apiv1.GetGroupActivityResponse, error) {
+	logger := log.FromContext(ctx)
 	// Fetch expenses
 	expenses, err := db.Queries.GetGroupExpenses(ctx, r.GroupId)
 	if err != nil {
+		logger.Error("failed to get group expenses for activity", "error", err, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
 	// Fetch transfers
 	transfers, err := db.Queries.GetGroupTransfers(ctx, r.GroupId)
 	if err != nil {
+		logger.Error("failed to get group transfers for activity", "error", err, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
@@ -248,6 +294,7 @@ func (s *GroupService) GetGroupActivity(ctx context.Context, r *apiv1.GetGroupAc
 	for _, expense := range expenses {
 		beneficiariesIds, err := utils.JSONStringToSlice(expense.BeneficiariesIds)
 		if err != nil {
+			logger.Error("failed to parse beneficiaries IDs", "error", err, "expense_id", expense.ID, "beneficiaries_ids", expense.BeneficiariesIds)
 			return nil, connect.NewError(connect.CodeInternal, err)
 		}
 
@@ -308,6 +355,8 @@ func (s *GroupService) GetGroupActivity(ctx context.Context, r *apiv1.GetGroupAc
 		}
 		return createdAtI.After(createdAtJ)
 	})
+
+	logger.Info("group activity retrieved", "group_id", r.GroupId, "expenses_count", len(expenses), "transfers_count", len(transfers))
 
 	return &apiv1.GetGroupActivityResponse{
 		Items: items,

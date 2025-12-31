@@ -9,6 +9,7 @@ import (
 	"pennywise/db/database"
 	apiv1 "pennywise/gen/api/v1"
 	"pennywise/http/helpers"
+	"pennywise/log"
 	"time"
 
 	"connectrpc.com/connect"
@@ -22,17 +23,22 @@ var (
 )
 
 func (s *AuthService) LoginWithPassword(ctx context.Context, r *apiv1.LoginWithPasswordRequest) (*apiv1.LoginWithPasswordResponse, error) {
+	logger := log.FromContext(ctx)
+
 	user, err := db.Queries.GetUserByEmail(ctx, r.Email)
 	if err != nil {
+		logger.Warn("login attempt failed - user not found", "email", r.Email)
 		return nil, ErrInvalidPassword
 	}
 
 	match, err := argon2id.ComparePasswordAndHash(r.Password, *user.PasswordHash)
 	if err != nil {
+		logger.Error("password hash comparison error", "error", err, "user_id", user.ID)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
 	if !match {
+		logger.Warn("login attempt failed - invalid password", "email", r.Email, "user_id", user.ID)
 		return nil, ErrInvalidPassword
 	}
 
@@ -45,12 +51,16 @@ func (s *AuthService) LoginWithPassword(ctx context.Context, r *apiv1.LoginWithP
 		ExpiredAt: time.Now().Add(24 * time.Hour),
 	})
 	if err != nil {
+		logger.Error("failed to create session", "error", err, "user_id", user.ID)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
 	if err = helpers.SetConnectCookie(ctx, helpers.SessionCookie, session.Token); err != nil {
+		logger.Error("failed to set session cookie", "error", err, "user_id", user.ID)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
+
+	logger.Info("user logged in successfully", "user_id", user.ID, "email", user.Email)
 
 	return &apiv1.LoginWithPasswordResponse{
 		Id:       user.ID,
@@ -61,16 +71,21 @@ func (s *AuthService) LoginWithPassword(ctx context.Context, r *apiv1.LoginWithP
 }
 
 func (s *AuthService) Logout(ctx context.Context, r *apiv1.LogoutRequest) (*apiv1.LogoutResponse, error) {
+	logger := log.FromContext(ctx)
 	session := helpers.GetSessionInfo(ctx)
-	err := db.Queries.DeleteSession(ctx, session.ID)
 
+	err := db.Queries.DeleteSession(ctx, session.ID)
 	if err != nil {
+		logger.Error("failed to delete session", "error", err, "session_id", session.ID)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
 	if err = helpers.ClearConnectCookie(ctx, helpers.SessionCookie); err != nil {
+		logger.Error("failed to clear session cookie", "error", err, "session_id", session.ID)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
+
+	logger.Info("user logged out successfully", "user_id", session.UserID)
 
 	return &apiv1.LogoutResponse{}, nil
 }
