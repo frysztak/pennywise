@@ -2,7 +2,4 @@ syntax = "proto3";
 
 package api.v1;
 
-import "buf/validate/validate.proto";
-import "google/protobuf/empty.proto";
-
 service AdminService {}

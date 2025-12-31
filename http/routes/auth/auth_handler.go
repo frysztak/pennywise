@@ -15,7 +15,6 @@ import (
 	"github.com/alexedwards/argon2id"
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/google/uuid"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 var (
@@ -61,7 +60,7 @@ func (s *AuthService) LoginWithPassword(ctx context.Context, r *apiv1.LoginWithP
 	}, nil
 }
 
-func (s *AuthService) Logout(ctx context.Context, r *emptypb.Empty) (*emptypb.Empty, error) {
+func (s *AuthService) Logout(ctx context.Context, r *apiv1.LogoutRequest) (*apiv1.LogoutResponse, error) {
 	session := helpers.GetSessionInfo(ctx)
 	err := db.Queries.DeleteSession(ctx, session.ID)
 
@@ -73,7 +72,7 @@ func (s *AuthService) Logout(ctx context.Context, r *emptypb.Empty) (*emptypb.Em
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
-	return &emptypb.Empty{}, nil
+	return &apiv1.LogoutResponse{}, nil
 }
 
 func insertSession(r *http.Request) {

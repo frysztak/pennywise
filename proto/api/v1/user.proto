@@ -3,7 +3,6 @@ syntax = "proto3";
 package api.v1;
 
 import "buf/validate/validate.proto";
-import "google/protobuf/empty.proto";
 
 enum UserRole {
   USER_ROLE_UNSPECIFIED = 0;
@@ -24,12 +23,16 @@ message UserRegisterResponse {
   UserRole role = 4;
 }
 
+message UserInfoRequest {}
+
 message UserInfoResponse {
   string id = 1;
   string email = 2;
   string username = 3;
   UserRole role = 4;
 }
+
+message GetUsersRequest {}
 
 message GetUsersResponse {
   message User {
@@ -42,6 +45,6 @@ message GetUsersResponse {
 
 service UserService {
   rpc UserRegister(UserRegisterRequest) returns (UserRegisterResponse) {}
-  rpc UserInfo(google.protobuf.Empty) returns (UserInfoResponse) {}
-  rpc GetUsers(google.protobuf.Empty) returns (GetUsersResponse) {}
+  rpc UserInfo(UserInfoRequest) returns (UserInfoResponse) {}
+  rpc GetUsers(GetUsersRequest) returns (GetUsersResponse) {}
 }

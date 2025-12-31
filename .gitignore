@@ -3,3 +3,4 @@
 *.sqlite3
 tmp
 web/stats.html
+pennywise

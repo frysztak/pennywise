@@ -4,7 +4,6 @@ package api.v1;
 
 import "api/v1/user.proto";
 import "buf/validate/validate.proto";
-import "google/protobuf/empty.proto";
 
 message LoginWithPasswordRequest {
   string email = 1 [(buf.validate.field).string.email = true];
@@ -18,7 +17,11 @@ message LoginWithPasswordResponse {
   UserRole role = 4;
 }
 
+message LogoutRequest {}
+
+message LogoutResponse {}
+
 service AuthService {
   rpc LoginWithPassword(LoginWithPasswordRequest) returns (LoginWithPasswordResponse) {}
-  rpc Logout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc Logout(LogoutRequest) returns (LogoutResponse) {}
 }

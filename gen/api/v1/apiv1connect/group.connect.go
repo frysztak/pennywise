@@ -63,12 +63,12 @@ const (
 // GroupServiceClient is a client for the api.v1.GroupService service.
 type GroupServiceClient interface {
 	CreateExpenseGroup(context.Context, *v1.CreateExpenseGroupRequest) (*v1.CreateExpenseGroupResponse, error)
-	UpdateGroup(context.Context, *v1.UpdateGroupRequest) (*v1.CreateExpenseGroupResponse, error)
+	UpdateGroup(context.Context, *v1.UpdateGroupRequest) (*v1.UpdateGroupResponse, error)
 	DeleteGroup(context.Context, *v1.DeleteGroupRequest) (*emptypb.Empty, error)
 	AddUserToGroup(context.Context, *v1.AddUserToGroupRequest) (*emptypb.Empty, error)
 	RemoveUserFromGroup(context.Context, *v1.RemoveUserFromGroupRequest) (*emptypb.Empty, error)
 	UpdateUserWeight(context.Context, *v1.UpdateUserWeightRequest) (*emptypb.Empty, error)
-	GetUserGroups(context.Context, *emptypb.Empty) (*v1.GetUserGroupsResponse, error)
+	GetUserGroups(context.Context, *v1.GetUserGroupsRequest) (*v1.GetUserGroupsResponse, error)
 	GetGroupActivity(context.Context, *v1.GetGroupActivityRequest) (*v1.GetGroupActivityResponse, error)
 }
 
@@ -89,7 +89,7 @@ func NewGroupServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(groupServiceMethods.ByName("CreateExpenseGroup")),
 			connect.WithClientOptions(opts...),
 		),
-		updateGroup: connect.NewClient[v1.UpdateGroupRequest, v1.CreateExpenseGroupResponse](
+		updateGroup: connect.NewClient[v1.UpdateGroupRequest, v1.UpdateGroupResponse](
 			httpClient,
 			baseURL+GroupServiceUpdateGroupProcedure,
 			connect.WithSchema(groupServiceMethods.ByName("UpdateGroup")),
@@ -119,7 +119,7 @@ func NewGroupServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(groupServiceMethods.ByName("UpdateUserWeight")),
 			connect.WithClientOptions(opts...),
 		),
-		getUserGroups: connect.NewClient[emptypb.Empty, v1.GetUserGroupsResponse](
+		getUserGroups: connect.NewClient[v1.GetUserGroupsRequest, v1.GetUserGroupsResponse](
 			httpClient,
 			baseURL+GroupServiceGetUserGroupsProcedure,
 			connect.WithSchema(groupServiceMethods.ByName("GetUserGroups")),
@@ -137,12 +137,12 @@ func NewGroupServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 // groupServiceClient implements GroupServiceClient.
 type groupServiceClient struct {
 	createExpenseGroup  *connect.Client[v1.CreateExpenseGroupRequest, v1.CreateExpenseGroupResponse]
-	updateGroup         *connect.Client[v1.UpdateGroupRequest, v1.CreateExpenseGroupResponse]
+	updateGroup         *connect.Client[v1.UpdateGroupRequest, v1.UpdateGroupResponse]
 	deleteGroup         *connect.Client[v1.DeleteGroupRequest, emptypb.Empty]
 	addUserToGroup      *connect.Client[v1.AddUserToGroupRequest, emptypb.Empty]
 	removeUserFromGroup *connect.Client[v1.RemoveUserFromGroupRequest, emptypb.Empty]
 	updateUserWeight    *connect.Client[v1.UpdateUserWeightRequest, emptypb.Empty]
-	getUserGroups       *connect.Client[emptypb.Empty, v1.GetUserGroupsResponse]
+	getUserGroups       *connect.Client[v1.GetUserGroupsRequest, v1.GetUserGroupsResponse]
 	getGroupActivity    *connect.Client[v1.GetGroupActivityRequest, v1.GetGroupActivityResponse]
 }
 
@@ -156,7 +156,7 @@ func (c *groupServiceClient) CreateExpenseGroup(ctx context.Context, req *v1.Cre
 }
 
 // UpdateGroup calls api.v1.GroupService.UpdateGroup.
-func (c *groupServiceClient) UpdateGroup(ctx context.Context, req *v1.UpdateGroupRequest) (*v1.CreateExpenseGroupResponse, error) {
+func (c *groupServiceClient) UpdateGroup(ctx context.Context, req *v1.UpdateGroupRequest) (*v1.UpdateGroupResponse, error) {
 	response, err := c.updateGroup.CallUnary(ctx, connect.NewRequest(req))
 	if response != nil {
 		return response.Msg, err
@@ -201,7 +201,7 @@ func (c *groupServiceClient) UpdateUserWeight(ctx context.Context, req *v1.Updat
 }
 
 // GetUserGroups calls api.v1.GroupService.GetUserGroups.
-func (c *groupServiceClient) GetUserGroups(ctx context.Context, req *emptypb.Empty) (*v1.GetUserGroupsResponse, error) {
+func (c *groupServiceClient) GetUserGroups(ctx context.Context, req *v1.GetUserGroupsRequest) (*v1.GetUserGroupsResponse, error) {
 	response, err := c.getUserGroups.CallUnary(ctx, connect.NewRequest(req))
 	if response != nil {
 		return response.Msg, err
@@ -221,12 +221,12 @@ func (c *groupServiceClient) GetGroupActivity(ctx context.Context, req *v1.GetGr
 // GroupServiceHandler is an implementation of the api.v1.GroupService service.
 type GroupServiceHandler interface {
 	CreateExpenseGroup(context.Context, *v1.CreateExpenseGroupRequest) (*v1.CreateExpenseGroupResponse, error)
-	UpdateGroup(context.Context, *v1.UpdateGroupRequest) (*v1.CreateExpenseGroupResponse, error)
+	UpdateGroup(context.Context, *v1.UpdateGroupRequest) (*v1.UpdateGroupResponse, error)
 	DeleteGroup(context.Context, *v1.DeleteGroupRequest) (*emptypb.Empty, error)
 	AddUserToGroup(context.Context, *v1.AddUserToGroupRequest) (*emptypb.Empty, error)
 	RemoveUserFromGroup(context.Context, *v1.RemoveUserFromGroupRequest) (*emptypb.Empty, error)
 	UpdateUserWeight(context.Context, *v1.UpdateUserWeightRequest) (*emptypb.Empty, error)
-	GetUserGroups(context.Context, *emptypb.Empty) (*v1.GetUserGroupsResponse, error)
+	GetUserGroups(context.Context, *v1.GetUserGroupsRequest) (*v1.GetUserGroupsResponse, error)
 	GetGroupActivity(context.Context, *v1.GetGroupActivityRequest) (*v1.GetGroupActivityResponse, error)
 }
 
@@ -316,7 +316,7 @@ func (UnimplementedGroupServiceHandler) CreateExpenseGroup(context.Context, *v1.
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.GroupService.CreateExpenseGroup is not implemented"))
 }
 
-func (UnimplementedGroupServiceHandler) UpdateGroup(context.Context, *v1.UpdateGroupRequest) (*v1.CreateExpenseGroupResponse, error) {
+func (UnimplementedGroupServiceHandler) UpdateGroup(context.Context, *v1.UpdateGroupRequest) (*v1.UpdateGroupResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.GroupService.UpdateGroup is not implemented"))
 }
 
@@ -336,7 +336,7 @@ func (UnimplementedGroupServiceHandler) UpdateUserWeight(context.Context, *v1.Up
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.GroupService.UpdateUserWeight is not implemented"))
 }
 
-func (UnimplementedGroupServiceHandler) GetUserGroups(context.Context, *emptypb.Empty) (*v1.GetUserGroupsResponse, error) {
+func (UnimplementedGroupServiceHandler) GetUserGroups(context.Context, *v1.GetUserGroupsRequest) (*v1.GetUserGroupsResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.GroupService.GetUserGroups is not implemented"))
 }
 

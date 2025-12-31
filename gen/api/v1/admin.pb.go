@@ -7,10 +7,8 @@
 package apiv1
 
 import (
-	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 	unsafe "unsafe"
 )
@@ -26,7 +24,7 @@ var File_api_v1_admin_proto protoreflect.FileDescriptor
 
 const file_api_v1_admin_proto_rawDesc = "" +
 	"\n" +
-	"\x12api/v1/admin.proto\x12\x06api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1bgoogle/protobuf/empty.proto2\x0e\n" +
+	"\x12api/v1/admin.proto\x12\x06api.v12\x0e\n" +
 	"\fAdminServiceBm\n" +
 	"\n" +
 	"com.api.v1B\n" +

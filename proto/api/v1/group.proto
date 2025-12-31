@@ -42,6 +42,13 @@ message UpdateGroupRequest {
   string default_currency = 4 [(buf.validate.field).string.min_len = 2];
 }
 
+message UpdateGroupResponse {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string created_by = 4;
+}
+
 message MemberBalance {
   string user_id = 1;
   string user_name = 2;
@@ -58,6 +65,8 @@ message UserGroup {
   repeated MemberBalance member_balances = 6;
   map<string, int64> total_spending = 7;
 }
+
+message GetUserGroupsRequest {}
 
 message GetUserGroupsResponse {
   repeated UserGroup groups = 1;
@@ -116,13 +125,13 @@ message DeleteGroupRequest {
 
 service GroupService {
   rpc CreateExpenseGroup(CreateExpenseGroupRequest) returns (CreateExpenseGroupResponse) {}
-  rpc UpdateGroup(UpdateGroupRequest) returns (CreateExpenseGroupResponse) {}
+  rpc UpdateGroup(UpdateGroupRequest) returns (UpdateGroupResponse) {}
   rpc DeleteGroup(DeleteGroupRequest) returns (google.protobuf.Empty) {}
 
   rpc AddUserToGroup(AddUserToGroupRequest) returns (google.protobuf.Empty) {}
   rpc RemoveUserFromGroup(RemoveUserFromGroupRequest) returns (google.protobuf.Empty) {}
   rpc UpdateUserWeight(UpdateUserWeightRequest) returns (google.protobuf.Empty) {}
 
-  rpc GetUserGroups(google.protobuf.Empty) returns (GetUserGroupsResponse) {}
+  rpc GetUserGroups(GetUserGroupsRequest) returns (GetUserGroupsResponse) {}
   rpc GetGroupActivity(GetGroupActivityRequest) returns (GetGroupActivityResponse) {}
 }

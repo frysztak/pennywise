@@ -10,7 +10,6 @@ import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -143,11 +142,83 @@ func (x *LoginWithPasswordResponse) GetRole() UserRole {
 	return UserRole_USER_ROLE_UNSPECIFIED
 }
 
+type LogoutRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LogoutRequest) Reset() {
+	*x = LogoutRequest{}
+	mi := &file_api_v1_auth_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LogoutRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogoutRequest) ProtoMessage() {}
+
+func (x *LogoutRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_auth_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogoutRequest.ProtoReflect.Descriptor instead.
+func (*LogoutRequest) Descriptor() ([]byte, []int) {
+	return file_api_v1_auth_proto_rawDescGZIP(), []int{2}
+}
+
+type LogoutResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LogoutResponse) Reset() {
+	*x = LogoutResponse{}
+	mi := &file_api_v1_auth_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LogoutResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogoutResponse) ProtoMessage() {}
+
+func (x *LogoutResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_auth_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogoutResponse.ProtoReflect.Descriptor instead.
+func (*LogoutResponse) Descriptor() ([]byte, []int) {
+	return file_api_v1_auth_proto_rawDescGZIP(), []int{3}
+}
+
 var File_api_v1_auth_proto protoreflect.FileDescriptor
 
 const file_api_v1_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x11api/v1/auth.proto\x12\x06api.v1\x1a\x11api/v1/user.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1bgoogle/protobuf/empty.proto\"^\n" +
+	"\x11api/v1/auth.proto\x12\x06api.v1\x1a\x11api/v1/user.proto\x1a\x1bbuf/validate/validate.proto\"^\n" +
 	"\x18LoginWithPasswordRequest\x12\x1d\n" +
 	"\x05email\x18\x01 \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12#\n" +
 	"\bpassword\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x06R\bpassword\"\x83\x01\n" +
@@ -155,10 +226,12 @@ const file_api_v1_auth_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1a\n" +
 	"\busername\x18\x03 \x01(\tR\busername\x12$\n" +
-	"\x04role\x18\x04 \x01(\x0e2\x10.api.v1.UserRoleR\x04role2\xa5\x01\n" +
+	"\x04role\x18\x04 \x01(\x0e2\x10.api.v1.UserRoleR\x04role\"\x0f\n" +
+	"\rLogoutRequest\"\x10\n" +
+	"\x0eLogoutResponse2\xa4\x01\n" +
 	"\vAuthService\x12Z\n" +
-	"\x11LoginWithPassword\x12 .api.v1.LoginWithPasswordRequest\x1a!.api.v1.LoginWithPasswordResponse\"\x00\x12:\n" +
-	"\x06Logout\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x00Bl\n" +
+	"\x11LoginWithPassword\x12 .api.v1.LoginWithPasswordRequest\x1a!.api.v1.LoginWithPasswordResponse\"\x00\x129\n" +
+	"\x06Logout\x12\x15.api.v1.LogoutRequest\x1a\x16.api.v1.LogoutResponse\"\x00Bl\n" +
 	"\n" +
 	"com.api.v1B\tAuthProtoP\x01Z\x1apennywise/gen/api/v1;apiv1\xa2\x02\x03AXX\xaa\x02\x06Api.V1\xca\x02\x06Api\\V1\xe2\x02\x12Api\\V1\\GPBMetadata\xea\x02\aApi::V1b\x06proto3"
 
@@ -174,19 +247,20 @@ func file_api_v1_auth_proto_rawDescGZIP() []byte {
 	return file_api_v1_auth_proto_rawDescData
 }
 
-var file_api_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_api_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_api_v1_auth_proto_goTypes = []any{
 	(*LoginWithPasswordRequest)(nil),  // 0: api.v1.LoginWithPasswordRequest
 	(*LoginWithPasswordResponse)(nil), // 1: api.v1.LoginWithPasswordResponse
-	(UserRole)(0),                     // 2: api.v1.UserRole
-	(*emptypb.Empty)(nil),             // 3: google.protobuf.Empty
+	(*LogoutRequest)(nil),             // 2: api.v1.LogoutRequest
+	(*LogoutResponse)(nil),            // 3: api.v1.LogoutResponse
+	(UserRole)(0),                     // 4: api.v1.UserRole
 }
 var file_api_v1_auth_proto_depIdxs = []int32{
-	2, // 0: api.v1.LoginWithPasswordResponse.role:type_name -> api.v1.UserRole
+	4, // 0: api.v1.LoginWithPasswordResponse.role:type_name -> api.v1.UserRole
 	0, // 1: api.v1.AuthService.LoginWithPassword:input_type -> api.v1.LoginWithPasswordRequest
-	3, // 2: api.v1.AuthService.Logout:input_type -> google.protobuf.Empty
+	2, // 2: api.v1.AuthService.Logout:input_type -> api.v1.LogoutRequest
 	1, // 3: api.v1.AuthService.LoginWithPassword:output_type -> api.v1.LoginWithPasswordResponse
-	3, // 4: api.v1.AuthService.Logout:output_type -> google.protobuf.Empty
+	3, // 4: api.v1.AuthService.Logout:output_type -> api.v1.LogoutResponse
 	3, // [3:5] is the sub-list for method output_type
 	1, // [1:3] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -206,7 +280,7 @@ func file_api_v1_auth_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_v1_auth_proto_rawDesc), len(file_api_v1_auth_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

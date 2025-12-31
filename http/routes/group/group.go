@@ -54,7 +54,7 @@ func (s *GroupService) CreateExpenseGroup(ctx context.Context, r *apiv1.CreateEx
 	}, nil
 }
 
-func (s *GroupService) UpdateGroup(ctx context.Context, r *apiv1.UpdateGroupRequest) (*apiv1.CreateExpenseGroupResponse, error) {
+func (s *GroupService) UpdateGroup(ctx context.Context, r *apiv1.UpdateGroupRequest) (*apiv1.UpdateGroupResponse, error) {
 	// TODO: check if user is admin
 
 	group, err := db.Queries.UpdateGroup(ctx, database.UpdateGroupParams{
@@ -67,7 +67,7 @@ func (s *GroupService) UpdateGroup(ctx context.Context, r *apiv1.UpdateGroupRequ
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
-	return &apiv1.CreateExpenseGroupResponse{
+	return &apiv1.UpdateGroupResponse{
 		Id:          group.ID,
 		Name:        group.Name,
 		Description: *group.Description,
@@ -162,7 +162,7 @@ func (s *GroupService) UpdateUserWeight(ctx context.Context, r *apiv1.UpdateUser
 	return &emptypb.Empty{}, nil
 }
 
-func (s *GroupService) GetUserGroups(ctx context.Context, r *emptypb.Empty) (*apiv1.GetUserGroupsResponse, error) {
+func (s *GroupService) GetUserGroups(ctx context.Context, r *apiv1.GetUserGroupsRequest) (*apiv1.GetUserGroupsResponse, error) {
 	session := helpers.GetSessionInfo(ctx)
 
 	groups, err := db.Queries.GetGroupsByUserId(ctx, session.UserID)

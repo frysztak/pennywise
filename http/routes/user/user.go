@@ -11,7 +11,6 @@ import (
 	"connectrpc.com/connect"
 	"github.com/alexedwards/argon2id"
 	"github.com/google/uuid"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type UserService struct{}
@@ -46,7 +45,7 @@ func (s *UserService) UserRegister(ctx context.Context, r *apiv1.UserRegisterReq
 	}, nil
 }
 
-func (s *UserService) UserInfo(ctx context.Context, r *emptypb.Empty) (*apiv1.UserInfoResponse, error) {
+func (s *UserService) UserInfo(ctx context.Context, r *apiv1.UserInfoRequest) (*apiv1.UserInfoResponse, error) {
 	session := helpers.GetSessionInfo(ctx)
 	user, err := db.Queries.GetUserById(ctx, session.UserID)
 
@@ -62,7 +61,7 @@ func (s *UserService) UserInfo(ctx context.Context, r *emptypb.Empty) (*apiv1.Us
 	}, nil
 }
 
-func (s *UserService) GetUsers(ctx context.Context, r *emptypb.Empty) (*apiv1.GetUsersResponse, error) {
+func (s *UserService) GetUsers(ctx context.Context, r *apiv1.GetUsersRequest) (*apiv1.GetUsersResponse, error) {
 	users, err := db.Queries.GetUsers(ctx)
 
 	if err != nil {

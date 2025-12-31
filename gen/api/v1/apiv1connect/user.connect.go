@@ -8,7 +8,6 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	http "net/http"
 	v1 "pennywise/gen/api/v1"
 	strings "strings"
@@ -46,8 +45,8 @@ const (
 // UserServiceClient is a client for the api.v1.UserService service.
 type UserServiceClient interface {
 	UserRegister(context.Context, *v1.UserRegisterRequest) (*v1.UserRegisterResponse, error)
-	UserInfo(context.Context, *emptypb.Empty) (*v1.UserInfoResponse, error)
-	GetUsers(context.Context, *emptypb.Empty) (*v1.GetUsersResponse, error)
+	UserInfo(context.Context, *v1.UserInfoRequest) (*v1.UserInfoResponse, error)
+	GetUsers(context.Context, *v1.GetUsersRequest) (*v1.GetUsersResponse, error)
 }
 
 // NewUserServiceClient constructs a client for the api.v1.UserService service. By default, it uses
@@ -67,13 +66,13 @@ func NewUserServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(userServiceMethods.ByName("UserRegister")),
 			connect.WithClientOptions(opts...),
 		),
-		userInfo: connect.NewClient[emptypb.Empty, v1.UserInfoResponse](
+		userInfo: connect.NewClient[v1.UserInfoRequest, v1.UserInfoResponse](
 			httpClient,
 			baseURL+UserServiceUserInfoProcedure,
 			connect.WithSchema(userServiceMethods.ByName("UserInfo")),
 			connect.WithClientOptions(opts...),
 		),
-		getUsers: connect.NewClient[emptypb.Empty, v1.GetUsersResponse](
+		getUsers: connect.NewClient[v1.GetUsersRequest, v1.GetUsersResponse](
 			httpClient,
 			baseURL+UserServiceGetUsersProcedure,
 			connect.WithSchema(userServiceMethods.ByName("GetUsers")),
@@ -85,8 +84,8 @@ func NewUserServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 // userServiceClient implements UserServiceClient.
 type userServiceClient struct {
 	userRegister *connect.Client[v1.UserRegisterRequest, v1.UserRegisterResponse]
-	userInfo     *connect.Client[emptypb.Empty, v1.UserInfoResponse]
-	getUsers     *connect.Client[emptypb.Empty, v1.GetUsersResponse]
+	userInfo     *connect.Client[v1.UserInfoRequest, v1.UserInfoResponse]
+	getUsers     *connect.Client[v1.GetUsersRequest, v1.GetUsersResponse]
 }
 
 // UserRegister calls api.v1.UserService.UserRegister.
@@ -99,7 +98,7 @@ func (c *userServiceClient) UserRegister(ctx context.Context, req *v1.UserRegist
 }
 
 // UserInfo calls api.v1.UserService.UserInfo.
-func (c *userServiceClient) UserInfo(ctx context.Context, req *emptypb.Empty) (*v1.UserInfoResponse, error) {
+func (c *userServiceClient) UserInfo(ctx context.Context, req *v1.UserInfoRequest) (*v1.UserInfoResponse, error) {
 	response, err := c.userInfo.CallUnary(ctx, connect.NewRequest(req))
 	if response != nil {
 		return response.Msg, err
@@ -108,7 +107,7 @@ func (c *userServiceClient) UserInfo(ctx context.Context, req *emptypb.Empty) (*
 }
 
 // GetUsers calls api.v1.UserService.GetUsers.
-func (c *userServiceClient) GetUsers(ctx context.Context, req *emptypb.Empty) (*v1.GetUsersResponse, error) {
+func (c *userServiceClient) GetUsers(ctx context.Context, req *v1.GetUsersRequest) (*v1.GetUsersResponse, error) {
 	response, err := c.getUsers.CallUnary(ctx, connect.NewRequest(req))
 	if response != nil {
 		return response.Msg, err
@@ -119,8 +118,8 @@ func (c *userServiceClient) GetUsers(ctx context.Context, req *emptypb.Empty) (*
 // UserServiceHandler is an implementation of the api.v1.UserService service.
 type UserServiceHandler interface {
 	UserRegister(context.Context, *v1.UserRegisterRequest) (*v1.UserRegisterResponse, error)
-	UserInfo(context.Context, *emptypb.Empty) (*v1.UserInfoResponse, error)
-	GetUsers(context.Context, *emptypb.Empty) (*v1.GetUsersResponse, error)
+	UserInfo(context.Context, *v1.UserInfoRequest) (*v1.UserInfoResponse, error)
+	GetUsers(context.Context, *v1.GetUsersRequest) (*v1.GetUsersResponse, error)
 }
 
 // NewUserServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -169,10 +168,10 @@ func (UnimplementedUserServiceHandler) UserRegister(context.Context, *v1.UserReg
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.UserService.UserRegister is not implemented"))
 }
 
-func (UnimplementedUserServiceHandler) UserInfo(context.Context, *emptypb.Empty) (*v1.UserInfoResponse, error) {
+func (UnimplementedUserServiceHandler) UserInfo(context.Context, *v1.UserInfoRequest) (*v1.UserInfoResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.UserService.UserInfo is not implemented"))
 }
 
-func (UnimplementedUserServiceHandler) GetUsers(context.Context, *emptypb.Empty) (*v1.GetUsersResponse, error) {
+func (UnimplementedUserServiceHandler) GetUsers(context.Context, *v1.GetUsersRequest) (*v1.GetUsersResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.UserService.GetUsers is not implemented"))
 }

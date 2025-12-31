@@ -8,7 +8,6 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	http "net/http"
 	v1 "pennywise/gen/api/v1"
 	strings "strings"
@@ -44,7 +43,7 @@ const (
 // AuthServiceClient is a client for the api.v1.AuthService service.
 type AuthServiceClient interface {
 	LoginWithPassword(context.Context, *v1.LoginWithPasswordRequest) (*v1.LoginWithPasswordResponse, error)
-	Logout(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	Logout(context.Context, *v1.LogoutRequest) (*v1.LogoutResponse, error)
 }
 
 // NewAuthServiceClient constructs a client for the api.v1.AuthService service. By default, it uses
@@ -64,7 +63,7 @@ func NewAuthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(authServiceMethods.ByName("LoginWithPassword")),
 			connect.WithClientOptions(opts...),
 		),
-		logout: connect.NewClient[emptypb.Empty, emptypb.Empty](
+		logout: connect.NewClient[v1.LogoutRequest, v1.LogoutResponse](
 			httpClient,
 			baseURL+AuthServiceLogoutProcedure,
 			connect.WithSchema(authServiceMethods.ByName("Logout")),
@@ -76,7 +75,7 @@ func NewAuthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 // authServiceClient implements AuthServiceClient.
 type authServiceClient struct {
 	loginWithPassword *connect.Client[v1.LoginWithPasswordRequest, v1.LoginWithPasswordResponse]
-	logout            *connect.Client[emptypb.Empty, emptypb.Empty]
+	logout            *connect.Client[v1.LogoutRequest, v1.LogoutResponse]
 }
 
 // LoginWithPassword calls api.v1.AuthService.LoginWithPassword.
@@ -89,7 +88,7 @@ func (c *authServiceClient) LoginWithPassword(ctx context.Context, req *v1.Login
 }
 
 // Logout calls api.v1.AuthService.Logout.
-func (c *authServiceClient) Logout(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
+func (c *authServiceClient) Logout(ctx context.Context, req *v1.LogoutRequest) (*v1.LogoutResponse, error) {
 	response, err := c.logout.CallUnary(ctx, connect.NewRequest(req))
 	if response != nil {
 		return response.Msg, err
@@ -100,7 +99,7 @@ func (c *authServiceClient) Logout(ctx context.Context, req *emptypb.Empty) (*em
 // AuthServiceHandler is an implementation of the api.v1.AuthService service.
 type AuthServiceHandler interface {
 	LoginWithPassword(context.Context, *v1.LoginWithPasswordRequest) (*v1.LoginWithPasswordResponse, error)
-	Logout(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	Logout(context.Context, *v1.LogoutRequest) (*v1.LogoutResponse, error)
 }
 
 // NewAuthServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -141,6 +140,6 @@ func (UnimplementedAuthServiceHandler) LoginWithPassword(context.Context, *v1.Lo
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.AuthService.LoginWithPassword is not implemented"))
 }
 
-func (UnimplementedAuthServiceHandler) Logout(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+func (UnimplementedAuthServiceHandler) Logout(context.Context, *v1.LogoutRequest) (*v1.LogoutResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.AuthService.Logout is not implemented"))
 }
