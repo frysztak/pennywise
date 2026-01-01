@@ -1,6 +1,8 @@
 .env
 *.sqbpro
 *.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
 tmp
 web/stats.html
 pennywise
