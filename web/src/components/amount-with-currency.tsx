@@ -41,8 +41,8 @@ export function AmountWithCurrency({
         const isNegative = item.amount < 0n;
         const colorClass = !disableColor
           ? isNegative
-            ? "text-red-600"
-            : "text-green-600"
+            ? "text-negative-money"
+            : "text-money"
           : "";
 
         return (

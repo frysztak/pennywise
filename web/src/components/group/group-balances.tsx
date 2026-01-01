@@ -24,7 +24,7 @@ export function GroupBalances({
         {otherMembers.map((member) => (
           <Card key={member.userId} className="py-0">
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col items-start md:items-center md:flex-row gap-2 justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
                     <span className="text-sm font-medium">
