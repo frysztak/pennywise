@@ -3,10 +3,7 @@ import {
   createQueryOptions,
   useSuspenseQuery,
 } from "@connectrpc/connect-query";
-import {
-  getGroupActivity,
-  getUserGroups,
-} from "@/gen/api/v1/group-GroupService_connectquery";
+import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
 import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
 import { ExpenseModal } from "@/components/expense/expense-modal";
 import { TransferModal } from "@/components/transfer/transfer-modal";
@@ -15,7 +12,7 @@ import { transport } from "@/transport";
 import { GroupHeader } from "@/components/group/group-header";
 import { BalanceCards } from "@/components/group/balance-cards";
 import { GroupBalances } from "@/components/group/group-balances";
-import { ActivityTable } from "@/components/group/activity-table";
+import { ActivitySection } from "@/components/group/activity-section";
 import { DeleteGroupDialog } from "@/components/group/delete-group-dialog";
 import { DeleteExpenseDialog } from "@/components/group/delete-expense-dialog";
 import { DeleteTransferDialog } from "@/components/group/delete-transfer-dialog";
@@ -28,6 +25,8 @@ import { useDeleteTransferModal } from "@/hooks/use-delete-transfer-modal";
 import { useDeleteGroupModal } from "@/hooks/use-delete-group-modal";
 import { useAddMemberModal } from "@/hooks/use-add-member-modal";
 import { useEditGroupModal } from "@/hooks/use-edit-group-modal";
+import { Suspense } from "react";
+import { Spinner } from "@/components/ui/spinner";
 
 export const Route = createFileRoute("/_pathlessLayout/group/$groupId")({
   component: RouteComponent,
@@ -47,9 +46,6 @@ export const Route = createFileRoute("/_pathlessLayout/group/$groupId")({
 
 function RouteComponent() {
   const { groupId } = Route.useParams();
-  const { data: activityData } = useSuspenseQuery(getGroupActivity, {
-    groupId,
-  });
   const { data: groupInfo } = useSuspenseQuery(getUserGroups, undefined, {
     // Group is guaranteed to be found. We're checking if that group exists in `beforeLoad`
     select: (data) => data.groups.find((g) => g.groupId === groupId)!,
@@ -68,22 +64,6 @@ function RouteComponent() {
   const currentUserBalance = groupInfo.memberBalances.find(
     (mb) => mb.userId === currentUser.id
   )!;
-
-  // Transform backend activity items into format expected by ActivityTable
-  const recentActivity = activityData.items.map((item) => {
-    if (item.data.case === "expense") {
-      return {
-        type: "expense" as const,
-        data: item.data.value,
-      };
-    } else if (item.data.case === "transfer") {
-      return {
-        type: "transfer" as const,
-        data: item.data.value,
-      };
-    }
-    throw new Error("Unknown activity item type");
-  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -128,13 +108,21 @@ function RouteComponent() {
         {/* Recent Activity */}
         <div>
           <h2 className="text-xl font-bold mb-4">Recent Activity</h2>
-          <ActivityTable
-            recentActivity={recentActivity}
-            onEditExpense={expenseModal.openEdit}
-            onDeleteExpense={deleteExpenseModal.confirmDelete}
-            onEditTransfer={transferModal.openEdit}
-            onDeleteTransfer={deleteTransferModal.confirmDelete}
-          />
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center h-64">
+                <Spinner className="size-8" />
+              </div>
+            }
+          >
+            <ActivitySection
+              groupId={groupId}
+              onEditExpense={expenseModal.openEdit}
+              onDeleteExpense={deleteExpenseModal.confirmDelete}
+              onEditTransfer={transferModal.openEdit}
+              onDeleteTransfer={deleteTransferModal.confirmDelete}
+            />
+          </Suspense>
         </div>
 
         {/* Expense Modal (Create/Edit) */}
