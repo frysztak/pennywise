@@ -42,7 +42,7 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --font-sans: Poppins, ui-sans-serif, sans-serif, system-ui;
+  --font-sans: "Quicksand Variable", ui-sans-serif, sans-serif, system-ui;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --radius: 0.5rem;
@@ -106,7 +106,7 @@
   --sidebar-border: oklch(0.9401 0 0);
   --sidebar-ring: oklch(0.7731 0 0);
   --destructive-foreground: oklch(1.0000 0 0);
-  --font-sans: Poppins, ui-sans-serif, sans-serif, system-ui;
+  --font-sans: "Quicksand Variable", ui-sans-serif, sans-serif, system-ui;
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --shadow-color: oklch(0 0 0);
@@ -162,7 +162,7 @@
   --sidebar-ring: oklch(0.8711 0.0055 286.2860);
   --destructive-foreground: oklch(1.0000 0 0);
   --radius: 0.5rem;
-  --font-sans: Poppins, ui-sans-serif, sans-serif, system-ui;
+  --font-sans: "Quicksand Variable", ui-sans-serif, sans-serif, system-ui;
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --shadow-color: oklch(0 0 0);
