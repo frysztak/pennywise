@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"flag"
 	"html/template"
@@ -8,10 +9,13 @@ import (
 	stdlog "log"
 	"net/http"
 	"os"
+	"os/signal"
 	"pennywise/config"
 	"pennywise/db"
 	"pennywise/http/router"
 	"pennywise/log"
+	"syscall"
+	"time"
 
 	"github.com/olivere/vite"
 	"golang.org/x/net/http2"
@@ -42,7 +46,6 @@ func main() {
 	if err != nil {
 		stdlog.Fatalf("Failed to connect to database: %v", err)
 	}
-	defer db.CloseDB()
 
 	db.RunMigrations()
 
@@ -50,9 +53,50 @@ func main() {
 	setupVite(*isDev, mux)
 	router.InitRouter(mux)
 
+	// Create HTTP server
 	addr := ":3333"
-	log.Info("Starting server", "addr", addr, "dev_mode", *isDev)
-	http.ListenAndServe(addr, h2c.NewHandler(mux, &http2.Server{}))
+	srv := &http.Server{
+		Addr:    addr,
+		Handler: h2c.NewHandler(mux, &http2.Server{}),
+	}
+
+	// Channel to listen for shutdown signals
+	shutdown := make(chan os.Signal, 1)
+	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM)
+
+	// Start server in a goroutine
+	serverErrors := make(chan error, 1)
+	go func() {
+		log.Info("Starting server", "addr", addr, "dev_mode", *isDev)
+		serverErrors <- srv.ListenAndServe()
+	}()
+
+	// Wait for shutdown signal or server error
+	select {
+	case err := <-serverErrors:
+		if err != nil && err != http.ErrServerClosed {
+			stdlog.Fatalf("Server error: %v", err)
+		}
+	case sig := <-shutdown:
+		log.Info("Received shutdown signal", "signal", sig)
+
+		// Create context with timeout for graceful shutdown
+		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+		defer cancel()
+
+		// Attempt graceful shutdown
+		if err := srv.Shutdown(ctx); err != nil {
+			log.Error("Failed to gracefully shutdown server", "error", err)
+			if err := srv.Close(); err != nil {
+				log.Error("Failed to force close server", "error", err)
+			}
+		} else {
+			log.Info("Server shutdown gracefully")
+		}
+
+		// Close database connections
+		db.CloseDB()
+	}
 }
 
 func setupVite(isDev bool, mux *http.ServeMux) {

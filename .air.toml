@@ -1,2 +1,4 @@
 [build]
 exclude_dir = ["assets", "tmp", "vendor", "web"]
+send_interrupt = true
+kill_delay = "10s"

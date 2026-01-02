@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"embed"
 	"fmt"
-	"log"
 	"net/url"
 	"pennywise/config"
 	sqlc "pennywise/db/database"
+	"pennywise/log"
 	"runtime"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -81,18 +81,31 @@ func InitDB() error {
 	WriteQueries = sqlc.New(WriteDB)
 	ReadQueries = sqlc.New(ReadDB)
 
-	log.Printf("Successfully connected to the database (Write: 1 conn, Read: %d conns)", numCPU)
+	log.Info("Successfully connected to database", "write_conns", 1, "read_conns", numCPU)
 	return nil
 }
 
 func CloseDB() {
+	// Checkpoint WAL to ensure all data is persisted to main database file
 	if WriteDB != nil {
-		WriteDB.Close()
-		log.Println("Write database connection closed")
+		log.Info("Checkpointing WAL before shutdown")
+		if _, err := WriteDB.Exec("PRAGMA wal_checkpoint(TRUNCATE)"); err != nil {
+			log.Warn("Failed to checkpoint WAL", "error", err)
+		}
+
+		if err := WriteDB.Close(); err != nil {
+			log.Error("Error closing write database", "error", err)
+		} else {
+			log.Info("Write database connection closed")
+		}
 	}
+
 	if ReadDB != nil {
-		ReadDB.Close()
-		log.Println("Read database connection closed")
+		if err := ReadDB.Close(); err != nil {
+			log.Error("Error closing read database", "error", err)
+		} else {
+			log.Info("Read database connection closed")
+		}
 	}
 }
 
