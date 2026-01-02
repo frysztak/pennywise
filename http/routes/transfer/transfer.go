@@ -24,7 +24,7 @@ func NewTransferService() *TransferService {
 func (s *TransferService) CreateTransfer(ctx context.Context, r *apiv1.CreateTransferRequest) (*apiv1.CreateTransferResponse, error) {
 	logger := log.FromContext(ctx)
 	// Validate sender is in group
-	senderInGroup, err := db.Queries.IsUserInGroup(ctx, database.IsUserInGroupParams{
+	senderInGroup, err := db.ReadQueries.IsUserInGroup(ctx, database.IsUserInGroupParams{
 		UserID:  r.SenderId,
 		GroupID: r.GroupId,
 	})
@@ -39,7 +39,7 @@ func (s *TransferService) CreateTransfer(ctx context.Context, r *apiv1.CreateTra
 	}
 
 	// Validate receiver is in group
-	receiverInGroup, err := db.Queries.IsUserInGroup(ctx, database.IsUserInGroupParams{
+	receiverInGroup, err := db.ReadQueries.IsUserInGroup(ctx, database.IsUserInGroupParams{
 		UserID:  r.ReceiverId,
 		GroupID: r.GroupId,
 	})
@@ -60,7 +60,7 @@ func (s *TransferService) CreateTransfer(ctx context.Context, r *apiv1.CreateTra
 			errors.New("sender and receiver must be different users"))
 	}
 
-	transfer, err := db.Queries.CreateTransfer(ctx, database.CreateTransferParams{
+	transfer, err := db.WriteQueries.CreateTransfer(ctx, database.CreateTransferParams{
 		ID:         uuid.NewString(),
 		CreatedAt:  overrides.TextTime{Time: time.Now()},
 		GroupID:    r.GroupId,
@@ -82,7 +82,7 @@ func (s *TransferService) CreateTransfer(ctx context.Context, r *apiv1.CreateTra
 
 func (s *TransferService) GetGroupTransfers(ctx context.Context, r *apiv1.GetGroupTransfersRequest) (*apiv1.GetGroupTransfersResponse, error) {
 	logger := log.FromContext(ctx)
-	rows, err := db.Queries.GetGroupTransfers(ctx, r.GroupId)
+	rows, err := db.ReadQueries.GetGroupTransfers(ctx, r.GroupId)
 	if err != nil {
 		logger.Error("failed to get group transfers", "error", err, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -111,14 +111,14 @@ func (s *TransferService) GetGroupTransfers(ctx context.Context, r *apiv1.GetGro
 func (s *TransferService) UpdateTransfer(ctx context.Context, r *apiv1.UpdateTransferRequest) (*apiv1.UpdateTransferResponse, error) {
 	logger := log.FromContext(ctx)
 	// Get existing transfer to find group_id for validation
-	existing, err := db.Queries.GetTransferById(ctx, r.Id)
+	existing, err := db.ReadQueries.GetTransferById(ctx, r.Id)
 	if err != nil {
 		logger.Error("failed to get transfer for update", "error", err, "transfer_id", r.Id)
 		return nil, connect.NewError(connect.CodeNotFound, err)
 	}
 
 	// Validate sender is in group
-	senderInGroup, err := db.Queries.IsUserInGroup(ctx, database.IsUserInGroupParams{
+	senderInGroup, err := db.ReadQueries.IsUserInGroup(ctx, database.IsUserInGroupParams{
 		UserID:  r.SenderId,
 		GroupID: existing.GroupID,
 	})
@@ -133,7 +133,7 @@ func (s *TransferService) UpdateTransfer(ctx context.Context, r *apiv1.UpdateTra
 	}
 
 	// Validate receiver is in group
-	receiverInGroup, err := db.Queries.IsUserInGroup(ctx, database.IsUserInGroupParams{
+	receiverInGroup, err := db.ReadQueries.IsUserInGroup(ctx, database.IsUserInGroupParams{
 		UserID:  r.ReceiverId,
 		GroupID: existing.GroupID,
 	})
@@ -154,7 +154,7 @@ func (s *TransferService) UpdateTransfer(ctx context.Context, r *apiv1.UpdateTra
 			errors.New("sender and receiver must be different users"))
 	}
 
-	transfer, err := db.Queries.UpdateTransfer(ctx, database.UpdateTransferParams{
+	transfer, err := db.WriteQueries.UpdateTransfer(ctx, database.UpdateTransferParams{
 		ID:         r.Id,
 		SenderID:   r.SenderId,
 		ReceiverID: r.ReceiverId,
@@ -174,7 +174,7 @@ func (s *TransferService) UpdateTransfer(ctx context.Context, r *apiv1.UpdateTra
 
 func (s *TransferService) DeleteTransfer(ctx context.Context, r *apiv1.DeleteTransferRequest) (*apiv1.DeleteTransferResponse, error) {
 	logger := log.FromContext(ctx)
-	err := db.Queries.DeleteTransfer(ctx, r.Id)
+	err := db.WriteQueries.DeleteTransfer(ctx, r.Id)
 	if err != nil {
 		logger.Error("failed to delete transfer", "error", err, "transfer_id", r.Id)
 		return nil, connect.NewError(connect.CodeInternal, err)

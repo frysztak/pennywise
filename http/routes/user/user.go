@@ -30,7 +30,7 @@ func (s *UserService) UserRegister(ctx context.Context, r *apiv1.UserRegisterReq
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
-	user, err := db.Queries.CreateUser(ctx, database.CreateUserParams{
+	user, err := db.WriteQueries.CreateUser(ctx, database.CreateUserParams{
 		ID:           uuid.NewString(),
 		Email:        r.Email,
 		Username:     r.Username,
@@ -56,7 +56,7 @@ func (s *UserService) UserRegister(ctx context.Context, r *apiv1.UserRegisterReq
 func (s *UserService) UserInfo(ctx context.Context, r *apiv1.UserInfoRequest) (*apiv1.UserInfoResponse, error) {
 	logger := log.FromContext(ctx)
 	session := helpers.GetSessionInfo(ctx)
-	user, err := db.Queries.GetUserById(ctx, session.UserID)
+	user, err := db.ReadQueries.GetUserById(ctx, session.UserID)
 
 	if err != nil {
 		logger.Error("failed to get user info", "error", err, "user_id", session.UserID)
@@ -75,7 +75,7 @@ func (s *UserService) UserInfo(ctx context.Context, r *apiv1.UserInfoRequest) (*
 
 func (s *UserService) GetUsers(ctx context.Context, r *apiv1.GetUsersRequest) (*apiv1.GetUsersResponse, error) {
 	logger := log.FromContext(ctx)
-	users, err := db.Queries.GetUsers(ctx)
+	users, err := db.ReadQueries.GetUsers(ctx)
 
 	if err != nil {
 		logger.Error("failed to get users", "error", err)

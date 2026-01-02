@@ -23,14 +23,14 @@ func NewExpenseService() *ExpenseService {
 
 func (s *ExpenseService) CreateExpense(ctx context.Context, r *apiv1.CreateExpenseRequest) (*apiv1.CreateExpenseResponse, error) {
 	logger := log.FromContext(ctx)
-	tx, err := db.DB.BeginTx(ctx, nil)
+	tx, err := db.WriteDB.BeginTx(ctx, nil)
 	if err != nil {
 		logger.Error("failed to begin transaction", "error", err)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	defer tx.Rollback()
 
-	qtx := db.Queries.WithTx(tx)
+	qtx := db.WriteQueries.WithTx(tx)
 
 	expense, err := qtx.CreateExpense(ctx, database.CreateExpenseParams{
 		ID:          uuid.NewString(),
@@ -86,7 +86,7 @@ func (s *ExpenseService) CreateExpense(ctx context.Context, r *apiv1.CreateExpen
 
 func (s *ExpenseService) GetGroupExpenses(ctx context.Context, r *apiv1.GetGroupExpensesRequest) (*apiv1.GetGroupExpensesResponse, error) {
 	logger := log.FromContext(ctx)
-	rows, err := db.Queries.GetGroupExpenses(ctx, r.GroupId)
+	rows, err := db.ReadQueries.GetGroupExpenses(ctx, r.GroupId)
 	if err != nil {
 		logger.Error("failed to get group expenses", "error", err, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -121,14 +121,14 @@ func (s *ExpenseService) GetGroupExpenses(ctx context.Context, r *apiv1.GetGroup
 
 func (s *ExpenseService) UpdateExpense(ctx context.Context, r *apiv1.UpdateExpenseRequest) (*apiv1.UpdateExpenseResponse, error) {
 	logger := log.FromContext(ctx)
-	tx, err := db.DB.BeginTx(ctx, nil)
+	tx, err := db.WriteDB.BeginTx(ctx, nil)
 	if err != nil {
 		logger.Error("failed to begin transaction", "error", err)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	defer tx.Rollback()
 
-	qtx := db.Queries.WithTx(tx)
+	qtx := db.WriteQueries.WithTx(tx)
 
 	// Update expense basic info
 	expense, err := qtx.UpdateExpense(ctx, database.UpdateExpenseParams{
@@ -189,7 +189,7 @@ func (s *ExpenseService) UpdateExpense(ctx context.Context, r *apiv1.UpdateExpen
 
 func (s *ExpenseService) DeleteExpense(ctx context.Context, r *apiv1.DeleteExpenseRequest) (*apiv1.DeleteExpenseResponse, error) {
 	logger := log.FromContext(ctx)
-	err := db.Queries.DeleteExpense(ctx, r.Id)
+	err := db.WriteQueries.DeleteExpense(ctx, r.Id)
 	if err != nil {
 		logger.Error("failed to delete expense", "error", err, "expense_id", r.Id)
 		return nil, connect.NewError(connect.CodeInternal, err)

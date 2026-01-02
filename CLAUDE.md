@@ -190,7 +190,7 @@ Located in `web/`:
 1. Write SQL schema migrations in `db/schema/` (Goose format)
 2. Write SQL queries in `db/queries/` (sqlc format with named @parameters)
 3. Run `sqlc generate` to create type-safe Go code
-4. Use `db.Queries` global for database operations
+4. Use `db.WriteQueries` for write operations, `db.ReadQueries` for read operations
 
 **Key Tables:**
 - `users` - User accounts with email, password hash
@@ -203,8 +203,10 @@ Located in `web/`:
 **Amount Storage:** All monetary amounts stored as integers (cents) for precision.
 
 **Global Variables:**
-- `db.DB` - Database connection
-- `db.Queries` - sqlc query interface
+- `db.WriteDB` - Write connection pool (1 connection for SQLite)
+- `db.ReadDB` - Read connection pool (scales with CPU count)
+- `db.WriteQueries` - sqlc query interface for writes (INSERT, UPDATE, DELETE)
+- `db.ReadQueries` - sqlc query interface for reads (SELECT)
 - `config.Config` - Application configuration
 - `log.Logger` - Global logger instance
 
@@ -243,15 +245,35 @@ logger.Error("failed to create expense", "error", err)
 ## Key Patterns
 
 ### Database Access
-Always use `db.Queries` for database operations (sqlc-generated code). Queries use named parameters for clarity:
+Use separate query interfaces for reads and writes (sqlc-generated code). Queries use named parameters for clarity:
+
+**Write Operations** (use `db.WriteQueries`):
 ```go
-expense, err := db.Queries.CreateExpense(ctx, database.CreateExpenseParams{
+expense, err := db.WriteQueries.CreateExpense(ctx, database.CreateExpenseParams{
     GroupID:       req.GroupId,
     PayerID:       userID,
     Amount:        int64(req.Amount * 100), // Convert to cents
     // ...
 })
 ```
+
+**Read Operations** (use `db.ReadQueries`):
+```go
+expenses, err := db.ReadQueries.GetGroupExpenses(ctx, groupId)
+```
+
+**Transactions** (use `db.WriteDB.BeginTx`):
+```go
+tx, err := db.WriteDB.BeginTx(ctx, nil)
+defer tx.Rollback()
+qtx := db.WriteQueries.WithTx(tx)
+// ... perform operations with qtx
+tx.Commit()
+```
+
+**Connection Pool Details:**
+- Write pool: 1 connection (SQLite limitation)
+- Read pool: NumCPU connections (parallel reads in WAL mode)
 
 ### API Handlers
 Connect RPC handlers return `(*Response, error)` and use context for session info:

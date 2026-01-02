@@ -8,19 +8,29 @@ import (
 	"net/url"
 	"pennywise/config"
 	sqlc "pennywise/db/database"
+	"runtime"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/pressly/goose/v3"
 )
 
 // Global variables to hold the database and queries
+// Separate connection pools for reads and writes for optimal SQLite performance
 var (
-	DB      *sql.DB
-	Queries *sqlc.Queries
+	// WriteDB is the write connection pool (max 1 connection for SQLite)
+	WriteDB *sql.DB
+	// ReadDB is the read connection pool (scales with CPU count)
+	ReadDB *sql.DB
+
+	// WriteQueries handles all write operations (INSERT, UPDATE, DELETE)
+	WriteQueries *sqlc.Queries
+	// ReadQueries handles all read operations (SELECT)
+	ReadQueries *sqlc.Queries
 )
 
 func InitDB() error {
 	// Build connection URL with SQLite best practices
+	// WAL mode is essential for concurrent reads
 	connectionUrlParams := make(url.Values)
 	connectionUrlParams.Add("_txlock", "immediate")
 	connectionUrlParams.Add("_journal_mode", "WAL")
@@ -31,26 +41,58 @@ func InitDB() error {
 
 	connectionUrl := fmt.Sprintf("file:%s?%s", config.Config.DBPath, connectionUrlParams.Encode())
 
-	db, err := sql.Open("sqlite3", connectionUrl)
+	// Create write connection pool
+	// SQLite only supports one concurrent writer, so limit to 1 connection
+	writeDB, err := sql.Open("sqlite3", connectionUrl)
 	if err != nil {
-		return fmt.Errorf("could not open db: %w", err)
+		return fmt.Errorf("could not open write db: %w", err)
 	}
 
-	if err := db.Ping(); err != nil {
-		return fmt.Errorf("could not connect to db: %w", err)
+	writeDB.SetMaxOpenConns(1)
+	writeDB.SetMaxIdleConns(1)
+	writeDB.SetConnMaxLifetime(0) // Connections never expire
+
+	if err := writeDB.Ping(); err != nil {
+		return fmt.Errorf("could not connect to write db: %w", err)
 	}
 
-	DB = db
-	Queries = sqlc.New(DB) // Initialize sqlc Queries with the database connection
+	// Create read connection pool
+	// SQLite in WAL mode supports multiple concurrent readers
+	// Scale with CPU count for optimal parallel query performance
+	readDB, err := sql.Open("sqlite3", connectionUrl)
+	if err != nil {
+		return fmt.Errorf("could not open read db: %w", err)
+	}
 
-	log.Println("Successfully connected to the database")
+	numCPU := runtime.NumCPU()
+	readDB.SetMaxOpenConns(numCPU)
+	readDB.SetMaxIdleConns(numCPU)
+	readDB.SetConnMaxLifetime(0) // Connections never expire
+
+	if err := readDB.Ping(); err != nil {
+		return fmt.Errorf("could not connect to read db: %w", err)
+	}
+
+	// Set global variables
+	WriteDB = writeDB
+	ReadDB = readDB
+
+	// Initialize sqlc Queries with both connection pools
+	WriteQueries = sqlc.New(WriteDB)
+	ReadQueries = sqlc.New(ReadDB)
+
+	log.Printf("Successfully connected to the database (Write: 1 conn, Read: %d conns)", numCPU)
 	return nil
 }
 
 func CloseDB() {
-	if DB != nil {
-		DB.Close()
-		log.Println("Database connection closed")
+	if WriteDB != nil {
+		WriteDB.Close()
+		log.Println("Write database connection closed")
+	}
+	if ReadDB != nil {
+		ReadDB.Close()
+		log.Println("Read database connection closed")
 	}
 }
 
@@ -64,7 +106,7 @@ func RunMigrations() {
 		panic(err)
 	}
 
-	if err := goose.Up(DB, "schema"); err != nil {
+	if err := goose.Up(WriteDB, "schema"); err != nil {
 		panic(err)
 	}
 }

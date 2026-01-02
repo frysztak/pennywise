@@ -26,7 +26,7 @@ var (
 func (s *AuthService) LoginWithPassword(ctx context.Context, r *apiv1.LoginWithPasswordRequest) (*apiv1.LoginWithPasswordResponse, error) {
 	logger := log.FromContext(ctx)
 
-	user, err := db.Queries.GetUserByEmail(ctx, r.Email)
+	user, err := db.ReadQueries.GetUserByEmail(ctx, r.Email)
 	if err != nil {
 		logger.Warn("login attempt failed - user not found", "email", r.Email)
 		return nil, ErrInvalidPassword
@@ -43,7 +43,7 @@ func (s *AuthService) LoginWithPassword(ctx context.Context, r *apiv1.LoginWithP
 		return nil, ErrInvalidPassword
 	}
 
-	session, err := db.Queries.CreateSession(ctx, database.CreateSessionParams{
+	session, err := db.WriteQueries.CreateSession(ctx, database.CreateSessionParams{
 		ID:        uuid.NewString(),
 		Token:     helpers.GenerateSessionKey(),
 		UserID:    user.ID,
@@ -75,7 +75,7 @@ func (s *AuthService) Logout(ctx context.Context, r *apiv1.LogoutRequest) (*apiv
 	logger := log.FromContext(ctx)
 	session := helpers.GetSessionInfo(ctx)
 
-	err := db.Queries.DeleteSession(ctx, session.ID)
+	err := db.WriteQueries.DeleteSession(ctx, session.ID)
 	if err != nil {
 		logger.Error("failed to delete session", "error", err, "session_id", session.ID)
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -92,7 +92,7 @@ func (s *AuthService) Logout(ctx context.Context, r *apiv1.LogoutRequest) (*apiv
 }
 
 func insertSession(r *http.Request) {
-	db.Queries.CreateSession(r.Context(), database.CreateSessionParams{
+	db.WriteQueries.CreateSession(r.Context(), database.CreateSessionParams{
 		Token: helpers.GenerateSessionKey(),
 	})
 

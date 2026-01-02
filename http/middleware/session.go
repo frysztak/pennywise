@@ -44,7 +44,7 @@ func SessionMiddleware() *authn.Middleware {
 			return nil, err
 		}
 
-		session, err := db.Queries.GetSessionByHash(ctx, cookie.Value)
+		session, err := db.ReadQueries.GetSessionByHash(ctx, cookie.Value)
 		if err != nil {
 			return nil, authn.Errorf("invalid authorization")
 		}
