@@ -7,7 +7,8 @@ package database
 
 import (
 	"context"
-	"time"
+
+	"pennywise/db/overrides"
 )
 
 const addUserToGroup = `-- name: AddUserToGroup :one
@@ -15,20 +16,27 @@ INSERT INTO user_expense_groups
 (
     user_id,
     group_id,
-    weight
+    weight,
+    added_at
 ) VALUES (
-    ?, ?, ?
+    ?1, ?2, ?3, ?4
 ) RETURNING user_id, group_id, added_at, weight
 `
 
 type AddUserToGroupParams struct {
-	UserID  string  `json:"user_id"`
-	GroupID string  `json:"group_id"`
-	Weight  float64 `json:"weight"`
+	UserID  string
+	GroupID string
+	Weight  float64
+	AddedAt overrides.TextTime
 }
 
 func (q *Queries) AddUserToGroup(ctx context.Context, arg AddUserToGroupParams) (UserExpenseGroup, error) {
-	row := q.db.QueryRowContext(ctx, addUserToGroup, arg.UserID, arg.GroupID, arg.Weight)
+	row := q.db.QueryRowContext(ctx, addUserToGroup,
+		arg.UserID,
+		arg.GroupID,
+		arg.Weight,
+		arg.AddedAt,
+	)
 	var i UserExpenseGroup
 	err := row.Scan(
 		&i.UserID,
@@ -44,26 +52,29 @@ INSERT INTO expense_groups
 (
     id,
     created_by,
+    created_at,
     description,
     default_currency,
     name
 ) VALUES (
-    ?, ?, ?, ?, ?
+    ?1, ?2, ?3, ?4, ?5, ?6
 ) RETURNING id, created_at, created_by, name, default_currency, description
 `
 
 type CreateGroupParams struct {
-	ID              string  `json:"id"`
-	CreatedBy       string  `json:"created_by"`
-	Description     *string `json:"description"`
-	DefaultCurrency string  `json:"default_currency"`
-	Name            string  `json:"name"`
+	ID              string
+	CreatedBy       string
+	CreatedAt       overrides.TextTime
+	Description     *string
+	DefaultCurrency string
+	Name            string
 }
 
 func (q *Queries) CreateGroup(ctx context.Context, arg CreateGroupParams) (ExpenseGroup, error) {
 	row := q.db.QueryRowContext(ctx, createGroup,
 		arg.ID,
 		arg.CreatedBy,
+		arg.CreatedAt,
 		arg.Description,
 		arg.DefaultCurrency,
 		arg.Name,
@@ -121,9 +132,9 @@ WHERE ueg.group_id = ?1
 `
 
 type GetGroupMembersRow struct {
-	UserID   string  `json:"user_id"`
-	Weight   float64 `json:"weight"`
-	UserName string  `json:"user_name"`
+	UserID   string
+	Weight   float64
+	UserName string
 }
 
 func (q *Queries) GetGroupMembers(ctx context.Context, groupID string) ([]GetGroupMembersRow, error) {
@@ -151,23 +162,23 @@ func (q *Queries) GetGroupMembers(ctx context.Context, groupID string) ([]GetGro
 
 const getGroupsByUserId = `-- name: GetGroupsByUserId :many
 SELECT id, created_at, created_by, name, default_currency, description, user_id, group_id, added_at, weight
-FROM 
+FROM
   expense_groups g
   LEFT JOIN user_expense_groups u ON u.group_id = g.id
-WHERE u.user_id = ?
+WHERE u.user_id = ?1
 `
 
 type GetGroupsByUserIdRow struct {
-	ID              string     `json:"id"`
-	CreatedAt       time.Time  `json:"created_at"`
-	CreatedBy       string     `json:"created_by"`
-	Name            string     `json:"name"`
-	DefaultCurrency string     `json:"default_currency"`
-	Description     *string    `json:"description"`
-	UserID          *string    `json:"user_id"`
-	GroupID         *string    `json:"group_id"`
-	AddedAt         *time.Time `json:"added_at"`
-	Weight          *float64   `json:"weight"`
+	ID              string
+	CreatedAt       overrides.TextTime
+	CreatedBy       string
+	Name            string
+	DefaultCurrency string
+	Description     *string
+	UserID          *string
+	GroupID         *string
+	AddedAt         overrides.TextTime
+	Weight          *float64
 }
 
 func (q *Queries) GetGroupsByUserId(ctx context.Context, userID string) ([]GetGroupsByUserIdRow, error) {
@@ -212,8 +223,8 @@ SELECT EXISTS(
 `
 
 type IsUserInGroupParams struct {
-	UserID  string `json:"user_id"`
-	GroupID string `json:"group_id"`
+	UserID  string
+	GroupID string
 }
 
 func (q *Queries) IsUserInGroup(ctx context.Context, arg IsUserInGroupParams) (int64, error) {
@@ -227,12 +238,12 @@ const removeUserFromGroup = `-- name: RemoveUserFromGroup :exec
 ;
 
 DELETE FROM user_expense_groups
-WHERE user_id = ? AND group_id = ?
+WHERE user_id = ?1 AND group_id = ?2
 `
 
 type RemoveUserFromGroupParams struct {
-	UserID  string `json:"user_id"`
-	GroupID string `json:"group_id"`
+	UserID  string
+	GroupID string
 }
 
 func (q *Queries) RemoveUserFromGroup(ctx context.Context, arg RemoveUserFromGroupParams) error {
@@ -243,16 +254,16 @@ func (q *Queries) RemoveUserFromGroup(ctx context.Context, arg RemoveUserFromGro
 const updateGroup = `-- name: UpdateGroup :one
 ;
 
-UPDATE expense_groups SET name = ?, description = ?, default_currency = ?
-WHERE id = ?
+UPDATE expense_groups SET name = ?1, description = ?2, default_currency = ?3
+WHERE id = ?4
 RETURNING id, created_at, created_by, name, default_currency, description
 `
 
 type UpdateGroupParams struct {
-	Name            string  `json:"name"`
-	Description     *string `json:"description"`
-	DefaultCurrency string  `json:"default_currency"`
-	ID              string  `json:"id"`
+	Name            string
+	Description     *string
+	DefaultCurrency string
+	ID              string
 }
 
 func (q *Queries) UpdateGroup(ctx context.Context, arg UpdateGroupParams) (ExpenseGroup, error) {
@@ -281,9 +292,9 @@ WHERE user_id = ?2 AND group_id = ?3
 `
 
 type UpdateUserWeightParams struct {
-	Weight  float64 `json:"weight"`
-	UserID  string  `json:"user_id"`
-	GroupID string  `json:"group_id"`
+	Weight  float64
+	UserID  string
+	GroupID string
 }
 
 func (q *Queries) UpdateUserWeight(ctx context.Context, arg UpdateUserWeightParams) error {

@@ -9,8 +9,8 @@ import (
 	"pennywise/config"
 	sqlc "pennywise/db/database"
 
-	"github.com/pressly/goose/v3"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/pressly/goose/v3"
 )
 
 // Global variables to hold the database and queries

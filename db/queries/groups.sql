@@ -3,16 +3,17 @@ INSERT INTO expense_groups
 (
     id,
     created_by,
+    created_at,
     description,
     default_currency,
     name
 ) VALUES (
-    ?, ?, ?, ?, ?
+    @id, @created_by, @created_at, @description, @default_currency, @name
 ) RETURNING * ;
 
 -- name: UpdateGroup :one
-UPDATE expense_groups SET name = ?, description = ?, default_currency = ?
-WHERE id = ?
+UPDATE expense_groups SET name = @name, description = @description, default_currency = @default_currency
+WHERE id = @id
 RETURNING *;
 
 -- name: GetGroupById :one
@@ -25,14 +26,15 @@ INSERT INTO user_expense_groups
 (
     user_id,
     group_id,
-    weight
+    weight,
+    added_at
 ) VALUES (
-    ?, ?, ?
+    @user_id, @group_id, @weight, @added_at
 ) RETURNING * ;
 
 -- name: RemoveUserFromGroup :exec
 DELETE FROM user_expense_groups
-WHERE user_id = ? AND group_id = ?;
+WHERE user_id = @user_id AND group_id = @group_id;
 
 -- name: UpdateUserWeight :exec
 UPDATE user_expense_groups
@@ -41,10 +43,10 @@ WHERE user_id = @user_id AND group_id = @group_id;
 
 -- name: GetGroupsByUserId :many
 SELECT *
-FROM 
+FROM
   expense_groups g
   LEFT JOIN user_expense_groups u ON u.group_id = g.id
-WHERE u.user_id = ?;
+WHERE u.user_id = @user_id;
 
 -- name: GetGroupMembers :many
 SELECT

@@ -7,7 +7,8 @@ package database
 
 import (
 	"context"
-	"time"
+
+	"pennywise/db/overrides"
 )
 
 const createSession = `-- name: CreateSession :one
@@ -20,17 +21,17 @@ INSERT INTO sessions
     updated_at,
     expired_at
 ) VALUES (
-    ?, ?, ?, ?, ?, ?
+    ?1, ?2, ?3, ?4, ?5, ?6
 ) RETURNING id, token, user_id, created_at, updated_at, expired_at
 `
 
 type CreateSessionParams struct {
-	ID        string    `json:"id"`
-	Token     string    `json:"token"`
-	UserID    string    `json:"user_id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	ExpiredAt time.Time `json:"expired_at"`
+	ID        string
+	Token     string
+	UserID    string
+	CreatedAt overrides.TextTime
+	UpdatedAt overrides.TextTime
+	ExpiredAt overrides.TextTime
 }
 
 func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error) {
@@ -56,7 +57,7 @@ func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (S
 
 const deleteSession = `-- name: DeleteSession :exec
 DELETE FROM sessions
-WHERE id = ?
+WHERE id = ?1
 `
 
 func (q *Queries) DeleteSession(ctx context.Context, id string) error {
@@ -65,7 +66,7 @@ func (q *Queries) DeleteSession(ctx context.Context, id string) error {
 }
 
 const getSessionByHash = `-- name: GetSessionByHash :one
-SELECT id, token, user_id, created_at, updated_at, expired_at FROM sessions WHERE token = ? LIMIT 1
+SELECT id, token, user_id, created_at, updated_at, expired_at FROM sessions WHERE token = ?1 LIMIT 1
 `
 
 func (q *Queries) GetSessionByHash(ctx context.Context, token string) (Session, error) {
@@ -85,7 +86,7 @@ func (q *Queries) GetSessionByHash(ctx context.Context, token string) (Session, 
 const getSessionById = `-- name: GetSessionById :one
 ;
 
-SELECT id, token, user_id, created_at, updated_at, expired_at FROM sessions WHERE id = ? LIMIT 1
+SELECT id, token, user_id, created_at, updated_at, expired_at FROM sessions WHERE id = ?1 LIMIT 1
 `
 
 func (q *Queries) GetSessionById(ctx context.Context, id string) (Session, error) {
@@ -103,7 +104,7 @@ func (q *Queries) GetSessionById(ctx context.Context, id string) (Session, error
 }
 
 const getSessionByUserId = `-- name: GetSessionByUserId :one
-SELECT id, token, user_id, created_at, updated_at, expired_at FROM sessions WHERE user_id = ? LIMIT 1
+SELECT id, token, user_id, created_at, updated_at, expired_at FROM sessions WHERE user_id = ?1 LIMIT 1
 `
 
 func (q *Queries) GetSessionByUserId(ctx context.Context, userID string) (Session, error) {
@@ -121,15 +122,15 @@ func (q *Queries) GetSessionByUserId(ctx context.Context, userID string) (Sessio
 }
 
 const updateSession = `-- name: UpdateSession :exec
-UPDATE sessions SET token = ?, updated_at = ?, expired_at = ?
-WHERE id = ?
+UPDATE sessions SET token = ?1, updated_at = ?2, expired_at = ?3
+WHERE id = ?4
 `
 
 type UpdateSessionParams struct {
-	Token     string    `json:"token"`
-	UpdatedAt time.Time `json:"updated_at"`
-	ExpiredAt time.Time `json:"expired_at"`
-	ID        string    `json:"id"`
+	Token     string
+	UpdatedAt overrides.TextTime
+	ExpiredAt overrides.TextTime
+	ID        string
 }
 
 func (q *Queries) UpdateSession(ctx context.Context, arg UpdateSessionParams) error {

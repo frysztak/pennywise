@@ -4,9 +4,11 @@ import (
 	"context"
 	"pennywise/db"
 	"pennywise/db/database"
+	"pennywise/db/overrides"
 	apiv1 "pennywise/gen/api/v1"
 	"pennywise/log"
 	"pennywise/utils"
+	"time"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
@@ -32,11 +34,12 @@ func (s *ExpenseService) CreateExpense(ctx context.Context, r *apiv1.CreateExpen
 
 	expense, err := qtx.CreateExpense(ctx, database.CreateExpenseParams{
 		ID:          uuid.NewString(),
+		CreatedAt:   overrides.TextTime{Time: time.Now()},
 		Name:        r.Name,
 		Description: &r.Description,
 		GroupID:     r.GroupId,
 		RecurringID: nil,
-		Date:        r.Date.AsTime(),
+		Date:        overrides.TextTime{Time: r.Date.AsTime()},
 		Currency:    r.Currency,
 	})
 	if err != nil {
@@ -99,8 +102,8 @@ func (s *ExpenseService) GetGroupExpenses(ctx context.Context, r *apiv1.GetGroup
 
 		expenses = append(expenses, &apiv1.GetGroupExpensesResponse_Expense{
 			Id:               row.ID,
-			CreatedAt:        timestamppb.New(row.CreatedAt),
-			Date:             timestamppb.New(row.Date),
+			CreatedAt:        timestamppb.New(row.CreatedAt.Time),
+			Date:             timestamppb.New(row.Date.Time),
 			Name:             row.Name,
 			Description:      row.Description,
 			Currency:         row.Currency,
@@ -133,7 +136,7 @@ func (s *ExpenseService) UpdateExpense(ctx context.Context, r *apiv1.UpdateExpen
 		Name:        r.Name,
 		Description: &r.Description,
 		Currency:    r.Currency,
-		Date:        r.Date.AsTime(),
+		Date:        overrides.TextTime{Time: r.Date.AsTime()},
 	})
 	if err != nil {
 		logger.Error("failed to update expense", "error", err, "expense_id", r.Id)

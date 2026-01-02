@@ -2,6 +2,7 @@
 INSERT INTO expenses
 (
     id,
+    created_at,
     date,
     group_id,
     recurring_id,
@@ -9,7 +10,7 @@ INSERT INTO expenses
     description,
     currency
 ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?
+    @id, @created_at, @date, @group_id, @recurring_id, @name, @description, @currency
 ) RETURNING *;
 
 -- name: CreateExpensePayer :one

@@ -7,13 +7,15 @@ package database
 
 import (
 	"context"
-	"time"
+
+	"pennywise/db/overrides"
 )
 
 const createTransfer = `-- name: CreateTransfer :one
 INSERT INTO transfers
 (
     id,
+    created_at,
     group_id,
     sender_id,
     receiver_id,
@@ -21,23 +23,25 @@ INSERT INTO transfers
     currency,
     date
 ) VALUES (
-    ?1, ?2, ?3, ?4, ?5, ?6, ?7
+    ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8
 ) RETURNING id, group_id, sender_id, receiver_id, amount, currency, created_at, date
 `
 
 type CreateTransferParams struct {
-	ID         string    `json:"id"`
-	GroupID    string    `json:"group_id"`
-	SenderID   string    `json:"sender_id"`
-	ReceiverID string    `json:"receiver_id"`
-	Amount     int64     `json:"amount"`
-	Currency   string    `json:"currency"`
-	Date       time.Time `json:"date"`
+	ID         string
+	CreatedAt  overrides.TextTime
+	GroupID    string
+	SenderID   string
+	ReceiverID string
+	Amount     int64
+	Currency   string
+	Date       overrides.TextTime
 }
 
 func (q *Queries) CreateTransfer(ctx context.Context, arg CreateTransferParams) (Transfer, error) {
 	row := q.db.QueryRowContext(ctx, createTransfer,
 		arg.ID,
+		arg.CreatedAt,
 		arg.GroupID,
 		arg.SenderID,
 		arg.ReceiverID,
@@ -81,16 +85,16 @@ ORDER BY t.created_at DESC
 `
 
 type GetGroupTransfersRow struct {
-	ID           string    `json:"id"`
-	GroupID      string    `json:"group_id"`
-	SenderID     string    `json:"sender_id"`
-	ReceiverID   string    `json:"receiver_id"`
-	Amount       int64     `json:"amount"`
-	Currency     string    `json:"currency"`
-	CreatedAt    time.Time `json:"created_at"`
-	Date         time.Time `json:"date"`
-	SenderName   string    `json:"sender_name"`
-	ReceiverName string    `json:"receiver_name"`
+	ID           string
+	GroupID      string
+	SenderID     string
+	ReceiverID   string
+	Amount       int64
+	Currency     string
+	CreatedAt    overrides.TextTime
+	Date         overrides.TextTime
+	SenderName   string
+	ReceiverName string
 }
 
 func (q *Queries) GetGroupTransfers(ctx context.Context, groupID string) ([]GetGroupTransfersRow, error) {
@@ -138,10 +142,10 @@ WHERE group_id = ?1
 `
 
 type GetGroupTransfersForBalanceRow struct {
-	SenderID   string `json:"sender_id"`
-	ReceiverID string `json:"receiver_id"`
-	Amount     int64  `json:"amount"`
-	Currency   string `json:"currency"`
+	SenderID   string
+	ReceiverID string
+	Amount     int64
+	Currency   string
 }
 
 func (q *Queries) GetGroupTransfersForBalance(ctx context.Context, groupID string) ([]GetGroupTransfersForBalanceRow, error) {
@@ -205,12 +209,12 @@ RETURNING id, group_id, sender_id, receiver_id, amount, currency, created_at, da
 `
 
 type UpdateTransferParams struct {
-	SenderID   string    `json:"sender_id"`
-	ReceiverID string    `json:"receiver_id"`
-	Amount     int64     `json:"amount"`
-	Currency   string    `json:"currency"`
-	Date       time.Time `json:"date"`
-	ID         string    `json:"id"`
+	SenderID   string
+	ReceiverID string
+	Amount     int64
+	Currency   string
+	Date       overrides.TextTime
+	ID         string
 }
 
 func (q *Queries) UpdateTransfer(ctx context.Context, arg UpdateTransferParams) (Transfer, error) {

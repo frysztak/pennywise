@@ -6,6 +6,7 @@ import (
 	"pennywise/calc"
 	"pennywise/db"
 	"pennywise/db/database"
+	"pennywise/db/overrides"
 	apiv1 "pennywise/gen/api/v1"
 	"pennywise/http/helpers"
 	"pennywise/log"
@@ -28,11 +29,13 @@ func NewGroupService() *GroupService {
 func (s *GroupService) CreateExpenseGroup(ctx context.Context, r *apiv1.CreateExpenseGroupRequest) (*apiv1.CreateExpenseGroupResponse, error) {
 	logger := log.FromContext(ctx)
 	session := helpers.GetSessionInfo(ctx)
+
 	group, err := db.Queries.CreateGroup(ctx, database.CreateGroupParams{
 		ID:              uuid.NewString(),
 		Name:            r.Name,
 		Description:     &r.Description,
 		CreatedBy:       session.UserID,
+		CreatedAt:       overrides.TextTime{Time: time.Now()},
 		DefaultCurrency: r.DefaultCurrency,
 	})
 	if err != nil {
@@ -44,6 +47,7 @@ func (s *GroupService) CreateExpenseGroup(ctx context.Context, r *apiv1.CreateEx
 		UserID:  session.UserID,
 		GroupID: group.ID,
 		Weight:  1.0,
+		AddedAt: overrides.TextTime{Time: time.Now()},
 	})
 	if err != nil {
 		logger.Error("failed to add creator to group", "error", err, "group_id", group.ID)
@@ -134,6 +138,7 @@ func (s *GroupService) AddUserToGroup(ctx context.Context, r *apiv1.AddUserToGro
 		UserID:  r.UserId,
 		GroupID: r.GroupId,
 		Weight:  1.0,
+		AddedAt: overrides.TextTime{Time: time.Now()},
 	})
 
 	if err != nil {
@@ -303,7 +308,7 @@ func (s *GroupService) GetGroupActivity(ctx context.Context, r *apiv1.GetGroupAc
 			Data: &apiv1.GetGroupActivityResponse_ActivityItem_Expense_{
 				Expense: &apiv1.GetGroupActivityResponse_ActivityItem_Expense{
 					Id:               expense.ID,
-					CreatedAt:        timestamppb.New(expense.CreatedAt),
+					CreatedAt:        timestamppb.New(expense.CreatedAt.Time),
 					Name:             expense.Name,
 					Description:      expense.Description,
 					Currency:         expense.Currency,
@@ -311,7 +316,7 @@ func (s *GroupService) GetGroupActivity(ctx context.Context, r *apiv1.GetGroupAc
 					PayerName:        expense.PayerName,
 					Amount:           expense.Amount,
 					BeneficiariesIds: beneficiariesIds,
-					Date:             timestamppb.New(expense.Date),
+					Date:             timestamppb.New(expense.Date.Time),
 				},
 			},
 		})
@@ -324,14 +329,14 @@ func (s *GroupService) GetGroupActivity(ctx context.Context, r *apiv1.GetGroupAc
 			Data: &apiv1.GetGroupActivityResponse_ActivityItem_Transfer_{
 				Transfer: &apiv1.GetGroupActivityResponse_ActivityItem_Transfer{
 					Id:           transfer.ID,
-					CreatedAt:    timestamppb.New(transfer.CreatedAt),
+					CreatedAt:    timestamppb.New(transfer.CreatedAt.Time),
 					SenderId:     transfer.SenderID,
 					SenderName:   transfer.SenderName,
 					ReceiverId:   transfer.ReceiverID,
 					ReceiverName: transfer.ReceiverName,
 					Amount:       transfer.Amount,
 					Currency:     transfer.Currency,
-					Date:         timestamppb.New(transfer.Date),
+					Date:         timestamppb.New(transfer.Date.Time),
 				},
 			},
 		})

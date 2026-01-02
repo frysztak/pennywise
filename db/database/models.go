@@ -5,86 +5,86 @@
 package database
 
 import (
-	"time"
+	"pennywise/db/overrides"
 )
 
 type Expense struct {
-	ID          string    `json:"id"`
-	CreatedAt   time.Time `json:"created_at"`
-	Date        time.Time `json:"date"`
-	GroupID     string    `json:"group_id"`
-	RecurringID *string   `json:"recurring_id"`
-	Name        string    `json:"name"`
-	Description *string   `json:"description"`
-	Currency    string    `json:"currency"`
+	ID          string
+	CreatedAt   overrides.TextTime
+	Date        overrides.TextTime
+	GroupID     string
+	RecurringID *string
+	Name        string
+	Description *string
+	Currency    string
 }
 
 type ExpenseBeneficiary struct {
-	ID        string `json:"id"`
-	ExpenseID string `json:"expense_id"`
-	UserID    string `json:"user_id"`
+	ID        string
+	ExpenseID string
+	UserID    string
 }
 
 type ExpenseGroup struct {
-	ID              string    `json:"id"`
-	CreatedAt       time.Time `json:"created_at"`
-	CreatedBy       string    `json:"created_by"`
-	Name            string    `json:"name"`
-	DefaultCurrency string    `json:"default_currency"`
-	Description     *string   `json:"description"`
+	ID              string
+	CreatedAt       overrides.TextTime
+	CreatedBy       string
+	Name            string
+	DefaultCurrency string
+	Description     *string
 }
 
 type ExpensePayer struct {
-	ID        string `json:"id"`
-	ExpenseID string `json:"expense_id"`
-	UserID    string `json:"user_id"`
-	Amount    int64  `json:"amount"`
+	ID        string
+	ExpenseID string
+	UserID    string
+	Amount    int64
 }
 
 type RecurringExpense struct {
-	ID             string    `json:"id"`
-	CreatedAt      time.Time `json:"created_at"`
-	GroupID        string    `json:"group_id"`
-	Name           string    `json:"name"`
-	Description    *string   `json:"description"`
-	Frequency      string    `json:"frequency"`
-	StartDate      time.Time `json:"start_date"`
-	NextOccurrence time.Time `json:"next_occurrence"`
+	ID             string
+	CreatedAt      overrides.TextTime
+	GroupID        string
+	Name           string
+	Description    *string
+	Frequency      string
+	StartDate      overrides.TextTime
+	NextOccurrence overrides.TextTime
 }
 
 type Session struct {
-	ID        string    `json:"id"`
-	Token     string    `json:"token"`
-	UserID    string    `json:"user_id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	ExpiredAt time.Time `json:"expired_at"`
+	ID        string
+	Token     string
+	UserID    string
+	CreatedAt overrides.TextTime
+	UpdatedAt overrides.TextTime
+	ExpiredAt overrides.TextTime
 }
 
 type Transfer struct {
-	ID         string    `json:"id"`
-	GroupID    string    `json:"group_id"`
-	SenderID   string    `json:"sender_id"`
-	ReceiverID string    `json:"receiver_id"`
-	Amount     int64     `json:"amount"`
-	Currency   string    `json:"currency"`
-	CreatedAt  time.Time `json:"created_at"`
-	Date       time.Time `json:"date"`
+	ID         string
+	GroupID    string
+	SenderID   string
+	ReceiverID string
+	Amount     int64
+	Currency   string
+	CreatedAt  overrides.TextTime
+	Date       overrides.TextTime
 }
 
 type User struct {
-	ID              string    `json:"id"`
-	Email           string    `json:"email"`
-	Username        string    `json:"username"`
-	PasswordHash    *string   `json:"-"`
-	CreatedAt       time.Time `json:"created_at"`
-	Role            int64     `json:"role"`
-	ExpenseGroupIds *int64    `json:"expense_group_ids"`
+	ID              string
+	Email           string
+	Username        string
+	PasswordHash    *string
+	CreatedAt       overrides.TextTime
+	Role            int64
+	ExpenseGroupIds *int64
 }
 
 type UserExpenseGroup struct {
-	UserID  string    `json:"user_id"`
-	GroupID string    `json:"group_id"`
-	AddedAt time.Time `json:"added_at"`
-	Weight  float64   `json:"weight"`
+	UserID  string
+	GroupID string
+	AddedAt overrides.TextTime
+	Weight  float64
 }

@@ -5,8 +5,10 @@ import (
 	"errors"
 	"pennywise/db"
 	"pennywise/db/database"
+	"pennywise/db/overrides"
 	apiv1 "pennywise/gen/api/v1"
 	"pennywise/log"
+	"time"
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
@@ -60,12 +62,13 @@ func (s *TransferService) CreateTransfer(ctx context.Context, r *apiv1.CreateTra
 
 	transfer, err := db.Queries.CreateTransfer(ctx, database.CreateTransferParams{
 		ID:         uuid.NewString(),
+		CreatedAt:  overrides.TextTime{Time: time.Now()},
 		GroupID:    r.GroupId,
 		SenderID:   r.SenderId,
 		ReceiverID: r.ReceiverId,
 		Amount:     int64(r.Amount * 100),
 		Currency:   r.Currency,
-		Date:       r.Date.AsTime(),
+		Date:       overrides.TextTime{Time: r.Date.AsTime()},
 	})
 	if err != nil {
 		logger.Error("failed to create transfer", "error", err, "group_id", r.GroupId, "sender_id", r.SenderId, "receiver_id", r.ReceiverId)
@@ -89,14 +92,14 @@ func (s *TransferService) GetGroupTransfers(ctx context.Context, r *apiv1.GetGro
 	for _, row := range rows {
 		transfers = append(transfers, &apiv1.GetGroupTransfersResponse_Transfer{
 			Id:           row.ID,
-			CreatedAt:    timestamppb.New(row.CreatedAt),
+			CreatedAt:    timestamppb.New(row.CreatedAt.Time),
 			SenderId:     row.SenderID,
 			SenderName:   row.SenderName,
 			ReceiverId:   row.ReceiverID,
 			ReceiverName: row.ReceiverName,
 			Amount:       row.Amount,
 			Currency:     row.Currency,
-			Date:         timestamppb.New(row.Date),
+			Date:         timestamppb.New(row.Date.Time),
 		})
 	}
 
@@ -157,7 +160,7 @@ func (s *TransferService) UpdateTransfer(ctx context.Context, r *apiv1.UpdateTra
 		ReceiverID: r.ReceiverId,
 		Amount:     int64(r.Amount * 100),
 		Currency:   r.Currency,
-		Date:       r.Date.AsTime(),
+		Date:       overrides.TextTime{Time: r.Date.AsTime()},
 	})
 	if err != nil {
 		logger.Error("failed to update transfer", "error", err, "transfer_id", r.Id)

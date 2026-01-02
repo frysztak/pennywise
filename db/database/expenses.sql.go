@@ -7,13 +7,15 @@ package database
 
 import (
 	"context"
-	"time"
+
+	"pennywise/db/overrides"
 )
 
 const createExpense = `-- name: CreateExpense :one
 INSERT INTO expenses
 (
     id,
+    created_at,
     date,
     group_id,
     recurring_id,
@@ -21,23 +23,25 @@ INSERT INTO expenses
     description,
     currency
 ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?
+    ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8
 ) RETURNING id, created_at, date, group_id, recurring_id, name, description, currency
 `
 
 type CreateExpenseParams struct {
-	ID          string    `json:"id"`
-	Date        time.Time `json:"date"`
-	GroupID     string    `json:"group_id"`
-	RecurringID *string   `json:"recurring_id"`
-	Name        string    `json:"name"`
-	Description *string   `json:"description"`
-	Currency    string    `json:"currency"`
+	ID          string
+	CreatedAt   overrides.TextTime
+	Date        overrides.TextTime
+	GroupID     string
+	RecurringID *string
+	Name        string
+	Description *string
+	Currency    string
 }
 
 func (q *Queries) CreateExpense(ctx context.Context, arg CreateExpenseParams) (Expense, error) {
 	row := q.db.QueryRowContext(ctx, createExpense,
 		arg.ID,
+		arg.CreatedAt,
 		arg.Date,
 		arg.GroupID,
 		arg.RecurringID,
@@ -71,9 +75,9 @@ INSERT INTO expense_beneficiaries
 `
 
 type CreateExpenseBeneficiaryParams struct {
-	ID        string `json:"id"`
-	ExpenseID string `json:"expense_id"`
-	UserID    string `json:"user_id"`
+	ID        string
+	ExpenseID string
+	UserID    string
 }
 
 func (q *Queries) CreateExpenseBeneficiary(ctx context.Context, arg CreateExpenseBeneficiaryParams) (ExpenseBeneficiary, error) {
@@ -96,10 +100,10 @@ INSERT INTO expense_payers
 `
 
 type CreateExpensePayerParams struct {
-	ID        string `json:"id"`
-	ExpenseID string `json:"expense_id"`
-	UserID    string `json:"user_id"`
-	Amount    int64  `json:"amount"`
+	ID        string
+	ExpenseID string
+	UserID    string
+	Amount    int64
 }
 
 func (q *Queries) CreateExpensePayer(ctx context.Context, arg CreateExpensePayerParams) (ExpensePayer, error) {
@@ -157,18 +161,18 @@ ORDER BY e.created_at DESC
 `
 
 type GetGroupExpensesRow struct {
-	ID               string      `json:"id"`
-	CreatedAt        time.Time   `json:"created_at"`
-	Date             time.Time   `json:"date"`
-	GroupID          string      `json:"group_id"`
-	RecurringID      *string     `json:"recurring_id"`
-	Name             string      `json:"name"`
-	Description      *string     `json:"description"`
-	Currency         string      `json:"currency"`
-	PayerID          string      `json:"payer_id"`
-	PayerName        string      `json:"payer_name"`
-	Amount           int64       `json:"amount"`
-	BeneficiariesIds interface{} `json:"beneficiaries_ids"`
+	ID               string
+	CreatedAt        overrides.TextTime
+	Date             overrides.TextTime
+	GroupID          string
+	RecurringID      *string
+	Name             string
+	Description      *string
+	Currency         string
+	PayerID          string
+	PayerName        string
+	Amount           int64
+	BeneficiariesIds interface{}
 }
 
 func (q *Queries) GetGroupExpenses(ctx context.Context, groupID string) ([]GetGroupExpensesRow, error) {
@@ -218,8 +222,8 @@ GROUP BY e.currency
 `
 
 type GetGroupTotalSpendingRow struct {
-	Currency    string `json:"currency"`
-	TotalAmount int64  `json:"total_amount"`
+	Currency    string
+	TotalAmount int64
 }
 
 func (q *Queries) GetGroupTotalSpending(ctx context.Context, groupID string) ([]GetGroupTotalSpendingRow, error) {
@@ -257,11 +261,11 @@ RETURNING id, created_at, date, group_id, recurring_id, name, description, curre
 `
 
 type UpdateExpenseParams struct {
-	Name        string    `json:"name"`
-	Description *string   `json:"description"`
-	Currency    string    `json:"currency"`
-	Date        time.Time `json:"date"`
-	ID          string    `json:"id"`
+	Name        string
+	Description *string
+	Currency    string
+	Date        overrides.TextTime
+	ID          string
 }
 
 func (q *Queries) UpdateExpense(ctx context.Context, arg UpdateExpenseParams) (Expense, error) {
@@ -295,9 +299,9 @@ WHERE expense_id = ?3
 `
 
 type UpdateExpensePayerParams struct {
-	UserID    string `json:"user_id"`
-	Amount    int64  `json:"amount"`
-	ExpenseID string `json:"expense_id"`
+	UserID    string
+	Amount    int64
+	ExpenseID string
 }
 
 func (q *Queries) UpdateExpensePayer(ctx context.Context, arg UpdateExpensePayerParams) error {

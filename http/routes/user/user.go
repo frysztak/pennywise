@@ -4,6 +4,7 @@ import (
 	"context"
 	"pennywise/db"
 	"pennywise/db/database"
+	"pennywise/db/overrides"
 	apiv1 "pennywise/gen/api/v1"
 	"pennywise/http/helpers"
 	"pennywise/log"
@@ -34,7 +35,7 @@ func (s *UserService) UserRegister(ctx context.Context, r *apiv1.UserRegisterReq
 		Email:        r.Email,
 		Username:     r.Username,
 		PasswordHash: &hash,
-		CreatedAt:    time.Now(),
+		CreatedAt:    overrides.TextTime{Time: time.Now()},
 		Role:         int64(apiv1.UserRole_USER_ROLE_REGULAR),
 	})
 	if err != nil {

@@ -6,8 +6,64 @@ sql:
     gen:
       go:
         out: "db/database"
-        emit_json_tags: true
         emit_pointers_for_null_types: true
         overrides:
-          - column: "users.password_hash"
-            go_struct_tag: json:"-"
+          # Timestamp columns - users table
+          - column: "users.created_at"
+            go_type:
+              import: "pennywise/db/overrides"
+              type: "TextTime"
+          # Timestamp columns - sessions table
+          - column: "sessions.created_at"
+            go_type:
+              import: "pennywise/db/overrides"
+              type: "TextTime"
+          - column: "sessions.updated_at"
+            go_type:
+              import: "pennywise/db/overrides"
+              type: "TextTime"
+          - column: "sessions.expired_at"
+            go_type:
+              import: "pennywise/db/overrides"
+              type: "TextTime"
+          # Timestamp columns - expense_groups table
+          - column: "expense_groups.created_at"
+            go_type:
+              import: "pennywise/db/overrides"
+              type: "TextTime"
+          # Timestamp columns - user_expense_groups table
+          - column: "user_expense_groups.added_at"
+            go_type:
+              import: "pennywise/db/overrides"
+              type: "TextTime"
+          # Timestamp columns - expenses table
+          - column: "expenses.created_at"
+            go_type:
+              import: "pennywise/db/overrides"
+              type: "TextTime"
+          - column: "expenses.date"
+            go_type:
+              import: "pennywise/db/overrides"
+              type: "TextTime"
+          # Timestamp columns - transfers table
+          - column: "transfers.created_at"
+            go_type:
+              import: "pennywise/db/overrides"
+              type: "TextTime"
+          - column: "transfers.date"
+            go_type:
+              import: "pennywise/db/overrides"
+              type: "TextTime"
+          # Timestamp columns - recurring_expenses table
+          - column: "recurring_expenses.created_at"
+            go_type:
+              import: "pennywise/db/overrides"
+              type: "TextTime"
+          - column: "recurring_expenses.start_date"
+            go_type:
+              import: "pennywise/db/overrides"
+              type: "TextTime"
+          - column: "recurring_expenses.next_occurrence"
+            go_type:
+              import: "pennywise/db/overrides"
+              type: "TextTime"

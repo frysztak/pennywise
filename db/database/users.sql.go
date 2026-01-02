@@ -7,7 +7,8 @@ package database
 
 import (
 	"context"
-	"time"
+
+	"pennywise/db/overrides"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -20,17 +21,17 @@ INSERT INTO users
     created_at,
     role
 ) VALUES (
-    ?, ?, ?, ?, ?, ?
+    ?1, ?2, ?3, ?4, ?5, ?6
 ) RETURNING id, email, username, password_hash, created_at, role, expense_group_ids
 `
 
 type CreateUserParams struct {
-	ID           string    `json:"id"`
-	Email        string    `json:"email"`
-	Username     string    `json:"username"`
-	PasswordHash *string   `json:"-"`
-	CreatedAt    time.Time `json:"created_at"`
-	Role         int64     `json:"role"`
+	ID           string
+	Email        string
+	Username     string
+	PasswordHash *string
+	CreatedAt    overrides.TextTime
+	Role         int64
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -56,7 +57,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, username, password_hash, created_at, role, expense_group_ids FROM users WHERE email = ? LIMIT 1
+SELECT id, email, username, password_hash, created_at, role, expense_group_ids FROM users WHERE email = ?1 LIMIT 1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
@@ -77,7 +78,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 const getUserById = `-- name: GetUserById :one
 ;
 
-SELECT id, email, username, password_hash, created_at, role, expense_group_ids FROM users WHERE id = ? LIMIT 1
+SELECT id, email, username, password_hash, created_at, role, expense_group_ids FROM users WHERE id = ?1 LIMIT 1
 `
 
 func (q *Queries) GetUserById(ctx context.Context, id string) (User, error) {
@@ -100,9 +101,9 @@ SELECT id, username, email FROM users
 `
 
 type GetUsersRow struct {
-	ID       string `json:"id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
+	ID       string
+	Username string
+	Email    string
 }
 
 func (q *Queries) GetUsers(ctx context.Context) ([]GetUsersRow, error) {

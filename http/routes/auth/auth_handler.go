@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"pennywise/db"
 	"pennywise/db/database"
+	"pennywise/db/overrides"
 	apiv1 "pennywise/gen/api/v1"
 	"pennywise/http/helpers"
 	"pennywise/log"
@@ -46,9 +47,9 @@ func (s *AuthService) LoginWithPassword(ctx context.Context, r *apiv1.LoginWithP
 		ID:        uuid.NewString(),
 		Token:     helpers.GenerateSessionKey(),
 		UserID:    user.ID,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-		ExpiredAt: time.Now().Add(24 * time.Hour),
+		CreatedAt: overrides.TextTime{Time: time.Now()},
+		UpdatedAt: overrides.TextTime{Time: time.Now()},
+		ExpiredAt: overrides.TextTime{Time: time.Now().Add(24 * time.Hour)},
 	})
 	if err != nil {
 		logger.Error("failed to create session", "error", err, "user_id", user.ID)
