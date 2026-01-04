@@ -4,14 +4,12 @@
 
 import type { GenFile, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
-import { file_buf_validate_validate } from "../../buf/validate/validate_pb";
-import { file_google_protobuf_empty } from "@bufbuild/protobuf/wkt";
 
 /**
  * Describes the file api/v1/admin.proto.
  */
 export const file_api_v1_admin: GenFile = /*@__PURE__*/
-  fileDesc("ChJhcGkvdjEvYWRtaW4ucHJvdG8SBmFwaS52MTIOCgxBZG1pblNlcnZpY2ViBnByb3RvMw", [file_buf_validate_validate, file_google_protobuf_empty]);
+  fileDesc("ChJhcGkvdjEvYWRtaW4ucHJvdG8SBmFwaS52MTIOCgxBZG1pblNlcnZpY2ViBnByb3RvMw");
 
 /**
  * @generated from service api.v1.AdminService

@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Sun, Moon, Monitor } from 'lucide-react'
+import { AvatarUpload } from '@/components/avatar-upload'
 
 export const Route = createFileRoute('/_pathlessLayout/settings')({
   component: RouteComponent,
@@ -22,6 +23,25 @@ function RouteComponent() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Settings</h1>
       </div>
+
+      <Card className='max-w-xl'>
+        <CardHeader>
+          <CardTitle>Profile</CardTitle>
+          <CardDescription>
+            Manage your profile settings
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Avatar</label>
+              <div className="mt-2">
+                <AvatarUpload />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card className='max-w-xl'>
         <CardHeader>

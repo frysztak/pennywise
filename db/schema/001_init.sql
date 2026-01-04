@@ -6,7 +6,10 @@ CREATE TABLE users (
     password_hash TEXT,
     created_at TEXT NOT NULL,
     role INTEGER NOT NULL,
-    expense_group_ids INTEGER
+    expense_group_ids INTEGER,
+    avatar_data BLOB,
+    avatar_mime_type TEXT,
+    avatar_updated_at TEXT
 ) STRICT;
 
 CREATE TABLE sessions (

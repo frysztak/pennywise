@@ -6,6 +6,7 @@ import (
 	"pennywise/http/middleware"
 	"pennywise/http/routes/admin"
 	"pennywise/http/routes/auth"
+	"pennywise/http/routes/avatar"
 	"pennywise/http/routes/expense"
 	"pennywise/http/routes/group"
 	"pennywise/http/routes/transfer"
@@ -32,6 +33,9 @@ func InitRouter(mux *http.ServeMux) {
 	//	MaxAge:         7200, // 2 hours in seconds
 	//})
 	session := middleware.SessionMiddleware()
+
+	// Avatar endpoint (no auth required)
+	mux.HandleFunc("GET /avatar/{userId}", avatar.HandleAvatar)
 
 	// Create interceptors once and reuse them across all services
 	// Order matters: Logging -> Validation

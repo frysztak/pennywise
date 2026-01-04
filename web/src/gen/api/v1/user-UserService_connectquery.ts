@@ -18,3 +18,8 @@ export const userInfo = UserService.method.userInfo;
  * @generated from rpc api.v1.UserService.GetUsers
  */
 export const getUsers = UserService.method.getUsers;
+
+/**
+ * @generated from rpc api.v1.UserService.UploadAvatar
+ */
+export const uploadAvatar = UserService.method.uploadAvatar;

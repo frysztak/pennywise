@@ -7,6 +7,7 @@ import { forwardRef, useEffect } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
+import { MemberAvatar } from '@/components/member-avatar';
 import { cn } from '@/lib/utils';
 
 export interface Option {
@@ -595,7 +596,19 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                                 option.disable && 'cursor-default text-muted-foreground',
                               )}
                             >
-                              {option.label}
+                              <div className="flex items-center gap-2 w-full">
+                                <MemberAvatar
+                                  userId={option.value}
+                                  username={option.label}
+                                  className="w-8 h-8 flex-shrink-0"
+                                />
+                                <div className="flex flex-col flex-1 min-w-0">
+                                  <span>{option.label}</span>
+                                  <span className="text-xs text-muted-foreground truncate">
+                                    {option.email as string}
+                                  </span>
+                                </div>
+                              </div>
                             </CommandItem>
                           );
                         })}

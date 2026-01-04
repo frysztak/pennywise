@@ -10,6 +10,7 @@ import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -236,13 +237,14 @@ func (*UserInfoRequest) Descriptor() ([]byte, []int) {
 }
 
 type UserInfoResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
-	Username      string                 `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
-	Role          UserRole               `protobuf:"varint,4,opt,name=role,proto3,enum=api.v1.UserRole" json:"role,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Email           string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	Username        string                 `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
+	Role            UserRole               `protobuf:"varint,4,opt,name=role,proto3,enum=api.v1.UserRole" json:"role,omitempty"`
+	AvatarUpdatedAt *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=avatar_updated_at,json=avatarUpdatedAt,proto3" json:"avatar_updated_at,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *UserInfoResponse) Reset() {
@@ -301,6 +303,13 @@ func (x *UserInfoResponse) GetRole() UserRole {
 		return x.Role
 	}
 	return UserRole_USER_ROLE_UNSPECIFIED
+}
+
+func (x *UserInfoResponse) GetAvatarUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.AvatarUpdatedAt
+	}
+	return nil
 }
 
 type GetUsersRequest struct {
@@ -383,6 +392,94 @@ func (x *GetUsersResponse) GetUsers() []*GetUsersResponse_User {
 	return nil
 }
 
+type UploadAvatarRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AvatarData    []byte                 `protobuf:"bytes,1,opt,name=avatar_data,json=avatarData,proto3" json:"avatar_data,omitempty"`
+	MimeType      string                 `protobuf:"bytes,2,opt,name=mime_type,json=mimeType,proto3" json:"mime_type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UploadAvatarRequest) Reset() {
+	*x = UploadAvatarRequest{}
+	mi := &file_api_v1_user_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UploadAvatarRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UploadAvatarRequest) ProtoMessage() {}
+
+func (x *UploadAvatarRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_user_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UploadAvatarRequest.ProtoReflect.Descriptor instead.
+func (*UploadAvatarRequest) Descriptor() ([]byte, []int) {
+	return file_api_v1_user_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *UploadAvatarRequest) GetAvatarData() []byte {
+	if x != nil {
+		return x.AvatarData
+	}
+	return nil
+}
+
+func (x *UploadAvatarRequest) GetMimeType() string {
+	if x != nil {
+		return x.MimeType
+	}
+	return ""
+}
+
+type UploadAvatarResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UploadAvatarResponse) Reset() {
+	*x = UploadAvatarResponse{}
+	mi := &file_api_v1_user_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UploadAvatarResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UploadAvatarResponse) ProtoMessage() {}
+
+func (x *UploadAvatarResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_user_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UploadAvatarResponse.ProtoReflect.Descriptor instead.
+func (*UploadAvatarResponse) Descriptor() ([]byte, []int) {
+	return file_api_v1_user_proto_rawDescGZIP(), []int{7}
+}
+
 type GetUsersResponse_User struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -394,7 +491,7 @@ type GetUsersResponse_User struct {
 
 func (x *GetUsersResponse_User) Reset() {
 	*x = GetUsersResponse_User{}
-	mi := &file_api_v1_user_proto_msgTypes[6]
+	mi := &file_api_v1_user_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -406,7 +503,7 @@ func (x *GetUsersResponse_User) String() string {
 func (*GetUsersResponse_User) ProtoMessage() {}
 
 func (x *GetUsersResponse_User) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_user_proto_msgTypes[6]
+	mi := &file_api_v1_user_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -447,7 +544,7 @@ var File_api_v1_user_proto protoreflect.FileDescriptor
 
 const file_api_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x11api/v1/user.proto\x12\x06api.v1\x1a\x1bbuf/validate/validate.proto\"~\n" +
+	"\x11api/v1/user.proto\x12\x06api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"~\n" +
 	"\x13UserRegisterRequest\x12\x1d\n" +
 	"\x05email\x18\x01 \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12#\n" +
 	"\bpassword\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x06R\bpassword\x12#\n" +
@@ -457,27 +554,34 @@ const file_api_v1_user_proto_rawDesc = "" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1a\n" +
 	"\busername\x18\x03 \x01(\tR\busername\x12$\n" +
 	"\x04role\x18\x04 \x01(\x0e2\x10.api.v1.UserRoleR\x04role\"\x11\n" +
-	"\x0fUserInfoRequest\"z\n" +
+	"\x0fUserInfoRequest\"\xc2\x01\n" +
 	"\x10UserInfoResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1a\n" +
 	"\busername\x18\x03 \x01(\tR\busername\x12$\n" +
-	"\x04role\x18\x04 \x01(\x0e2\x10.api.v1.UserRoleR\x04role\"\x11\n" +
+	"\x04role\x18\x04 \x01(\x0e2\x10.api.v1.UserRoleR\x04role\x12F\n" +
+	"\x11avatar_updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x0favatarUpdatedAt\"\x11\n" +
 	"\x0fGetUsersRequest\"\x91\x01\n" +
 	"\x10GetUsersResponse\x123\n" +
 	"\x05users\x18\x01 \x03(\v2\x1d.api.v1.GetUsersResponse.UserR\x05users\x1aH\n" +
 	"\x04User\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
-	"\x05email\x18\x03 \x01(\tR\x05email*Q\n" +
+	"\x05email\x18\x03 \x01(\tR\x05email\"e\n" +
+	"\x13UploadAvatarRequest\x12(\n" +
+	"\vavatar_data\x18\x01 \x01(\fB\a\xbaH\x04z\x02\x10\x01R\n" +
+	"avatarData\x12$\n" +
+	"\tmime_type\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\bmimeType\"\x16\n" +
+	"\x14UploadAvatarResponse*Q\n" +
 	"\bUserRole\x12\x19\n" +
 	"\x15USER_ROLE_UNSPECIFIED\x10\x00\x12\x13\n" +
 	"\x0fUSER_ROLE_ADMIN\x10\x01\x12\x15\n" +
-	"\x11USER_ROLE_REGULAR\x10\x022\xdc\x01\n" +
+	"\x11USER_ROLE_REGULAR\x10\x022\xa9\x02\n" +
 	"\vUserService\x12K\n" +
 	"\fUserRegister\x12\x1b.api.v1.UserRegisterRequest\x1a\x1c.api.v1.UserRegisterResponse\"\x00\x12?\n" +
 	"\bUserInfo\x12\x17.api.v1.UserInfoRequest\x1a\x18.api.v1.UserInfoResponse\"\x00\x12?\n" +
-	"\bGetUsers\x12\x17.api.v1.GetUsersRequest\x1a\x18.api.v1.GetUsersResponse\"\x00Bl\n" +
+	"\bGetUsers\x12\x17.api.v1.GetUsersRequest\x1a\x18.api.v1.GetUsersResponse\"\x00\x12K\n" +
+	"\fUploadAvatar\x12\x1b.api.v1.UploadAvatarRequest\x1a\x1c.api.v1.UploadAvatarResponse\"\x00Bl\n" +
 	"\n" +
 	"com.api.v1B\tUserProtoP\x01Z\x1apennywise/gen/api/v1;apiv1\xa2\x02\x03AXX\xaa\x02\x06Api.V1\xca\x02\x06Api\\V1\xe2\x02\x12Api\\V1\\GPBMetadata\xea\x02\aApi::V1b\x06proto3"
 
@@ -494,7 +598,7 @@ func file_api_v1_user_proto_rawDescGZIP() []byte {
 }
 
 var file_api_v1_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_api_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_api_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_api_v1_user_proto_goTypes = []any{
 	(UserRole)(0),                 // 0: api.v1.UserRole
 	(*UserRegisterRequest)(nil),   // 1: api.v1.UserRegisterRequest
@@ -503,23 +607,29 @@ var file_api_v1_user_proto_goTypes = []any{
 	(*UserInfoResponse)(nil),      // 4: api.v1.UserInfoResponse
 	(*GetUsersRequest)(nil),       // 5: api.v1.GetUsersRequest
 	(*GetUsersResponse)(nil),      // 6: api.v1.GetUsersResponse
-	(*GetUsersResponse_User)(nil), // 7: api.v1.GetUsersResponse.User
+	(*UploadAvatarRequest)(nil),   // 7: api.v1.UploadAvatarRequest
+	(*UploadAvatarResponse)(nil),  // 8: api.v1.UploadAvatarResponse
+	(*GetUsersResponse_User)(nil), // 9: api.v1.GetUsersResponse.User
+	(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
 }
 var file_api_v1_user_proto_depIdxs = []int32{
-	0, // 0: api.v1.UserRegisterResponse.role:type_name -> api.v1.UserRole
-	0, // 1: api.v1.UserInfoResponse.role:type_name -> api.v1.UserRole
-	7, // 2: api.v1.GetUsersResponse.users:type_name -> api.v1.GetUsersResponse.User
-	1, // 3: api.v1.UserService.UserRegister:input_type -> api.v1.UserRegisterRequest
-	3, // 4: api.v1.UserService.UserInfo:input_type -> api.v1.UserInfoRequest
-	5, // 5: api.v1.UserService.GetUsers:input_type -> api.v1.GetUsersRequest
-	2, // 6: api.v1.UserService.UserRegister:output_type -> api.v1.UserRegisterResponse
-	4, // 7: api.v1.UserService.UserInfo:output_type -> api.v1.UserInfoResponse
-	6, // 8: api.v1.UserService.GetUsers:output_type -> api.v1.GetUsersResponse
-	6, // [6:9] is the sub-list for method output_type
-	3, // [3:6] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	0,  // 0: api.v1.UserRegisterResponse.role:type_name -> api.v1.UserRole
+	0,  // 1: api.v1.UserInfoResponse.role:type_name -> api.v1.UserRole
+	10, // 2: api.v1.UserInfoResponse.avatar_updated_at:type_name -> google.protobuf.Timestamp
+	9,  // 3: api.v1.GetUsersResponse.users:type_name -> api.v1.GetUsersResponse.User
+	1,  // 4: api.v1.UserService.UserRegister:input_type -> api.v1.UserRegisterRequest
+	3,  // 5: api.v1.UserService.UserInfo:input_type -> api.v1.UserInfoRequest
+	5,  // 6: api.v1.UserService.GetUsers:input_type -> api.v1.GetUsersRequest
+	7,  // 7: api.v1.UserService.UploadAvatar:input_type -> api.v1.UploadAvatarRequest
+	2,  // 8: api.v1.UserService.UserRegister:output_type -> api.v1.UserRegisterResponse
+	4,  // 9: api.v1.UserService.UserInfo:output_type -> api.v1.UserInfoResponse
+	6,  // 10: api.v1.UserService.GetUsers:output_type -> api.v1.GetUsersResponse
+	8,  // 11: api.v1.UserService.UploadAvatar:output_type -> api.v1.UploadAvatarResponse
+	8,  // [8:12] is the sub-list for method output_type
+	4,  // [4:8] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_api_v1_user_proto_init() }
@@ -533,7 +643,7 @@ func file_api_v1_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_v1_user_proto_rawDesc), len(file_api_v1_user_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   7,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -3,6 +3,7 @@ syntax = "proto3";
 package api.v1;
 
 import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
 
 enum UserRole {
   USER_ROLE_UNSPECIFIED = 0;
@@ -30,6 +31,7 @@ message UserInfoResponse {
   string email = 2;
   string username = 3;
   UserRole role = 4;
+  google.protobuf.Timestamp avatar_updated_at = 5;
 }
 
 message GetUsersRequest {}
@@ -43,8 +45,16 @@ message GetUsersResponse {
   repeated User users = 1;
 }
 
+message UploadAvatarRequest {
+  bytes avatar_data = 1 [(buf.validate.field).bytes.min_len = 1];
+  string mime_type = 2 [(buf.validate.field).string.min_len = 1];
+}
+
+message UploadAvatarResponse {}
+
 service UserService {
   rpc UserRegister(UserRegisterRequest) returns (UserRegisterResponse) {}
   rpc UserInfo(UserInfoRequest) returns (UserInfoResponse) {}
   rpc GetUsers(GetUsersRequest) returns (GetUsersResponse) {}
+  rpc UploadAvatar(UploadAvatarRequest) returns (UploadAvatarResponse) {}
 }

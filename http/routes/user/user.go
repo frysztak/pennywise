@@ -13,6 +13,8 @@ import (
 	"connectrpc.com/connect"
 	"github.com/alexedwards/argon2id"
 	"github.com/google/uuid"
+	"github.com/jonasdoesthings/plavatar/v3"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type UserService struct{}
@@ -43,6 +45,26 @@ func (s *UserService) UserRegister(ctx context.Context, r *apiv1.UserRegisterReq
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
+	// Generate and save default avatar
+	avatarData, err := generateDefaultAvatar(r.Email)
+	if err != nil {
+		logger.Error("failed to generate default avatar", "error", err, "user_id", user.ID)
+		// Don't fail registration if avatar generation fails
+	} else {
+		mimeType := "image/svg+xml"
+		now := overrides.NullTextTime{Time: time.Now(), Valid: true}
+		err = db.WriteQueries.UpdateUserAvatar(ctx, database.UpdateUserAvatarParams{
+			ID:              user.ID,
+			AvatarData:      avatarData,
+			AvatarMimeType:  &mimeType,
+			AvatarUpdatedAt: now,
+		})
+		if err != nil {
+			logger.Error("failed to save default avatar", "error", err, "user_id", user.ID)
+			// Don't fail registration if avatar save fails
+		}
+	}
+
 	logger.Info("user registered successfully", "user_id", user.ID, "email", user.Email, "username", user.Username)
 
 	return &apiv1.UserRegisterResponse{
@@ -51,6 +73,23 @@ func (s *UserService) UserRegister(ctx context.Context, r *apiv1.UserRegisterReq
 		Username: user.Username,
 		Role:     apiv1.UserRole(user.Role),
 	}, nil
+}
+
+// generateDefaultAvatar creates a default avatar using plavatar library based on email
+func generateDefaultAvatar(email string) ([]byte, error) {
+	generator := plavatar.Generator{}
+	options := &plavatar.Options{
+		Name:         email, // Use email as seed for deterministic generation
+		OutputShape:  plavatar.ShapeSquare,
+		OutputFormat: plavatar.FormatSVG,
+	}
+
+	avatarBuffer, _, err := generator.GenerateAvatar(generator.Smiley, options)
+	if err != nil {
+		return nil, err
+	}
+
+	return avatarBuffer.Bytes(), nil
 }
 
 func (s *UserService) UserInfo(ctx context.Context, r *apiv1.UserInfoRequest) (*apiv1.UserInfoResponse, error) {
@@ -65,12 +104,19 @@ func (s *UserService) UserInfo(ctx context.Context, r *apiv1.UserInfoRequest) (*
 
 	logger.Info("user info retrieved", "user_id", user.ID)
 
-	return &apiv1.UserInfoResponse{
+	response := &apiv1.UserInfoResponse{
 		Id:       user.ID,
 		Email:    user.Email,
 		Username: user.Username,
 		Role:     apiv1.UserRole(user.Role),
-	}, nil
+	}
+
+	// Add avatar_updated_at if present
+	if user.AvatarUpdatedAt.Valid {
+		response.AvatarUpdatedAt = timestamppb.New(user.AvatarUpdatedAt.Time)
+	}
+
+	return response, nil
 }
 
 func (s *UserService) GetUsers(ctx context.Context, r *apiv1.GetUsersRequest) (*apiv1.GetUsersResponse, error) {
@@ -96,4 +142,25 @@ func (s *UserService) GetUsers(ctx context.Context, r *apiv1.GetUsersRequest) (*
 	return &apiv1.GetUsersResponse{
 		Users: responseUsers,
 	}, nil
+}
+
+func (s *UserService) UploadAvatar(ctx context.Context, r *apiv1.UploadAvatarRequest) (*apiv1.UploadAvatarResponse, error) {
+	logger := log.FromContext(ctx)
+	session := helpers.GetSessionInfo(ctx)
+
+	now := overrides.NullTextTime{Time: time.Now(), Valid: true}
+	err := db.WriteQueries.UpdateUserAvatar(ctx, database.UpdateUserAvatarParams{
+		ID:              session.UserID,
+		AvatarData:      r.AvatarData,
+		AvatarMimeType:  &r.MimeType,
+		AvatarUpdatedAt: now,
+	})
+	if err != nil {
+		logger.Error("failed to upload avatar", "error", err, "user_id", session.UserID)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	logger.Info("avatar uploaded successfully", "user_id", session.UserID, "size", len(r.AvatarData))
+
+	return &apiv1.UploadAvatarResponse{}, nil
 }

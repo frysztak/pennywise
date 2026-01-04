@@ -5,15 +5,15 @@
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../buf/validate/validate_pb";
-import type { EmptySchema } from "@bufbuild/protobuf/wkt";
-import { file_google_protobuf_empty } from "@bufbuild/protobuf/wkt";
+import type { Timestamp } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file api/v1/user.proto.
  */
 export const file_api_v1_user: GenFile = /*@__PURE__*/
-  fileDesc("ChFhcGkvdjEvdXNlci5wcm90bxIGYXBpLnYxImMKE1VzZXJSZWdpc3RlclJlcXVlc3QSFgoFZW1haWwYASABKAlCB7pIBHICYAESGQoIcGFzc3dvcmQYAiABKAlCB7pIBHICEAYSGQoIdXNlcm5hbWUYAyABKAlCB7pIBHICEAMiYwoUVXNlclJlZ2lzdGVyUmVzcG9uc2USCgoCaWQYASABKAkSDQoFZW1haWwYAiABKAkSEAoIdXNlcm5hbWUYAyABKAkSHgoEcm9sZRgEIAEoDjIQLmFwaS52MS5Vc2VyUm9sZSJfChBVc2VySW5mb1Jlc3BvbnNlEgoKAmlkGAEgASgJEg0KBWVtYWlsGAIgASgJEhAKCHVzZXJuYW1lGAMgASgJEh4KBHJvbGUYBCABKA4yEC5hcGkudjEuVXNlclJvbGUidQoQR2V0VXNlcnNSZXNwb25zZRIsCgV1c2VycxgBIAMoCzIdLmFwaS52MS5HZXRVc2Vyc1Jlc3BvbnNlLlVzZXIaMwoEVXNlchIKCgJpZBgBIAEoCRIQCgh1c2VybmFtZRgCIAEoCRINCgVlbWFpbBgDIAEoCSpRCghVc2VyUm9sZRIZChVVU0VSX1JPTEVfVU5TUEVDSUZJRUQQABITCg9VU0VSX1JPTEVfQURNSU4QARIVChFVU0VSX1JPTEVfUkVHVUxBUhACMtoBCgtVc2VyU2VydmljZRJLCgxVc2VyUmVnaXN0ZXISGy5hcGkudjEuVXNlclJlZ2lzdGVyUmVxdWVzdBocLmFwaS52MS5Vc2VyUmVnaXN0ZXJSZXNwb25zZSIAEj4KCFVzZXJJbmZvEhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5GhguYXBpLnYxLlVzZXJJbmZvUmVzcG9uc2UiABI+CghHZXRVc2VycxIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eRoYLmFwaS52MS5HZXRVc2Vyc1Jlc3BvbnNlIgBiBnByb3RvMw", [file_buf_validate_validate, file_google_protobuf_empty]);
+  fileDesc("ChFhcGkvdjEvdXNlci5wcm90bxIGYXBpLnYxImMKE1VzZXJSZWdpc3RlclJlcXVlc3QSFgoFZW1haWwYASABKAlCB7pIBHICYAESGQoIcGFzc3dvcmQYAiABKAlCB7pIBHICEAYSGQoIdXNlcm5hbWUYAyABKAlCB7pIBHICEAMiYwoUVXNlclJlZ2lzdGVyUmVzcG9uc2USCgoCaWQYASABKAkSDQoFZW1haWwYAiABKAkSEAoIdXNlcm5hbWUYAyABKAkSHgoEcm9sZRgEIAEoDjIQLmFwaS52MS5Vc2VyUm9sZSIRCg9Vc2VySW5mb1JlcXVlc3QilgEKEFVzZXJJbmZvUmVzcG9uc2USCgoCaWQYASABKAkSDQoFZW1haWwYAiABKAkSEAoIdXNlcm5hbWUYAyABKAkSHgoEcm9sZRgEIAEoDjIQLmFwaS52MS5Vc2VyUm9sZRI1ChFhdmF0YXJfdXBkYXRlZF9hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiEQoPR2V0VXNlcnNSZXF1ZXN0InUKEEdldFVzZXJzUmVzcG9uc2USLAoFdXNlcnMYASADKAsyHS5hcGkudjEuR2V0VXNlcnNSZXNwb25zZS5Vc2VyGjMKBFVzZXISCgoCaWQYASABKAkSEAoIdXNlcm5hbWUYAiABKAkSDQoFZW1haWwYAyABKAkiTwoTVXBsb2FkQXZhdGFyUmVxdWVzdBIcCgthdmF0YXJfZGF0YRgBIAEoDEIHukgEegIQARIaCgltaW1lX3R5cGUYAiABKAlCB7pIBHICEAEiFgoUVXBsb2FkQXZhdGFyUmVzcG9uc2UqUQoIVXNlclJvbGUSGQoVVVNFUl9ST0xFX1VOU1BFQ0lGSUVEEAASEwoPVVNFUl9ST0xFX0FETUlOEAESFQoRVVNFUl9ST0xFX1JFR1VMQVIQAjKpAgoLVXNlclNlcnZpY2USSwoMVXNlclJlZ2lzdGVyEhsuYXBpLnYxLlVzZXJSZWdpc3RlclJlcXVlc3QaHC5hcGkudjEuVXNlclJlZ2lzdGVyUmVzcG9uc2UiABI/CghVc2VySW5mbxIXLmFwaS52MS5Vc2VySW5mb1JlcXVlc3QaGC5hcGkudjEuVXNlckluZm9SZXNwb25zZSIAEj8KCEdldFVzZXJzEhcuYXBpLnYxLkdldFVzZXJzUmVxdWVzdBoYLmFwaS52MS5HZXRVc2Vyc1Jlc3BvbnNlIgASSwoMVXBsb2FkQXZhdGFyEhsuYXBpLnYxLlVwbG9hZEF2YXRhclJlcXVlc3QaHC5hcGkudjEuVXBsb2FkQXZhdGFyUmVzcG9uc2UiAGIGcHJvdG8z", [file_buf_validate_validate, file_google_protobuf_timestamp]);
 
 /**
  * @generated from message api.v1.UserRegisterRequest
@@ -75,6 +75,19 @@ export const UserRegisterResponseSchema: GenMessage<UserRegisterResponse> = /*@_
   messageDesc(file_api_v1_user, 1);
 
 /**
+ * @generated from message api.v1.UserInfoRequest
+ */
+export type UserInfoRequest = Message<"api.v1.UserInfoRequest"> & {
+};
+
+/**
+ * Describes the message api.v1.UserInfoRequest.
+ * Use `create(UserInfoRequestSchema)` to create a new message.
+ */
+export const UserInfoRequestSchema: GenMessage<UserInfoRequest> = /*@__PURE__*/
+  messageDesc(file_api_v1_user, 2);
+
+/**
  * @generated from message api.v1.UserInfoResponse
  */
 export type UserInfoResponse = Message<"api.v1.UserInfoResponse"> & {
@@ -97,6 +110,11 @@ export type UserInfoResponse = Message<"api.v1.UserInfoResponse"> & {
    * @generated from field: api.v1.UserRole role = 4;
    */
   role: UserRole;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp avatar_updated_at = 5;
+   */
+  avatarUpdatedAt?: Timestamp;
 };
 
 /**
@@ -104,7 +122,20 @@ export type UserInfoResponse = Message<"api.v1.UserInfoResponse"> & {
  * Use `create(UserInfoResponseSchema)` to create a new message.
  */
 export const UserInfoResponseSchema: GenMessage<UserInfoResponse> = /*@__PURE__*/
-  messageDesc(file_api_v1_user, 2);
+  messageDesc(file_api_v1_user, 3);
+
+/**
+ * @generated from message api.v1.GetUsersRequest
+ */
+export type GetUsersRequest = Message<"api.v1.GetUsersRequest"> & {
+};
+
+/**
+ * Describes the message api.v1.GetUsersRequest.
+ * Use `create(GetUsersRequestSchema)` to create a new message.
+ */
+export const GetUsersRequestSchema: GenMessage<GetUsersRequest> = /*@__PURE__*/
+  messageDesc(file_api_v1_user, 4);
 
 /**
  * @generated from message api.v1.GetUsersResponse
@@ -121,7 +152,7 @@ export type GetUsersResponse = Message<"api.v1.GetUsersResponse"> & {
  * Use `create(GetUsersResponseSchema)` to create a new message.
  */
 export const GetUsersResponseSchema: GenMessage<GetUsersResponse> = /*@__PURE__*/
-  messageDesc(file_api_v1_user, 3);
+  messageDesc(file_api_v1_user, 5);
 
 /**
  * @generated from message api.v1.GetUsersResponse.User
@@ -148,7 +179,42 @@ export type GetUsersResponse_User = Message<"api.v1.GetUsersResponse.User"> & {
  * Use `create(GetUsersResponse_UserSchema)` to create a new message.
  */
 export const GetUsersResponse_UserSchema: GenMessage<GetUsersResponse_User> = /*@__PURE__*/
-  messageDesc(file_api_v1_user, 3, 0);
+  messageDesc(file_api_v1_user, 5, 0);
+
+/**
+ * @generated from message api.v1.UploadAvatarRequest
+ */
+export type UploadAvatarRequest = Message<"api.v1.UploadAvatarRequest"> & {
+  /**
+   * @generated from field: bytes avatar_data = 1;
+   */
+  avatarData: Uint8Array;
+
+  /**
+   * @generated from field: string mime_type = 2;
+   */
+  mimeType: string;
+};
+
+/**
+ * Describes the message api.v1.UploadAvatarRequest.
+ * Use `create(UploadAvatarRequestSchema)` to create a new message.
+ */
+export const UploadAvatarRequestSchema: GenMessage<UploadAvatarRequest> = /*@__PURE__*/
+  messageDesc(file_api_v1_user, 6);
+
+/**
+ * @generated from message api.v1.UploadAvatarResponse
+ */
+export type UploadAvatarResponse = Message<"api.v1.UploadAvatarResponse"> & {
+};
+
+/**
+ * Describes the message api.v1.UploadAvatarResponse.
+ * Use `create(UploadAvatarResponseSchema)` to create a new message.
+ */
+export const UploadAvatarResponseSchema: GenMessage<UploadAvatarResponse> = /*@__PURE__*/
+  messageDesc(file_api_v1_user, 7);
 
 /**
  * @generated from enum api.v1.UserRole
@@ -193,7 +259,7 @@ export const UserService: GenService<{
    */
   userInfo: {
     methodKind: "unary";
-    input: typeof EmptySchema;
+    input: typeof UserInfoRequestSchema;
     output: typeof UserInfoResponseSchema;
   },
   /**
@@ -201,8 +267,16 @@ export const UserService: GenService<{
    */
   getUsers: {
     methodKind: "unary";
-    input: typeof EmptySchema;
+    input: typeof GetUsersRequestSchema;
     output: typeof GetUsersResponseSchema;
+  },
+  /**
+   * @generated from rpc api.v1.UserService.UploadAvatar
+   */
+  uploadAvatar: {
+    methodKind: "unary";
+    input: typeof UploadAvatarRequestSchema;
+    output: typeof UploadAvatarResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_api_v1_user, 0);

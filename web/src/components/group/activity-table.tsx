@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AmountWithCurrency } from "@/components/amount-with-currency";
+import { MemberAvatar } from "@/components/member-avatar";
 import {
   MoreHorizontal,
   Pencil,
@@ -96,15 +97,11 @@ export function ActivityTable({
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
-                      <span className="text-xs">
-                        {expense.payerName
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .toUpperCase()}
-                      </span>
-                    </div>
+                    <MemberAvatar
+                      userId={expense.payerId}
+                      username={expense.payerName}
+                      className="w-6 h-6"
+                    />
                     <span className="text-sm truncate max-w-[150px]">
                       paid by {expense.payerName}
                     </span>
@@ -159,11 +156,21 @@ export function ActivityTable({
                   />
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-1 text-sm">
+                  <div className="flex items-center gap-1.5 text-sm">
+                    <MemberAvatar
+                      userId={transfer.senderId}
+                      username={transfer.senderName}
+                      className="w-6 h-6"
+                    />
                     <span className="truncate max-w-[80px]">
                       {transfer.senderName}
                     </span>
-                    <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                    <ArrowRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                    <MemberAvatar
+                      userId={transfer.receiverId}
+                      username={transfer.receiverName}
+                      className="w-6 h-6"
+                    />
                     <span className="truncate max-w-[80px]">
                       {transfer.receiverName}
                     </span>

@@ -22,7 +22,7 @@ INSERT INTO users
     role
 ) VALUES (
     ?1, ?2, ?3, ?4, ?5, ?6
-) RETURNING id, email, username, password_hash, created_at, role, expense_group_ids
+) RETURNING id, email, username, password_hash, created_at, role, expense_group_ids, avatar_data, avatar_mime_type, avatar_updated_at
 `
 
 type CreateUserParams struct {
@@ -52,12 +52,31 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.CreatedAt,
 		&i.Role,
 		&i.ExpenseGroupIds,
+		&i.AvatarData,
+		&i.AvatarMimeType,
+		&i.AvatarUpdatedAt,
 	)
 	return i, err
 }
 
+const getUserAvatar = `-- name: GetUserAvatar :one
+SELECT avatar_data, avatar_mime_type FROM users WHERE id = ?1 LIMIT 1
+`
+
+type GetUserAvatarRow struct {
+	AvatarData     []byte
+	AvatarMimeType *string
+}
+
+func (q *Queries) GetUserAvatar(ctx context.Context, id string) (GetUserAvatarRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserAvatar, id)
+	var i GetUserAvatarRow
+	err := row.Scan(&i.AvatarData, &i.AvatarMimeType)
+	return i, err
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, username, password_hash, created_at, role, expense_group_ids FROM users WHERE email = ?1 LIMIT 1
+SELECT id, email, username, password_hash, created_at, role, expense_group_ids, avatar_data, avatar_mime_type, avatar_updated_at FROM users WHERE email = ?1 LIMIT 1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
@@ -71,6 +90,9 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.CreatedAt,
 		&i.Role,
 		&i.ExpenseGroupIds,
+		&i.AvatarData,
+		&i.AvatarMimeType,
+		&i.AvatarUpdatedAt,
 	)
 	return i, err
 }
@@ -78,20 +100,26 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 const getUserById = `-- name: GetUserById :one
 ;
 
-SELECT id, email, username, password_hash, created_at, role, expense_group_ids FROM users WHERE id = ?1 LIMIT 1
+SELECT id, email, username, role, avatar_updated_at FROM users WHERE id = ?1 LIMIT 1
 `
 
-func (q *Queries) GetUserById(ctx context.Context, id string) (User, error) {
+type GetUserByIdRow struct {
+	ID              string
+	Email           string
+	Username        string
+	Role            int64
+	AvatarUpdatedAt overrides.NullTextTime
+}
+
+func (q *Queries) GetUserById(ctx context.Context, id string) (GetUserByIdRow, error) {
 	row := q.db.QueryRowContext(ctx, getUserById, id)
-	var i User
+	var i GetUserByIdRow
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
 		&i.Username,
-		&i.PasswordHash,
-		&i.CreatedAt,
 		&i.Role,
-		&i.ExpenseGroupIds,
+		&i.AvatarUpdatedAt,
 	)
 	return i, err
 }
@@ -127,4 +155,27 @@ func (q *Queries) GetUsers(ctx context.Context) ([]GetUsersRow, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateUserAvatar = `-- name: UpdateUserAvatar :exec
+UPDATE users
+SET avatar_data = ?1, avatar_mime_type = ?2, avatar_updated_at = ?3
+WHERE id = ?4
+`
+
+type UpdateUserAvatarParams struct {
+	AvatarData      []byte
+	AvatarMimeType  *string
+	AvatarUpdatedAt overrides.NullTextTime
+	ID              string
+}
+
+func (q *Queries) UpdateUserAvatar(ctx context.Context, arg UpdateUserAvatarParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserAvatar,
+		arg.AvatarData,
+		arg.AvatarMimeType,
+		arg.AvatarUpdatedAt,
+		arg.ID,
+	)
+	return err
 }

@@ -13,6 +13,10 @@ sql:
             go_type:
               import: "pennywise/db/overrides"
               type: "TextTime"
+          - column: "users.avatar_updated_at"
+            go_type:
+              import: "pennywise/db/overrides"
+              type: "NullTextTime"
           # Timestamp columns - sessions table
           - column: "sessions.created_at"
             go_type:

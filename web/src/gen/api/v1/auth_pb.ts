@@ -7,15 +7,13 @@ import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2
 import type { UserRole } from "./user_pb";
 import { file_api_v1_user } from "./user_pb";
 import { file_buf_validate_validate } from "../../buf/validate/validate_pb";
-import type { EmptySchema } from "@bufbuild/protobuf/wkt";
-import { file_google_protobuf_empty } from "@bufbuild/protobuf/wkt";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file api/v1/auth.proto.
  */
 export const file_api_v1_auth: GenFile = /*@__PURE__*/
-  fileDesc("ChFhcGkvdjEvYXV0aC5wcm90bxIGYXBpLnYxIk0KGExvZ2luV2l0aFBhc3N3b3JkUmVxdWVzdBIWCgVlbWFpbBgBIAEoCUIHukgEcgJgARIZCghwYXNzd29yZBgCIAEoCUIHukgEcgIQBiJoChlMb2dpbldpdGhQYXNzd29yZFJlc3BvbnNlEgoKAmlkGAEgASgJEg0KBWVtYWlsGAIgASgJEhAKCHVzZXJuYW1lGAMgASgJEh4KBHJvbGUYBCABKA4yEC5hcGkudjEuVXNlclJvbGUypQEKC0F1dGhTZXJ2aWNlEloKEUxvZ2luV2l0aFBhc3N3b3JkEiAuYXBpLnYxLkxvZ2luV2l0aFBhc3N3b3JkUmVxdWVzdBohLmFwaS52MS5Mb2dpbldpdGhQYXNzd29yZFJlc3BvbnNlIgASOgoGTG9nb3V0EhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5IgBiBnByb3RvMw", [file_api_v1_user, file_buf_validate_validate, file_google_protobuf_empty]);
+  fileDesc("ChFhcGkvdjEvYXV0aC5wcm90bxIGYXBpLnYxIk0KGExvZ2luV2l0aFBhc3N3b3JkUmVxdWVzdBIWCgVlbWFpbBgBIAEoCUIHukgEcgJgARIZCghwYXNzd29yZBgCIAEoCUIHukgEcgIQBiJoChlMb2dpbldpdGhQYXNzd29yZFJlc3BvbnNlEgoKAmlkGAEgASgJEg0KBWVtYWlsGAIgASgJEhAKCHVzZXJuYW1lGAMgASgJEh4KBHJvbGUYBCABKA4yEC5hcGkudjEuVXNlclJvbGUiDwoNTG9nb3V0UmVxdWVzdCIQCg5Mb2dvdXRSZXNwb25zZTKkAQoLQXV0aFNlcnZpY2USWgoRTG9naW5XaXRoUGFzc3dvcmQSIC5hcGkudjEuTG9naW5XaXRoUGFzc3dvcmRSZXF1ZXN0GiEuYXBpLnYxLkxvZ2luV2l0aFBhc3N3b3JkUmVzcG9uc2UiABI5CgZMb2dvdXQSFS5hcGkudjEuTG9nb3V0UmVxdWVzdBoWLmFwaS52MS5Mb2dvdXRSZXNwb25zZSIAYgZwcm90bzM", [file_api_v1_user, file_buf_validate_validate]);
 
 /**
  * @generated from message api.v1.LoginWithPasswordRequest
@@ -72,6 +70,32 @@ export const LoginWithPasswordResponseSchema: GenMessage<LoginWithPasswordRespon
   messageDesc(file_api_v1_auth, 1);
 
 /**
+ * @generated from message api.v1.LogoutRequest
+ */
+export type LogoutRequest = Message<"api.v1.LogoutRequest"> & {
+};
+
+/**
+ * Describes the message api.v1.LogoutRequest.
+ * Use `create(LogoutRequestSchema)` to create a new message.
+ */
+export const LogoutRequestSchema: GenMessage<LogoutRequest> = /*@__PURE__*/
+  messageDesc(file_api_v1_auth, 2);
+
+/**
+ * @generated from message api.v1.LogoutResponse
+ */
+export type LogoutResponse = Message<"api.v1.LogoutResponse"> & {
+};
+
+/**
+ * Describes the message api.v1.LogoutResponse.
+ * Use `create(LogoutResponseSchema)` to create a new message.
+ */
+export const LogoutResponseSchema: GenMessage<LogoutResponse> = /*@__PURE__*/
+  messageDesc(file_api_v1_auth, 3);
+
+/**
  * @generated from service api.v1.AuthService
  */
 export const AuthService: GenService<{
@@ -88,8 +112,8 @@ export const AuthService: GenService<{
    */
   logout: {
     methodKind: "unary";
-    input: typeof EmptySchema;
-    output: typeof EmptySchema;
+    input: typeof LogoutRequestSchema;
+    output: typeof LogoutResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_api_v1_auth, 0);

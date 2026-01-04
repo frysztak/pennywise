@@ -80,6 +80,9 @@ type User struct {
 	CreatedAt       overrides.TextTime
 	Role            int64
 	ExpenseGroupIds *int64
+	AvatarData      []byte
+	AvatarMimeType  *string
+	AvatarUpdatedAt overrides.NullTextTime
 }
 
 type UserExpenseGroup struct {
