@@ -24,6 +24,7 @@ import { COMMON_CURRENCIES } from "@/lib/currencies";
 import { Card, CardContent } from "../ui/card";
 import type { EditingGroup } from "@/hooks/use-edit-group-modal";
 import type { MemberBalance } from "@/gen/api/v1/group_pb";
+import { MemberAvatar } from "@/components/member-avatar";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -203,14 +204,10 @@ export function EditGroupDialog({
                   <CardContent className="px-3">
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex items-center gap-3 flex-1">
-                        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                          <span className="text-xs font-medium">
-                            {member.userName
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </span>
-                        </div>
+                        <MemberAvatar
+                          userId={member.userId}
+                          username={member.userName}
+                        />
                         <span className="font-medium text-sm">
                           {member.userName}
                         </span>
