@@ -14,6 +14,7 @@ import { Route as PathlessLayoutRouteRouteImport } from './routes/_pathlessLayou
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
+import { Route as PathlessLayoutSettingsRouteImport } from './routes/_pathlessLayout/settings'
 import { Route as PathlessLayoutDashboardRouteImport } from './routes/_pathlessLayout/dashboard'
 import { Route as PathlessLayoutGroupGroupIdRouteImport } from './routes/_pathlessLayout/group/$groupId'
 
@@ -41,6 +42,11 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/auth/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PathlessLayoutSettingsRoute = PathlessLayoutSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => PathlessLayoutRouteRoute,
+} as any)
 const PathlessLayoutDashboardRoute = PathlessLayoutDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/dashboard': typeof PathlessLayoutDashboardRoute
+  '/settings': typeof PathlessLayoutSettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/group/$groupId': typeof PathlessLayoutGroupGroupIdRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/dashboard': typeof PathlessLayoutDashboardRoute
+  '/settings': typeof PathlessLayoutSettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/group/$groupId': typeof PathlessLayoutGroupGroupIdRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   '/_pathlessLayout': typeof PathlessLayoutRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/_pathlessLayout/dashboard': typeof PathlessLayoutDashboardRoute
+  '/_pathlessLayout/settings': typeof PathlessLayoutSettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/_pathlessLayout/group/$groupId': typeof PathlessLayoutGroupGroupIdRoute
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/dashboard'
+    | '/settings'
     | '/auth/login'
     | '/auth/register'
     | '/group/$groupId'
@@ -93,6 +103,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/dashboard'
+    | '/settings'
     | '/auth/login'
     | '/auth/register'
     | '/group/$groupId'
@@ -102,6 +113,7 @@ export interface FileRouteTypes {
     | '/_pathlessLayout'
     | '/about'
     | '/_pathlessLayout/dashboard'
+    | '/_pathlessLayout/settings'
     | '/auth/login'
     | '/auth/register'
     | '/_pathlessLayout/group/$groupId'
@@ -152,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_pathlessLayout/settings': {
+      id: '/_pathlessLayout/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof PathlessLayoutSettingsRouteImport
+      parentRoute: typeof PathlessLayoutRouteRoute
+    }
     '/_pathlessLayout/dashboard': {
       id: '/_pathlessLayout/dashboard'
       path: '/dashboard'
@@ -171,11 +190,13 @@ declare module '@tanstack/react-router' {
 
 interface PathlessLayoutRouteRouteChildren {
   PathlessLayoutDashboardRoute: typeof PathlessLayoutDashboardRoute
+  PathlessLayoutSettingsRoute: typeof PathlessLayoutSettingsRoute
   PathlessLayoutGroupGroupIdRoute: typeof PathlessLayoutGroupGroupIdRoute
 }
 
 const PathlessLayoutRouteRouteChildren: PathlessLayoutRouteRouteChildren = {
   PathlessLayoutDashboardRoute: PathlessLayoutDashboardRoute,
+  PathlessLayoutSettingsRoute: PathlessLayoutSettingsRoute,
   PathlessLayoutGroupGroupIdRoute: PathlessLayoutGroupGroupIdRoute,
 }
 

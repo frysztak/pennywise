@@ -17,7 +17,7 @@ import {
 import { useMutation, useSuspenseQuery } from "@connectrpc/connect-query";
 import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
 import { logout } from "@/gen/api/v1/auth-AuthService_connectquery";
-import { useRouter } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
@@ -65,9 +65,11 @@ export function NavUser() {
             sideOffset={4}
           >
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Settings />
-                Settings
+              <DropdownMenuItem asChild>
+                <Link to="/settings">
+                  <Settings />
+                  Settings
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
