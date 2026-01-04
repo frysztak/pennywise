@@ -38,8 +38,7 @@ interface Props {
 export function SignupForm({
   onSubmit,
   isLoading,
-  ...props
-}: React.ComponentProps<typeof Card> & Props) {
+}: Props) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -51,7 +50,7 @@ export function SignupForm({
   })
 
   return (
-    <Card {...props}>
+    <Card>
       <CardHeader>
         <CardTitle>Create an account</CardTitle>
         <CardDescription>
