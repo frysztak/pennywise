@@ -19,6 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
 import { Spinner } from "./ui/spinner";
+import { Link } from "@tanstack/react-router";
 
 const formSchema = z.object({
   email: z.email(),
@@ -116,7 +117,7 @@ export function LoginForm({
                   Login with Google
                 </Button> */}
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <a href="#">Sign up</a>
+                  Don&apos;t have an account? <Link to="/auth/register">Sign up</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
