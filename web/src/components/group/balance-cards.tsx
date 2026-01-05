@@ -15,7 +15,7 @@ export function BalanceCards({
 }: BalanceCardsProps) {
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <Card className="">
+      <Card className="gap-1">
         <CardHeader>
           <CardTitle className="text-lg">Your total balance</CardTitle>
         </CardHeader>
@@ -28,7 +28,7 @@ export function BalanceCards({
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="gap-1">
         <CardHeader>
           <CardTitle className="text-lg">Total group spending</CardTitle>
         </CardHeader>

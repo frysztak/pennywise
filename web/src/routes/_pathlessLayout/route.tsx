@@ -46,7 +46,11 @@ function RouteComponent() {
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <Outlet />
+          <div className="min-h-screen bg-background">
+            <div className="max-w-5xl mx-auto py-6 px-2 lg:py-6 space-y-6">
+              <Outlet />
+            </div>
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>

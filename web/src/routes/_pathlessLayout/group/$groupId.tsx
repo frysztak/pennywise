@@ -66,103 +66,101 @@ function RouteComponent() {
   )!;
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto py-6 px-2 lg:py-6  space-y-6">
-        {/* Header */}
-        <GroupHeader
-          groupName={groupInfo.groupName}
-          groupDescription={groupInfo.groupDescription}
-          onCreateExpense={expenseModal.openCreate}
-          onCreateTransfer={transferModal.openCreate}
-          onInviteMembers={() => addMemberModal.openModal(groupId)}
-          onEditGroup={() =>
-            editGroupModal.openModal({
-              groupId,
-              groupName: groupInfo.groupName,
-              groupDescription: groupInfo.groupDescription,
-              defaultCurrency: groupInfo.groupDefaultCurrency,
-            })
+    <>
+      {/* Header */}
+      <GroupHeader
+        groupName={groupInfo.groupName}
+        groupDescription={groupInfo.groupDescription}
+        onCreateExpense={expenseModal.openCreate}
+        onCreateTransfer={transferModal.openCreate}
+        onInviteMembers={() => addMemberModal.openModal(groupId)}
+        onEditGroup={() =>
+          editGroupModal.openModal({
+            groupId,
+            groupName: groupInfo.groupName,
+            groupDescription: groupInfo.groupDescription,
+            defaultCurrency: groupInfo.groupDefaultCurrency,
+          })
+        }
+        onDeleteGroup={() =>
+          deleteGroupModal.confirmDelete({
+            groupId,
+            groupName: groupInfo.groupName,
+          })
+        }
+      />
+
+      {/* Balance Cards */}
+      <BalanceCards
+        userBalance={currentUserBalance}
+        totalSpending={groupInfo.totalSpending}
+        defaultCurrency={groupInfo.groupDefaultCurrency}
+      />
+
+      {/* Group Balances */}
+      <GroupBalances
+        memberBalances={groupInfo.memberBalances}
+        currentUserId={currentUser.id}
+        defaultCurrency={groupInfo.groupDefaultCurrency}
+      />
+
+      {/* Recent Activity */}
+      <div>
+        <h2 className="text-xl font-bold mb-4">Recent Activity</h2>
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center h-64">
+              <Spinner className="size-8" />
+            </div>
           }
-          onDeleteGroup={() =>
-            deleteGroupModal.confirmDelete({
-              groupId,
-              groupName: groupInfo.groupName,
-            })
-          }
-        />
-
-        {/* Balance Cards */}
-        <BalanceCards
-          userBalance={currentUserBalance}
-          totalSpending={groupInfo.totalSpending}
-          defaultCurrency={groupInfo.groupDefaultCurrency}
-        />
-
-        {/* Group Balances */}
-        <GroupBalances
-          memberBalances={groupInfo.memberBalances}
-          currentUserId={currentUser.id}
-          defaultCurrency={groupInfo.groupDefaultCurrency}
-        />
-
-        {/* Recent Activity */}
-        <div>
-          <h2 className="text-xl font-bold mb-4">Recent Activity</h2>
-          <Suspense
-            fallback={
-              <div className="flex items-center justify-center h-64">
-                <Spinner className="size-8" />
-              </div>
-            }
-          >
-            <ActivitySection
-              groupId={groupId}
-              onEditExpense={expenseModal.openEdit}
-              onDeleteExpense={deleteExpenseModal.confirmDelete}
-              onEditTransfer={transferModal.openEdit}
-              onDeleteTransfer={deleteTransferModal.confirmDelete}
-            />
-          </Suspense>
-        </div>
-
-        {/* Expense Modal (Create/Edit) */}
-        <ExpenseModal
-          open={expenseModal.modalState.open}
-          onOpenChange={(open) => !open && expenseModal.close()}
-          mode={expenseModal.modalState.mode}
-          expense={expenseModal.modalState.expense}
-          groupId={groupId}
-          groupMembers={groupInfo.memberBalances}
-          currentUserId={currentUser.id}
-          defaultCurrency={groupInfo.groupDefaultCurrency}
-        />
-
-        {/* Transfer Modal (Create/Edit) */}
-        <TransferModal
-          open={transferModal.modalState.open}
-          onOpenChange={(open) => !open && transferModal.close()}
-          mode={transferModal.modalState.mode}
-          transfer={transferModal.modalState.transfer}
-          groupId={groupId}
-          groupMembers={groupInfo.memberBalances}
-          currentUserId={currentUser.id}
-          defaultCurrency={groupInfo.groupDefaultCurrency}
-        />
-
-        <DeleteExpenseDialog {...deleteExpenseModal.dialogProps} />
-        <DeleteTransferDialog {...deleteTransferModal.dialogProps} />
-        <DeleteGroupDialog {...deleteGroupModal.dialogProps} />
-        {addMemberModal.dialogProps.open && (
-          <AddMemberDialog {...addMemberModal.dialogProps} />
-        )}
-        {editGroupModal.dialogProps.open && editGroupModal.dialogProps.group && (
-          <EditGroupDialog
-            {...editGroupModal.dialogProps}
-            group={editGroupModal.dialogProps.group}
-            memberBalances={groupInfo.memberBalances}
+        >
+          <ActivitySection
+            groupId={groupId}
+            onEditExpense={expenseModal.openEdit}
+            onDeleteExpense={deleteExpenseModal.confirmDelete}
+            onEditTransfer={transferModal.openEdit}
+            onDeleteTransfer={deleteTransferModal.confirmDelete}
           />
-        )}
+        </Suspense>
       </div>
-    </div>
+
+      {/* Expense Modal (Create/Edit) */}
+      <ExpenseModal
+        open={expenseModal.modalState.open}
+        onOpenChange={(open) => !open && expenseModal.close()}
+        mode={expenseModal.modalState.mode}
+        expense={expenseModal.modalState.expense}
+        groupId={groupId}
+        groupMembers={groupInfo.memberBalances}
+        currentUserId={currentUser.id}
+        defaultCurrency={groupInfo.groupDefaultCurrency}
+      />
+
+      {/* Transfer Modal (Create/Edit) */}
+      <TransferModal
+        open={transferModal.modalState.open}
+        onOpenChange={(open) => !open && transferModal.close()}
+        mode={transferModal.modalState.mode}
+        transfer={transferModal.modalState.transfer}
+        groupId={groupId}
+        groupMembers={groupInfo.memberBalances}
+        currentUserId={currentUser.id}
+        defaultCurrency={groupInfo.groupDefaultCurrency}
+      />
+
+      <DeleteExpenseDialog {...deleteExpenseModal.dialogProps} />
+      <DeleteTransferDialog {...deleteTransferModal.dialogProps} />
+      <DeleteGroupDialog {...deleteGroupModal.dialogProps} />
+      {addMemberModal.dialogProps.open && (
+        <AddMemberDialog {...addMemberModal.dialogProps} />
+      )}
+      {editGroupModal.dialogProps.open && editGroupModal.dialogProps.group && (
+        <EditGroupDialog
+          {...editGroupModal.dialogProps}
+          group={editGroupModal.dialogProps.group}
+          memberBalances={groupInfo.memberBalances}
+        />
+      )}
+    </>
   );
 }

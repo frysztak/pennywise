@@ -1,9 +1,9 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { useSuspenseQuery } from '@connectrpc/connect-query';
-import { getUserGroups } from '@/gen/api/v1/group-GroupService_connectquery';
-import { ExpenseGroupCard } from '@/components/expense-group-card';
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@connectrpc/connect-query";
+import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
+import { ExpenseGroupCard } from "@/components/expense-group-card";
 
-export const Route = createFileRoute('/_pathlessLayout/dashboard')({
+export const Route = createFileRoute("/_pathlessLayout/dashboard")({
   component: RouteComponent,
 });
 
@@ -11,7 +11,7 @@ function RouteComponent() {
   const { data: groupsData } = useSuspenseQuery(getUserGroups);
 
   return (
-    <div className="py-6 px-2 lg:py-6 space-y-6">
+    <>
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground mt-2">
@@ -54,6 +54,6 @@ function RouteComponent() {
           })}
         </div>
       )}
-    </div>
+    </>
   );
 }
