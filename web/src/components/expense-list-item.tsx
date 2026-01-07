@@ -1,5 +1,6 @@
-import type { GetGroupExpensesResponse_Expense } from "@/gen/api/v1/expense_pb";
 import { timestampDate } from "@bufbuild/protobuf/wkt";
+
+import type { GetGroupExpensesResponse_Expense } from "@/gen/api/v1/expense_pb";
 
 interface ExpenseListItemProps {
   expense: GetGroupExpensesResponse_Expense;
@@ -12,13 +13,9 @@ export function ExpenseListItem({ expense }: ExpenseListItemProps) {
       <div className="flex-1 min-w-0 space-y-2">
         <div className="flex items-start gap-3">
           <div className="flex-1 min-w-0">
-            <h3 className="text-base sm:text-lg font-semibold tracking-tight leading-tight">
-              {expense.name}
-            </h3>
+            <h3 className="text-base sm:text-lg font-semibold tracking-tight leading-tight">{expense.name}</h3>
             {expense.description && (
-              <p className="mt-1 text-sm text-muted-foreground line-clamp-1">
-                {expense.description}
-              </p>
+              <p className="mt-1 text-sm text-muted-foreground line-clamp-1">{expense.description}</p>
             )}
           </div>
         </div>
@@ -34,17 +31,13 @@ export function ExpenseListItem({ expense }: ExpenseListItemProps) {
           </time>
           <span className="hidden sm:inline text-muted-foreground/40">•</span>
           <span className="truncate max-w-[200px]">
-            <span className="text-muted-foreground/60">Paid by</span>{" "}
-            {expense.payerId}
+            <span className="text-muted-foreground/60">Paid by</span> {expense.payerId}
           </span>
           {expense.beneficiariesIds.length > 0 && (
             <>
-              <span className="hidden sm:inline text-muted-foreground/40">
-                •
-              </span>
+              <span className="hidden sm:inline text-muted-foreground/40">•</span>
               <span className="text-muted-foreground/60">
-                Split {expense.beneficiariesIds.length}{" "}
-                {expense.beneficiariesIds.length === 1 ? "way" : "ways"}
+                Split {expense.beneficiariesIds.length} {expense.beneficiariesIds.length === 1 ? "way" : "ways"}
               </span>
             </>
           )}

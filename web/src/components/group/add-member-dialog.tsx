@@ -1,6 +1,7 @@
-import { useState, useMemo } from "react";
 import { useQuery } from "@connectrpc/connect-query";
-import { getUsers } from "@/gen/api/v1/user-UserService_connectquery";
+import { useMemo, useState } from "react";
+
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,8 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import MultipleSelector, { type Option } from "@/components/ui/multi-select";
+import { getUsers } from "@/gen/api/v1/user-UserService_connectquery";
 
 interface AddMemberDialogProps {
   open: boolean;
@@ -19,11 +20,7 @@ interface AddMemberDialogProps {
   onAddMember: (userId: string) => void;
 }
 
-export function AddMemberDialog({
-  open,
-  onOpenChange,
-  onAddMember,
-}: AddMemberDialogProps) {
+export function AddMemberDialog({ open, onOpenChange, onAddMember }: AddMemberDialogProps) {
   const [selectedUsers, setSelectedUsers] = useState<Option[]>([]);
 
   const { data: usersData } = useQuery(getUsers, undefined, {
@@ -46,9 +43,7 @@ export function AddMemberDialog({
     return userOptions.filter(
       (option) =>
         option.label.toLowerCase().includes(searchQuery) ||
-        (option.email as string | undefined)
-          ?.toLowerCase()
-          .includes(searchQuery)
+        (option.email as string | undefined)?.toLowerCase().includes(searchQuery),
     );
   };
 
@@ -70,9 +65,7 @@ export function AddMemberDialog({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Add Members to Group</DialogTitle>
-          <DialogDescription>
-            Search and select users to add them to the group.
-          </DialogDescription>
+          <DialogDescription>Search and select users to add them to the group.</DialogDescription>
         </DialogHeader>
 
         <div className="py-4">
@@ -81,11 +74,7 @@ export function AddMemberDialog({
             onChange={setSelectedUsers}
             onSearchSync={handleSearchSync}
             placeholder="Search users by username or email..."
-            emptyIndicator={
-              <p className="text-center text-sm text-muted-foreground">
-                No users found
-              </p>
-            }
+            emptyIndicator={<p className="text-center text-sm text-muted-foreground">No users found</p>}
             hidePlaceholderWhenSelected
           />
         </div>
@@ -94,10 +83,7 @@ export function AddMemberDialog({
           <Button variant="outline" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button
-            onClick={handleAddMembers}
-            disabled={selectedUsers.length === 0}
-          >
+          <Button onClick={handleAddMembers} disabled={selectedUsers.length === 0}>
             Add {selectedUsers.length > 0 && `(${selectedUsers.length})`}
           </Button>
         </DialogFooter>

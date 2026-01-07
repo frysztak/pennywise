@@ -39,11 +39,7 @@ export function AmountWithCurrency({
       {sortedBalance.map((item, index) => {
         const amount = Number(item.amount) / 100;
         const isNegative = item.amount < 0n;
-        const colorClass = !disableColor
-          ? isNegative
-            ? "text-negative-money"
-            : "text-money"
-          : "";
+        const colorClass = !disableColor ? (isNegative ? "text-negative-money" : "text-money") : "";
 
         return (
           <span key={index}>

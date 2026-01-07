@@ -1,43 +1,24 @@
-import { Controller, useForm } from "react-hook-form";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
-import * as z from "zod";
+import { timestampDate, timestampFromDate } from "@bufbuild/protobuf/wkt";
+import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
+
+import { getGroupActivity, getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
+import type { GetGroupActivityResponse_ActivityItem_Transfer, MemberBalance } from "@/gen/api/v1/group_pb";
+import { createTransfer, updateTransfer } from "@/gen/api/v1/transfer-TransferService_connectquery";
+import { COMMON_CURRENCIES } from "@/lib/currencies";
+import { handleError } from "@/lib/utils";
+
+import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
-import {
-  createTransfer,
-  updateTransfer,
-} from "@/gen/api/v1/transfer-TransferService_connectquery";
-import {
-  getGroupActivity,
-  getUserGroups,
-} from "@/gen/api/v1/group-GroupService_connectquery";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Spinner } from "../ui/spinner";
-import { toast } from "sonner";
-import { useEffect, useCallback } from "react";
-import { handleError } from "@/lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import { COMMON_CURRENCIES } from "@/lib/currencies";
-import type {
-  MemberBalance,
-  GetGroupActivityResponse_ActivityItem_Transfer,
-} from "@/gen/api/v1/group_pb";
-import { timestampDate, timestampFromDate } from "@bufbuild/protobuf/wkt";
 
 const formSchema = z
   .object({
@@ -135,31 +116,25 @@ export const TransferModal = ({
 
   const queryClient = useQueryClient();
 
-  const { isPending: isCreating, mutate: createMutate } = useMutation(
-    createTransfer,
-    {
-      onSuccess: () => {
-        toast.success("Transfer recorded!");
-        queryClient.invalidateQueries({ queryKey: groupActivityKey });
-        queryClient.invalidateQueries({ queryKey: userGroupsKey });
-        onOpenChange(false);
-      },
-      onError: handleError,
-    }
-  );
+  const { isPending: isCreating, mutate: createMutate } = useMutation(createTransfer, {
+    onSuccess: () => {
+      toast.success("Transfer recorded!");
+      queryClient.invalidateQueries({ queryKey: groupActivityKey });
+      queryClient.invalidateQueries({ queryKey: userGroupsKey });
+      onOpenChange(false);
+    },
+    onError: handleError,
+  });
 
-  const { isPending: isUpdating, mutate: updateMutate } = useMutation(
-    updateTransfer,
-    {
-      onSuccess: () => {
-        toast.success("Transfer updated!");
-        queryClient.invalidateQueries({ queryKey: groupActivityKey });
-        queryClient.invalidateQueries({ queryKey: userGroupsKey });
-        onOpenChange(false);
-      },
-      onError: handleError,
-    }
-  );
+  const { isPending: isUpdating, mutate: updateMutate } = useMutation(updateTransfer, {
+    onSuccess: () => {
+      toast.success("Transfer updated!");
+      queryClient.invalidateQueries({ queryKey: groupActivityKey });
+      queryClient.invalidateQueries({ queryKey: userGroupsKey });
+      onOpenChange(false);
+    },
+    onError: handleError,
+  });
 
   const isPending = isCreating || isUpdating;
 
@@ -196,13 +171,9 @@ export const TransferModal = ({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {isEditMode ? "Edit transfer" : "Record transfer"}
-          </DialogTitle>
+          <DialogTitle>{isEditMode ? "Edit transfer" : "Record transfer"}</DialogTitle>
           <DialogDescription>
-            {isEditMode
-              ? "Update transfer details."
-              : "Record a payment between group members."}
+            {isEditMode ? "Update transfer details." : "Record a payment between group members."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -214,15 +185,8 @@ export const TransferModal = ({
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel htmlFor="sender">From (sender)</FieldLabel>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    disabled={isPending}
-                  >
-                    <SelectTrigger
-                      id="sender"
-                      aria-invalid={fieldState.invalid}
-                    >
+                  <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
+                    <SelectTrigger id="sender" aria-invalid={fieldState.invalid}>
                       <SelectValue placeholder="Select sender" />
                     </SelectTrigger>
                     <SelectContent>
@@ -233,9 +197,7 @@ export const TransferModal = ({
                       ))}
                     </SelectContent>
                   </Select>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
             />
@@ -246,15 +208,8 @@ export const TransferModal = ({
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel htmlFor="receiver">To (receiver)</FieldLabel>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    disabled={isPending}
-                  >
-                    <SelectTrigger
-                      id="receiver"
-                      aria-invalid={fieldState.invalid}
-                    >
+                  <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
+                    <SelectTrigger id="receiver" aria-invalid={fieldState.invalid}>
                       <SelectValue placeholder="Select receiver" />
                     </SelectTrigger>
                     <SelectContent>
@@ -265,9 +220,7 @@ export const TransferModal = ({
                       ))}
                     </SelectContent>
                   </Select>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
             />
@@ -278,16 +231,8 @@ export const TransferModal = ({
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel htmlFor="transferDate">Date</FieldLabel>
-                  <Input
-                    {...field}
-                    id="transferDate"
-                    type="date"
-                    required
-                    aria-invalid={fieldState.invalid}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
+                  <Input {...field} id="transferDate" type="date" required aria-invalid={fieldState.invalid} />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
             />
@@ -307,13 +252,9 @@ export const TransferModal = ({
                       placeholder="0.00"
                       required
                       aria-invalid={fieldState.invalid}
-                      onChange={(e) =>
-                        field.onChange(e.target.valueAsNumber || 0)
-                      }
+                      onChange={(e) => field.onChange(e.target.valueAsNumber || 0)}
                     />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />
@@ -324,31 +265,19 @@ export const TransferModal = ({
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel htmlFor="currency">Currency</FieldLabel>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      disabled={isPending}
-                    >
-                      <SelectTrigger
-                        id="currency"
-                        aria-invalid={fieldState.invalid}
-                      >
+                    <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
+                      <SelectTrigger id="currency" aria-invalid={fieldState.invalid}>
                         <SelectValue placeholder="Select currency" />
                       </SelectTrigger>
                       <SelectContent>
                         {COMMON_CURRENCIES.map((currency) => (
-                          <SelectItem
-                            key={currency.value}
-                            value={currency.value}
-                          >
+                          <SelectItem key={currency.value} value={currency.value}>
                             {currency.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />

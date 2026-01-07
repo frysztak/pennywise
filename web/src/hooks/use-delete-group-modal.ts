@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { useMutation, createConnectQueryKey } from "@connectrpc/connect-query";
+import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
+import { useMatch, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
+
 import { deleteGroup, getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
 import { handleError } from "@/lib/utils";
-import { toast } from "sonner";
-import { useNavigate, useMatch } from "@tanstack/react-router";
 
 const userGroupsKey = createConnectQueryKey({
   schema: getUserGroups,
@@ -20,7 +21,10 @@ export function useDeleteGroupModal() {
   const [deletingGroup, setDeletingGroup] = useState<DeletingGroup | null>(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const currentGroupMatch = useMatch({ from: "/_pathlessLayout/group/$groupId", shouldThrow: false });
+  const currentGroupMatch = useMatch({
+    from: "/_pathlessLayout/group/$groupId",
+    shouldThrow: false,
+  });
 
   const { mutate: deleteGroupMutate } = useMutation(deleteGroup, {
     onSuccess: (_, variables) => {

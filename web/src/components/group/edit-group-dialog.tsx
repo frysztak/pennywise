@@ -1,30 +1,20 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
 import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+
+import { MemberAvatar } from "@/components/member-avatar";
+import type { MemberBalance } from "@/gen/api/v1/group_pb";
+import type { EditingGroup } from "@/hooks/use-edit-group-modal";
+import { COMMON_CURRENCIES } from "@/lib/currencies";
+
+import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
-import { Button } from "../ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Spinner } from "../ui/spinner";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import { COMMON_CURRENCIES } from "@/lib/currencies";
-import { Card, CardContent } from "../ui/card";
-import type { EditingGroup } from "@/hooks/use-edit-group-modal";
-import type { MemberBalance } from "@/gen/api/v1/group_pb";
-import { MemberAvatar } from "@/components/member-avatar";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -37,11 +27,7 @@ interface EditGroupDialogProps {
   group: EditingGroup;
   memberBalances: MemberBalance[];
   onOpenChange: (open: boolean) => void;
-  onUpdateGroup: (data: {
-    name: string;
-    description: string;
-    defaultCurrency: string;
-  }) => void;
+  onUpdateGroup: (data: { name: string; description: string; defaultCurrency: string }) => void;
   onUpdateWeight: (userId: string, weight: number) => void;
 }
 
@@ -105,9 +91,7 @@ export function EditGroupDialog({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Group</DialogTitle>
-          <DialogDescription>
-            Update group details and manage member weights
-          </DialogDescription>
+          <DialogDescription>Update group details and manage member weights</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Group Details Section */}
@@ -128,9 +112,7 @@ export function EditGroupDialog({
                       required
                       aria-invalid={fieldState.invalid}
                     />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />
@@ -140,17 +122,9 @@ export function EditGroupDialog({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor="groupDesc">
-                      Group description
-                    </FieldLabel>
-                    <Input
-                      {...field}
-                      id="groupDesc"
-                      aria-invalid={fieldState.invalid}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
+                    <FieldLabel htmlFor="groupDesc">Group description</FieldLabel>
+                    <Input {...field} id="groupDesc" aria-invalid={fieldState.invalid} />
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />
@@ -160,18 +134,9 @@ export function EditGroupDialog({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor="defaultCurrency">
-                      Default currency
-                    </FieldLabel>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      disabled={isPending}
-                    >
-                      <SelectTrigger
-                        id="defaultCurrency"
-                        aria-invalid={fieldState.invalid}
-                      >
+                    <FieldLabel htmlFor="defaultCurrency">Default currency</FieldLabel>
+                    <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
+                      <SelectTrigger id="defaultCurrency" aria-invalid={fieldState.invalid}>
                         <SelectValue placeholder="Select currency" />
                       </SelectTrigger>
                       <SelectContent>
@@ -182,9 +147,7 @@ export function EditGroupDialog({
                         ))}
                       </SelectContent>
                     </Select>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />
@@ -195,8 +158,8 @@ export function EditGroupDialog({
           <div>
             <h3 className="text-sm font-semibold mb-3">Member Weights</h3>
             <p className="text-sm text-muted-foreground mb-3">
-              Weight determines how expenses are split. A member with weight 2.0
-              pays twice as much as a member with weight 1.0.
+              Weight determines how expenses are split. A member with weight 2.0 pays twice as much as a member with
+              weight 1.0.
             </p>
             <div className="space-y-2">
               {memberBalances.map((member) => (
@@ -204,13 +167,8 @@ export function EditGroupDialog({
                   <CardContent className="px-3">
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex items-center gap-3 flex-1">
-                        <MemberAvatar
-                          userId={member.userId}
-                          username={member.userName}
-                        />
-                        <span className="font-medium text-sm">
-                          {member.userName}
-                        </span>
+                        <MemberAvatar userId={member.userId} username={member.userName} />
+                        <span className="font-medium text-sm">{member.userName}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <FieldLabel htmlFor={`weight-${member.userId}`} className="text-xs whitespace-nowrap mb-0">
@@ -222,9 +180,7 @@ export function EditGroupDialog({
                           step="0.1"
                           min="0.1"
                           value={editingWeights[member.userId] ?? 1}
-                          onChange={(e) =>
-                            handleWeightChange(member.userId, e.target.value)
-                          }
+                          onChange={(e) => handleWeightChange(member.userId, e.target.value)}
                           disabled={isPending}
                           className="w-20 text-sm"
                         />
@@ -238,12 +194,7 @@ export function EditGroupDialog({
 
           {/* Submit Button */}
           <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isPending}
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
               Cancel
             </Button>
             <Button type="submit" disabled={isPending}>

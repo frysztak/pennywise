@@ -1,5 +1,7 @@
 "use client";
 
+import { useSuspenseQuery } from "@connectrpc/connect-query";
+import { Link } from "@tanstack/react-router";
 import { Folder, MoreHorizontal, Plus, Share, Trash2 } from "lucide-react";
 
 import {
@@ -20,14 +22,13 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useSuspenseQuery } from "@connectrpc/connect-query";
 import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
-import { NewGroupModal } from "./new-group-modal";
-import { Link } from "@tanstack/react-router";
-import { AmountWithCurrency } from "../amount-with-currency";
 import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
-import { DeleteGroupDialog } from "../group/delete-group-dialog";
 import { useDeleteGroupModal } from "@/hooks/use-delete-group-modal";
+
+import { AmountWithCurrency } from "../amount-with-currency";
+import { DeleteGroupDialog } from "../group/delete-group-dialog";
+import { NewGroupModal } from "./new-group-modal";
 
 export function NavGroups() {
   const { isMobile } = useSidebar();
@@ -56,11 +57,7 @@ export function NavGroups() {
                   <div className="flex flex-col">
                     <strong>{item.groupName}</strong>
                     <AmountWithCurrency
-                      balance={
-                        item.memberBalances.find(
-                          (balance) => balance.userId === currentUser.id
-                        )!.balance
-                      }
+                      balance={item.memberBalances.find((balance) => balance.userId === currentUser.id)!.balance}
                     />
                   </div>
                 </Link>

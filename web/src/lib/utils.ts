@@ -1,7 +1,7 @@
-import { clsx, type ClassValue } from "clsx";
+import type { ConnectError } from "@connectrpc/connect";
+import { type ClassValue, clsx } from "clsx";
 import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
-import type { ConnectError } from "@connectrpc/connect";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

@@ -1,44 +1,33 @@
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Controller, useForm } from "react-hook-form"
-import * as z from "zod"
-import { Spinner } from "./ui/spinner"
-import { Link } from "@tanstack/react-router"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Link } from "@tanstack/react-router";
+import { Controller, useForm } from "react-hook-form";
+import * as z from "zod";
 
-const formSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters long"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters long"),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-})
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+
+import { Spinner } from "./ui/spinner";
+
+const formSchema = z
+  .object({
+    username: z.string().min(3, "Username must be at least 3 characters long"),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters long"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 interface Props {
-  isLoading?: boolean
-  onSubmit: (data: z.infer<typeof formSchema>) => void
+  isLoading?: boolean;
+  onSubmit: (data: z.infer<typeof formSchema>) => void;
 }
 
-export function SignupForm({
-  onSubmit,
-  isLoading,
-}: Props) {
+export function SignupForm({ onSubmit, isLoading }: Props) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -47,15 +36,13 @@ export function SignupForm({
       password: "",
       confirmPassword: "",
     },
-  })
+  });
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Create an account</CardTitle>
-        <CardDescription>
-          Enter your information below to create your account
-        </CardDescription>
+        <CardDescription>Enter your information below to create your account</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -76,9 +63,7 @@ export function SignupForm({
                     autoComplete="username"
                     aria-invalid={fieldState.invalid}
                   />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
             />
@@ -98,9 +83,7 @@ export function SignupForm({
                     autoComplete="email"
                     aria-invalid={fieldState.invalid}
                   />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
             />
@@ -119,12 +102,8 @@ export function SignupForm({
                     autoComplete="new-password"
                     aria-invalid={fieldState.invalid}
                   />
-                  <FieldDescription>
-                    Must be at least 6 characters long.
-                  </FieldDescription>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
+                  <FieldDescription>Must be at least 6 characters long.</FieldDescription>
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
             />
@@ -134,9 +113,7 @@ export function SignupForm({
               disabled={isLoading}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel htmlFor="confirm-password">
-                    Confirm Password
-                  </FieldLabel>
+                  <FieldLabel htmlFor="confirm-password">Confirm Password</FieldLabel>
                   <Input
                     {...field}
                     id="confirm-password"
@@ -145,9 +122,7 @@ export function SignupForm({
                     autoComplete="new-password"
                     aria-invalid={fieldState.invalid}
                   />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
             />
@@ -164,5 +139,5 @@ export function SignupForm({
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }

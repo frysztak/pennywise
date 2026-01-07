@@ -16,21 +16,15 @@ interface DeleteGroupDialogProps {
   onConfirm: () => void;
 }
 
-export function DeleteGroupDialog({
-  open,
-  groupName,
-  onOpenChange,
-  onConfirm,
-}: DeleteGroupDialogProps) {
+export function DeleteGroupDialog({ open, groupName, onOpenChange, onConfirm }: DeleteGroupDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete group</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete "{groupName}"? This will
-            permanently delete all expenses, transfers, and balances associated
-            with this group. This action cannot be undone.
+            Are you sure you want to delete "{groupName}"? This will permanently delete all expenses, transfers, and
+            balances associated with this group. This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

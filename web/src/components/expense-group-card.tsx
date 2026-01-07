@@ -1,10 +1,5 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { AmountWithCurrency } from "./amount-with-currency";
 
 interface ExpenseGroupCardProps {
@@ -28,17 +23,13 @@ export function ExpenseGroupCard({
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <CardTitle className="text-2xl">{groupName}</CardTitle>
-            <CardDescription className="mt-2 line-clamp-1">
-              {groupDescription || "\u200B"}
-            </CardDescription>
+            <CardDescription className="mt-2 line-clamp-1">{groupDescription || "\u200B"}</CardDescription>
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <div className="text-sm text-muted-foreground mb-1">
-            Your balance:
-          </div>
+          <div className="text-sm text-muted-foreground mb-1">Your balance:</div>
           <AmountWithCurrency className="text-lg" balance={balance} defaultCurrency={groupDefaultCurrency} />
         </div>
 
@@ -46,10 +37,7 @@ export function ExpenseGroupCard({
           <div className="space-y-2 pt-2 border-t">
             <div className="text-sm text-muted-foreground">Recent expenses</div>
             {recentExpenses.slice(0, 3).map((expense, idx) => (
-              <div
-                key={idx}
-                className="flex items-center justify-between text-sm"
-              >
+              <div key={idx} className="flex items-center justify-between text-sm">
                 <span className="truncate flex-1">{expense.name}</span>
                 <span className="text-muted-foreground ml-2">
                   {(expense.amount / 100).toFixed(2)} {expense.currency}

@@ -30,8 +30,8 @@ export function DeleteTransferDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Delete transfer</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete this transfer from {senderName} to{" "}
-            {receiverName}? This action cannot be undone.
+            Are you sure you want to delete this transfer from {senderName} to {receiverName}? This action cannot be
+            undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

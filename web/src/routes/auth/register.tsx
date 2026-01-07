@@ -1,7 +1,8 @@
-import { toast } from "sonner";
 import { useMutation } from "@connectrpc/connect-query";
-import { SignupForm } from "@/components/signup-form";
 import { createFileRoute } from "@tanstack/react-router";
+import { toast } from "sonner";
+
+import { SignupForm } from "@/components/signup-form";
 import { userRegister } from "@/gen/api/v1/user-UserService_connectquery";
 import { handleError } from "@/lib/utils";
 

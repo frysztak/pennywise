@@ -1,8 +1,7 @@
+import { ChevronDownIcon, EditIcon, Plus, Redo2Icon, RepeatIcon, TrashIcon, UserRoundSearchIcon } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
-import {
-  ButtonGroup,
-  ButtonGroupSeparator,
-} from "@/components/ui/button-group";
+import { ButtonGroup, ButtonGroupSeparator } from "@/components/ui/button-group";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,15 +10,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Plus,
-  ChevronDownIcon,
-  TrashIcon,
-  Redo2Icon,
-  EditIcon,
-  UserRoundSearchIcon,
-  RepeatIcon,
-} from "lucide-react";
 
 interface GroupHeaderProps {
   groupName: string;
@@ -45,9 +35,7 @@ export function GroupHeader({
   return (
     <div className="flex items-start justify-between">
       <div>
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
-          {groupName}
-        </h1>
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">{groupName}</h1>
         <p className="text-muted-foreground mt-2">
           {groupDescription || "Manage and track shared expenses for your group."}
         </p>

@@ -1,34 +1,21 @@
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { timestampDate } from "@bufbuild/protobuf/wkt";
+import { ArrowRight, BanknoteIcon, MoreHorizontal, Pencil, Redo2Icon, Trash } from "lucide-react";
+
+import { AmountWithCurrency } from "@/components/amount-with-currency";
+import { MemberAvatar } from "@/components/member-avatar";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AmountWithCurrency } from "@/components/amount-with-currency";
-import { MemberAvatar } from "@/components/member-avatar";
-import {
-  MoreHorizontal,
-  Pencil,
-  Trash,
-  ArrowRight,
-  Redo2Icon,
-  BanknoteIcon,
-} from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type {
   GetGroupActivityResponse_ActivityItem_Expense,
   GetGroupActivityResponse_ActivityItem_Transfer,
 } from "@/gen/api/v1/group_pb";
-import { timestampDate } from "@bufbuild/protobuf/wkt";
 
 type ActivityItem =
   | { type: "expense"; data: GetGroupActivityResponse_ActivityItem_Expense }
@@ -91,22 +78,12 @@ export function ActivityTable({
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  <AmountWithCurrency
-                    disableColor
-                    className="text-right"
-                    balance={[expense]}
-                  />
+                  <AmountWithCurrency disableColor className="text-right" balance={[expense]} />
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <MemberAvatar
-                      userId={expense.payerId}
-                      username={expense.payerName}
-                      className="w-6 h-6"
-                    />
-                    <span className="text-sm truncate max-w-[150px]">
-                      paid by {expense.payerName}
-                    </span>
+                    <MemberAvatar userId={expense.payerId} username={expense.payerName} className="w-6 h-6" />
+                    <span className="text-sm truncate max-w-[150px]">paid by {expense.payerName}</span>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -159,23 +136,11 @@ export function ActivityTable({
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1.5 text-sm">
-                    <MemberAvatar
-                      userId={transfer.senderId}
-                      username={transfer.senderName}
-                      className="w-6 h-6"
-                    />
-                    <span className="truncate max-w-[80px]">
-                      {transfer.senderName}
-                    </span>
+                    <MemberAvatar userId={transfer.senderId} username={transfer.senderName} className="w-6 h-6" />
+                    <span className="truncate max-w-[80px]">{transfer.senderName}</span>
                     <ArrowRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                    <MemberAvatar
-                      userId={transfer.receiverId}
-                      username={transfer.receiverName}
-                      className="w-6 h-6"
-                    />
-                    <span className="truncate max-w-[80px]">
-                      {transfer.receiverName}
-                    </span>
+                    <MemberAvatar userId={transfer.receiverId} username={transfer.receiverName} className="w-6 h-6" />
+                    <span className="truncate max-w-[80px]">{transfer.receiverName}</span>
                   </div>
                 </TableCell>
                 <TableCell>

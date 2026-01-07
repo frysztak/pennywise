@@ -1,21 +1,10 @@
 "use client";
 
+import { BookOpen, Bot, Bug, Code, Command, Frame, Map, PieChart, Settings2, SquareTerminal } from "lucide-react";
 import * as React from "react";
-import {
-  BookOpen,
-  Bot,
-  Bug,
-  Code,
-  Command,
-  Frame,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
-} from "lucide-react";
 
-import { NavMain } from "@/components/sidebar/nav-main";
 import { NavGroups } from "@/components/sidebar/nav-groups";
+import { NavMain } from "@/components/sidebar/nav-main";
 import { NavSecondary } from "@/components/sidebar/nav-secondary";
 import { NavUser } from "@/components/sidebar/nav-user";
 import {

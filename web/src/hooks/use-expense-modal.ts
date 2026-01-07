@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import type { GetGroupActivityResponse_ActivityItem_Expense } from "@/gen/api/v1/group_pb";
 
 export interface ExpenseTemplateDefaults {
@@ -24,10 +25,7 @@ export function useExpenseModal() {
     recurringExpenseId: undefined,
   });
 
-  const openCreate = (
-    templateDefaults?: ExpenseTemplateDefaults,
-    recurringExpenseId?: string
-  ) => {
+  const openCreate = (templateDefaults?: ExpenseTemplateDefaults, recurringExpenseId?: string) => {
     setModalState({
       open: true,
       mode: "create",

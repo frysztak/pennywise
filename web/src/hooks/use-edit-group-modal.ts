@@ -1,14 +1,15 @@
-import { useState } from "react";
-import { useMutation, createConnectQueryKey } from "@connectrpc/connect-query";
+import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { toast } from "sonner";
+
 import {
+  getGroupActivity,
+  getUserGroups,
   updateGroup,
   updateUserWeight,
-  getUserGroups,
-  getGroupActivity
 } from "@/gen/api/v1/group-GroupService_connectquery";
 import { handleError } from "@/lib/utils";
-import { toast } from "sonner";
 
 const userGroupsKey = createConnectQueryKey({
   schema: getUserGroups,
@@ -52,11 +53,7 @@ export function useEditGroupModal() {
     setEditingGroup(group);
   };
 
-  const handleUpdateGroup = (data: {
-    name: string;
-    description: string;
-    defaultCurrency: string;
-  }) => {
+  const handleUpdateGroup = (data: { name: string; description: string; defaultCurrency: string }) => {
     if (editingGroup) {
       updateGroupMutate({
         id: editingGroup.groupId,

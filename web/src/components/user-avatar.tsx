@@ -1,8 +1,9 @@
-import { useSuspenseQuery } from "@connectrpc/connect-query";
-import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
 import { timestampDate } from "@bufbuild/protobuf/wkt";
+import { useSuspenseQuery } from "@connectrpc/connect-query";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
+import { cn } from "@/lib/utils";
 
 interface UserAvatarProps {
   className?: string;

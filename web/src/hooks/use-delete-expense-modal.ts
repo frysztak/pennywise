@@ -1,14 +1,12 @@
-import { useState } from "react";
-import { useMutation, createConnectQueryKey } from "@connectrpc/connect-query";
+import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
-import { deleteExpense } from "@/gen/api/v1/expense-ExpenseService_connectquery";
-import {
-  getGroupActivity,
-  getUserGroups,
-} from "@/gen/api/v1/group-GroupService_connectquery";
-import { handleError } from "@/lib/utils";
+import { useState } from "react";
 import { toast } from "sonner";
+
+import { deleteExpense } from "@/gen/api/v1/expense-ExpenseService_connectquery";
+import { getGroupActivity, getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
 import type { GetGroupActivityResponse_ActivityItem_Expense } from "@/gen/api/v1/group_pb";
+import { handleError } from "@/lib/utils";
 
 const userGroupsKey = createConnectQueryKey({
   schema: getUserGroups,

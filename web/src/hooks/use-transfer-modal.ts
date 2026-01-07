@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import type { GetGroupActivityResponse_ActivityItem_Transfer } from "@/gen/api/v1/group_pb";
 
 export function useTransferModal() {

@@ -1,21 +1,15 @@
 import { useSuspenseQuery } from "@connectrpc/connect-query";
+
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getGroupRecurringExpenses } from "@/gen/api/v1/recurring_expense-RecurringExpenseService_connectquery";
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { RecurringReminderRow } from "./recurring-reminder-row";
 import type { GetGroupRecurringExpensesResponse_RecurringExpense } from "@/gen/api/v1/recurring_expense_pb";
+
+import { RecurringReminderRow } from "./recurring-reminder-row";
 
 interface RecurringRemindersSectionProps {
   groupId: string;
   onPayReminder: (reminder: GetGroupRecurringExpensesResponse_RecurringExpense) => void;
-  onEditReminder: (
-    reminder: GetGroupRecurringExpensesResponse_RecurringExpense
-  ) => void;
+  onEditReminder: (reminder: GetGroupRecurringExpensesResponse_RecurringExpense) => void;
   onDeleteReminder: (reminderId: string) => void;
 }
 
@@ -25,10 +19,7 @@ export function RecurringRemindersSection({
   onEditReminder,
   onDeleteReminder,
 }: RecurringRemindersSectionProps) {
-  const { data: recurringExpensesData } = useSuspenseQuery(
-    getGroupRecurringExpenses,
-    { groupId }
-  );
+  const { data: recurringExpensesData } = useSuspenseQuery(getGroupRecurringExpenses, { groupId });
 
   if (recurringExpensesData.recurringExpenses.length === 0) {
     return null; // Don't show section if no reminders

@@ -1,35 +1,21 @@
-import { Controller, useForm } from "react-hook-form";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
-import * as z from "zod";
+import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
+
+import { createExpenseGroup, getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
+import { COMMON_CURRENCIES } from "@/lib/currencies";
+import { handleError } from "@/lib/utils";
+
+import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
-import {
-  createExpenseGroup,
-  getUserGroups,
-} from "@/gen/api/v1/group-GroupService_connectquery";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Spinner } from "../ui/spinner";
-import { toast } from "sonner";
-import { useState } from "react";
-import { handleError } from "@/lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import { COMMON_CURRENCIES } from "@/lib/currencies";
 
 const formSchema = z.object({
   name: z.string().min(2),
@@ -59,7 +45,7 @@ export const NewGroupModal = ({ children }: { children: React.ReactNode }) => {
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
       setOpen(false);
     },
-    onError: handleError
+    onError: handleError,
   });
   const queryClient = useQueryClient();
 
@@ -98,9 +84,7 @@ export const NewGroupModal = ({ children }: { children: React.ReactNode }) => {
                     required
                     aria-invalid={fieldState.invalid}
                   />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
             />
@@ -111,14 +95,8 @@ export const NewGroupModal = ({ children }: { children: React.ReactNode }) => {
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel htmlFor="groupDesc">Group description</FieldLabel>
-                  <Input
-                    {...field}
-                    id="groupDesc"
-                    aria-invalid={fieldState.invalid}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
+                  <Input {...field} id="groupDesc" aria-invalid={fieldState.invalid} />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
             />
@@ -128,18 +106,9 @@ export const NewGroupModal = ({ children }: { children: React.ReactNode }) => {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel htmlFor="defaultCurrency">
-                    Default currency
-                  </FieldLabel>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    disabled={isPending}
-                  >
-                    <SelectTrigger
-                      id="defaultCurrency"
-                      aria-invalid={fieldState.invalid}
-                    >
+                  <FieldLabel htmlFor="defaultCurrency">Default currency</FieldLabel>
+                  <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
+                    <SelectTrigger id="defaultCurrency" aria-invalid={fieldState.invalid}>
                       <SelectValue placeholder="Select currency" />
                     </SelectTrigger>
                     <SelectContent>
@@ -150,9 +119,7 @@ export const NewGroupModal = ({ children }: { children: React.ReactNode }) => {
                       ))}
                     </SelectContent>
                   </Select>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
             />

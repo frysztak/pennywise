@@ -16,20 +16,14 @@ interface DeleteExpenseDialogProps {
   onConfirm: () => void;
 }
 
-export function DeleteExpenseDialog({
-  open,
-  expenseName,
-  onOpenChange,
-  onConfirm,
-}: DeleteExpenseDialogProps) {
+export function DeleteExpenseDialog({ open, expenseName, onOpenChange, onConfirm }: DeleteExpenseDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete expense</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete "{expenseName}"? This action cannot
-            be undone.
+            Are you sure you want to delete "{expenseName}"? This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

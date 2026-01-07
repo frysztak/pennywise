@@ -8,16 +8,9 @@ interface MemberAvatarProps {
   className?: string;
 }
 
-export function MemberAvatar({
-  userId,
-  username,
-  avatarUpdatedAt,
-  className,
-}: MemberAvatarProps) {
+export function MemberAvatar({ userId, username, avatarUpdatedAt, className }: MemberAvatarProps) {
   // Generate avatar URL with optional cache busting
-  const avatarUrl = avatarUpdatedAt
-    ? `/avatar/${userId}?v=${avatarUpdatedAt.getTime()}`
-    : `/avatar/${userId}`;
+  const avatarUrl = avatarUpdatedAt ? `/avatar/${userId}?v=${avatarUpdatedAt.getTime()}` : `/avatar/${userId}`;
 
   const initials = username.substring(0, 2).toUpperCase();
 

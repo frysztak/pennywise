@@ -1,10 +1,11 @@
 import { useSuspenseQuery } from "@connectrpc/connect-query";
-import { getGroupActivity } from "@/gen/api/v1/group-GroupService_connectquery";
+
 import { ActivityTable } from "@/components/group/activity-table";
-import type { useExpenseModal } from "@/hooks/use-expense-modal";
-import type { useTransferModal } from "@/hooks/use-transfer-modal";
+import { getGroupActivity } from "@/gen/api/v1/group-GroupService_connectquery";
 import type { useDeleteExpenseModal } from "@/hooks/use-delete-expense-modal";
 import type { useDeleteTransferModal } from "@/hooks/use-delete-transfer-modal";
+import type { useExpenseModal } from "@/hooks/use-expense-modal";
+import type { useTransferModal } from "@/hooks/use-transfer-modal";
 
 interface ActivitySectionProps {
   groupId: string;

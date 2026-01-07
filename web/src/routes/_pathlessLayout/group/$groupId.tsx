@@ -1,43 +1,41 @@
+import { createQueryOptions, useSuspenseQuery } from "@connectrpc/connect-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import {
-  createQueryOptions,
-  useSuspenseQuery,
-} from "@connectrpc/connect-query";
+import { Suspense } from "react";
+import { toast } from "sonner";
+
+import { ExpenseModal } from "@/components/expense/expense-modal";
+import { ActivitySection } from "@/components/group/activity-section";
+import { AddMemberDialog } from "@/components/group/add-member-dialog";
+import { BalanceCards } from "@/components/group/balance-cards";
+import { DeleteExpenseDialog } from "@/components/group/delete-expense-dialog";
+import { DeleteGroupDialog } from "@/components/group/delete-group-dialog";
+import { DeleteRecurringExpenseDialog } from "@/components/group/delete-recurring-expense-dialog";
+import { DeleteTransferDialog } from "@/components/group/delete-transfer-dialog";
+import { EditGroupDialog } from "@/components/group/edit-group-dialog";
+import { GroupBalances } from "@/components/group/group-balances";
+import { GroupHeader } from "@/components/group/group-header";
+import { RecurringRemindersSection } from "@/components/group/recurring-reminders-section";
+import { RecurringExpenseModal } from "@/components/recurring-expense/recurring-expense-modal";
+import { TransferModal } from "@/components/transfer/transfer-modal";
+import { Spinner } from "@/components/ui/spinner";
 import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
 import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
-import { ExpenseModal } from "@/components/expense/expense-modal";
-import { TransferModal } from "@/components/transfer/transfer-modal";
-import { RecurringExpenseModal } from "@/components/recurring-expense/recurring-expense-modal";
-import { toast } from "sonner";
-import { transport } from "@/transport";
-import { GroupHeader } from "@/components/group/group-header";
-import { BalanceCards } from "@/components/group/balance-cards";
-import { GroupBalances } from "@/components/group/group-balances";
-import { ActivitySection } from "@/components/group/activity-section";
-import { RecurringRemindersSection } from "@/components/group/recurring-reminders-section";
-import { DeleteGroupDialog } from "@/components/group/delete-group-dialog";
-import { DeleteExpenseDialog } from "@/components/group/delete-expense-dialog";
-import { DeleteTransferDialog } from "@/components/group/delete-transfer-dialog";
-import { DeleteRecurringExpenseDialog } from "@/components/group/delete-recurring-expense-dialog";
-import { AddMemberDialog } from "@/components/group/add-member-dialog";
-import { EditGroupDialog } from "@/components/group/edit-group-dialog";
-import { useExpenseModal } from "@/hooks/use-expense-modal";
-import { useTransferModal } from "@/hooks/use-transfer-modal";
-import { useRecurringExpenseModal } from "@/hooks/use-recurring-expense-modal";
-import { useDeleteExpenseModal } from "@/hooks/use-delete-expense-modal";
-import { useDeleteTransferModal } from "@/hooks/use-delete-transfer-modal";
-import { useDeleteRecurringExpenseModal } from "@/hooks/use-delete-recurring-expense-modal";
-import { useDeleteGroupModal } from "@/hooks/use-delete-group-modal";
 import { useAddMemberModal } from "@/hooks/use-add-member-modal";
+import { useDeleteExpenseModal } from "@/hooks/use-delete-expense-modal";
+import { useDeleteGroupModal } from "@/hooks/use-delete-group-modal";
+import { useDeleteRecurringExpenseModal } from "@/hooks/use-delete-recurring-expense-modal";
+import { useDeleteTransferModal } from "@/hooks/use-delete-transfer-modal";
 import { useEditGroupModal } from "@/hooks/use-edit-group-modal";
-import { Suspense } from "react";
-import { Spinner } from "@/components/ui/spinner";
+import { useExpenseModal } from "@/hooks/use-expense-modal";
+import { useRecurringExpenseModal } from "@/hooks/use-recurring-expense-modal";
+import { useTransferModal } from "@/hooks/use-transfer-modal";
+import { transport } from "@/transport";
 
 export const Route = createFileRoute("/_pathlessLayout/group/$groupId")({
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
     const userGroups = await context.queryClient.ensureQueryData(
-      createQueryOptions(getUserGroups, undefined, { transport })
+      createQueryOptions(getUserGroups, undefined, { transport }),
     );
 
     const group = userGroups.groups.find((g) => g.groupId === params.groupId);
@@ -68,9 +66,7 @@ function RouteComponent() {
   const editGroupModal = useEditGroupModal();
 
   // Find current user's balance from member balances
-  const currentUserBalance = groupInfo.memberBalances.find(
-    (mb) => mb.userId === currentUser.id
-  )!;
+  const currentUserBalance = groupInfo.memberBalances.find((mb) => mb.userId === currentUser.id)!;
 
   return (
     <>
@@ -131,7 +127,7 @@ function RouteComponent() {
                 currency: reminder.currency,
                 payerId: reminder.payerId,
               },
-              reminder.id
+              reminder.id,
             )
           }
           onEditReminder={(reminder) => recurringExpenseModal.openEdit(reminder)}
@@ -201,9 +197,7 @@ function RouteComponent() {
       <DeleteTransferDialog {...deleteTransferModal.dialogProps} />
       <DeleteRecurringExpenseDialog {...deleteRecurringExpenseModal.dialogProps} />
       <DeleteGroupDialog {...deleteGroupModal.dialogProps} />
-      {addMemberModal.dialogProps.open && (
-        <AddMemberDialog {...addMemberModal.dialogProps} />
-      )}
+      {addMemberModal.dialogProps.open && <AddMemberDialog {...addMemberModal.dialogProps} />}
       {editGroupModal.dialogProps.open && editGroupModal.dialogProps.group && (
         <EditGroupDialog
           {...editGroupModal.dialogProps}

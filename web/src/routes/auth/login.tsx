@@ -1,9 +1,10 @@
-import { toast } from "sonner";
 import { useMutation } from "@connectrpc/connect-query";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { toast } from "sonner";
+
+import { useAuth } from "@/auth";
 import { LoginForm } from "@/components/login-form";
 import { loginWithPassword } from "@/gen/api/v1/auth-AuthService_connectquery";
-import { useAuth } from "@/auth";
 
 export const Route = createFileRoute("/auth/login")({
   component: RouteComponent,

@@ -1,5 +1,7 @@
+import { useMutation, useSuspenseQuery } from "@connectrpc/connect-query";
+import { Link, useRouter } from "@tanstack/react-router";
 import { ChevronsUpDown, LogOut, Settings } from "lucide-react";
-import { UserAvatar } from "@/components/user-avatar";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,16 +10,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar";
-import { useMutation, useSuspenseQuery } from "@connectrpc/connect-query";
-import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+import { UserAvatar } from "@/components/user-avatar";
 import { logout } from "@/gen/api/v1/auth-AuthService_connectquery";
-import { Link, useRouter } from "@tanstack/react-router";
+import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
@@ -34,7 +30,7 @@ export function NavUser() {
             router.navigate({ to: "/", reloadDocument: true });
           });
         },
-      }
+      },
     );
   };
 

@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { useMutation, createConnectQueryKey } from "@connectrpc/connect-query";
+import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
-import { addUserToGroup, getUserGroups, getGroupActivity } from "@/gen/api/v1/group-GroupService_connectquery";
-import { handleError } from "@/lib/utils";
+import { useState } from "react";
 import { toast } from "sonner";
+
+import { addUserToGroup, getGroupActivity, getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
+import { handleError } from "@/lib/utils";
 
 const userGroupsKey = createConnectQueryKey({
   schema: getUserGroups,
