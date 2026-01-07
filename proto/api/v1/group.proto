@@ -95,6 +95,7 @@ message GetGroupActivityResponse {
       int64 amount = 8;
       repeated string beneficiaries_ids = 9;
       google.protobuf.Timestamp date = 10;
+      optional string recurring_id = 11;
     }
 
     message Transfer {

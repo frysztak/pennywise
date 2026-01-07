@@ -21,6 +21,10 @@ import {
   getGroupActivity,
   getUserGroups,
 } from "@/gen/api/v1/group-GroupService_connectquery";
+import {
+  payRecurringExpense,
+  getGroupRecurringExpenses,
+} from "@/gen/api/v1/recurring_expense-RecurringExpenseService_connectquery";
 import { Spinner } from "../ui/spinner";
 import { toast } from "sonner";
 import { useEffect, useMemo, useCallback } from "react";
@@ -38,6 +42,7 @@ import type { MemberBalance } from "@/gen/api/v1/group_pb";
 import type { GetGroupActivityResponse_ActivityItem_Expense } from "@/gen/api/v1/group_pb";
 import { COMMON_CURRENCIES } from "@/lib/currencies";
 import { timestampDate, timestampFromDate } from "@bufbuild/protobuf/wkt";
+import type { ExpenseTemplateDefaults } from "@/hooks/use-expense-modal";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -76,6 +81,8 @@ interface ExpenseModalProps {
   // Mode specification
   mode: "create" | "edit";
   expense?: GetGroupActivityResponse_ActivityItem_Expense; // Required when mode='edit'
+  templateDefaults?: ExpenseTemplateDefaults; // Optional template values for create mode
+  recurringExpenseId?: string; // If creating from recurring expense template
 
   // Data dependencies
   groupId: string;
@@ -89,6 +96,8 @@ export const ExpenseModal = ({
   onOpenChange,
   mode,
   expense,
+  templateDefaults,
+  recurringExpenseId,
   groupId,
   groupMembers,
   currentUserId,
@@ -116,18 +125,20 @@ export const ExpenseModal = ({
       };
     }
 
+    // Create mode: use template defaults if provided, otherwise use defaults
     return {
-      name: "",
-      description: "",
-      amount: 0,
-      currency: defaultCurrency,
-      payerId: currentUserId,
+      name: templateDefaults?.name || "",
+      description: templateDefaults?.description || "",
+      amount: templateDefaults?.amount || 0,
+      currency: templateDefaults?.currency || defaultCurrency,
+      payerId: templateDefaults?.payerId || currentUserId,
       beneficiariesIds: defaultBeneficiaryIds,
       date: getTodayDateString(),
     };
   }, [
     isEditMode,
     expense,
+    templateDefaults,
     defaultCurrency,
     currentUserId,
     defaultBeneficiaryIds,
@@ -152,6 +163,12 @@ export const ExpenseModal = ({
 
   const groupActivityKey = createConnectQueryKey({
     schema: getGroupActivity,
+    cardinality: "finite",
+    input: { groupId },
+  });
+
+  const recurringExpensesKey = createConnectQueryKey({
+    schema: getGroupRecurringExpenses,
     cardinality: "finite",
     input: { groupId },
   });
@@ -184,7 +201,21 @@ export const ExpenseModal = ({
     }
   );
 
-  const isPending = isCreating || isUpdating;
+  const { isPending: isPaying, mutate: payMutate } = useMutation(
+    payRecurringExpense,
+    {
+      onSuccess: () => {
+        toast.success("Expense recorded!");
+        queryClient.invalidateQueries({ queryKey: groupActivityKey });
+        queryClient.invalidateQueries({ queryKey: userGroupsKey });
+        queryClient.invalidateQueries({ queryKey: recurringExpensesKey });
+        onOpenChange(false);
+      },
+      onError: handleError,
+    }
+  );
+
+  const isPending = isCreating || isUpdating || isPaying;
 
   const onSubmit = (data: FormValues) => {
     if (isEditMode && expense) {
@@ -197,6 +228,15 @@ export const ExpenseModal = ({
         currency: data.currency,
         beneficiariesIds: data.beneficiariesIds,
         date: timestampFromDate(new Date(data.date)),
+      });
+    } else if (recurringExpenseId) {
+      // Creating from recurring expense template - use payRecurringExpense
+      // Only pass overrides if they differ from template defaults
+      payMutate({
+        recurringExpenseId,
+        date: timestampFromDate(new Date(data.date)),
+        amount: data.amount !== templateDefaults?.amount ? data.amount : undefined,
+        payerId: data.payerId !== templateDefaults?.payerId ? data.payerId : undefined,
       });
     } else {
       createMutate({

@@ -7,21 +7,26 @@ import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
 import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
 import { ExpenseModal } from "@/components/expense/expense-modal";
 import { TransferModal } from "@/components/transfer/transfer-modal";
+import { RecurringExpenseModal } from "@/components/recurring-expense/recurring-expense-modal";
 import { toast } from "sonner";
 import { transport } from "@/transport";
 import { GroupHeader } from "@/components/group/group-header";
 import { BalanceCards } from "@/components/group/balance-cards";
 import { GroupBalances } from "@/components/group/group-balances";
 import { ActivitySection } from "@/components/group/activity-section";
+import { RecurringRemindersSection } from "@/components/group/recurring-reminders-section";
 import { DeleteGroupDialog } from "@/components/group/delete-group-dialog";
 import { DeleteExpenseDialog } from "@/components/group/delete-expense-dialog";
 import { DeleteTransferDialog } from "@/components/group/delete-transfer-dialog";
+import { DeleteRecurringExpenseDialog } from "@/components/group/delete-recurring-expense-dialog";
 import { AddMemberDialog } from "@/components/group/add-member-dialog";
 import { EditGroupDialog } from "@/components/group/edit-group-dialog";
 import { useExpenseModal } from "@/hooks/use-expense-modal";
 import { useTransferModal } from "@/hooks/use-transfer-modal";
+import { useRecurringExpenseModal } from "@/hooks/use-recurring-expense-modal";
 import { useDeleteExpenseModal } from "@/hooks/use-delete-expense-modal";
 import { useDeleteTransferModal } from "@/hooks/use-delete-transfer-modal";
+import { useDeleteRecurringExpenseModal } from "@/hooks/use-delete-recurring-expense-modal";
 import { useDeleteGroupModal } from "@/hooks/use-delete-group-modal";
 import { useAddMemberModal } from "@/hooks/use-add-member-modal";
 import { useEditGroupModal } from "@/hooks/use-edit-group-modal";
@@ -54,8 +59,10 @@ function RouteComponent() {
 
   const expenseModal = useExpenseModal();
   const transferModal = useTransferModal();
+  const recurringExpenseModal = useRecurringExpenseModal();
   const deleteExpenseModal = useDeleteExpenseModal(groupId);
   const deleteTransferModal = useDeleteTransferModal(groupId);
+  const deleteRecurringExpenseModal = useDeleteRecurringExpenseModal(groupId);
   const deleteGroupModal = useDeleteGroupModal();
   const addMemberModal = useAddMemberModal();
   const editGroupModal = useEditGroupModal();
@@ -73,6 +80,7 @@ function RouteComponent() {
         groupDescription={groupInfo.groupDescription}
         onCreateExpense={expenseModal.openCreate}
         onCreateTransfer={transferModal.openCreate}
+        onCreateRecurring={recurringExpenseModal.openCreate}
         onInviteMembers={() => addMemberModal.openModal(groupId)}
         onEditGroup={() =>
           editGroupModal.openModal({
@@ -104,6 +112,33 @@ function RouteComponent() {
         defaultCurrency={groupInfo.groupDefaultCurrency}
       />
 
+      {/* Recurring Reminders */}
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center h-64">
+            <Spinner className="size-8" />
+          </div>
+        }
+      >
+        <RecurringRemindersSection
+          groupId={groupId}
+          onPayReminder={(reminder) =>
+            expenseModal.openCreate(
+              {
+                name: reminder.name,
+                description: reminder.description,
+                amount: reminder.amount,
+                currency: reminder.currency,
+                payerId: reminder.payerId,
+              },
+              reminder.id
+            )
+          }
+          onEditReminder={(reminder) => recurringExpenseModal.openEdit(reminder)}
+          onDeleteReminder={(reminderId) => deleteRecurringExpenseModal.confirmDelete(reminderId)}
+        />
+      </Suspense>
+
       {/* Recent Activity */}
       <div>
         <h2 className="text-xl font-bold mb-4">Recent Activity</h2>
@@ -130,6 +165,8 @@ function RouteComponent() {
         onOpenChange={(open) => !open && expenseModal.close()}
         mode={expenseModal.modalState.mode}
         expense={expenseModal.modalState.expense}
+        templateDefaults={expenseModal.modalState.templateDefaults}
+        recurringExpenseId={expenseModal.modalState.recurringExpenseId}
         groupId={groupId}
         groupMembers={groupInfo.memberBalances}
         currentUserId={currentUser.id}
@@ -148,8 +185,21 @@ function RouteComponent() {
         defaultCurrency={groupInfo.groupDefaultCurrency}
       />
 
+      {/* Recurring Expense Modal (Create/Edit) */}
+      <RecurringExpenseModal
+        open={recurringExpenseModal.modalState.open}
+        onOpenChange={(open) => !open && recurringExpenseModal.close()}
+        mode={recurringExpenseModal.modalState.mode}
+        recurringExpense={recurringExpenseModal.modalState.recurringExpense}
+        groupId={groupId}
+        groupMembers={groupInfo.memberBalances}
+        currentUserId={currentUser.id}
+        defaultCurrency={groupInfo.groupDefaultCurrency}
+      />
+
       <DeleteExpenseDialog {...deleteExpenseModal.dialogProps} />
       <DeleteTransferDialog {...deleteTransferModal.dialogProps} />
+      <DeleteRecurringExpenseDialog {...deleteRecurringExpenseModal.dialogProps} />
       <DeleteGroupDialog {...deleteGroupModal.dialogProps} />
       {addMemberModal.dialogProps.open && (
         <AddMemberDialog {...addMemberModal.dialogProps} />

@@ -1,0 +1,115 @@
+syntax = "proto3";
+
+package api.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+// Frequency enum for recurring expenses
+enum RecurringFrequency {
+  RECURRING_FREQUENCY_UNSPECIFIED = 0;
+  RECURRING_FREQUENCY_DAILY = 1;
+  RECURRING_FREQUENCY_WEEKLY = 2;
+  RECURRING_FREQUENCY_MONTHLY = 3;
+  RECURRING_FREQUENCY_YEARLY = 4;
+}
+
+// Create recurring expense template
+message CreateRecurringExpenseRequest {
+  string group_id = 1 [(buf.validate.field).string.uuid = true];
+  string name = 2 [(buf.validate.field).string.min_len = 2];
+  string description = 3;
+  RecurringFrequency frequency = 4 [(buf.validate.field).enum.defined_only = true];
+  google.protobuf.Timestamp start_date = 5;
+
+  // Template defaults (optional)
+  optional string payer_id = 6;
+  optional double amount = 7;
+  optional string currency = 8;
+}
+
+message CreateRecurringExpenseResponse {
+  string id = 1;
+  string name = 2;
+}
+
+// Update recurring expense template
+message UpdateRecurringExpenseRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  string name = 2 [(buf.validate.field).string.min_len = 2];
+  string description = 3;
+  RecurringFrequency frequency = 4 [(buf.validate.field).enum.defined_only = true];
+  optional string payer_id = 5;
+  optional double amount = 6;
+  optional string currency = 7;
+}
+
+message UpdateRecurringExpenseResponse {
+  string id = 1;
+  string name = 2;
+}
+
+// Delete recurring expense template
+message DeleteRecurringExpenseRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message DeleteRecurringExpenseResponse {}
+
+// Get all recurring expense templates for a group
+message GetGroupRecurringExpensesRequest {
+  string group_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message GetGroupRecurringExpensesResponse {
+  message RecurringExpense {
+    string id = 1;
+    google.protobuf.Timestamp created_at = 2;
+    string group_id = 3;
+    string name = 4;
+    optional string description = 5;
+    RecurringFrequency frequency = 6;
+    google.protobuf.Timestamp start_date = 7;
+    google.protobuf.Timestamp next_occurrence = 8;
+
+    // Template defaults
+    optional string payer_id = 9;
+    optional string payer_name = 10;
+    optional double amount = 11;
+    optional string currency = 12;
+  }
+
+  repeated RecurringExpense recurring_expenses = 1;
+}
+
+// Record payment for a recurring expense (creates actual expense)
+message PayRecurringExpenseRequest {
+  string recurring_expense_id = 1 [(buf.validate.field).string.uuid = true];
+  // Optional overrides - if not provided, uses template defaults
+  optional google.protobuf.Timestamp date = 2;
+  optional double amount = 3;
+  optional string payer_id = 4;
+}
+
+message PayRecurringExpenseResponse {
+  string expense_id = 1;
+  google.protobuf.Timestamp next_occurrence = 2;
+}
+
+// Skip this occurrence without creating expense
+message SkipRecurringExpenseRequest {
+  string recurring_expense_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message SkipRecurringExpenseResponse {
+  google.protobuf.Timestamp next_occurrence = 1;
+}
+
+service RecurringExpenseService {
+  rpc CreateRecurringExpense(CreateRecurringExpenseRequest) returns (CreateRecurringExpenseResponse) {}
+  rpc GetGroupRecurringExpenses(GetGroupRecurringExpensesRequest) returns (GetGroupRecurringExpensesResponse) {}
+  rpc UpdateRecurringExpense(UpdateRecurringExpenseRequest) returns (UpdateRecurringExpenseResponse) {}
+  rpc DeleteRecurringExpense(DeleteRecurringExpenseRequest) returns (DeleteRecurringExpenseResponse) {}
+  rpc PayRecurringExpense(PayRecurringExpenseRequest) returns (PayRecurringExpenseResponse) {}
+  rpc SkipRecurringExpense(SkipRecurringExpenseRequest) returns (SkipRecurringExpenseResponse) {}
+}

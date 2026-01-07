@@ -50,6 +50,9 @@ type RecurringExpense struct {
 	Frequency      string
 	StartDate      overrides.TextTime
 	NextOccurrence overrides.TextTime
+	PayerID        *string
+	Amount         *int64
+	Currency       *string
 }
 
 type Session struct {

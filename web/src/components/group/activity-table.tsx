@@ -24,8 +24,10 @@ import {
   Redo2Icon,
   BanknoteIcon,
 } from "lucide-react";
-import type { GetGroupActivityResponse_ActivityItem_Expense } from "@/gen/api/v1/group_pb";
-import type { GetGroupActivityResponse_ActivityItem_Transfer } from "@/gen/api/v1/group_pb";
+import type {
+  GetGroupActivityResponse_ActivityItem_Expense,
+  GetGroupActivityResponse_ActivityItem_Transfer,
+} from "@/gen/api/v1/group_pb";
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 
 type ActivityItem =

@@ -18,6 +18,7 @@ import {
   Redo2Icon,
   EditIcon,
   UserRoundSearchIcon,
+  RepeatIcon,
 } from "lucide-react";
 
 interface GroupHeaderProps {
@@ -25,6 +26,7 @@ interface GroupHeaderProps {
   groupDescription?: string;
   onCreateExpense: () => void;
   onCreateTransfer: () => void;
+  onCreateRecurring: () => void;
   onInviteMembers: () => void;
   onEditGroup: () => void;
   onDeleteGroup: () => void;
@@ -35,6 +37,7 @@ export function GroupHeader({
   groupDescription,
   onCreateExpense,
   onCreateTransfer,
+  onCreateRecurring,
   onInviteMembers,
   onEditGroup,
   onDeleteGroup,
@@ -67,6 +70,10 @@ export function GroupHeader({
                 <DropdownMenuItem onClick={onCreateTransfer}>
                   <Redo2Icon />
                   Add Transfer
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onCreateRecurring}>
+                  <RepeatIcon />
+                  Add Recurring
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />

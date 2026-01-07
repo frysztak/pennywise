@@ -977,6 +977,7 @@ type GetGroupActivityResponse_ActivityItem_Expense struct {
 	Amount           int64                  `protobuf:"varint,8,opt,name=amount,proto3" json:"amount,omitempty"`
 	BeneficiariesIds []string               `protobuf:"bytes,9,rep,name=beneficiaries_ids,json=beneficiariesIds,proto3" json:"beneficiaries_ids,omitempty"`
 	Date             *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=date,proto3" json:"date,omitempty"`
+	RecurringId      *string                `protobuf:"bytes,11,opt,name=recurring_id,json=recurringId,proto3,oneof" json:"recurring_id,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -1079,6 +1080,13 @@ func (x *GetGroupActivityResponse_ActivityItem_Expense) GetDate() *timestamppb.T
 		return x.Date
 	}
 	return nil
+}
+
+func (x *GetGroupActivityResponse_ActivityItem_Expense) GetRecurringId() string {
+	if x != nil && x.RecurringId != nil {
+		return *x.RecurringId
+	}
+	return ""
 }
 
 type GetGroupActivityResponse_ActivityItem_Transfer struct {
@@ -1193,7 +1201,7 @@ var File_api_v1_group_proto protoreflect.FileDescriptor
 
 const file_api_v1_group_proto_rawDesc = "" +
 	"\n" +
-	"\x12api/v1/group.proto\x12\x06api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8e\x01\n" +
+	"\x12api/v1/group.proto\x12\x06api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1eapi/v1/recurring_expense.proto\"\x8e\x01\n" +
 	"\x19CreateExpenseGroupRequest\x12\x1b\n" +
 	"\x04name\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x122\n" +
@@ -1249,13 +1257,13 @@ const file_api_v1_group_proto_rawDesc = "" +
 	"\x15GetUserGroupsResponse\x12)\n" +
 	"\x06groups\x18\x01 \x03(\v2\x11.api.v1.UserGroupR\x06groups\">\n" +
 	"\x17GetGroupActivityRequest\x12#\n" +
-	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\xd9\b\n" +
+	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\x92\t\n" +
 	"\x18GetGroupActivityResponse\x12C\n" +
-	"\x05items\x18\x01 \x03(\v2-.api.v1.GetGroupActivityResponse.ActivityItemR\x05items\x1a\xf7\a\n" +
+	"\x05items\x18\x01 \x03(\v2-.api.v1.GetGroupActivityResponse.ActivityItemR\x05items\x1a\xb0\b\n" +
 	"\fActivityItem\x12F\n" +
 	"\x04type\x18\x01 \x01(\x0e22.api.v1.GetGroupActivityResponse.ActivityItem.TypeR\x04type\x12Q\n" +
 	"\aexpense\x18\x02 \x01(\v25.api.v1.GetGroupActivityResponse.ActivityItem.ExpenseH\x00R\aexpense\x12T\n" +
-	"\btransfer\x18\x03 \x01(\v26.api.v1.GetGroupActivityResponse.ActivityItem.TransferH\x00R\btransfer\x1a\xea\x02\n" +
+	"\btransfer\x18\x03 \x01(\v26.api.v1.GetGroupActivityResponse.ActivityItem.TransferH\x00R\btransfer\x1a\xa3\x03\n" +
 	"\aExpense\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x129\n" +
 	"\n" +
@@ -1269,8 +1277,10 @@ const file_api_v1_group_proto_rawDesc = "" +
 	"\x06amount\x18\b \x01(\x03R\x06amount\x12+\n" +
 	"\x11beneficiaries_ids\x18\t \x03(\tR\x10beneficiariesIds\x12.\n" +
 	"\x04date\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\x04dateB\x0e\n" +
-	"\f_description\x1a\xbd\x02\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\x04date\x12&\n" +
+	"\frecurring_id\x18\v \x01(\tH\x01R\vrecurringId\x88\x01\x01B\x0e\n" +
+	"\f_descriptionB\x0f\n" +
+	"\r_recurring_id\x1a\xbd\x02\n" +
 	"\bTransfer\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x129\n" +
 	"\n" +
@@ -1383,6 +1393,7 @@ func file_api_v1_group_proto_init() {
 	if File_api_v1_group_proto != nil {
 		return
 	}
+	file_api_v1_recurring_expense_proto_init()
 	file_api_v1_group_proto_msgTypes[16].OneofWrappers = []any{
 		(*GetGroupActivityResponse_ActivityItem_Expense_)(nil),
 		(*GetGroupActivityResponse_ActivityItem_Transfer_)(nil),

@@ -303,6 +303,11 @@ func (s *GroupService) GetGroupActivity(ctx context.Context, r *apiv1.GetGroupAc
 			return nil, connect.NewError(connect.CodeInternal, err)
 		}
 
+		var recurringID *string
+		if expense.RecurringID != nil {
+			recurringID = expense.RecurringID
+		}
+
 		items = append(items, &apiv1.GetGroupActivityResponse_ActivityItem{
 			Type: apiv1.GetGroupActivityResponse_ActivityItem_TYPE_EXPENSE,
 			Data: &apiv1.GetGroupActivityResponse_ActivityItem_Expense_{
@@ -317,6 +322,7 @@ func (s *GroupService) GetGroupActivity(ctx context.Context, r *apiv1.GetGroupAc
 					Amount:           expense.Amount,
 					BeneficiariesIds: beneficiariesIds,
 					Date:             timestamppb.New(expense.Date.Time),
+					RecurringId:      recurringID,
 				},
 			},
 		})
@@ -344,10 +350,14 @@ func (s *GroupService) GetGroupActivity(ctx context.Context, r *apiv1.GetGroupAc
 
 	// Helper to extract timestamps from activity items
 	getItemTimes := func(item *apiv1.GetGroupActivityResponse_ActivityItem) (date, createdAt time.Time) {
-		if item.Type == apiv1.GetGroupActivityResponse_ActivityItem_TYPE_EXPENSE {
+		switch item.Type {
+		case apiv1.GetGroupActivityResponse_ActivityItem_TYPE_EXPENSE:
 			return item.GetExpense().Date.AsTime(), item.GetExpense().CreatedAt.AsTime()
+		case apiv1.GetGroupActivityResponse_ActivityItem_TYPE_TRANSFER:
+			return item.GetTransfer().Date.AsTime(), item.GetTransfer().CreatedAt.AsTime()
+		default:
+			return time.Time{}, time.Time{}
 		}
-		return item.GetTransfer().Date.AsTime(), item.GetTransfer().CreatedAt.AsTime()
 	}
 
 	// Sort by date descending (most recent first), then by created_at descending

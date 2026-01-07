@@ -101,7 +101,12 @@ CREATE TABLE recurring_expenses (
     start_date TEXT NOT NULL,
     next_occurrence TEXT NOT NULL,
 
-    FOREIGN KEY (group_id) REFERENCES expense_groups(id) ON DELETE CASCADE
+    payer_id TEXT,
+    amount INTEGER, -- cents, nullable for flexible templates
+    currency TEXT,
+
+    FOREIGN KEY (group_id) REFERENCES expense_groups(id) ON DELETE CASCADE,
+    FOREIGN KEY (payer_id) REFERENCES users(id)
 ) STRICT;
 
 -- +goose Down
