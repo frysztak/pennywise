@@ -112,6 +112,11 @@ func CloseDB() {
 //go:embed schema/*.sql
 var embedMigrations embed.FS
 
+// GetMigrationFS returns the embedded migration filesystem for testing
+func GetMigrationFS() embed.FS {
+	return embedMigrations
+}
+
 func RunMigrations() {
 	goose.SetBaseFS(embedMigrations)
 
