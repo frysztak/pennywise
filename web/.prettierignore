@@ -1,0 +1,17 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+build
+
+# Generated files
+src/gen
+
+# Configuration
+.env
+.env.local
+
+# Misc
+coverage
+.DS_Store
