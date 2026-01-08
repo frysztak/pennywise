@@ -1,0 +1,37 @@
+# Git
+.git
+.gitignore
+
+# Dependencies
+node_modules
+web/node_modules
+
+# Build artifacts
+web/dist
+*.db
+*.db-wal
+*.db-shm
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Development tools
+.air.toml
+tmp/
+
+# Documentation
+*.md
+!README.md
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
