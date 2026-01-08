@@ -124,6 +124,33 @@ message DeleteGroupRequest {
   string group_id = 1 [(buf.validate.field).string.uuid = true];
 }
 
+message GetSettlementSuggestionsRequest {
+  string group_id = 1 [(buf.validate.field).string.uuid = true];
+
+  // Optional: settle all debts in a single currency
+  optional string target_currency = 2;
+
+  // Required if target_currency is set: conversion rates from other currencies
+  // Key: source currency code, Value: multiplier to get target currency
+  map<string, double> conversion_rates = 3;
+}
+
+message SettlementSuggestion {
+  string from_user_id = 1;
+  string from_user_name = 2;
+  string to_user_id = 3;
+  string to_user_name = 4;
+  double amount = 5;
+  string currency = 6;
+}
+
+message GetSettlementSuggestionsResponse {
+  repeated SettlementSuggestion suggestions = 1;
+
+  // List of currencies in the group (for UI to show conversion rate inputs)
+  repeated string currencies_in_group = 2;
+}
+
 service GroupService {
   rpc CreateExpenseGroup(CreateExpenseGroupRequest) returns (CreateExpenseGroupResponse) {}
   rpc UpdateGroup(UpdateGroupRequest) returns (UpdateGroupResponse) {}
@@ -135,4 +162,5 @@ service GroupService {
 
   rpc GetUserGroups(GetUserGroupsRequest) returns (GetUserGroupsResponse) {}
   rpc GetGroupActivity(GetGroupActivityRequest) returns (GetGroupActivityResponse) {}
+  rpc GetSettlementSuggestions(GetSettlementSuggestionsRequest) returns (GetSettlementSuggestionsResponse) {}
 }

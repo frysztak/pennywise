@@ -15,7 +15,7 @@ export function GroupBalances({ memberBalances, currentUserId, defaultCurrency }
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">Group Balances</h2>
-      <div className="space-y-3">
+      <div className="grid gap-4 md:grid-cols-2">
         {otherMembers.map((member) => (
           <Card key={member.userId} className="py-0">
             <CardContent className="p-4">

@@ -276,6 +276,105 @@ func (s *GroupService) GetUserGroups(ctx context.Context, r *apiv1.GetUserGroups
 	}, nil
 }
 
+func (s *GroupService) GetSettlementSuggestions(ctx context.Context, r *apiv1.GetSettlementSuggestionsRequest) (*apiv1.GetSettlementSuggestionsResponse, error) {
+	logger := log.FromContext(ctx)
+	session := helpers.GetSessionInfo(ctx)
+
+	// Verify user is group member
+	userInGroup, err := db.ReadQueries.IsUserInGroup(ctx, database.IsUserInGroupParams{
+		GroupID: r.GroupId,
+		UserID:  session.UserID,
+	})
+	if err != nil {
+		logger.Error("failed to check group membership", "error", err, "group_id", r.GroupId)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if userInGroup != 1 {
+		logger.Warn("settlement suggestions requested by non-member", "group_id", r.GroupId)
+		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("not a group member"))
+	}
+
+	// Get group info for default currency
+	group, err := db.ReadQueries.GetGroupById(ctx, r.GroupId)
+	if err != nil {
+		logger.Error("failed to get group", "error", err, "group_id", r.GroupId)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	// Get all data needed for balance calculation
+	members, err := db.ReadQueries.GetGroupMembers(ctx, r.GroupId)
+	if err != nil {
+		logger.Error("failed to get group members", "error", err, "group_id", r.GroupId)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	expenses, err := db.ReadQueries.GetGroupExpenses(ctx, r.GroupId)
+	if err != nil {
+		logger.Error("failed to get group expenses", "error", err, "group_id", r.GroupId)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	transfers, err := db.ReadQueries.GetGroupTransfersForBalance(ctx, r.GroupId)
+	if err != nil {
+		logger.Error("failed to get group transfers", "error", err, "group_id", r.GroupId)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	// Calculate current balances
+	balances := calc.ComputeGroupBalance(&members, &expenses, &transfers, group.DefaultCurrency)
+
+	// Collect currencies in group
+	currenciesMap := make(map[string]bool)
+	for _, currencyBalances := range balances {
+		for currency := range currencyBalances {
+			currenciesMap[currency] = true
+		}
+	}
+	var currencies []string
+	for c := range currenciesMap {
+		currencies = append(currencies, c)
+	}
+	sort.Strings(currencies)
+
+	// Calculate settlements (single currency mode or default)
+	var settlements []calc.SettlementSuggestion
+	if r.TargetCurrency != nil && *r.TargetCurrency != "" {
+		settlements = calc.CalculateSettlementsInCurrency(
+			balances,
+			*r.TargetCurrency,
+			r.ConversionRates,
+		)
+	} else {
+		settlements = calc.CalculateSettlements(balances)
+	}
+
+	// Build user name map
+	userNames := make(map[string]string)
+	for _, member := range members {
+		userNames[member.UserID] = member.UserName
+	}
+
+	// Build response
+	resp := &apiv1.GetSettlementSuggestionsResponse{
+		CurrenciesInGroup: currencies,
+	}
+
+	for _, s := range settlements {
+		resp.Suggestions = append(resp.Suggestions, &apiv1.SettlementSuggestion{
+			FromUserId:   s.FromUserID,
+			FromUserName: userNames[s.FromUserID],
+			ToUserId:     s.ToUserID,
+			ToUserName:   userNames[s.ToUserID],
+			Amount:       float64(s.Amount) / 100, // Convert cents to dollars
+			Currency:     s.Currency,
+		})
+	}
+
+	logger.Info("settlement suggestions retrieved", "group_id", r.GroupId, "count", len(settlements))
+
+	return resp, nil
+}
+
 func (s *GroupService) GetGroupActivity(ctx context.Context, r *apiv1.GetGroupActivityRequest) (*apiv1.GetGroupActivityResponse, error) {
 	logger := log.FromContext(ctx)
 	// Fetch expenses

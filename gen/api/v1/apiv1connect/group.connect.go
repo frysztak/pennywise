@@ -58,6 +58,9 @@ const (
 	// GroupServiceGetGroupActivityProcedure is the fully-qualified name of the GroupService's
 	// GetGroupActivity RPC.
 	GroupServiceGetGroupActivityProcedure = "/api.v1.GroupService/GetGroupActivity"
+	// GroupServiceGetSettlementSuggestionsProcedure is the fully-qualified name of the GroupService's
+	// GetSettlementSuggestions RPC.
+	GroupServiceGetSettlementSuggestionsProcedure = "/api.v1.GroupService/GetSettlementSuggestions"
 )
 
 // GroupServiceClient is a client for the api.v1.GroupService service.
@@ -70,6 +73,7 @@ type GroupServiceClient interface {
 	UpdateUserWeight(context.Context, *v1.UpdateUserWeightRequest) (*emptypb.Empty, error)
 	GetUserGroups(context.Context, *v1.GetUserGroupsRequest) (*v1.GetUserGroupsResponse, error)
 	GetGroupActivity(context.Context, *v1.GetGroupActivityRequest) (*v1.GetGroupActivityResponse, error)
+	GetSettlementSuggestions(context.Context, *v1.GetSettlementSuggestionsRequest) (*v1.GetSettlementSuggestionsResponse, error)
 }
 
 // NewGroupServiceClient constructs a client for the api.v1.GroupService service. By default, it
@@ -131,19 +135,26 @@ func NewGroupServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(groupServiceMethods.ByName("GetGroupActivity")),
 			connect.WithClientOptions(opts...),
 		),
+		getSettlementSuggestions: connect.NewClient[v1.GetSettlementSuggestionsRequest, v1.GetSettlementSuggestionsResponse](
+			httpClient,
+			baseURL+GroupServiceGetSettlementSuggestionsProcedure,
+			connect.WithSchema(groupServiceMethods.ByName("GetSettlementSuggestions")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // groupServiceClient implements GroupServiceClient.
 type groupServiceClient struct {
-	createExpenseGroup  *connect.Client[v1.CreateExpenseGroupRequest, v1.CreateExpenseGroupResponse]
-	updateGroup         *connect.Client[v1.UpdateGroupRequest, v1.UpdateGroupResponse]
-	deleteGroup         *connect.Client[v1.DeleteGroupRequest, emptypb.Empty]
-	addUserToGroup      *connect.Client[v1.AddUserToGroupRequest, emptypb.Empty]
-	removeUserFromGroup *connect.Client[v1.RemoveUserFromGroupRequest, emptypb.Empty]
-	updateUserWeight    *connect.Client[v1.UpdateUserWeightRequest, emptypb.Empty]
-	getUserGroups       *connect.Client[v1.GetUserGroupsRequest, v1.GetUserGroupsResponse]
-	getGroupActivity    *connect.Client[v1.GetGroupActivityRequest, v1.GetGroupActivityResponse]
+	createExpenseGroup       *connect.Client[v1.CreateExpenseGroupRequest, v1.CreateExpenseGroupResponse]
+	updateGroup              *connect.Client[v1.UpdateGroupRequest, v1.UpdateGroupResponse]
+	deleteGroup              *connect.Client[v1.DeleteGroupRequest, emptypb.Empty]
+	addUserToGroup           *connect.Client[v1.AddUserToGroupRequest, emptypb.Empty]
+	removeUserFromGroup      *connect.Client[v1.RemoveUserFromGroupRequest, emptypb.Empty]
+	updateUserWeight         *connect.Client[v1.UpdateUserWeightRequest, emptypb.Empty]
+	getUserGroups            *connect.Client[v1.GetUserGroupsRequest, v1.GetUserGroupsResponse]
+	getGroupActivity         *connect.Client[v1.GetGroupActivityRequest, v1.GetGroupActivityResponse]
+	getSettlementSuggestions *connect.Client[v1.GetSettlementSuggestionsRequest, v1.GetSettlementSuggestionsResponse]
 }
 
 // CreateExpenseGroup calls api.v1.GroupService.CreateExpenseGroup.
@@ -218,6 +229,15 @@ func (c *groupServiceClient) GetGroupActivity(ctx context.Context, req *v1.GetGr
 	return nil, err
 }
 
+// GetSettlementSuggestions calls api.v1.GroupService.GetSettlementSuggestions.
+func (c *groupServiceClient) GetSettlementSuggestions(ctx context.Context, req *v1.GetSettlementSuggestionsRequest) (*v1.GetSettlementSuggestionsResponse, error) {
+	response, err := c.getSettlementSuggestions.CallUnary(ctx, connect.NewRequest(req))
+	if response != nil {
+		return response.Msg, err
+	}
+	return nil, err
+}
+
 // GroupServiceHandler is an implementation of the api.v1.GroupService service.
 type GroupServiceHandler interface {
 	CreateExpenseGroup(context.Context, *v1.CreateExpenseGroupRequest) (*v1.CreateExpenseGroupResponse, error)
@@ -228,6 +248,7 @@ type GroupServiceHandler interface {
 	UpdateUserWeight(context.Context, *v1.UpdateUserWeightRequest) (*emptypb.Empty, error)
 	GetUserGroups(context.Context, *v1.GetUserGroupsRequest) (*v1.GetUserGroupsResponse, error)
 	GetGroupActivity(context.Context, *v1.GetGroupActivityRequest) (*v1.GetGroupActivityResponse, error)
+	GetSettlementSuggestions(context.Context, *v1.GetSettlementSuggestionsRequest) (*v1.GetSettlementSuggestionsResponse, error)
 }
 
 // NewGroupServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -285,6 +306,12 @@ func NewGroupServiceHandler(svc GroupServiceHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(groupServiceMethods.ByName("GetGroupActivity")),
 		connect.WithHandlerOptions(opts...),
 	)
+	groupServiceGetSettlementSuggestionsHandler := connect.NewUnaryHandlerSimple(
+		GroupServiceGetSettlementSuggestionsProcedure,
+		svc.GetSettlementSuggestions,
+		connect.WithSchema(groupServiceMethods.ByName("GetSettlementSuggestions")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/api.v1.GroupService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case GroupServiceCreateExpenseGroupProcedure:
@@ -303,6 +330,8 @@ func NewGroupServiceHandler(svc GroupServiceHandler, opts ...connect.HandlerOpti
 			groupServiceGetUserGroupsHandler.ServeHTTP(w, r)
 		case GroupServiceGetGroupActivityProcedure:
 			groupServiceGetGroupActivityHandler.ServeHTTP(w, r)
+		case GroupServiceGetSettlementSuggestionsProcedure:
+			groupServiceGetSettlementSuggestionsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -342,4 +371,8 @@ func (UnimplementedGroupServiceHandler) GetUserGroups(context.Context, *v1.GetUs
 
 func (UnimplementedGroupServiceHandler) GetGroupActivity(context.Context, *v1.GetGroupActivityRequest) (*v1.GetGroupActivityResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.GroupService.GetGroupActivity is not implemented"))
+}
+
+func (UnimplementedGroupServiceHandler) GetSettlementSuggestions(context.Context, *v1.GetSettlementSuggestionsRequest) (*v1.GetSettlementSuggestionsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.GroupService.GetSettlementSuggestions is not implemented"))
 }

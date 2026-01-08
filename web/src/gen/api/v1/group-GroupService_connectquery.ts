@@ -43,3 +43,8 @@ export const getUserGroups = GroupService.method.getUserGroups;
  * @generated from rpc api.v1.GroupService.GetGroupActivity
  */
 export const getGroupActivity = GroupService.method.getGroupActivity;
+
+/**
+ * @generated from rpc api.v1.GroupService.GetSettlementSuggestions
+ */
+export const getSettlementSuggestions = GroupService.method.getSettlementSuggestions;

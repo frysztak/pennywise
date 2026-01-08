@@ -15,6 +15,7 @@ import { EditGroupDialog } from "@/components/group/edit-group-dialog";
 import { GroupBalances } from "@/components/group/group-balances";
 import { GroupHeader } from "@/components/group/group-header";
 import { RecurringRemindersSection } from "@/components/group/recurring-reminders-section";
+import { SettlementSuggestions } from "@/components/group/settlement-suggestions";
 import { RecurringExpenseModal } from "@/components/recurring-expense/recurring-expense-modal";
 import { TransferModal } from "@/components/transfer/transfer-modal";
 import { Spinner } from "@/components/ui/spinner";
@@ -108,6 +109,24 @@ function RouteComponent() {
         defaultCurrency={groupInfo.groupDefaultCurrency}
       />
 
+      {/* Settlement Suggestions */}
+      <div>
+        <h2 className="text-xl font-bold mb-4">Settle Up</h2>
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center h-32">
+              <Spinner className="size-8" />
+            </div>
+          }
+        >
+          <SettlementSuggestions
+            groupId={groupId}
+            currentUserId={currentUser.id}
+            onSettle={transferModal.openCreate}
+          />
+        </Suspense>
+      </div>
+
       {/* Recurring Reminders */}
       <Suspense
         fallback={
@@ -175,6 +194,7 @@ function RouteComponent() {
         onOpenChange={(open) => !open && transferModal.close()}
         mode={transferModal.modalState.mode}
         transfer={transferModal.modalState.transfer}
+        templateDefaults={transferModal.modalState.templateDefaults}
         groupId={groupId}
         groupMembers={groupInfo.memberBalances}
         currentUserId={currentUser.id}

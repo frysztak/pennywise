@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { getGroupActivity, getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
+import { getGroupActivity, getSettlementSuggestions, getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
 import type { GetGroupActivityResponse_ActivityItem_Transfer } from "@/gen/api/v1/group_pb";
 import { deleteTransfer } from "@/gen/api/v1/transfer-TransferService_connectquery";
 import { handleError } from "@/lib/utils";
@@ -12,6 +12,10 @@ const userGroupsKey = createConnectQueryKey({
   schema: getUserGroups,
   cardinality: "finite",
 });
+const settlementSuggestionsKey = createConnectQueryKey({
+    schema: getSettlementSuggestions,
+    cardinality: "finite",
+  });
 
 interface DeletingTransfer {
   transfer: GetGroupActivityResponse_ActivityItem_Transfer;
@@ -33,6 +37,7 @@ export function useDeleteTransferModal(groupId: string) {
       toast.success("Transfer deleted!");
       queryClient.invalidateQueries({ queryKey: groupActivityKey });
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
+      queryClient.invalidateQueries({ queryKey: settlementSuggestionsKey });
     },
     onError: handleError,
   });

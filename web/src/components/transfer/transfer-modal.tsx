@@ -7,9 +7,10 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
-import { getGroupActivity, getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
+import { getGroupActivity, getSettlementSuggestions, getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
 import type { GetGroupActivityResponse_ActivityItem_Transfer, MemberBalance } from "@/gen/api/v1/group_pb";
 import { createTransfer, updateTransfer } from "@/gen/api/v1/transfer-TransferService_connectquery";
+import type { TransferTemplateDefaults } from "@/hooks/use-transfer-modal";
 import { COMMON_CURRENCIES } from "@/lib/currencies";
 import { handleError } from "@/lib/utils";
 
@@ -54,17 +55,30 @@ interface TransferModalProps {
   onOpenChange: (open: boolean) => void;
   mode: "create" | "edit";
   transfer?: GetGroupActivityResponse_ActivityItem_Transfer;
+  templateDefaults?: TransferTemplateDefaults;
   groupId: string;
   groupMembers: MemberBalance[];
   currentUserId: string;
   defaultCurrency: string;
 }
 
+const userGroupsKey = createConnectQueryKey({
+    schema: getUserGroups,
+    cardinality: "finite",
+  });
+const settlementSuggestionsKey = createConnectQueryKey({
+    schema: getSettlementSuggestions,
+    cardinality: "finite",
+  });
+
+
+
 export const TransferModal = ({
   open,
   onOpenChange,
   mode,
   transfer,
+  templateDefaults,
   groupId,
   groupMembers,
   currentUserId,
@@ -84,13 +98,13 @@ export const TransferModal = ({
     }
 
     return {
-      senderId: currentUserId,
-      receiverId: "",
-      amount: 0,
-      currency: defaultCurrency,
+      senderId: templateDefaults?.senderId ?? currentUserId,
+      receiverId: templateDefaults?.receiverId ?? "",
+      amount: templateDefaults?.amount ?? 0,
+      currency: templateDefaults?.currency ?? defaultCurrency,
       date: getTodayDateString(),
     };
-  }, [isEditMode, transfer, defaultCurrency, currentUserId]);
+  }, [isEditMode, transfer, templateDefaults, defaultCurrency, currentUserId]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -109,11 +123,7 @@ export const TransferModal = ({
     input: { groupId },
   });
 
-  const userGroupsKey = createConnectQueryKey({
-    schema: getUserGroups,
-    cardinality: "finite",
-  });
-
+  
   const queryClient = useQueryClient();
 
   const { isPending: isCreating, mutate: createMutate } = useMutation(createTransfer, {
@@ -121,6 +131,7 @@ export const TransferModal = ({
       toast.success("Transfer recorded!");
       queryClient.invalidateQueries({ queryKey: groupActivityKey });
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
+      queryClient.invalidateQueries({ queryKey: settlementSuggestionsKey });
       onOpenChange(false);
     },
     onError: handleError,
@@ -131,6 +142,7 @@ export const TransferModal = ({
       toast.success("Transfer updated!");
       queryClient.invalidateQueries({ queryKey: groupActivityKey });
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
+      queryClient.invalidateQueries({ queryKey: settlementSuggestionsKey });
       onOpenChange(false);
     },
     onError: handleError,

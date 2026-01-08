@@ -10,3 +10,7 @@ export function cn(...inputs: ClassValue[]) {
 export function handleError(err: ConnectError) {
   toast.error(err.message);
 }
+
+export function formatCurrency(amount: number, currency: string): string {
+  return `${amount.toFixed(2)} ${currency}`;
+}
