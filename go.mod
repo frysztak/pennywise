@@ -22,6 +22,7 @@ require (
 	github.com/alexedwards/argon2id v1.0.0
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
+	github.com/jonasdoesthings/plavatar/v3 v3.0.5
 	github.com/lmittmann/tint v1.1.2
 	github.com/mattn/go-sqlite3 v1.14.33
 	github.com/olivere/vite v0.1.0
@@ -46,7 +47,6 @@ require (
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/gohugoio/hugo v0.149.1 // indirect
 	github.com/google/cel-go v0.26.1 // indirect
-	github.com/jonasdoesthings/plavatar/v3 v3.0.5 // indirect
 	github.com/lestrrat-go/blackmagic v1.0.4 // indirect
 	github.com/lestrrat-go/httpcc v1.0.1 // indirect
 	github.com/lestrrat-go/httprc v1.0.6 // indirect

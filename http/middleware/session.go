@@ -5,8 +5,12 @@ import (
 	"errors"
 	"net/http"
 	"pennywise/db"
+	"pennywise/db/database"
+	"pennywise/db/overrides"
 	"pennywise/gen/api/v1/apiv1connect"
 	"pennywise/http/helpers"
+	"pennywise/log"
+	"time"
 
 	"connectrpc.com/authn"
 	"connectrpc.com/connect"
@@ -49,7 +53,37 @@ func SessionMiddleware() *authn.Middleware {
 			return nil, authn.Errorf("invalid authorization")
 		}
 
-		// TODO: check if session needs to be renewed
+		// Check if session has expired
+		now := time.Now()
+		if session.ExpiredAt.Time.Before(now) {
+			logger := log.FromContext(ctx)
+			logger.Warn("session expired", "session_id", session.ID, "user_id", session.UserID, "expired_at", session.ExpiredAt.Time)
+			return nil, authn.Errorf("session expired")
+		}
+
+		// Renew session if it's expiring within the next 12 hours
+		renewalThreshold := 12 * time.Hour
+		timeUntilExpiry := session.ExpiredAt.Time.Sub(now)
+		if timeUntilExpiry < renewalThreshold {
+			newExpiredAt := now.Add(24 * time.Hour)
+			err = db.WriteQueries.UpdateSession(ctx, database.UpdateSessionParams{
+				ID:        session.ID,
+				Token:     session.Token,
+				UpdatedAt: overrides.TextTime{Time: now},
+				ExpiredAt: overrides.TextTime{Time: newExpiredAt},
+			})
+			if err != nil {
+				logger := log.FromContext(ctx)
+				logger.Error("failed to renew session", "error", err, "session_id", session.ID, "user_id", session.UserID)
+				// Don't fail the request if renewal fails, just log the error
+			} else {
+				logger := log.FromContext(ctx)
+				logger.Debug("session renewed", "session_id", session.ID, "user_id", session.UserID, "new_expired_at", newExpiredAt)
+				// Update the session object to reflect the new expiration
+				session.ExpiredAt = overrides.TextTime{Time: newExpiredAt}
+				session.UpdatedAt = overrides.TextTime{Time: now}
+			}
+		}
 
 		// The request is authenticated!
 		return session, nil
