@@ -262,16 +262,14 @@ func (s *RecurringExpenseService) PayRecurringExpense(ctx context.Context, req *
 	}
 
 	// Create beneficiaries (all group members)
-	for _, member := range members {
-		_, err = qtx.CreateExpenseBeneficiary(ctx, database.CreateExpenseBeneficiaryParams{
-			ID:        uuid.NewString(),
-			ExpenseID: expense.ID,
-			UserID:    member.UserID,
-		})
-		if err != nil {
-			logger.Error("failed to create expense beneficiary", "error", err)
-			return nil, connect.NewError(connect.CodeInternal, err)
-		}
+	userIDs := make([]string, len(members))
+	for i, member := range members {
+		userIDs[i] = member.UserID
+	}
+	err = db.CreateExpenseBeneficiariesBatch(ctx, tx, expense.ID, userIDs)
+	if err != nil {
+		logger.Error("failed to create expense beneficiaries", "error", err)
+		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
 	// Calculate next occurrence

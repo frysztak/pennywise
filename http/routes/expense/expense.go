@@ -58,16 +58,10 @@ func (s *ExpenseService) CreateExpense(ctx context.Context, r *apiv1.CreateExpen
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
-	for _, beneficiaryId := range r.BeneficiariesIds {
-		_, err = qtx.CreateExpenseBeneficiary(ctx, database.CreateExpenseBeneficiaryParams{
-			ID:        uuid.NewString(),
-			ExpenseID: expense.ID,
-			UserID:    beneficiaryId,
-		})
-		if err != nil {
-			logger.Error("failed to create expense beneficiary", "error", err, "expense_id", expense.ID, "beneficiary_id", beneficiaryId)
-			return nil, connect.NewError(connect.CodeInternal, err)
-		}
+	err = db.CreateExpenseBeneficiariesBatch(ctx, tx, expense.ID, r.BeneficiariesIds)
+	if err != nil {
+		logger.Error("failed to create expense beneficiaries", "error", err, "expense_id", expense.ID)
+		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
 	err = tx.Commit()
@@ -161,16 +155,10 @@ func (s *ExpenseService) UpdateExpense(ctx context.Context, r *apiv1.UpdateExpen
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
-	for _, beneficiaryId := range r.BeneficiariesIds {
-		_, err = qtx.CreateExpenseBeneficiary(ctx, database.CreateExpenseBeneficiaryParams{
-			ID:        uuid.NewString(),
-			ExpenseID: r.Id,
-			UserID:    beneficiaryId,
-		})
-		if err != nil {
-			logger.Error("failed to create expense beneficiary", "error", err, "expense_id", r.Id, "beneficiary_id", beneficiaryId)
-			return nil, connect.NewError(connect.CodeInternal, err)
-		}
+	err = db.CreateExpenseBeneficiariesBatch(ctx, tx, r.Id, r.BeneficiariesIds)
+	if err != nil {
+		logger.Error("failed to create expense beneficiaries", "error", err, "expense_id", r.Id)
+		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
 	err = tx.Commit()
