@@ -45,9 +45,12 @@ func (s *AuthService) LoginWithPassword(ctx context.Context, r *apiv1.LoginWithP
 		return nil, ErrInvalidPassword
 	}
 
-	session, err := db.WriteQueries.CreateSession(ctx, database.CreateSessionParams{
+	plainToken := helpers.GenerateSessionKey()
+	hashedToken := helpers.HashSessionToken(plainToken)
+
+	_, err = db.WriteQueries.CreateSession(ctx, database.CreateSessionParams{
 		ID:        uuid.NewString(),
-		Token:     helpers.GenerateSessionKey(),
+		Token:     hashedToken,
 		UserID:    user.ID,
 		CreatedAt: overrides.TextTime{Time: time.Now()},
 		UpdatedAt: overrides.TextTime{Time: time.Now()},
@@ -58,7 +61,7 @@ func (s *AuthService) LoginWithPassword(ctx context.Context, r *apiv1.LoginWithP
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
-	if err = helpers.SetConnectCookie(ctx, helpers.SessionCookie, session.Token); err != nil {
+	if err = helpers.SetConnectCookie(ctx, helpers.SessionCookie, plainToken); err != nil {
 		logger.Error("failed to set session cookie", "error", err, "user_id", user.ID)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -229,10 +232,12 @@ func HandlerOIDCCallback(w http.ResponseWriter, r *http.Request) {
 		logger.Info("created new OIDC user", "user_id", user.ID, "email", user.Email)
 	}
 
-	// Create session
-	session, err := db.WriteQueries.CreateSession(ctx, database.CreateSessionParams{
+	plainToken := helpers.GenerateSessionKey()
+	hashedToken := helpers.HashSessionToken(plainToken)
+
+	_, err = db.WriteQueries.CreateSession(ctx, database.CreateSessionParams{
 		ID:        uuid.NewString(),
-		Token:     helpers.GenerateSessionKey(),
+		Token:     hashedToken,
 		UserID:    user.ID,
 		CreatedAt: overrides.TextTime{Time: time.Now()},
 		UpdatedAt: overrides.TextTime{Time: time.Now()},
@@ -244,8 +249,7 @@ func HandlerOIDCCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Set session cookie
-	helpers.SetCookie(w, r, helpers.SessionCookie, session.Token)
+	helpers.SetCookie(w, r, helpers.SessionCookie, plainToken)
 
 	logger.Info("OIDC login successful", "user_id", user.ID, "email", user.Email)
 

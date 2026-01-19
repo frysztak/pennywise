@@ -11,7 +11,7 @@ Pennywise is a full-stack expense tracking and splitting application built with 
 - Money transfer recording between group members
 - Real-time balance calculations integrating expenses and transfers
 - Group activity feed combining all financial transactions
-- JWT-based authentication with HTTP-only cookies
+- Database-backed session tokens with HTTP-only cookies
 
 **Tech Stack:**
 - Backend: Go 1.25+, Connect RPC, SQLite
@@ -90,7 +90,7 @@ just gen  # Runs go generate + npm run buf:generate
 - `transfer/` - Money transfers between group members (CRUD operations)
 
 **Middleware & Interceptors:**
-- `http/middleware/session.go` - JWT session authentication for all endpoints except login/register
+- `http/middleware/session.go` - Session authentication via database lookup for all endpoints except login/register
 - `log/middleware.go` - Request logging with unique request IDs, user tracking, duration, and error codes
 
 **Logging Infrastructure:**
@@ -117,7 +117,7 @@ just gen  # Runs go generate + npm run buf:generate
 
 **Configuration:** `config/config.go` loads environment variables from `.env` file:
 - `DB_PATH` - SQLite database file path (default: "pennywise.db")
-- `JWT_SECRET` - JWT signing secret (required)
+- `AUTH_SECRET` - Secret key for authentication (required)
 - `LOG_LEVEL` - Logging level: debug, info, warn, error (default: "info")
 - `LOG_FORMAT` - Log format: text (colored), json (default: "text")
 - OIDC settings (optional, partially implemented)
@@ -212,8 +212,8 @@ Located in `web/`:
 
 ### Session Management
 
-JWT-based authentication stored in HTTP-only cookies. Session middleware:
-- Validates JWT tokens on all requests
+Opaque token authentication stored in HTTP-only cookies. Session middleware:
+- Validates tokens via database lookup
 - Injects user context for authenticated endpoints
 - Allowlist in `session.go` defines public endpoints (Login, Register)
 - Use `helpers.GetSessionInfo(ctx)` to extract user ID from context

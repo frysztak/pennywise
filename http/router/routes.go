@@ -25,7 +25,7 @@ import (
 func InitRouter(mux *http.ServeMux) {
 	// Initialize OIDC if configured
 	if config.Config.OIDCEnabled() {
-		auth.InitAuth()
+		auth.InitOIDCAuth()
 		mux.HandleFunc("GET /auth/oidc/login", auth.HandlerOIDCLogin)
 		mux.HandleFunc("GET /auth/oidc/callback", auth.HandlerOIDCCallback)
 	}

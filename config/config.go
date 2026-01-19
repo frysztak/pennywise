@@ -7,7 +7,7 @@ import (
 
 type config struct {
 	DBPath              string `env:"DB_PATH,notEmpty"`
-	JWTSecret           string `env:"JWT_SECRET,notEmpty"`
+	AuthSecret          string `env:"AUTH_SECRET,notEmpty"`
 	OIDCIssuer          string `env:"OIDC_ISSUER"`
 	OIDCClientId        string `env:"OIDC_CLIENT_ID"`
 	OIDCClientSecret    string `env:"OIDC_CLIENT_SECRET"`

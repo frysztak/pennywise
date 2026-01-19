@@ -23,10 +23,7 @@ func NewAuthService() *AuthService {
 	return &AuthService{}
 }
 
-func InitAuth() {
-	tokenAuth := jwtauth.New("HS256", []byte(config.Config.JWTSecret), nil)
-	TokenAuth = tokenAuth
-
+func InitOIDCAuth() {
 	if config.Config.OIDCIssuer != "" {
 		ctx := context.Background()
 		provider, err := oidc.NewProvider(ctx, config.Config.OIDCIssuer)
@@ -55,5 +52,4 @@ func InitAuth() {
 		}
 		OAuth2Config = &oauth2Config
 	}
-
 }

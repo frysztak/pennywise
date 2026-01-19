@@ -2,9 +2,13 @@ package helpers
 
 import (
 	"context"
+	"crypto/hmac"
 	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"net/http"
+	"pennywise/config"
 	"time"
 
 	"connectrpc.com/connect"
@@ -17,6 +21,14 @@ const (
 func GenerateSessionKey() string {
 	key := rand.Text()
 	return key
+}
+
+// HashSessionToken creates an HMAC-SHA256 hash of a session token.
+// The hash is stored in the database, while the plain token is sent to the client.
+func HashSessionToken(token string) string {
+	h := hmac.New(sha256.New, []byte(config.Config.AuthSecret))
+	h.Write([]byte(token))
+	return hex.EncodeToString(h.Sum(nil))
 }
 
 func SetCookie(w http.ResponseWriter, r *http.Request, name, value string) {
