@@ -126,7 +126,7 @@ just gen  # Runs go generate + npm run buf:generate
 
 Located in `web/`:
 - `src/` - React application source
-- Entry: `index.html` is served by Go backend with Vite integration
+- Entry: HTML template generated in `main.go` (see `indexTmpl` at main.go:184) with Vite integration
 - Uses TanStack Router with file-based routing and auto code splitting
 - Uses TanStack Query with Connect Query for type-safe API calls
 - Shadcn/ui components built on Radix UI primitives
