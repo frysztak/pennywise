@@ -3,6 +3,7 @@ package integration
 import (
 	"context"
 	"database/sql"
+	"pennywise/config"
 	"pennywise/db"
 	"pennywise/db/database"
 	"pennywise/db/overrides"
@@ -58,6 +59,13 @@ func setupTestDB(t *testing.T) {
 
 	// Initialize logger to discard output during tests
 	log.Init("error", "text")
+
+	// Initialize config for tests with registration enabled
+	t.Setenv("DB_PATH", ":memory:")
+	t.Setenv("AUTH_SECRET", "test-secret")
+	if err := config.InitConfig(); err != nil {
+		t.Fatalf("failed to init config: %v", err)
+	}
 
 	t.Cleanup(func() {
 		writeDB.Close()
