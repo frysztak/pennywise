@@ -69,9 +69,9 @@ export function LoginForm({ className, onSubmit, isLoading, ...props }: React.Co
                   <Field>
                     <div className="flex items-center">
                       <FieldLabel htmlFor="password">Password</FieldLabel>
-                      <a href="#" className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
+                      {/* <a href="#" className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
                         Forgot your password?
-                      </a>
+                      </a> */}
                     </div>
                     <Input
                       {...field}
@@ -95,9 +95,11 @@ export function LoginForm({ className, onSubmit, isLoading, ...props }: React.Co
                     <a href="/auth/oidc/login">Login with OIDC</a>
                   </Button>
                 )}
-                <FieldDescription className="text-center">
-                  Don&apos;t have an account? <Link to="/auth/register">Sign up</Link>
-                </FieldDescription>
+                {getConfig().registrationEnabled && (
+                  <FieldDescription className="text-center">
+                    Don&apos;t have an account? <Link to="/auth/register">Sign up</Link>
+                  </FieldDescription>
+                )}
               </Field>
             </FieldGroup>
           </form>

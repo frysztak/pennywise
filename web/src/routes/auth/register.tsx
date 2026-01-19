@@ -1,12 +1,18 @@
 import { useMutation } from "@connectrpc/connect-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 import { SignupForm } from "@/components/signup-form";
+import { getConfig } from "@/lib/config";
 import { userRegister } from "@/gen/api/v1/user-UserService_connectquery";
 import { handleError } from "@/lib/utils";
 
 export const Route = createFileRoute("/auth/register")({
+  beforeLoad: () => {
+    if (!getConfig().registrationEnabled) {
+      throw redirect({ to: "/auth/login" });
+    }
+  },
   component: RouteComponent,
 });
 

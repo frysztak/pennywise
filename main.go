@@ -141,7 +141,8 @@ func setupVite(isDev bool, mux *http.ServeMux) {
 
 // FrontendConfig holds configuration values passed to the frontend
 type FrontendConfig struct {
-	OIDCEnabled bool `json:"oidcEnabled"`
+	OIDCEnabled         bool `json:"oidcEnabled"`
+	RegistrationEnabled bool `json:"registrationEnabled"`
 }
 
 func FrontendHandler(isDev bool, appFS, publicFS fs.FS, paths ...string) http.HandlerFunc {
@@ -156,7 +157,8 @@ func FrontendHandler(isDev bool, appFS, publicFS fs.FS, paths ...string) http.Ha
 
 	// Build frontend config and serialize to JSON
 	feConfig := FrontendConfig{
-		OIDCEnabled: config.Config.OIDCEnabled(),
+		OIDCEnabled:         config.Config.OIDCEnabled(),
+		RegistrationEnabled: config.Config.RegistrationEnabled,
 	}
 	configJSON, err := json.Marshal(feConfig)
 	if err != nil {
