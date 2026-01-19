@@ -43,6 +43,8 @@ const (
 	// UserServiceUploadAvatarProcedure is the fully-qualified name of the UserService's UploadAvatar
 	// RPC.
 	UserServiceUploadAvatarProcedure = "/api.v1.UserService/UploadAvatar"
+	// UserServiceUpdateUserProcedure is the fully-qualified name of the UserService's UpdateUser RPC.
+	UserServiceUpdateUserProcedure = "/api.v1.UserService/UpdateUser"
 )
 
 // UserServiceClient is a client for the api.v1.UserService service.
@@ -51,6 +53,7 @@ type UserServiceClient interface {
 	UserInfo(context.Context, *v1.UserInfoRequest) (*v1.UserInfoResponse, error)
 	GetUsers(context.Context, *v1.GetUsersRequest) (*v1.GetUsersResponse, error)
 	UploadAvatar(context.Context, *v1.UploadAvatarRequest) (*v1.UploadAvatarResponse, error)
+	UpdateUser(context.Context, *v1.UpdateUserRequest) (*v1.UpdateUserResponse, error)
 }
 
 // NewUserServiceClient constructs a client for the api.v1.UserService service. By default, it uses
@@ -88,6 +91,12 @@ func NewUserServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(userServiceMethods.ByName("UploadAvatar")),
 			connect.WithClientOptions(opts...),
 		),
+		updateUser: connect.NewClient[v1.UpdateUserRequest, v1.UpdateUserResponse](
+			httpClient,
+			baseURL+UserServiceUpdateUserProcedure,
+			connect.WithSchema(userServiceMethods.ByName("UpdateUser")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -97,6 +106,7 @@ type userServiceClient struct {
 	userInfo     *connect.Client[v1.UserInfoRequest, v1.UserInfoResponse]
 	getUsers     *connect.Client[v1.GetUsersRequest, v1.GetUsersResponse]
 	uploadAvatar *connect.Client[v1.UploadAvatarRequest, v1.UploadAvatarResponse]
+	updateUser   *connect.Client[v1.UpdateUserRequest, v1.UpdateUserResponse]
 }
 
 // UserRegister calls api.v1.UserService.UserRegister.
@@ -135,12 +145,22 @@ func (c *userServiceClient) UploadAvatar(ctx context.Context, req *v1.UploadAvat
 	return nil, err
 }
 
+// UpdateUser calls api.v1.UserService.UpdateUser.
+func (c *userServiceClient) UpdateUser(ctx context.Context, req *v1.UpdateUserRequest) (*v1.UpdateUserResponse, error) {
+	response, err := c.updateUser.CallUnary(ctx, connect.NewRequest(req))
+	if response != nil {
+		return response.Msg, err
+	}
+	return nil, err
+}
+
 // UserServiceHandler is an implementation of the api.v1.UserService service.
 type UserServiceHandler interface {
 	UserRegister(context.Context, *v1.UserRegisterRequest) (*v1.UserRegisterResponse, error)
 	UserInfo(context.Context, *v1.UserInfoRequest) (*v1.UserInfoResponse, error)
 	GetUsers(context.Context, *v1.GetUsersRequest) (*v1.GetUsersResponse, error)
 	UploadAvatar(context.Context, *v1.UploadAvatarRequest) (*v1.UploadAvatarResponse, error)
+	UpdateUser(context.Context, *v1.UpdateUserRequest) (*v1.UpdateUserResponse, error)
 }
 
 // NewUserServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -174,6 +194,12 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(userServiceMethods.ByName("UploadAvatar")),
 		connect.WithHandlerOptions(opts...),
 	)
+	userServiceUpdateUserHandler := connect.NewUnaryHandlerSimple(
+		UserServiceUpdateUserProcedure,
+		svc.UpdateUser,
+		connect.WithSchema(userServiceMethods.ByName("UpdateUser")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/api.v1.UserService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case UserServiceUserRegisterProcedure:
@@ -184,6 +210,8 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption
 			userServiceGetUsersHandler.ServeHTTP(w, r)
 		case UserServiceUploadAvatarProcedure:
 			userServiceUploadAvatarHandler.ServeHTTP(w, r)
+		case UserServiceUpdateUserProcedure:
+			userServiceUpdateUserHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -207,4 +235,8 @@ func (UnimplementedUserServiceHandler) GetUsers(context.Context, *v1.GetUsersReq
 
 func (UnimplementedUserServiceHandler) UploadAvatar(context.Context, *v1.UploadAvatarRequest) (*v1.UploadAvatarResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.UserService.UploadAvatar is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) UpdateUser(context.Context, *v1.UpdateUserRequest) (*v1.UpdateUserResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.UserService.UpdateUser is not implemented"))
 }

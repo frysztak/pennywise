@@ -52,9 +52,22 @@ message UploadAvatarRequest {
 
 message UploadAvatarResponse {}
 
+message UpdateUserRequest {
+  string username = 1 [(buf.validate.field).string.min_len = 3];
+}
+
+message UpdateUserResponse {
+  string id = 1;
+  string email = 2;
+  string username = 3;
+  UserRole role = 4;
+  google.protobuf.Timestamp avatar_updated_at = 5;
+}
+
 service UserService {
   rpc UserRegister(UserRegisterRequest) returns (UserRegisterResponse) {}
   rpc UserInfo(UserInfoRequest) returns (UserInfoResponse) {}
   rpc GetUsers(GetUsersRequest) returns (GetUsersResponse) {}
   rpc UploadAvatar(UploadAvatarRequest) returns (UploadAvatarResponse) {}
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {}
 }

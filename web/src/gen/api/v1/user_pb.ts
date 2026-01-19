@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file api/v1/user.proto.
  */
 export const file_api_v1_user: GenFile = /*@__PURE__*/
-  fileDesc("ChFhcGkvdjEvdXNlci5wcm90bxIGYXBpLnYxImMKE1VzZXJSZWdpc3RlclJlcXVlc3QSFgoFZW1haWwYASABKAlCB7pIBHICYAESGQoIcGFzc3dvcmQYAiABKAlCB7pIBHICEAYSGQoIdXNlcm5hbWUYAyABKAlCB7pIBHICEAMiYwoUVXNlclJlZ2lzdGVyUmVzcG9uc2USCgoCaWQYASABKAkSDQoFZW1haWwYAiABKAkSEAoIdXNlcm5hbWUYAyABKAkSHgoEcm9sZRgEIAEoDjIQLmFwaS52MS5Vc2VyUm9sZSIRCg9Vc2VySW5mb1JlcXVlc3QilgEKEFVzZXJJbmZvUmVzcG9uc2USCgoCaWQYASABKAkSDQoFZW1haWwYAiABKAkSEAoIdXNlcm5hbWUYAyABKAkSHgoEcm9sZRgEIAEoDjIQLmFwaS52MS5Vc2VyUm9sZRI1ChFhdmF0YXJfdXBkYXRlZF9hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiEQoPR2V0VXNlcnNSZXF1ZXN0InUKEEdldFVzZXJzUmVzcG9uc2USLAoFdXNlcnMYASADKAsyHS5hcGkudjEuR2V0VXNlcnNSZXNwb25zZS5Vc2VyGjMKBFVzZXISCgoCaWQYASABKAkSEAoIdXNlcm5hbWUYAiABKAkSDQoFZW1haWwYAyABKAkiTwoTVXBsb2FkQXZhdGFyUmVxdWVzdBIcCgthdmF0YXJfZGF0YRgBIAEoDEIHukgEegIQARIaCgltaW1lX3R5cGUYAiABKAlCB7pIBHICEAEiFgoUVXBsb2FkQXZhdGFyUmVzcG9uc2UqUQoIVXNlclJvbGUSGQoVVVNFUl9ST0xFX1VOU1BFQ0lGSUVEEAASEwoPVVNFUl9ST0xFX0FETUlOEAESFQoRVVNFUl9ST0xFX1JFR1VMQVIQAjKpAgoLVXNlclNlcnZpY2USSwoMVXNlclJlZ2lzdGVyEhsuYXBpLnYxLlVzZXJSZWdpc3RlclJlcXVlc3QaHC5hcGkudjEuVXNlclJlZ2lzdGVyUmVzcG9uc2UiABI/CghVc2VySW5mbxIXLmFwaS52MS5Vc2VySW5mb1JlcXVlc3QaGC5hcGkudjEuVXNlckluZm9SZXNwb25zZSIAEj8KCEdldFVzZXJzEhcuYXBpLnYxLkdldFVzZXJzUmVxdWVzdBoYLmFwaS52MS5HZXRVc2Vyc1Jlc3BvbnNlIgASSwoMVXBsb2FkQXZhdGFyEhsuYXBpLnYxLlVwbG9hZEF2YXRhclJlcXVlc3QaHC5hcGkudjEuVXBsb2FkQXZhdGFyUmVzcG9uc2UiAGIGcHJvdG8z", [file_buf_validate_validate, file_google_protobuf_timestamp]);
+  fileDesc("ChFhcGkvdjEvdXNlci5wcm90bxIGYXBpLnYxImMKE1VzZXJSZWdpc3RlclJlcXVlc3QSFgoFZW1haWwYASABKAlCB7pIBHICYAESGQoIcGFzc3dvcmQYAiABKAlCB7pIBHICEAYSGQoIdXNlcm5hbWUYAyABKAlCB7pIBHICEAMiYwoUVXNlclJlZ2lzdGVyUmVzcG9uc2USCgoCaWQYASABKAkSDQoFZW1haWwYAiABKAkSEAoIdXNlcm5hbWUYAyABKAkSHgoEcm9sZRgEIAEoDjIQLmFwaS52MS5Vc2VyUm9sZSIRCg9Vc2VySW5mb1JlcXVlc3QilgEKEFVzZXJJbmZvUmVzcG9uc2USCgoCaWQYASABKAkSDQoFZW1haWwYAiABKAkSEAoIdXNlcm5hbWUYAyABKAkSHgoEcm9sZRgEIAEoDjIQLmFwaS52MS5Vc2VyUm9sZRI1ChFhdmF0YXJfdXBkYXRlZF9hdBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiEQoPR2V0VXNlcnNSZXF1ZXN0InUKEEdldFVzZXJzUmVzcG9uc2USLAoFdXNlcnMYASADKAsyHS5hcGkudjEuR2V0VXNlcnNSZXNwb25zZS5Vc2VyGjMKBFVzZXISCgoCaWQYASABKAkSEAoIdXNlcm5hbWUYAiABKAkSDQoFZW1haWwYAyABKAkiTwoTVXBsb2FkQXZhdGFyUmVxdWVzdBIcCgthdmF0YXJfZGF0YRgBIAEoDEIHukgEegIQARIaCgltaW1lX3R5cGUYAiABKAlCB7pIBHICEAEiFgoUVXBsb2FkQXZhdGFyUmVzcG9uc2UiLgoRVXBkYXRlVXNlclJlcXVlc3QSGQoIdXNlcm5hbWUYASABKAlCB7pIBHICEAMimAEKElVwZGF0ZVVzZXJSZXNwb25zZRIKCgJpZBgBIAEoCRINCgVlbWFpbBgCIAEoCRIQCgh1c2VybmFtZRgDIAEoCRIeCgRyb2xlGAQgASgOMhAuYXBpLnYxLlVzZXJSb2xlEjUKEWF2YXRhcl91cGRhdGVkX2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCpRCghVc2VyUm9sZRIZChVVU0VSX1JPTEVfVU5TUEVDSUZJRUQQABITCg9VU0VSX1JPTEVfQURNSU4QARIVChFVU0VSX1JPTEVfUkVHVUxBUhACMvACCgtVc2VyU2VydmljZRJLCgxVc2VyUmVnaXN0ZXISGy5hcGkudjEuVXNlclJlZ2lzdGVyUmVxdWVzdBocLmFwaS52MS5Vc2VyUmVnaXN0ZXJSZXNwb25zZSIAEj8KCFVzZXJJbmZvEhcuYXBpLnYxLlVzZXJJbmZvUmVxdWVzdBoYLmFwaS52MS5Vc2VySW5mb1Jlc3BvbnNlIgASPwoIR2V0VXNlcnMSFy5hcGkudjEuR2V0VXNlcnNSZXF1ZXN0GhguYXBpLnYxLkdldFVzZXJzUmVzcG9uc2UiABJLCgxVcGxvYWRBdmF0YXISGy5hcGkudjEuVXBsb2FkQXZhdGFyUmVxdWVzdBocLmFwaS52MS5VcGxvYWRBdmF0YXJSZXNwb25zZSIAEkUKClVwZGF0ZVVzZXISGS5hcGkudjEuVXBkYXRlVXNlclJlcXVlc3QaGi5hcGkudjEuVXBkYXRlVXNlclJlc3BvbnNlIgBiBnByb3RvMw", [file_buf_validate_validate, file_google_protobuf_timestamp]);
 
 /**
  * @generated from message api.v1.UserRegisterRequest
@@ -217,6 +217,60 @@ export const UploadAvatarResponseSchema: GenMessage<UploadAvatarResponse> = /*@_
   messageDesc(file_api_v1_user, 7);
 
 /**
+ * @generated from message api.v1.UpdateUserRequest
+ */
+export type UpdateUserRequest = Message<"api.v1.UpdateUserRequest"> & {
+  /**
+   * @generated from field: string username = 1;
+   */
+  username: string;
+};
+
+/**
+ * Describes the message api.v1.UpdateUserRequest.
+ * Use `create(UpdateUserRequestSchema)` to create a new message.
+ */
+export const UpdateUserRequestSchema: GenMessage<UpdateUserRequest> = /*@__PURE__*/
+  messageDesc(file_api_v1_user, 8);
+
+/**
+ * @generated from message api.v1.UpdateUserResponse
+ */
+export type UpdateUserResponse = Message<"api.v1.UpdateUserResponse"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string email = 2;
+   */
+  email: string;
+
+  /**
+   * @generated from field: string username = 3;
+   */
+  username: string;
+
+  /**
+   * @generated from field: api.v1.UserRole role = 4;
+   */
+  role: UserRole;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp avatar_updated_at = 5;
+   */
+  avatarUpdatedAt?: Timestamp;
+};
+
+/**
+ * Describes the message api.v1.UpdateUserResponse.
+ * Use `create(UpdateUserResponseSchema)` to create a new message.
+ */
+export const UpdateUserResponseSchema: GenMessage<UpdateUserResponse> = /*@__PURE__*/
+  messageDesc(file_api_v1_user, 9);
+
+/**
  * @generated from enum api.v1.UserRole
  */
 export enum UserRole {
@@ -277,6 +331,14 @@ export const UserService: GenService<{
     methodKind: "unary";
     input: typeof UploadAvatarRequestSchema;
     output: typeof UploadAvatarResponseSchema;
+  },
+  /**
+   * @generated from rpc api.v1.UserService.UpdateUser
+   */
+  updateUser: {
+    methodKind: "unary";
+    input: typeof UpdateUserRequestSchema;
+    output: typeof UpdateUserResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_api_v1_user, 0);

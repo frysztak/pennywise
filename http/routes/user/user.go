@@ -177,3 +177,32 @@ func (s *UserService) UploadAvatar(ctx context.Context, r *apiv1.UploadAvatarReq
 
 	return &apiv1.UploadAvatarResponse{}, nil
 }
+
+func (s *UserService) UpdateUser(ctx context.Context, r *apiv1.UpdateUserRequest) (*apiv1.UpdateUserResponse, error) {
+	logger := log.FromContext(ctx)
+	session := helpers.GetSessionInfo(ctx)
+
+	user, err := db.WriteQueries.UpdateUserUsername(ctx, database.UpdateUserUsernameParams{
+		ID:       session.UserID,
+		Username: r.Username,
+	})
+	if err != nil {
+		logger.Error("failed to update user", "error", err, "user_id", session.UserID)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	logger.Info("user updated successfully", "user_id", user.ID, "username", user.Username)
+
+	response := &apiv1.UpdateUserResponse{
+		Id:       user.ID,
+		Email:    user.Email,
+		Username: user.Username,
+		Role:     apiv1.UserRole(user.Role),
+	}
+
+	if user.AvatarUpdatedAt.Valid {
+		response.AvatarUpdatedAt = timestamppb.New(user.AvatarUpdatedAt.Time)
+	}
+
+	return response, nil
+}

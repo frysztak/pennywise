@@ -27,3 +27,9 @@ WHERE id = @id;
 
 -- name: GetUserAvatar :one
 SELECT avatar_data, avatar_mime_type FROM users WHERE id = @id LIMIT 1;
+
+-- name: UpdateUserUsername :one
+UPDATE users
+SET username = @username
+WHERE id = @id
+RETURNING id, email, username, role, avatar_updated_at;

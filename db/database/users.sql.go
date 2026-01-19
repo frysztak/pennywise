@@ -179,3 +179,36 @@ func (q *Queries) UpdateUserAvatar(ctx context.Context, arg UpdateUserAvatarPara
 	)
 	return err
 }
+
+const updateUserUsername = `-- name: UpdateUserUsername :one
+UPDATE users
+SET username = ?1
+WHERE id = ?2
+RETURNING id, email, username, role, avatar_updated_at
+`
+
+type UpdateUserUsernameParams struct {
+	Username string
+	ID       string
+}
+
+type UpdateUserUsernameRow struct {
+	ID              string
+	Email           string
+	Username        string
+	Role            int64
+	AvatarUpdatedAt overrides.NullTextTime
+}
+
+func (q *Queries) UpdateUserUsername(ctx context.Context, arg UpdateUserUsernameParams) (UpdateUserUsernameRow, error) {
+	row := q.db.QueryRowContext(ctx, updateUserUsername, arg.Username, arg.ID)
+	var i UpdateUserUsernameRow
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Username,
+		&i.Role,
+		&i.AvatarUpdatedAt,
+	)
+	return i, err
+}

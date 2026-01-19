@@ -23,3 +23,8 @@ export const getUsers = UserService.method.getUsers;
  * @generated from rpc api.v1.UserService.UploadAvatar
  */
 export const uploadAvatar = UserService.method.uploadAvatar;
+
+/**
+ * @generated from rpc api.v1.UserService.UpdateUser
+ */
+export const updateUser = UserService.method.updateUser;

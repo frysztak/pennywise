@@ -5,6 +5,7 @@ import { AvatarUpload } from "@/components/avatar-upload";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { UsernameEdit } from "@/components/username-edit";
 
 export const Route = createFileRoute("/_pathlessLayout/settings")({
   component: RouteComponent,
@@ -26,6 +27,12 @@ function RouteComponent() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Username</label>
+              <div className="mt-2">
+                <UsernameEdit />
+              </div>
+            </div>
             <div>
               <label className="text-sm font-medium">Avatar</label>
               <div className="mt-2">
