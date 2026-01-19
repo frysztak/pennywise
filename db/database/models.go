@@ -82,7 +82,6 @@ type User struct {
 	PasswordHash    *string
 	CreatedAt       overrides.TextTime
 	Role            int64
-	ExpenseGroupIds *int64
 	AvatarData      []byte
 	AvatarMimeType  *string
 	AvatarUpdatedAt overrides.NullTextTime

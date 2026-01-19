@@ -22,7 +22,7 @@ INSERT INTO users
     role
 ) VALUES (
     ?1, ?2, ?3, ?4, ?5, ?6
-) RETURNING id, email, username, password_hash, created_at, role, expense_group_ids, avatar_data, avatar_mime_type, avatar_updated_at
+) RETURNING id, email, username, password_hash, created_at, role, avatar_data, avatar_mime_type, avatar_updated_at
 `
 
 type CreateUserParams struct {
@@ -51,7 +51,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.PasswordHash,
 		&i.CreatedAt,
 		&i.Role,
-		&i.ExpenseGroupIds,
 		&i.AvatarData,
 		&i.AvatarMimeType,
 		&i.AvatarUpdatedAt,
@@ -76,7 +75,7 @@ func (q *Queries) GetUserAvatar(ctx context.Context, id string) (GetUserAvatarRo
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, username, password_hash, created_at, role, expense_group_ids, avatar_data, avatar_mime_type, avatar_updated_at FROM users WHERE email = ?1 LIMIT 1
+SELECT id, email, username, password_hash, created_at, role, avatar_data, avatar_mime_type, avatar_updated_at FROM users WHERE email = ?1 LIMIT 1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
@@ -89,7 +88,6 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.PasswordHash,
 		&i.CreatedAt,
 		&i.Role,
-		&i.ExpenseGroupIds,
 		&i.AvatarData,
 		&i.AvatarMimeType,
 		&i.AvatarUpdatedAt,
