@@ -1,6 +1,6 @@
 "use client";
 
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import * as React from "react";
 
 import pennywiseSvg from "@/assets/pennywise.svg";
@@ -15,9 +15,17 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { setOpenMobile } = useSidebar();
+  const { href } = useLocation();
+
+  React.useEffect(() => {
+    setOpenMobile(false);
+  }, [href]);
+
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
