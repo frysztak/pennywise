@@ -1,6 +1,6 @@
 "use client";
 
-import { Link, useLocation } from "@tanstack/react-router";
+import { useLocation } from "@tanstack/react-router";
 import * as React from "react";
 
 import pennywiseSvg from "@/assets/pennywise.svg";
@@ -13,7 +13,6 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
@@ -30,15 +29,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link to="/">
-                <img src={pennywiseSvg} alt="Pennywise" className="size-8" />
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-bold text-lg">Pennywise</span>
-                </div>
-              </Link>
-            </SidebarMenuButton>
+          <SidebarMenuItem className="flex gap-2 p-1">
+            <img src={pennywiseSvg} alt="Pennywise" className="size-8" />
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-bold text-lg">Pennywise</span>
+            </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
