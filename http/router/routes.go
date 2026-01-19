@@ -3,6 +3,7 @@ package router
 import (
 	"net/http"
 
+	"pennywise/config"
 	"pennywise/http/middleware"
 	"pennywise/http/routes/admin"
 	"pennywise/http/routes/auth"
@@ -22,17 +23,13 @@ import (
 )
 
 func InitRouter(mux *http.ServeMux) {
-	// I've had it fail with "Get "https://auth.raniuszek.cloud/.well-known/openid-configuration": dial tcp 5.231.56.104:443: connect: connection refused"
-	// auth.InitAuth()
-	// r.Use(middleware.Logger)
+	// Initialize OIDC if configured
+	if config.Config.OIDCEnabled() {
+		auth.InitAuth()
+		mux.HandleFunc("GET /auth/oidc/login", auth.HandlerOIDCLogin)
+		mux.HandleFunc("GET /auth/oidc/callback", auth.HandlerOIDCCallback)
+	}
 
-	//c := cors.New(cors.Options{
-	//	AllowedOrigins: []string{"http://localhost:5173"},
-	//	AllowedMethods: connectcors.AllowedMethods(),
-	//	AllowedHeaders: connectcors.AllowedHeaders(),
-	//	ExposedHeaders: connectcors.ExposedHeaders(),
-	//	MaxAge:         7200, // 2 hours in seconds
-	//})
 	session := middleware.SessionMiddleware()
 
 	// Avatar endpoint (no auth required)

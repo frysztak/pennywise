@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { getConfig } from "@/lib/config";
 import { cn } from "@/lib/utils";
 
 import { Spinner } from "./ui/spinner";
@@ -89,9 +90,11 @@ export function LoginForm({ className, onSubmit, isLoading, ...props }: React.Co
                   {isLoading && <Spinner />}
                   Login
                 </Button>
-                {/* <Button variant="outline" type="button">
-                  Login with Google
-                </Button> */}
+                {getConfig().oidcEnabled && (
+                  <Button variant="outline" type="button" asChild>
+                    <a href="/auth/oidc/login">Login with OIDC</a>
+                  </Button>
+                )}
                 <FieldDescription className="text-center">
                   Don&apos;t have an account? <Link to="/auth/register">Sign up</Link>
                 </FieldDescription>

@@ -33,6 +33,8 @@ func InitAuth() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		OIDCProvider = provider
+
 		oidcConfig := &oidc.Config{
 			ClientID: config.Config.OIDCClientId,
 		}

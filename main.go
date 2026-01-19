@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"embed"
+	"encoding/json"
 	"flag"
 	"html/template"
 	"io/fs"
@@ -138,6 +139,11 @@ func setupVite(isDev bool, mux *http.ServeMux) {
 	}
 }
 
+// FrontendConfig holds configuration values passed to the frontend
+type FrontendConfig struct {
+	OIDCEnabled bool `json:"oidcEnabled"`
+}
+
 func FrontendHandler(isDev bool, appFS, publicFS fs.FS, paths ...string) http.HandlerFunc {
 	viteConfig := vite.Config{
 		FS:           appFS,
@@ -146,6 +152,15 @@ func FrontendHandler(isDev bool, appFS, publicFS fs.FS, paths ...string) http.Ha
 	}
 	if isDev {
 		viteConfig.ViteURL = "http://localhost:5173"
+	}
+
+	// Build frontend config and serialize to JSON
+	feConfig := FrontendConfig{
+		OIDCEnabled: config.Config.OIDCEnabled(),
+	}
+	configJSON, err := json.Marshal(feConfig)
+	if err != nil {
+		stdlog.Fatalf("Failed to marshal frontend config: %v", err)
 	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -163,10 +178,10 @@ func FrontendHandler(isDev bool, appFS, publicFS fs.FS, paths ...string) http.Ha
 					return
 				}
 
-				if err = tmpl.Execute(w, map[string]interface{}{
-					"Title":   "Homepage",
-					"Vite":    viteFragment,
-					"Scripts": template.HTML(`<script>console.log("Hello from the backend!")</script>`),
+				if err = tmpl.Execute(w, map[string]any{
+					"Title":      "Homepage",
+					"Vite":       viteFragment,
+					"ConfigJSON": template.JS(configJSON),
 				}); err != nil {
 					http.Error(w, "Error executing template", http.StatusInternalServerError)
 					return
@@ -207,12 +222,12 @@ var indexTmpl = `<!doctype html>
     <link rel="manifest" href="/manifest.webmanifest">
     <meta name="theme-color" content="#ffffff">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>{{ .Title }}</title>
-	{{ .Vite.Tags }}
- </head>
+    <title>{{ .Title }}</title>
+    {{ .Vite.Tags }}
+    <script>window.__PENNYWISE_CONFIG__ = {{ .ConfigJSON }};</script>
+  </head>
   <body class="min-h-screen antialiased">
     <div id="root"></div>
-	{{ .Scripts }}
   </body>
 </html>
 `

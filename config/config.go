@@ -29,3 +29,11 @@ func InitConfig() error {
 
 	return err
 }
+
+// OIDCEnabled returns true if all required OIDC configuration values are set
+func (c *config) OIDCEnabled() bool {
+	return c.OIDCIssuer != "" &&
+		c.OIDCClientId != "" &&
+		c.OIDCClientSecret != "" &&
+		c.OIDCRedirectUrl != ""
+}

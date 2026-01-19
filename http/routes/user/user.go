@@ -45,25 +45,7 @@ func (s *UserService) UserRegister(ctx context.Context, r *apiv1.UserRegisterReq
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
-	// Generate and save default avatar
-	avatarData, err := generateDefaultAvatar(r.Email)
-	if err != nil {
-		logger.Error("failed to generate default avatar", "error", err, "user_id", user.ID)
-		// Don't fail registration if avatar generation fails
-	} else {
-		mimeType := "image/svg+xml"
-		now := overrides.NullTextTime{Time: time.Now(), Valid: true}
-		err = db.WriteQueries.UpdateUserAvatar(ctx, database.UpdateUserAvatarParams{
-			ID:              user.ID,
-			AvatarData:      avatarData,
-			AvatarMimeType:  &mimeType,
-			AvatarUpdatedAt: now,
-		})
-		if err != nil {
-			logger.Error("failed to save default avatar", "error", err, "user_id", user.ID)
-			// Don't fail registration if avatar save fails
-		}
-	}
+	SetDefaultAvatar(ctx, user.ID, user.Email)
 
 	logger.Info("user registered successfully", "user_id", user.ID, "email", user.Email, "username", user.Username)
 
@@ -90,6 +72,30 @@ func generateDefaultAvatar(email string) ([]byte, error) {
 	}
 
 	return avatarBuffer.Bytes(), nil
+}
+
+// SetDefaultAvatar generates and saves a default avatar for a user.
+// Errors are logged but not returned - avatar generation is non-critical.
+func SetDefaultAvatar(ctx context.Context, userID, email string) {
+	logger := log.FromContext(ctx)
+
+	avatarData, err := generateDefaultAvatar(email)
+	if err != nil {
+		logger.Error("failed to generate default avatar", "error", err, "user_id", userID)
+		return
+	}
+
+	mimeType := "image/svg+xml"
+	now := overrides.NullTextTime{Time: time.Now(), Valid: true}
+	err = db.WriteQueries.UpdateUserAvatar(ctx, database.UpdateUserAvatarParams{
+		ID:              userID,
+		AvatarData:      avatarData,
+		AvatarMimeType:  &mimeType,
+		AvatarUpdatedAt: now,
+	})
+	if err != nil {
+		logger.Error("failed to save default avatar", "error", err, "user_id", userID)
+	}
 }
 
 func (s *UserService) UserInfo(ctx context.Context, r *apiv1.UserInfoRequest) (*apiv1.UserInfoResponse, error) {

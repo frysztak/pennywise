@@ -26,6 +26,7 @@ func SetCookie(w http.ResponseWriter, r *http.Request, name, value string) {
 		MaxAge:   int((365 * 24 * time.Hour).Seconds()),
 		Secure:   r.TLS != nil,
 		HttpOnly: true,
+		Path:     "/",
 	}
 	http.SetCookie(w, c)
 }
