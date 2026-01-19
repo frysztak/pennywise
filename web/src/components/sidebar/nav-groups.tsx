@@ -49,57 +49,61 @@ export function NavGroups() {
         </NewGroupModal>
       </SidebarGroupAction>
       <SidebarGroupContent>
-        <SidebarMenu>
-          {data.groups.map((item) => (
-            <SidebarMenuItem key={item.groupId}>
-              <SidebarMenuButton asChild className="h-auto">
-                <Link to="/group/$groupId" params={{ groupId: item.groupId }}>
-                  <div className="flex flex-col">
-                    <strong>{item.groupName}</strong>
-                    <AmountWithCurrency
-                      balance={item.memberBalances.find((balance) => balance.userId === currentUser.id)!.balance}
-                    />
-                  </div>
-                </Link>
-              </SidebarMenuButton>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <SidebarMenuAction showOnHover>
-                    <MoreHorizontal />
-                    <span className="sr-only">More</span>
-                  </SidebarMenuAction>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="w-48"
-                  side={isMobile ? "bottom" : "right"}
-                  align={isMobile ? "end" : "start"}
-                >
-                  <DropdownMenuItem>
-                    <Folder className="text-muted-foreground" />
-                    <span>View Project</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Share className="text-muted-foreground" />
-                    <span>Share Project</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onClick={() =>
-                      deleteGroupModal.confirmDelete({
-                        groupId: item.groupId,
-                        groupName: item.groupName,
-                      })
-                    }
+        {data.groups.length === 0 ? (
+          <p className="px-2 py-1 text-xs text-muted-foreground">You don't have any groups yet</p>
+        ) : (
+          <SidebarMenu>
+            {data.groups.map((item) => (
+              <SidebarMenuItem key={item.groupId}>
+                <SidebarMenuButton asChild className="h-auto">
+                  <Link to="/group/$groupId" params={{ groupId: item.groupId }}>
+                    <div className="flex flex-col">
+                      <strong>{item.groupName}</strong>
+                      <AmountWithCurrency
+                        balance={item.memberBalances.find((balance) => balance.userId === currentUser.id)!.balance}
+                      />
+                    </div>
+                  </Link>
+                </SidebarMenuButton>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <SidebarMenuAction showOnHover>
+                      <MoreHorizontal />
+                      <span className="sr-only">More</span>
+                    </SidebarMenuAction>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    className="w-48"
+                    side={isMobile ? "bottom" : "right"}
+                    align={isMobile ? "end" : "start"}
                   >
-                    <Trash2 className="text-muted-foreground" />
-                    <span>Delete Group</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
+                    <DropdownMenuItem>
+                      <Folder className="text-muted-foreground" />
+                      <span>View Project</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Share className="text-muted-foreground" />
+                      <span>Share Project</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onClick={() =>
+                        deleteGroupModal.confirmDelete({
+                          groupId: item.groupId,
+                          groupName: item.groupName,
+                        })
+                      }
+                    >
+                      <Trash2 className="text-muted-foreground" />
+                      <span>Delete Group</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        )}
       </SidebarGroupContent>
 
       {/* Delete Group Confirmation Dialog */}
