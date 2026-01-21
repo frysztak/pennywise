@@ -8,6 +8,7 @@ import (
 type config struct {
 	DBPath              string `env:"DB_PATH,notEmpty"`
 	AuthSecret          string `env:"AUTH_SECRET,notEmpty"`
+	Port                string `env:"PORT" envDefault:"3333"`
 	OIDCIssuer          string `env:"OIDC_ISSUER"`
 	OIDCClientId        string `env:"OIDC_CLIENT_ID"`
 	OIDCClientSecret    string `env:"OIDC_CLIENT_SECRET"`

@@ -5,6 +5,7 @@ import (
 	"embed"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"html/template"
 	"io/fs"
 	stdlog "log"
@@ -56,7 +57,7 @@ func main() {
 	router.InitRouter(mux)
 
 	// Create HTTP server
-	addr := ":3333"
+	addr := fmt.Sprintf(":%s", config.Config.Port)
 	srv := &http.Server{
 		Addr:    addr,
 		Handler: h2c.NewHandler(mux, &http2.Server{}),
