@@ -107,13 +107,13 @@ func setupVite(isDev bool, mux *http.ServeMux) {
 		appFS = os.DirFS("./web")
 		publicFS = os.DirFS("./web/public")
 	} else {
-		distFS, err := fs.Sub(dist, "dist")
+		distFS, err := fs.Sub(dist, "web/dist")
 		if err != nil {
 			stdlog.Fatalf("creating sub-filesystem for 'dist' directory: %v", err)
 		}
 		appFS = distFS
 
-		publicSub, err := fs.Sub(public, "public")
+		publicSub, err := fs.Sub(public, "web/public")
 		if err != nil {
 			stdlog.Fatalf("creating sub-filesystem for 'public' directory: %v", err)
 		}
@@ -170,12 +170,14 @@ func FrontendHandler(isDev bool, appFS, publicFS fs.FS, paths ...string) http.Ha
 			if r.Pattern == path {
 				viteFragment, err := vite.HTMLFragment(viteConfig)
 				if err != nil {
+					stdlog.Fatalf("Error instantiating vite fragment: %v", err)
 					http.Error(w, "Error instantiating vite fragment", http.StatusInternalServerError)
 					return
 				}
 
 				tmpl, err := template.New("index").Parse(indexTmpl)
 				if err != nil {
+					stdlog.Fatalf("Error parsing template: %v", err)
 					http.Error(w, "Error parsing template", http.StatusInternalServerError)
 					return
 				}
@@ -185,6 +187,7 @@ func FrontendHandler(isDev bool, appFS, publicFS fs.FS, paths ...string) http.Ha
 					"Vite":       viteFragment,
 					"ConfigJSON": template.JS(configJSON),
 				}); err != nil {
+					stdlog.Fatalf("Error executing template: %v", err)
 					http.Error(w, "Error executing template", http.StatusInternalServerError)
 					return
 				}
