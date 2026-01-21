@@ -125,7 +125,7 @@ func setupVite(isDev bool, mux *http.ServeMux) {
 
 	// Register the endpoints that get served by the frontend.
 	fePaths := []string{
-		"/",
+		"/{$}",
 		"/index.html",
 		"/about",
 		"/auth/register",
@@ -137,6 +137,9 @@ func setupVite(isDev bool, mux *http.ServeMux) {
 	for _, page := range fePaths {
 		mux.HandleFunc(page, feHandler)
 	}
+
+	// Catch-all for static files (favicons, manifest, etc.) from dist
+	mux.Handle("/{path...}", http.FileServerFS(appFS))
 }
 
 // FrontendConfig holds configuration values passed to the frontend
