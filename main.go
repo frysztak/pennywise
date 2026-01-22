@@ -142,8 +142,20 @@ func setupVite(isDev bool, mux *http.ServeMux) {
 		mux.HandleFunc(page, feHandler)
 	}
 
-	// Catch-all for static files (favicons, manifest, etc.) from dist
-	mux.Handle("/{path...}", http.FileServerFS(appFS))
+	// Catch-all for static files (favicons, manifest, etc.)
+	// In dev mode, public files are in a separate directory; in prod, Vite copies them to dist
+	mux.HandleFunc("/{path...}", func(w http.ResponseWriter, r *http.Request) {
+		if isDev {
+			// Try publicFS first for files like logo.svg, favicon.ico, etc.
+			filePath := filepath.Base(r.URL.Path)
+			if f, err := publicFS.Open(filePath); err == nil {
+				f.Close()
+				http.ServeFileFS(w, r, publicFS, filePath)
+				return
+			}
+		}
+		http.FileServerFS(appFS).ServeHTTP(w, r)
+	})
 }
 
 // FrontendConfig holds configuration values passed to the frontend
