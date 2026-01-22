@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "buf:generate": "buf generate",
-    "prepare": "husky"
+    "prepare": "husky",
+    "generate-pwa-assets": "pwa-assets-generator --preset minimal-2023 public/logo.svg"
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.10.2",
@@ -57,6 +58,7 @@
     "@types/node": "^25.0.9",
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
+    "@vite-pwa/assets-generator": "^1.0.2",
     "@vitejs/plugin-react-swc": "^4.2.2",
     "baseline-browser-mapping": "^2.9.15",
     "eslint": "^9.39.2",

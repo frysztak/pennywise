@@ -1,9 +1,9 @@
-import { defineConfig } from "vite";
-import path from "path";
 import tailwindcss from "@tailwindcss/vite";
-import react from "@vitejs/plugin-react-swc";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
+import react from "@vitejs/plugin-react-swc";
+import path from "path";
 import { visualizer } from "rollup-plugin-visualizer";
+import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
 // https://vite.dev/config/
@@ -18,29 +18,34 @@ export default defineConfig({
     visualizer({ gzipSize: true }),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "favicon.svg", "favicon-*.png"],
+      includeAssets: ["favicon.ico", "logo.svg", "pwa-*.png", "maskable-icon-*.png"],
       manifest: {
         name: "Pennywise",
         short_name: "Pennywise",
         description: "Expense tracking and splitting made simple",
-        theme_color: "#ffffff",
-        background_color: "#ffffff",
+        theme_color: "#111111",
+        background_color: "#111111",
         display: "standalone",
         scope: "/",
         start_url: "/",
         icons: [
           {
-            src: "/favicon-192x192.png",
+            src: "pwa-64x64.png",
+            sizes: "64x64",
+            type: "image/png",
+          },
+          {
+            src: "pwa-192x192.png",
             sizes: "192x192",
             type: "image/png",
           },
           {
-            src: "/favicon-512x512.png",
+            src: "pwa-512x512.png",
             sizes: "512x512",
             type: "image/png",
           },
           {
-            src: "/favicon-512x512.png",
+            src: "maskable-icon-512x512.png",
             sizes: "512x512",
             type: "image/png",
             purpose: "maskable",
