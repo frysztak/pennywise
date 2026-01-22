@@ -31,6 +31,9 @@ var dist embed.FS
 //go:embed all:web/public
 var public embed.FS
 
+//go:embed web/index.gohtml
+var indexTmpl string
+
 func main() {
 	var (
 		isDev = flag.Bool("dev", false, "run in development mode")
@@ -204,26 +207,6 @@ func FrontendHandler(isDev bool, appFS, publicFS fs.FS, paths ...string) http.Ha
 		http.ServeFileFS(w, r, publicFS, filepath.Base(r.URL.Path))
 	})
 }
-
-var indexTmpl = `<!doctype html>
-<html lang="en" class="h-full scroll-smooth">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" sizes="48x48">
-	<link rel="icon" href="/logo.svg" sizes="any" type="image/svg+xml">
-	<link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png">
-    <link rel="manifest" href="/manifest.webmanifest">
-    <meta name="theme-color" content="#111111">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{ .Title }}</title>
-    {{ .Vite.Tags }}
-    <script>window.__PENNYWISE_CONFIG__ = {{ .ConfigJSON }};</script>
-  </head>
-  <body class="min-h-screen antialiased">
-    <div id="root"></div>
-  </body>
-</html>
-`
 
 //go:generate sqlc generate
 //go:generate buf generate
