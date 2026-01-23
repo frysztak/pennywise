@@ -39,7 +39,7 @@ export function NavGroups() {
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Groups</SidebarGroupLabel>
+      <SidebarGroupLabel className="text-base">Groups</SidebarGroupLabel>
       <SidebarGroupAction title="Add Group">
         <NewGroupModal>
           <span>
@@ -49,7 +49,7 @@ export function NavGroups() {
       </SidebarGroupAction>
       <SidebarGroupContent>
         {data.groups.length === 0 ? (
-          <p className="px-2 py-1 text-xs text-muted-foreground">You don't have any groups yet</p>
+          <p className="px-2 py-1 text-sm text-muted-foreground">You don't have any groups yet.</p>
         ) : (
           <SidebarMenu>
             {data.groups.map((item) => (

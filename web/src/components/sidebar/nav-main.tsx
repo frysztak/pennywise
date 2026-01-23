@@ -12,7 +12,7 @@ export function NavMain() {
           <SidebarMenuButton asChild tooltip="Dashboard">
             <Link to="/dashboard">
               <LayoutDashboard />
-              <span>Dashboard</span>
+              <span className="font-bold text-base">Dashboard</span>
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
