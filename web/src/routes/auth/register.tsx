@@ -14,6 +14,9 @@ export const Route = createFileRoute("/auth/register")({
     }
   },
   component: RouteComponent,
+  head: () => ({
+    meta: [{ title: "Register" }],
+  }),
 });
 
 function RouteComponent() {

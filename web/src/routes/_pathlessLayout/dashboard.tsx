@@ -6,6 +6,9 @@ import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
 
 export const Route = createFileRoute("/_pathlessLayout/dashboard")({
   component: RouteComponent,
+  head: () => ({
+    meta: [{ title: "Dashboard" }],
+  }),
 });
 
 function RouteComponent() {

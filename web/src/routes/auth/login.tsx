@@ -8,6 +8,9 @@ import { loginWithPassword } from "@/gen/api/v1/auth-AuthService_connectquery";
 
 export const Route = createFileRoute("/auth/login")({
   component: RouteComponent,
+  head: () => ({
+    meta: [{ title: "Login" }],
+  }),
 });
 
 function RouteComponent() {

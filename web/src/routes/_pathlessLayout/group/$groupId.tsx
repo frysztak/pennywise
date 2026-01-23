@@ -20,6 +20,7 @@ import { RecurringExpenseModal } from "@/components/recurring-expense/recurring-
 import { TransferModal } from "@/components/transfer/transfer-modal";
 import { Spinner } from "@/components/ui/spinner";
 import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
+import type { UserGroup } from "@/gen/api/v1/group_pb";
 import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
 import { useAddMemberModal } from "@/hooks/use-add-member-modal";
 import { useDeleteExpenseModal } from "@/hooks/use-delete-expense-modal";
@@ -45,6 +46,19 @@ export const Route = createFileRoute("/_pathlessLayout/group/$groupId")({
       toast.error("Group not found");
       throw redirect({ to: "/dashboard" });
     }
+  },
+  loader: async ({ params, context }) => {
+    const userGroups = await context.queryClient.ensureQueryData(
+      createQueryOptions(getUserGroups, undefined, { transport }),
+    );
+
+    const group = userGroups.groups.find((g) => g.groupId === params.groupId);
+    return group;
+  },
+  head: (ctx) => {
+    const group = ctx.loaderData as UserGroup;
+
+    return { meta: [{ title: `${group.groupName} group` }] };
   },
 });
 

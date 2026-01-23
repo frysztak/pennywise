@@ -202,7 +202,6 @@ func FrontendHandler(isDev bool, appFS, publicFS fs.FS, paths ...string) http.Ha
 				}
 
 				if err = tmpl.Execute(w, map[string]any{
-					"Title":      "Homepage",
 					"Vite":       viteFragment,
 					"ConfigJSON": template.JS(configJSON),
 				}); err != nil {

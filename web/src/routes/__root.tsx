@@ -1,5 +1,5 @@
 import type { QueryClient } from "@tanstack/react-query";
-import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
+import { HeadContent, Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 import type { AuthState } from "@/auth";
@@ -11,11 +11,15 @@ interface MyRouterContext {
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: RootComponent,
+  head: () => ({
+    meta: [{ title: "Pennywise" }],
+  }),
 });
 
 function RootComponent() {
   return (
     <>
+      <HeadContent />
       <Outlet />
       <TanStackRouterDevtools position="bottom-right" />
       {/* <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" /> */}

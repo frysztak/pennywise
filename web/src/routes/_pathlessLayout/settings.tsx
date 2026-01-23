@@ -9,6 +9,9 @@ import { UsernameEdit } from "@/components/username-edit";
 
 export const Route = createFileRoute("/_pathlessLayout/settings")({
   component: RouteComponent,
+  head: () => ({
+    meta: [{ title: "Settings" }],
+  }),
 });
 
 function RouteComponent() {
