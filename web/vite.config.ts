@@ -1,6 +1,6 @@
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
-import react from "@vitejs/plugin-react-swc";
+import react from "@vitejs/plugin-react";
 import path from "path";
 import { visualizer } from "rollup-plugin-visualizer";
 import { defineConfig } from "vite";
@@ -13,7 +13,11 @@ export default defineConfig({
       target: "react",
       autoCodeSplitting: true,
     }),
-    react(),
+    react({
+      babel: {
+        plugins: ['babel-plugin-react-compiler'],
+      },
+    }),
     tailwindcss(),
     visualizer({ gzipSize: true }),
     VitePWA({
