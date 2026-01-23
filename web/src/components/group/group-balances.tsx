@@ -11,10 +11,18 @@ interface GroupBalancesProps {
 
 export function GroupBalances({ memberBalances, currentUserId, defaultCurrency }: GroupBalancesProps) {
   const otherMembers = memberBalances.filter((member) => member.userId !== currentUserId);
+  if (otherMembers.length === 0) {
+    return (
+      <Card>
+        <CardContent className="p-4 text-center">
+          <p className="text-muted-foreground">No balances in this group.</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">Group Balances</h2>
       <div className="grid gap-4 md:grid-cols-2">
         {otherMembers.map((member) => (
           <Card key={member.userId} className="py-0">

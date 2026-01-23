@@ -39,7 +39,7 @@ export function ActivityTable({
   if (recentActivity.length === 0) {
     return (
       <Card>
-        <CardContent className="p-12 text-center">
+        <CardContent className="p-4 text-center">
           <p className="text-muted-foreground">No activity yet in this group.</p>
         </CardContent>
       </Card>

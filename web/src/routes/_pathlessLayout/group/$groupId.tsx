@@ -117,6 +117,7 @@ function RouteComponent() {
       />
 
       {/* Group Balances */}
+      <h2 className="text-xl font-bold mb-4">Group Balances</h2>
       <GroupBalances
         memberBalances={groupInfo.memberBalances}
         currentUserId={currentUser.id}
