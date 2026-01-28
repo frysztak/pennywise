@@ -13,13 +13,22 @@ A modern expense tracking and splitting application for groups. Keep track of sh
 
 ## Screenshots
 
-<!-- Add screenshots here -->
+<details>
 
-![Dashboard](screenshots/dashboard.png)
+<summary>Group View</summary>
 
 ![Group View](screenshots/group-view.png)
 
-![Add Expense](screenshots/add-expense.png)
+</details>
+
+<details>
+
+<summary>Dashboard</summary>
+
+![Dashboard](screenshots/dashboard.png)
+
+</details>
+
 
 ## Getting Started
 
@@ -33,7 +42,7 @@ A modern expense tracking and splitting application for groups. Keep track of sh
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/pennywise.git
+   git clone https://github.com/frysztak/pennywise.git
    cd pennywise
    ```
 
@@ -55,6 +64,73 @@ A modern expense tracking and splitting application for groups. Keep track of sh
    This starts both the Go backend (port 3333) and Vite dev server (port 5173) with hot reload.
 
 5. Open http://localhost:3333 in your browser.
+
+## Docker Setup
+
+Add the following to your `compose.yaml`:
+
+```yaml
+services:
+  pennywise:
+    image: ghcr.io/frysztak/pennywise:latest
+    restart: unless-stopped
+    volumes:
+      - /home/docker/pennywise/db:/data
+    environment:
+      - AUTH_SECRET=<...your key...>
+```
+
+Generate `AUTH_SECRET` using:
+
+```bash
+openssl rand -hex 32
+```
+
+## OIDC Setup
+
+To enable OIDC authentication, add these environment variables to your container:
+
+```yaml
+environment:
+  - OIDC_ISSUER=https://auth.example.com
+  - OIDC_CLIENT_ID=pennywise
+  - OIDC_CLIENT_SECRET=<...client secret...>
+  - OIDC_REDIRECT_URL=https://pennywise.example.com/auth/oidc/callback
+```
+
+You'll also need to configure your OIDC provider. Example configuration for Authelia:
+
+```yaml
+identity_providers:
+  oidc:
+    clients:
+       - client_id: 'pennywise'
+         client_name: 'Pennywise'
+         client_secret: '<...client secret digest...>'
+         public: false
+         authorization_policy: 'one_factor'
+         require_pkce: false
+         pkce_challenge_method: ''
+         redirect_uris:
+           - 'https://pennywise.example.com/auth/oidc/callback'
+         scopes:
+           - 'openid'
+           - 'profile'
+           - 'email'
+         response_types:
+           - 'code'
+         grant_types:
+           - 'authorization_code'
+         access_token_signed_response_alg: 'none'
+         userinfo_signed_response_alg: 'none'
+         token_endpoint_auth_method: 'client_secret_post'
+```
+
+Generate `OIDC_CLIENT_SECRET` and `client_secret` using:
+
+```bash
+docker run authelia/authelia:latest authelia crypto hash generate pbkdf2 --variant sha512 --random --random.length 72 --random.charset rfc3986
+```
 
 ## License
 
