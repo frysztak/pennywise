@@ -83,7 +83,7 @@ export function ActivityTable({
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <MemberAvatar userId={expense.payerId} username={expense.payerName} className="w-6 h-6" />
-                    <span className="text-sm truncate max-w-[150px]">paid by {expense.payerName}</span>
+                    <span className="text-sm line-clamp-1">paid by {expense.payerName}</span>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -137,10 +137,10 @@ export function ActivityTable({
                 <TableCell>
                   <div className="flex items-center gap-1.5 text-sm">
                     <MemberAvatar userId={transfer.senderId} username={transfer.senderName} className="w-6 h-6" />
-                    <span className="truncate max-w-[80px]">{transfer.senderName}</span>
-                    <ArrowRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                    <span className="line-clamp-1">{transfer.senderName}</span>
+                    <ArrowRight className="h-3 w-3 text-muted-foreground shrink-0" />
                     <MemberAvatar userId={transfer.receiverId} username={transfer.receiverName} className="w-6 h-6" />
-                    <span className="truncate max-w-[80px]">{transfer.receiverName}</span>
+                    <span className="line-clamp-1">{transfer.receiverName}</span>
                   </div>
                 </TableCell>
                 <TableCell>

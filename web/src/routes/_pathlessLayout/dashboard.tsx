@@ -27,7 +27,7 @@ function RouteComponent() {
           <p className="text-sm text-muted-foreground">Create a group to start tracking shared expenses.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {groupsData.groups.map((group) => {
             // Find current user's balance from member balances
             const currentUserBalance = group.memberBalances.find((mb) => mb.userId === group.userId);
