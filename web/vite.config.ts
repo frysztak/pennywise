@@ -19,7 +19,9 @@ export default defineConfig({
       presets: [reactCompilerPreset()],
     }),
     tailwindcss(),
-    Sonda(),
+    Sonda({
+      open: false,
+    }),
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "logo.svg", "pwa-*.png", "maskable-icon-*.png"],

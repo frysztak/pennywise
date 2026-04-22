@@ -29,11 +29,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
         <SidebarMenu>
-          <SidebarMenuItem className="flex gap-2 p-1">
+          <SidebarMenuItem className="flex gap-2 p-1 items-center">
             <img src={pennywiseSvg} alt="Pennywise" className="size-8" />
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-bold text-lg">Pennywise</span>
-            </div>
+            <span className="truncate font-semibold text-2xl">Pennywise</span>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
