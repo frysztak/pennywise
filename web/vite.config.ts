@@ -1,8 +1,9 @@
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
-import react from "@vitejs/plugin-react";
 import path from "path";
-import { visualizer } from "rollup-plugin-visualizer";
+import Sonda from 'sonda/vite'; 
+import react, { reactCompilerPreset } from '@vitejs/plugin-react'
+import babel from '@rolldown/plugin-babel'
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
@@ -13,13 +14,12 @@ export default defineConfig({
       target: "react",
       autoCodeSplitting: true,
     }),
-    react({
-      babel: {
-        plugins: ['babel-plugin-react-compiler'],
-      },
+    react(),
+    babel({
+      presets: [reactCompilerPreset()],
     }),
     tailwindcss(),
-    visualizer({ gzipSize: true }),
+    Sonda(),
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "logo.svg", "pwa-*.png", "maskable-icon-*.png"],
@@ -83,6 +83,8 @@ export default defineConfig({
     },
   },
   build: {
+    sourcemap: true,
+
     // generates .vite/manifest.json in outDir
     manifest: true,
 
