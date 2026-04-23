@@ -1,13 +1,20 @@
+/// <reference types="vitest/config" />
+import babel from "@rolldown/plugin-babel";
+import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
+import { playwright } from "@vitest/browser-playwright";
+// https://vite.dev/config/
+import { fileURLToPath } from "node:url";
 import path from "path";
-import Sonda from 'sonda/vite'; 
-import react, { reactCompilerPreset } from '@vitejs/plugin-react'
-import babel from '@rolldown/plugin-babel'
+import Sonda from "sonda/vite";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
-// https://vite.dev/config/
+const dirname = typeof __dirname !== "undefined" ? __dirname : path.dirname(fileURLToPath(import.meta.url));
+
+// More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
   plugins: [
     tanstackRouter({
@@ -86,13 +93,38 @@ export default defineConfig({
   },
   build: {
     sourcemap: true,
-
     // generates .vite/manifest.json in outDir
     manifest: true,
-
     rollupOptions: {
       // overwrite default .html entry
       input: "/src/main.tsx",
     },
+  },
+  test: {
+    projects: [
+      {
+        extends: true,
+        plugins: [
+          // The plugin will run tests for the stories defined in your Storybook config
+          // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
+          storybookTest({
+            configDir: path.join(dirname, ".storybook"),
+          }),
+        ],
+        test: {
+          name: "storybook",
+          browser: {
+            enabled: true,
+            headless: true,
+            provider: playwright({}),
+            instances: [
+              {
+                browser: "chromium",
+              },
+            ],
+          },
+        },
+      },
+    ],
   },
 });
