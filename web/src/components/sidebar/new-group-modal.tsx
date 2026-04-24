@@ -106,7 +106,7 @@ export const NewGroupModal = ({ open, onOpenChange }: NewGroupModalProps) => {
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel htmlFor="defaultCurrency">Default currency</FieldLabel>
-                  <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
+                  <Select items={COMMON_CURRENCIES} value={field.value} onValueChange={field.onChange} disabled={isPending}>
                     <SelectTrigger id="defaultCurrency" aria-invalid={fieldState.invalid}>
                       <SelectValue placeholder="Select currency" />
                     </SelectTrigger>

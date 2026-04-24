@@ -92,6 +92,8 @@ export const ExpenseModal = ({
   // Memoize default beneficiary IDs to prevent unnecessary re-renders
   const defaultBeneficiaryIds = useMemo(() => groupMembers.map((m) => m.userId), [groupMembers]);
 
+  const payerSelectItems = groupMembers.map((m) => ({label: m.userName, value: m.userId}))
+
   // Helper function to get form defaults based on mode
   const getFormDefaults = useCallback((): DeepPartial<FormValues> => {
     if (isEditMode && expense) {
@@ -270,7 +272,7 @@ export const ExpenseModal = ({
                 </Field>
               )}
             />
-            <Controller
+            {/* <Controller
               name="description"
               disabled={isPending}
               control={form.control}
@@ -286,7 +288,7 @@ export const ExpenseModal = ({
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
-            />
+            /> */}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Controller
@@ -331,14 +333,14 @@ export const ExpenseModal = ({
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel htmlFor="payer">Paid by</FieldLabel>
-                  <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
+                  <Select items={payerSelectItems} value={field.value} onValueChange={field.onChange} disabled={isPending}>
                     <SelectTrigger id="payer" aria-invalid={fieldState.invalid}>
                       <SelectValue placeholder="Select payer" />
                     </SelectTrigger>
                     <SelectContent>
-                      {groupMembers.map((member) => (
-                        <SelectItem key={member.userId} value={member.userId}>
-                          {member.userName}
+                      {payerSelectItems.map((member) => (
+                        <SelectItem key={member.value} value={member.value}>
+                          {member.label}
                         </SelectItem>
                       ))}
                     </SelectContent>

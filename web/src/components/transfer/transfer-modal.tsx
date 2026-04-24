@@ -85,6 +85,7 @@ export const TransferModal = ({
   defaultCurrency,
 }: TransferModalProps) => {
   const isEditMode = mode === "edit";
+  const memberItems = groupMembers.map((m) => ({ value: m.userId, label: m.userName }));
 
   const getFormDefaults = useCallback((): FormValues => {
     if (isEditMode && transfer) {
@@ -197,7 +198,7 @@ export const TransferModal = ({
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel htmlFor="sender">From (sender)</FieldLabel>
-                  <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
+                  <Select items={memberItems} value={field.value} onValueChange={field.onChange} disabled={isPending}>
                     <SelectTrigger id="sender" aria-invalid={fieldState.invalid}>
                       <SelectValue placeholder="Select sender" />
                     </SelectTrigger>
@@ -220,7 +221,7 @@ export const TransferModal = ({
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel htmlFor="receiver">To (receiver)</FieldLabel>
-                  <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
+                  <Select items={memberItems} value={field.value} onValueChange={field.onChange} disabled={isPending}>
                     <SelectTrigger id="receiver" aria-invalid={fieldState.invalid}>
                       <SelectValue placeholder="Select receiver" />
                     </SelectTrigger>
@@ -277,7 +278,7 @@ export const TransferModal = ({
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel htmlFor="currency">Currency</FieldLabel>
-                    <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
+                    <Select items={COMMON_CURRENCIES} value={field.value} onValueChange={field.onChange} disabled={isPending}>
                       <SelectTrigger id="currency" aria-invalid={fieldState.invalid}>
                         <SelectValue placeholder="Select currency" />
                       </SelectTrigger>

@@ -60,6 +60,14 @@ export const RecurringExpenseModal = ({
 }: RecurringExpenseModalProps) => {
   const isEditMode = mode === "edit";
 
+  const frequencyItems = [
+    { value: RecurringFrequency.DAILY.toString(), label: "Daily" },
+    { value: RecurringFrequency.WEEKLY.toString(), label: "Weekly" },
+    { value: RecurringFrequency.MONTHLY.toString(), label: "Monthly" },
+    { value: RecurringFrequency.YEARLY.toString(), label: "Yearly" },
+  ];
+  const memberItems = groupMembers.map((m) => ({ value: m.userId, label: m.userName }));
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -196,8 +204,9 @@ export const RecurringExpenseModal = ({
                 <Field>
                   <FieldLabel>Frequency</FieldLabel>
                   <Select
+                    items={frequencyItems}
                     value={field.value.toString()}
-                    onValueChange={(value) => field.onChange(parseInt(value))}
+                    onValueChange={(value) => value !== null && field.onChange(parseInt(value))}
                     disabled={isPending}
                   >
                     <SelectTrigger>
@@ -258,7 +267,7 @@ export const RecurringExpenseModal = ({
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel>Currency</FieldLabel>
-                    <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
+                    <Select items={COMMON_CURRENCIES} value={field.value} onValueChange={field.onChange} disabled={isPending}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select currency" />
                       </SelectTrigger>
@@ -283,7 +292,7 @@ export const RecurringExpenseModal = ({
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel>Default Payer (optional)</FieldLabel>
-                  <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
+                  <Select items={memberItems} value={field.value} onValueChange={field.onChange} disabled={isPending}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select payer" />
                     </SelectTrigger>
