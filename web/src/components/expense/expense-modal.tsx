@@ -3,7 +3,7 @@ import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, type DeepPartial, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
@@ -16,9 +16,9 @@ import {
   payRecurringExpense,
 } from "@/gen/api/v1/recurring_expense-RecurringExpenseService_connectquery";
 import type { ExpenseTemplateDefaults } from "@/hooks/use-expense-modal";
-import { COMMON_CURRENCIES } from "@/lib/currencies";
 import { handleError } from "@/lib/utils";
 
+import { AmountInput } from "../amount-input";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
@@ -31,11 +31,13 @@ import { Spinner } from "../ui/spinner";
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   description: z.string(),
-  amount: z.number().positive("Amount must be a positive number"),
-  currency: z.string().min(2, "Currency is required"),
+  amountWithCurrency: z.object({
+    amount: z.number({ error: (_) => "Amount must be a number" }).positive("Amount must be a positive number"),
+    currency: z.string().min(2, "Currency is required"),
+  }),
   payerId: z.string().min(1, "Payer is required"),
   beneficiariesIds: z.array(z.string()).min(1, "At least one beneficiary is required"),
-  date: z.string().date("Invalid date format"),
+  date: z.iso.date("Invalid date format"),
 });
 
 // Helper functions for amount conversion
@@ -91,13 +93,12 @@ export const ExpenseModal = ({
   const defaultBeneficiaryIds = useMemo(() => groupMembers.map((m) => m.userId), [groupMembers]);
 
   // Helper function to get form defaults based on mode
-  const getFormDefaults = useCallback((): FormValues => {
+  const getFormDefaults = useCallback((): DeepPartial<FormValues> => {
     if (isEditMode && expense) {
       return {
         name: expense.name,
         description: expense.description || "",
-        amount: convertAmountToDisplay(expense.amount),
-        currency: expense.currency,
+        amountWithCurrency: { amount: convertAmountToDisplay(expense.amount), currency: expense.currency },
         payerId: expense.payerId,
         beneficiariesIds: expense.beneficiariesIds,
         date: convertRFC3339ToDateString(timestampDate(expense.date!)),
@@ -108,8 +109,10 @@ export const ExpenseModal = ({
     return {
       name: templateDefaults?.name || "",
       description: templateDefaults?.description || "",
-      amount: templateDefaults?.amount || 0,
-      currency: templateDefaults?.currency || defaultCurrency,
+      amountWithCurrency: {
+        amount: templateDefaults?.amount,
+        currency: templateDefaults?.currency || defaultCurrency,
+      },
       payerId: templateDefaults?.payerId || currentUserId,
       beneficiariesIds: defaultBeneficiaryIds,
       date: getTodayDateString(),
@@ -187,8 +190,8 @@ export const ExpenseModal = ({
         payerId: data.payerId,
         name: data.name,
         description: data.description,
-        amount: data.amount,
-        currency: data.currency,
+        amount: data.amountWithCurrency.amount,
+        currency: data.amountWithCurrency.currency,
         beneficiariesIds: data.beneficiariesIds,
         date: timestampFromDate(new Date(data.date)),
       });
@@ -198,7 +201,8 @@ export const ExpenseModal = ({
       payMutate({
         recurringExpenseId,
         date: timestampFromDate(new Date(data.date)),
-        amount: data.amount !== templateDefaults?.amount ? data.amount : undefined,
+        amount:
+          data.amountWithCurrency.amount !== templateDefaults?.amount ? data.amountWithCurrency.amount : undefined,
         payerId: data.payerId !== templateDefaults?.payerId ? data.payerId : undefined,
       });
     } else {
@@ -207,8 +211,8 @@ export const ExpenseModal = ({
         payerId: data.payerId,
         name: data.name,
         description: data.description,
-        amount: data.amount,
-        currency: data.currency,
+        amount: data.amountWithCurrency.amount,
+        currency: data.amountWithCurrency.currency,
         beneficiariesIds: data.beneficiariesIds,
         date: timestampFromDate(new Date(data.date)),
       });
@@ -283,59 +287,38 @@ export const ExpenseModal = ({
                 </Field>
               )}
             />
-            <Controller
-              name="date"
-              disabled={isPending}
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel htmlFor="expenseDate">Date</FieldLabel>
-                  <Input {...field} id="expenseDate" type="date" required aria-invalid={fieldState.invalid} />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                </Field>
-              )}
-            />
+
             <div className="grid grid-cols-2 gap-4">
               <Controller
-                name="amount"
+                name="amountWithCurrency"
                 disabled={isPending}
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor="amount">Amount</FieldLabel>
-                    <Input
-                      {...field}
-                      id="amount"
-                      type="number"
-                      step="0.01"
-                      placeholder="0.00"
+                    <FieldLabel htmlFor="amountWithCurrency">Amount</FieldLabel>
+                    <AmountInput
+                      id="amountWithCurrency"
                       required
-                      aria-invalid={fieldState.invalid}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber || 0)}
+                      inputValue={field.value}
+                      disabled={field.disabled}
+                      onValueChange={field.onChange}
+                      invalid={fieldState.invalid}
                     />
-                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                    {fieldState.invalid && (
+                      <FieldError errors={[(fieldState.error as any)?.amount || (fieldState.error as any)?.currency]} />
+                    )}
                   </Field>
                 )}
               />
+
               <Controller
-                name="currency"
+                name="date"
                 disabled={isPending}
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor="currency">Currency</FieldLabel>
-                    <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
-                      <SelectTrigger id="currency" aria-invalid={fieldState.invalid}>
-                        <SelectValue placeholder="Select currency" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {COMMON_CURRENCIES.map((currency) => (
-                          <SelectItem key={currency.value} value={currency.value}>
-                            {currency.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FieldLabel htmlFor="expenseDate">Date</FieldLabel>
+                    <Input {...field} id="expenseDate" type="date" required aria-invalid={fieldState.invalid} />
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
