@@ -1,15 +1,14 @@
 /// <reference types="vitest/config" />
-import babel from "@rolldown/plugin-babel";
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
-import react, { reactCompilerPreset } from "@vitejs/plugin-react";
+import react from "@vitejs/plugin-react";
 import { playwright } from "@vitest/browser-playwright";
-// https://vite.dev/config/
 import { fileURLToPath } from "node:url";
 import path from "path";
 import Sonda from "sonda/vite";
 import { defineConfig } from "vite";
+
 import { VitePWA } from "vite-plugin-pwa";
 
 const dirname = typeof __dirname !== "undefined" ? __dirname : path.dirname(fileURLToPath(import.meta.url));
@@ -21,9 +20,10 @@ export default defineConfig({
       target: "react",
       autoCodeSplitting: true,
     }),
-    react(),
-    babel({
-      presets: [reactCompilerPreset()],
+    react({
+      babel: {
+        plugins: ["babel-plugin-react-compiler"],
+      },
     }),
     tailwindcss(),
     Sonda({
