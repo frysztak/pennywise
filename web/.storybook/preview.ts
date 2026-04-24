@@ -1,9 +1,11 @@
-import type { Preview } from "@storybook/react-vite";
+import type { Preview, ReactRenderer } from "@storybook/react-vite";
+import { withThemeByClassName } from '@storybook/addon-themes';
 
 import '../src/index.css';
 
 const preview: Preview = {
   parameters: {
+    actions: { argTypesRegex: '^on.*' },
     controls: {
       matchers: {
         color: /(background|color)$/i,
@@ -18,6 +20,15 @@ const preview: Preview = {
       test: "todo",
     },
   },
+  decorators: [
+    withThemeByClassName<ReactRenderer>({
+      themes: {
+        light: 'light',
+        dark: 'dark',
+      },
+      defaultTheme: 'dark',
+    }),
+ ]
 };
 
 export default preview;

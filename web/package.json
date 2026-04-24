@@ -11,7 +11,7 @@
     "buf:generate": "buf generate",
     "prepare": "husky",
     "generate-pwa-assets": "pwa-assets-generator --preset minimal-2023 public/logo.svg",
-    "storybook": "storybook dev -p 6006",
+    "storybook": "storybook dev -p 6006 --no-open",
     "build-storybook": "storybook build"
   },
   "dependencies": {
@@ -55,12 +55,11 @@
   },
   "devDependencies": {
     "@bufbuild/protoc-gen-es": "^2.11.0",
-    "@chromatic-com/storybook": "^5.1.2",
     "@connectrpc/protoc-gen-connect-query": "^2.2.0",
     "@eslint/js": "^10.0.1",
     "@storybook/addon-a11y": "^10.3.5",
     "@storybook/addon-docs": "^10.3.5",
-    "@storybook/addon-onboarding": "^10.3.5",
+    "@storybook/addon-themes": "^10.3.5",
     "@storybook/addon-vitest": "^10.3.5",
     "@storybook/react-vite": "^10.3.5",
     "@tanstack/router-plugin": "^1.167.22",

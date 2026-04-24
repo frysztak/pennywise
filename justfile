@@ -1,9 +1,13 @@
 [parallel]
-dev: web api
+dev: web storybook api
 
 web:
     cd web && \
     npm run dev
+
+storybook:
+   cd web && \
+   npm run storybook
 
 api:
     go tool air -- -dev
