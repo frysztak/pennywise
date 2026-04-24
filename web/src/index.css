@@ -181,7 +181,7 @@
   --card: var(--ink-850);
   --card-foreground: var(--cream-50);
 
-  --popover: var(--ink-700);
+  --popover: var(--card);
   --popover-foreground: var(--cream-50);
 
   --primary: var(--sage-400);

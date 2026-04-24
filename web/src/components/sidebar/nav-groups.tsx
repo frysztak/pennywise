@@ -3,6 +3,7 @@
 import { useSuspenseQuery } from "@connectrpc/connect-query";
 import { Link } from "@tanstack/react-router";
 import { MoreHorizontal, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
 
 import {
   DropdownMenu,
@@ -31,6 +32,7 @@ import { NewGroupModal } from "./new-group-modal";
 
 export function NavGroups() {
   const { isMobile } = useSidebar();
+  const [newGroupOpen, setNewGroupOpen] = useState(false);
 
   const { data } = useSuspenseQuery(getUserGroups);
   const { data: currentUser } = useSuspenseQuery(userInfo);
@@ -40,12 +42,9 @@ export function NavGroups() {
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel className="text-base">Groups</SidebarGroupLabel>
-      <SidebarGroupAction title="Add Group">
-        <NewGroupModal>
-          <span>
-            <Plus /> <span className="sr-only">Add Group</span>
-          </span>
-        </NewGroupModal>
+      <SidebarGroupAction onClick={() => setNewGroupOpen(true)}>
+        <Plus className="size-6" />
+        <span className="sr-only">Add Group</span>
       </SidebarGroupAction>
       <SidebarGroupContent>
         {data.groups.length === 0 ? (
@@ -65,12 +64,14 @@ export function NavGroups() {
                   </Link>
                 </SidebarMenuButton>
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <SidebarMenuAction showOnHover>
-                      <MoreHorizontal />
-                      <span className="sr-only">More</span>
-                    </SidebarMenuAction>
-                  </DropdownMenuTrigger>
+                  <DropdownMenuTrigger
+                    render={
+                      <SidebarMenuAction showOnHover>
+                        <MoreHorizontal />
+                        <span className="sr-only">More</span>
+                      </SidebarMenuAction>
+                    }
+                  />
                   <DropdownMenuContent
                     className="w-48"
                     side={isMobile ? "bottom" : "right"}
@@ -98,6 +99,7 @@ export function NavGroups() {
 
       {/* Delete Group Confirmation Dialog */}
       <DeleteGroupDialog {...deleteGroupModal.dialogProps} />
+      <NewGroupModal open={newGroupOpen} onOpenChange={setNewGroupOpen} />
     </SidebarGroup>
   );
 }

@@ -1,7 +1,7 @@
 import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -11,7 +11,7 @@ import { COMMON_CURRENCIES } from "@/lib/currencies";
 import { handleError } from "@/lib/utils";
 
 import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -27,9 +27,12 @@ const userGroupsKey = createConnectQueryKey({
   cardinality: "finite",
 });
 
-export const NewGroupModal = ({ children }: { children: React.ReactNode }) => {
-  const [open, setOpen] = useState(false);
+interface NewGroupModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
 
+export const NewGroupModal = ({ open, onOpenChange }: NewGroupModalProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -43,26 +46,22 @@ export const NewGroupModal = ({ children }: { children: React.ReactNode }) => {
     onSuccess: () => {
       toast.success("Group created!");
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
-      setOpen(false);
+      onOpenChange(false);
     },
     onError: handleError,
   });
   const queryClient = useQueryClient();
 
+  useEffect(() => {
+    if (open) form.reset();
+  }, [open, form]);
+
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     mutate(data);
   };
 
-  const handleOpenChange = (open: boolean) => {
-    if (open) {
-      form.reset();
-    }
-    setOpen(open);
-  };
-
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add new group</DialogTitle>

@@ -48,11 +48,13 @@ export function GroupHeader({
           </Button>
           <ButtonGroupSeparator />
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="pl-2!">
-                <ChevronDownIcon />
-              </Button>
-            </DropdownMenuTrigger>
+            <DropdownMenuTrigger
+              render={
+                <Button className="pl-2!">
+                  <ChevronDownIcon />
+                </Button>
+              }
+            />
             <DropdownMenuContent align="end" className="[--radius:1rem]">
               <DropdownMenuGroup>
                 <DropdownMenuItem onClick={onCreateTransfer}>

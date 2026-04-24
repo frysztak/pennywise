@@ -127,11 +127,13 @@ export function RecurringReminderRow({ reminder, groupId, onPay, onEdit, onDelet
             Skip
           </Button>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" disabled={isPending}>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
+            <DropdownMenuTrigger
+              render={
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" disabled={isPending}>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              }
+            />
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onEdit?.(reminder)} disabled={isPending}>
                 Edit
