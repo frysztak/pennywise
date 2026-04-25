@@ -32,7 +32,7 @@ func (s *TransferService) CreateTransfer(ctx context.Context, r *apiv1.CreateTra
 		logger.Error("failed to check if sender in group", "error", err, "sender_id", r.SenderId, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	if senderInGroup == 0 {
+	if !senderInGroup {
 		logger.Warn("transfer creation failed - sender not in group", "sender_id", r.SenderId, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInvalidArgument,
 			errors.New("sender is not a member of this group"))
@@ -47,7 +47,7 @@ func (s *TransferService) CreateTransfer(ctx context.Context, r *apiv1.CreateTra
 		logger.Error("failed to check if receiver in group", "error", err, "receiver_id", r.ReceiverId, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	if receiverInGroup == 0 {
+	if !receiverInGroup {
 		logger.Warn("transfer creation failed - receiver not in group", "receiver_id", r.ReceiverId, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInvalidArgument,
 			errors.New("receiver is not a member of this group"))
@@ -126,7 +126,7 @@ func (s *TransferService) UpdateTransfer(ctx context.Context, r *apiv1.UpdateTra
 		logger.Error("failed to check if sender in group", "error", err, "sender_id", r.SenderId, "group_id", existing.GroupID)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	if senderInGroup == 0 {
+	if !senderInGroup {
 		logger.Warn("transfer update failed - sender not in group", "sender_id", r.SenderId, "group_id", existing.GroupID, "transfer_id", r.Id)
 		return nil, connect.NewError(connect.CodeInvalidArgument,
 			errors.New("sender is not a member of this group"))
@@ -141,7 +141,7 @@ func (s *TransferService) UpdateTransfer(ctx context.Context, r *apiv1.UpdateTra
 		logger.Error("failed to check if receiver in group", "error", err, "receiver_id", r.ReceiverId, "group_id", existing.GroupID)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	if receiverInGroup == 0 {
+	if !receiverInGroup {
 		logger.Warn("transfer update failed - receiver not in group", "receiver_id", r.ReceiverId, "group_id", existing.GroupID, "transfer_id", r.Id)
 		return nil, connect.NewError(connect.CodeInvalidArgument,
 			errors.New("receiver is not a member of this group"))

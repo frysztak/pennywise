@@ -128,7 +128,7 @@ func (s *GroupService) AddUserToGroup(ctx context.Context, r *apiv1.AddUserToGro
 		logger.Error("failed to check if user in group", "error", err, "target_user_id", r.UserId, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	if userInGroup == 1 {
+	if userInGroup {
 		logger.Warn("attempt to add user already in group", "target_user_id", r.UserId, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInvalidArgument,
 			errors.New("user is already a member of this group"))
@@ -179,7 +179,7 @@ func (s *GroupService) UpdateUserWeight(ctx context.Context, r *apiv1.UpdateUser
 		logger.Error("failed to check if user in group", "error", err, "target_user_id", r.UserId, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	if userInGroup != 1 {
+	if !userInGroup {
 		logger.Warn("attempt to update weight for user not in group", "target_user_id", r.UserId, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeNotFound,
 			errors.New("user is not a member of this group"))
@@ -289,7 +289,7 @@ func (s *GroupService) GetSettlementSuggestions(ctx context.Context, r *apiv1.Ge
 		logger.Error("failed to check group membership", "error", err, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	if userInGroup != 1 {
+	if !userInGroup {
 		logger.Warn("settlement suggestions requested by non-member", "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("not a group member"))
 	}
