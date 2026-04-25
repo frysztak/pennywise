@@ -20,13 +20,11 @@ import { handleError } from "@/lib/utils";
 
 import { AmountInput } from "../amount-input";
 import { Button } from "../ui/button";
-import { Checkbox } from "../ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Spinner } from "../ui/spinner";
+import { PeopleSelector } from "./people-selector";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -91,8 +89,6 @@ export const ExpenseModal = ({
 
   // Memoize default beneficiary IDs to prevent unnecessary re-renders
   const defaultBeneficiaryIds = useMemo(() => groupMembers.map((m) => m.userId), [groupMembers]);
-
-  const payerSelectItems = groupMembers.map((m) => ({label: m.userName, value: m.userId}))
 
   // Helper function to get form defaults based on mode
   const getFormDefaults = useCallback((): DeepPartial<FormValues> => {
@@ -229,19 +225,9 @@ export const ExpenseModal = ({
     onOpenChange(newOpen);
   };
 
+  const payerId = form.watch("payerId");
   const beneficiariesIds = form.watch("beneficiariesIds");
-
-  const handleBeneficiaryToggle = (userId: string, checked: boolean) => {
-    const current = beneficiariesIds || [];
-    if (checked) {
-      form.setValue("beneficiariesIds", [...current, userId]);
-    } else {
-      form.setValue(
-        "beneficiariesIds",
-        current.filter((id) => id !== userId),
-      );
-    }
-  };
+  const amountWithCurrency = form.watch("amountWithCurrency");
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -326,49 +312,24 @@ export const ExpenseModal = ({
                 )}
               />
             </div>
-            <Controller
-              name="payerId"
-              disabled={isPending}
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel htmlFor="payer">Paid by</FieldLabel>
-                  <Select items={payerSelectItems} value={field.value} onValueChange={field.onChange} disabled={isPending}>
-                    <SelectTrigger id="payer" aria-invalid={fieldState.invalid}>
-                      <SelectValue placeholder="Select payer" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {payerSelectItems.map((member) => (
-                        <SelectItem key={member.value} value={member.value}>
-                          {member.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                </Field>
-              )}
-            />
             <Field>
-              <FieldLabel>Split between</FieldLabel>
-              <div className="space-y-3 mt-2">
-                {groupMembers.map((member) => (
-                  <div key={member.userId} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`beneficiary-${member.userId}`}
-                      checked={beneficiariesIds?.includes(member.userId)}
-                      onCheckedChange={(checked) => handleBeneficiaryToggle(member.userId, checked === true)}
-                      disabled={isPending}
-                    />
-                    <Label htmlFor={`beneficiary-${member.userId}`} className="text-sm font-normal cursor-pointer">
-                      {member.userName}
-                    </Label>
-                  </div>
-                ))}
-              </div>
+              <PeopleSelector
+                members={groupMembers}
+                payerId={payerId}
+                beneficiaryIds={beneficiariesIds || []}
+                totalAmount={amountWithCurrency?.amount || 0}
+                currency={amountWithCurrency?.currency || defaultCurrency}
+                currentUserId={currentUserId}
+                disabled={isPending}
+                onPayerChange={(id) => form.setValue("payerId", id, { shouldValidate: true })}
+                onBeneficiariesChange={(ids) =>
+                  form.setValue("beneficiariesIds", ids, { shouldValidate: true })
+                }
+              />
               {form.formState.errors.beneficiariesIds && (
                 <FieldError errors={[form.formState.errors.beneficiariesIds]} />
               )}
+              {form.formState.errors.payerId && <FieldError errors={[form.formState.errors.payerId]} />}
             </Field>
             <Field>
               <Button type="submit" disabled={isPending}>
