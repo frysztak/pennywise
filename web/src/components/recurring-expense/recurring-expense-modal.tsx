@@ -15,9 +15,9 @@ import {
 } from "@/gen/api/v1/recurring_expense-RecurringExpenseService_connectquery";
 import type { GetGroupRecurringExpensesResponse_RecurringExpense } from "@/gen/api/v1/recurring_expense_pb";
 import { RecurringFrequency } from "@/gen/api/v1/recurring_expense_pb";
-import { COMMON_CURRENCIES } from "@/lib/currencies";
 import { handleError } from "@/lib/utils";
 
+import { AmountInput } from "../amount-input";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
@@ -30,8 +30,12 @@ const formSchema = z.object({
   description: z.string(),
   frequency: z.nativeEnum(RecurringFrequency),
   startDate: z.string().date("Invalid date format"),
-  amount: z.number().positive("Amount must be positive").optional(),
-  currency: z.string().min(2).optional(),
+  amountWithCurrency: z
+    .object({
+      amount: z.number().positive("Amount must be positive").optional(),
+      currency: z.string().min(2).optional(),
+    })
+    .optional(),
   payerId: z.string().optional(),
 });
 
@@ -75,8 +79,7 @@ export const RecurringExpenseModal = ({
       description: "",
       frequency: RecurringFrequency.MONTHLY,
       startDate: new Date().toISOString().split("T")[0],
-      amount: undefined,
-      currency: defaultCurrency,
+      amountWithCurrency: { amount: undefined, currency: defaultCurrency },
       payerId: currentUserId,
     },
   });
@@ -88,8 +91,10 @@ export const RecurringExpenseModal = ({
         description: recurringExpense.description || "",
         frequency: recurringExpense.frequency,
         startDate: timestampDate(recurringExpense.startDate!).toISOString().split("T")[0],
-        amount: recurringExpense.amount,
-        currency: recurringExpense.currency || defaultCurrency,
+        amountWithCurrency: {
+          amount: recurringExpense.amount,
+          currency: recurringExpense.currency || defaultCurrency,
+        },
         payerId: recurringExpense.payerId || currentUserId,
       });
     } else if (open && !isEditMode) {
@@ -98,8 +103,7 @@ export const RecurringExpenseModal = ({
         description: "",
         frequency: RecurringFrequency.MONTHLY,
         startDate: new Date().toISOString().split("T")[0],
-        amount: undefined,
-        currency: defaultCurrency,
+        amountWithCurrency: { amount: undefined, currency: defaultCurrency },
         payerId: currentUserId,
       });
     }
@@ -139,8 +143,8 @@ export const RecurringExpenseModal = ({
         name: data.name,
         description: data.description,
         frequency: data.frequency,
-        amount: data.amount,
-        currency: data.currency,
+        amount: data.amountWithCurrency?.amount,
+        currency: data.amountWithCurrency?.currency,
         payerId: data.payerId,
       });
     } else {
@@ -150,8 +154,8 @@ export const RecurringExpenseModal = ({
         description: data.description,
         frequency: data.frequency,
         startDate: timestampFromDate(new Date(data.startDate)),
-        amount: data.amount,
-        currency: data.currency,
+        amount: data.amountWithCurrency?.amount,
+        currency: data.amountWithCurrency?.currency,
         payerId: data.payerId,
       });
     }
@@ -159,7 +163,7 @@ export const RecurringExpenseModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEditMode ? "Edit Recurring Expense" : "Create Recurring Expense"}</DialogTitle>
           <DialogDescription>
@@ -196,33 +200,55 @@ export const RecurringExpenseModal = ({
               )}
             />
 
-            <Controller
-              name="frequency"
-              control={form.control}
-              disabled={isPending}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Frequency</FieldLabel>
-                  <Select
-                    items={frequencyItems}
-                    value={field.value.toString()}
-                    onValueChange={(value) => value !== null && field.onChange(parseInt(value))}
-                    disabled={isPending}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={RecurringFrequency.DAILY.toString()}>Daily</SelectItem>
-                      <SelectItem value={RecurringFrequency.WEEKLY.toString()}>Weekly</SelectItem>
-                      <SelectItem value={RecurringFrequency.MONTHLY.toString()}>Monthly</SelectItem>
-                      <SelectItem value={RecurringFrequency.YEARLY.toString()}>Yearly</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                </Field>
-              )}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Controller
+                name="frequency"
+                control={form.control}
+                disabled={isPending}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Frequency</FieldLabel>
+                    <Select
+                      items={frequencyItems}
+                      value={field.value.toString()}
+                      onValueChange={(value) => value !== null && field.onChange(parseInt(value))}
+                      disabled={isPending}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={RecurringFrequency.DAILY.toString()}>Daily</SelectItem>
+                        <SelectItem value={RecurringFrequency.WEEKLY.toString()}>Weekly</SelectItem>
+                        <SelectItem value={RecurringFrequency.MONTHLY.toString()}>Monthly</SelectItem>
+                        <SelectItem value={RecurringFrequency.YEARLY.toString()}>Yearly</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="amountWithCurrency"
+                control={form.control}
+                disabled={isPending}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="amountWithCurrency">Amount (optional)</FieldLabel>
+                    <AmountInput
+                      id="amountWithCurrency"
+                      inputValue={field.value as { amount: number; currency: string } | undefined}
+                      disabled={field.disabled}
+                      onValueChange={field.onChange}
+                      invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[(fieldState.error as any)?.amount || (fieldState.error as any)?.currency]} />
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
 
             {!isEditMode && (
               <Controller
@@ -238,52 +264,6 @@ export const RecurringExpenseModal = ({
                 )}
               />
             )}
-
-            <div className="grid grid-cols-2 gap-4">
-              <Controller
-                name="amount"
-                control={form.control}
-                disabled={isPending}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Amount (optional)</FieldLabel>
-                    <Input
-                      {...field}
-                      type="number"
-                      step="0.01"
-                      placeholder="0.00"
-                      onChange={(e) => field.onChange(e.target.value ? e.target.valueAsNumber : undefined)}
-                      value={field.value ?? ""}
-                    />
-                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                  </Field>
-                )}
-              />
-
-              <Controller
-                name="currency"
-                control={form.control}
-                disabled={isPending}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Currency</FieldLabel>
-                    <Select items={COMMON_CURRENCIES} value={field.value} onValueChange={field.onChange} disabled={isPending}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select currency" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {COMMON_CURRENCIES.map((currency) => (
-                          <SelectItem key={currency.value} value={currency.value}>
-                            {currency.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                  </Field>
-                )}
-              />
-            </div>
 
             <Controller
               name="payerId"

@@ -7,13 +7,17 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
-import { getGroupActivity, getSettlementSuggestions, getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
+import {
+  getGroupActivity,
+  getSettlementSuggestions,
+  getUserGroups,
+} from "@/gen/api/v1/group-GroupService_connectquery";
 import type { GetGroupActivityResponse_ActivityItem_Transfer, MemberBalance } from "@/gen/api/v1/group_pb";
 import { createTransfer, updateTransfer } from "@/gen/api/v1/transfer-TransferService_connectquery";
 import type { TransferTemplateDefaults } from "@/hooks/use-transfer-modal";
-import { COMMON_CURRENCIES } from "@/lib/currencies";
 import { handleError } from "@/lib/utils";
 
+import { AmountInput } from "../amount-input";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
@@ -25,8 +29,10 @@ const formSchema = z
   .object({
     senderId: z.string().min(1, "Sender is required"),
     receiverId: z.string().min(1, "Receiver is required"),
-    amount: z.number().positive("Amount must be a positive number"),
-    currency: z.string().min(2, "Currency is required"),
+    amountWithCurrency: z.object({
+      amount: z.number({ error: (_) => "Amount must be a number" }).positive("Amount must be a positive number"),
+      currency: z.string().min(2, "Currency is required"),
+    }),
     date: z.string().date("Invalid date format"),
   })
   .refine((data) => data.senderId !== data.receiverId, {
@@ -63,15 +69,13 @@ interface TransferModalProps {
 }
 
 const userGroupsKey = createConnectQueryKey({
-    schema: getUserGroups,
-    cardinality: "finite",
-  });
+  schema: getUserGroups,
+  cardinality: "finite",
+});
 const settlementSuggestionsKey = createConnectQueryKey({
-    schema: getSettlementSuggestions,
-    cardinality: "finite",
-  });
-
-
+  schema: getSettlementSuggestions,
+  cardinality: "finite",
+});
 
 export const TransferModal = ({
   open,
@@ -92,8 +96,10 @@ export const TransferModal = ({
       return {
         senderId: transfer.senderId,
         receiverId: transfer.receiverId,
-        amount: convertAmountToDisplay(transfer.amount),
-        currency: transfer.currency,
+        amountWithCurrency: {
+          amount: convertAmountToDisplay(transfer.amount),
+          currency: transfer.currency,
+        },
         date: convertRFC3339ToDateString(timestampDate(transfer.date!)),
       };
     }
@@ -101,8 +107,10 @@ export const TransferModal = ({
     return {
       senderId: templateDefaults?.senderId ?? currentUserId,
       receiverId: templateDefaults?.receiverId ?? "",
-      amount: templateDefaults?.amount ?? 0,
-      currency: templateDefaults?.currency ?? defaultCurrency,
+      amountWithCurrency: {
+        amount: templateDefaults?.amount ?? 0,
+        currency: templateDefaults?.currency ?? defaultCurrency,
+      },
       date: getTodayDateString(),
     };
   }, [isEditMode, transfer, templateDefaults, defaultCurrency, currentUserId]);
@@ -124,7 +132,6 @@ export const TransferModal = ({
     input: { groupId },
   });
 
-  
   const queryClient = useQueryClient();
 
   const { isPending: isCreating, mutate: createMutate } = useMutation(createTransfer, {
@@ -157,8 +164,8 @@ export const TransferModal = ({
         id: transfer.id,
         senderId: data.senderId,
         receiverId: data.receiverId,
-        amount: data.amount,
-        currency: data.currency,
+        amount: data.amountWithCurrency.amount,
+        currency: data.amountWithCurrency.currency,
         date: timestampFromDate(new Date(data.date)),
       });
     } else {
@@ -166,8 +173,8 @@ export const TransferModal = ({
         groupId,
         senderId: data.senderId,
         receiverId: data.receiverId,
-        amount: data.amount,
-        currency: data.currency,
+        amount: data.amountWithCurrency.amount,
+        currency: data.amountWithCurrency.currency,
         date: timestampFromDate(new Date(data.date)),
       });
     }
@@ -237,59 +244,36 @@ export const TransferModal = ({
                 </Field>
               )}
             />
-            <Controller
-              name="date"
-              disabled={isPending}
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel htmlFor="transferDate">Date</FieldLabel>
-                  <Input {...field} id="transferDate" type="date" required aria-invalid={fieldState.invalid} />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                </Field>
-              )}
-            />
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Controller
-                name="amount"
+                name="amountWithCurrency"
                 disabled={isPending}
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor="amount">Amount</FieldLabel>
-                    <Input
-                      {...field}
-                      id="amount"
-                      type="number"
-                      step="0.01"
-                      placeholder="0.00"
+                    <FieldLabel htmlFor="amountWithCurrency">Amount</FieldLabel>
+                    <AmountInput
+                      id="amountWithCurrency"
                       required
-                      aria-invalid={fieldState.invalid}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber || 0)}
+                      inputValue={field.value}
+                      disabled={field.disabled}
+                      onValueChange={field.onChange}
+                      invalid={fieldState.invalid}
                     />
-                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                    {fieldState.invalid && (
+                      <FieldError errors={[(fieldState.error as any)?.amount || (fieldState.error as any)?.currency]} />
+                    )}
                   </Field>
                 )}
               />
               <Controller
-                name="currency"
+                name="date"
                 disabled={isPending}
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor="currency">Currency</FieldLabel>
-                    <Select items={COMMON_CURRENCIES} value={field.value} onValueChange={field.onChange} disabled={isPending}>
-                      <SelectTrigger id="currency" aria-invalid={fieldState.invalid}>
-                        <SelectValue placeholder="Select currency" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {COMMON_CURRENCIES.map((currency) => (
-                          <SelectItem key={currency.value} value={currency.value}>
-                            {currency.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FieldLabel htmlFor="transferDate">Date</FieldLabel>
+                    <Input {...field} id="transferDate" type="date" required aria-invalid={fieldState.invalid} />
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
