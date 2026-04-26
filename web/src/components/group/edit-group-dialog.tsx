@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { Minus, Plus, RotateCcw } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -7,9 +8,9 @@ import { MemberAvatar } from "@/components/member-avatar";
 import type { MemberBalance } from "@/gen/api/v1/group_pb";
 import type { EditingGroup } from "@/hooks/use-edit-group-modal";
 import { COMMON_CURRENCIES } from "@/lib/currencies";
+import { cn } from "@/lib/utils";
 
 import { Button } from "../ui/button";
-import { Card, CardContent } from "../ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
@@ -22,6 +23,73 @@ import {
 } from "../ui/multi-select";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Spinner } from "../ui/spinner";
+
+const MEMBER_COLORS = ["var(--sage-400)", "var(--blue-400)", "var(--violet-400)", "var(--amber-400)", "var(--red-400)"];
+
+const fmtPct = (n: number) => {
+  const pct = n * 100;
+  return `${pct.toFixed(pct >= 10 || pct === 0 ? 0 : 1)}%`;
+};
+
+interface WeightStepperProps {
+  value: number;
+  onChange: (value: number) => void;
+  disabled?: boolean;
+  min?: number;
+  max?: number;
+  step?: number;
+  id?: string;
+}
+
+function WeightStepper({ value, onChange, disabled, min = 0, max = 99, step = 0.5, id }: WeightStepperProps) {
+  const [text, setText] = useState(String(value));
+
+  useEffect(() => {
+    if (parseFloat(text) !== value) setText(String(value));
+  }, [value, text]);
+
+  const dec = () => onChange(Math.max(min, +(value - step).toFixed(2)));
+  const inc = () => onChange(Math.min(max, +(value + step).toFixed(2)));
+
+  return (
+    <div className="bg-card border-input inline-flex h-7 items-stretch overflow-hidden rounded-full border">
+      <button
+        type="button"
+        onClick={dec}
+        disabled={disabled}
+        aria-label="Decrease weight"
+        className="text-muted-foreground hover:bg-muted flex w-7 items-center justify-center transition-colors disabled:opacity-50"
+      >
+        <Minus className="size-3" strokeWidth={2.2} />
+      </button>
+      <input
+        id={id}
+        type="text"
+        inputMode="decimal"
+        value={text}
+        disabled={disabled}
+        onChange={(e) => {
+          const v = e.target.value.replace(",", ".");
+          if (v === "" || /^\d*\.?\d{0,2}$/.test(v)) {
+            setText(v);
+            const num = v === "" ? 0 : parseFloat(v);
+            if (!isNaN(num)) onChange(num);
+          }
+        }}
+        className="text-foreground w-14 border-none bg-transparent text-center font-mono text-[13px] font-medium tabular-nums outline-none disabled:opacity-50"
+      />
+      <button
+        type="button"
+        onClick={inc}
+        disabled={disabled}
+        aria-label="Increase weight"
+        className="text-muted-foreground hover:bg-muted flex w-7 items-center justify-center transition-colors disabled:opacity-50"
+      >
+        <Plus className="size-3" strokeWidth={2.2} />
+      </button>
+    </div>
+  );
+}
 
 const formSchema = z
   .object({
@@ -95,15 +163,16 @@ export function EditGroupDialog({
     setIsPending(false);
   };
 
-  const handleWeightChange = (userId: string, value: string) => {
-    const numValue = parseFloat(value);
-    if (!isNaN(numValue)) {
-      setEditingWeights((prev) => ({
-        ...prev,
-        [userId]: numValue,
-      }));
-    }
+  const setWeight = (userId: string, value: number) => {
+    setEditingWeights((prev) => ({ ...prev, [userId]: value }));
   };
+
+  const resetWeights = () => {
+    setEditingWeights(Object.fromEntries(memberBalances.map((m) => [m.userId, 1])));
+  };
+
+  const totalWeight = Object.values(editingWeights).reduce((a, b) => a + b, 0) || 1;
+  const isCustomWeights = !memberBalances.every((m) => (editingWeights[m.userId] ?? 1) === 1);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -115,7 +184,6 @@ export function EditGroupDialog({
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Group Details Section */}
           <div>
-            <h3 className="text-sm font-semibold mb-3">Group Details</h3>
             <FieldGroup>
               <Controller
                 name="name"
@@ -147,108 +215,151 @@ export function EditGroupDialog({
                   </Field>
                 )}
               />
-              <Controller
-                name="currencies"
-                disabled={isPending}
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel htmlFor="groupCurrencies">Currencies</FieldLabel>
-                    <MultiSelect
-                      values={field.value}
-                      onValuesChange={(values) => {
-                        field.onChange(values);
-                        if (!values.includes(form.getValues("defaultCurrency")) && values.length > 0) {
-                          form.setValue("defaultCurrency", values[0], { shouldValidate: true });
-                        }
-                      }}
-                    >
-                      <MultiSelectTrigger
-                        id="groupCurrencies"
-                        aria-invalid={fieldState.invalid}
-                        disabled={isPending}
-                        className="w-full"
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Controller
+                  name="currencies"
+                  disabled={isPending}
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field>
+                      <FieldLabel htmlFor="groupCurrencies">Currencies</FieldLabel>
+                      <MultiSelect
+                        values={field.value}
+                        onValuesChange={(values) => {
+                          field.onChange(values);
+                          if (!values.includes(form.getValues("defaultCurrency")) && values.length > 0) {
+                            form.setValue("defaultCurrency", values[0], { shouldValidate: true });
+                          }
+                        }}
                       >
-                        <MultiSelectValue placeholder="Select currencies" />
-                      </MultiSelectTrigger>
-                      <MultiSelectContent>
-                        {COMMON_CURRENCIES.map((c) => (
-                          <MultiSelectItem key={c} value={c}>
-                            {c}
-                          </MultiSelectItem>
-                        ))}
-                      </MultiSelectContent>
-                    </MultiSelect>
-                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                  </Field>
-                )}
-              />
-              <Controller
-                name="defaultCurrency"
-                disabled={isPending}
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel htmlFor="defaultCurrency">Default currency</FieldLabel>
-                    <Select
-                      items={defaultCurrencyItems}
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      disabled={isPending || defaultCurrencyItems.length === 0}
-                    >
-                      <SelectTrigger id="defaultCurrency" aria-invalid={fieldState.invalid}>
-                        <SelectValue placeholder="Select currency" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {defaultCurrencyItems.map((currency) => (
-                          <SelectItem key={currency.value} value={currency.value}>
-                            {currency.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                  </Field>
-                )}
-              />
+                        <MultiSelectTrigger
+                          id="groupCurrencies"
+                          aria-invalid={fieldState.invalid}
+                          disabled={isPending}
+                          className="w-full"
+                        >
+                          <MultiSelectValue placeholder="Select currencies" />
+                        </MultiSelectTrigger>
+                        <MultiSelectContent>
+                          {COMMON_CURRENCIES.map((c) => (
+                            <MultiSelectItem key={c} value={c}>
+                              {c}
+                            </MultiSelectItem>
+                          ))}
+                        </MultiSelectContent>
+                      </MultiSelect>
+                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                    </Field>
+                  )}
+                />
+                <Controller
+                  name="defaultCurrency"
+                  disabled={isPending}
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field>
+                      <FieldLabel htmlFor="defaultCurrency">Default currency</FieldLabel>
+                      <Select
+                        items={defaultCurrencyItems}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        disabled={isPending || defaultCurrencyItems.length === 0}
+                      >
+                        <SelectTrigger id="defaultCurrency" aria-invalid={fieldState.invalid}>
+                          <SelectValue placeholder="Select currency" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {defaultCurrencyItems.map((currency) => (
+                            <SelectItem key={currency.value} value={currency.value}>
+                              {currency.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                    </Field>
+                  )}
+                />
+              </div>
             </FieldGroup>
           </div>
 
           {/* Member Weights Section */}
           <div>
-            <h3 className="text-sm font-semibold mb-3">Member Weights</h3>
-            <p className="text-sm text-muted-foreground mb-3">
-              Weight determines how expenses are split. A member with weight 2.0 pays twice as much as a member with
-              weight 1.0.
+            <div className="mb-1.5 flex items-center justify-between">
+              <FieldLabel>Member weights</FieldLabel>
+              <button
+                type="button"
+                onClick={resetWeights}
+                aria-hidden={!isCustomWeights}
+                tabIndex={isCustomWeights ? 0 : -1}
+                className={cn(
+                  "border-border text-muted-foreground hover:text-foreground hover:border-input inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-all",
+                  !isCustomWeights && "pointer-events-none opacity-0",
+                )}
+              >
+                <RotateCcw className="size-2.5" strokeWidth={2.2} />
+                Reset
+              </button>
+            </div>
+            <p className="text-muted-foreground mb-3 text-xs leading-snug">
+              How expenses split between members. Weight 2.0 pays twice as much as 1.0.
             </p>
-            <div className="space-y-2">
-              {memberBalances.map((member) => (
-                <Card key={member.userId}>
-                  <CardContent className="px-3">
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-3 flex-1">
-                        <MemberAvatar userId={member.userId} username={member.userName} />
-                        <span className="font-medium text-sm">{member.userName}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <FieldLabel htmlFor={`weight-${member.userId}`} className="text-xs whitespace-nowrap mb-0">
-                          Weight:
-                        </FieldLabel>
-                        <Input
-                          id={`weight-${member.userId}`}
-                          type="number"
-                          step="0.1"
-                          min="0.1"
-                          value={editingWeights[member.userId] ?? 1}
-                          onChange={(e) => handleWeightChange(member.userId, e.target.value)}
-                          disabled={isPending}
-                          className="w-20 text-sm"
-                        />
-                      </div>
+            <div className="bg-card rounded-lg border px-3.5 pt-3.5 pb-1.5">
+              {/* Stacked allocation bar */}
+              <div className="bg-muted mb-1.5 flex h-2 overflow-hidden rounded-full">
+                {memberBalances.map((member, i) => {
+                  const share = (editingWeights[member.userId] ?? 1) / totalWeight;
+                  return (
+                    <div
+                      key={member.userId}
+                      style={{
+                        flex: share || 0.0001,
+                        background: MEMBER_COLORS[i % MEMBER_COLORS.length],
+                        minWidth: share > 0 ? 4 : 0,
+                      }}
+                      className={cn(
+                        "transition-all duration-300 ease-out",
+                        i < memberBalances.length - 1 && "border-card border-r-2",
+                      )}
+                    />
+                  );
+                })}
+              </div>
+
+              {/* Member rows */}
+              {memberBalances.map((member, i) => {
+                const weight = editingWeights[member.userId] ?? 1;
+                const share = weight / totalWeight;
+                const color = MEMBER_COLORS[i % MEMBER_COLORS.length];
+                return (
+                  <div
+                    key={member.userId}
+                    className={cn(
+                      "grid grid-cols-[auto_1fr_auto_auto] items-center gap-2.5 py-2",
+                      i > 0 && "border-border/50 border-t",
+                    )}
+                  >
+                    <div className="relative">
+                      <MemberAvatar userId={member.userId} username={member.userName} className="size-7 rounded-full" />
+                      <div
+                        style={{ background: color }}
+                        className="border-card absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2"
+                      />
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    <div className="truncate text-sm font-medium">{member.userName}</div>
+                    <div className="text-muted-foreground min-w-[42px] text-right font-mono text-xs tabular-nums">
+                      {fmtPct(share)}
+                    </div>
+                    <WeightStepper
+                      id={`weight-${member.userId}`}
+                      value={weight}
+                      onChange={(v) => setWeight(member.userId, v)}
+                      disabled={isPending}
+                    />
+                  </div>
+                );
+              })}
             </div>
           </div>
 
