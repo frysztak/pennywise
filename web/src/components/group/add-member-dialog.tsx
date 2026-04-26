@@ -10,7 +10,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import MultipleSelector, { type Option } from "@/components/ui/multi-select";
+import {
+  MultiSelect,
+  MultiSelectContent,
+  MultiSelectItem,
+  MultiSelectTrigger,
+  MultiSelectValue,
+} from "@/components/ui/multi-select";
 import { getUsers } from "@/gen/api/v1/user-UserService_connectquery";
 
 interface AddMemberDialogProps {
@@ -21,35 +27,17 @@ interface AddMemberDialogProps {
 }
 
 export function AddMemberDialog({ open, onOpenChange, onAddMember }: AddMemberDialogProps) {
-  const [selectedUsers, setSelectedUsers] = useState<Option[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
 
   const { data: usersData } = useQuery(getUsers, undefined, {
     enabled: open,
   });
 
-  const userOptions = useMemo<Option[]>(() => {
-    if (!usersData?.users) return [];
-    return usersData.users.map((user) => ({
-      value: user.id,
-      label: user.username,
-      email: user.email,
-    }));
-  }, [usersData]);
-
-  const handleSearchSync = (query: string): Option[] => {
-    if (!query || !userOptions.length) return userOptions;
-
-    const searchQuery = query.toLowerCase();
-    return userOptions.filter(
-      (option) =>
-        option.label.toLowerCase().includes(searchQuery) ||
-        (option.email as string | undefined)?.toLowerCase().includes(searchQuery),
-    );
-  };
+  const users = useMemo(() => usersData?.users ?? [], [usersData]);
 
   const handleAddMembers = () => {
-    selectedUsers.forEach((user) => {
-      onAddMember(user.value);
+    selectedUsers.forEach((userId) => {
+      onAddMember(userId);
     });
     setSelectedUsers([]);
     onOpenChange(false);
@@ -69,14 +57,31 @@ export function AddMemberDialog({ open, onOpenChange, onAddMember }: AddMemberDi
         </DialogHeader>
 
         <div className="py-4">
-          <MultipleSelector
-            value={selectedUsers}
-            onChange={setSelectedUsers}
-            onSearchSync={handleSearchSync}
-            placeholder="Search users by username or email..."
-            emptyIndicator={<p className="text-center text-sm text-muted-foreground">No users found</p>}
-            hidePlaceholderWhenSelected
-          />
+          <MultiSelect values={selectedUsers} onValuesChange={setSelectedUsers}>
+            <MultiSelectTrigger className="w-full">
+              <MultiSelectValue placeholder="Search users by username or email..." />
+            </MultiSelectTrigger>
+            <MultiSelectContent
+              search={{
+                placeholder: "Search users by username or email...",
+                emptyMessage: "No users found",
+              }}
+            >
+              {users.map((user) => (
+                <MultiSelectItem
+                  key={user.id}
+                  value={user.id}
+                  badgeLabel={user.username}
+                  keywords={[user.username, user.email]}
+                >
+                  <div className="flex flex-col">
+                    <span>{user.username}</span>
+                    <span className="text-xs text-muted-foreground">{user.email}</span>
+                  </div>
+                </MultiSelectItem>
+              ))}
+            </MultiSelectContent>
+          </MultiSelect>
         </div>
 
         <DialogFooter>
