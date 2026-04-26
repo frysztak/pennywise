@@ -11,6 +11,22 @@ import (
 	"pennywise/db/overrides"
 )
 
+const addGroupCurrency = `-- name: AddGroupCurrency :exec
+INSERT INTO group_currencies (group_id, currency)
+VALUES (?1, ?2)
+ON CONFLICT DO NOTHING
+`
+
+type AddGroupCurrencyParams struct {
+	GroupID  string
+	Currency string
+}
+
+func (q *Queries) AddGroupCurrency(ctx context.Context, arg AddGroupCurrencyParams) error {
+	_, err := q.db.ExecContext(ctx, addGroupCurrency, arg.GroupID, arg.Currency)
+	return err
+}
+
 const addUserToGroup = `-- name: AddUserToGroup :one
 INSERT INTO user_expense_groups
 (
@@ -45,6 +61,31 @@ func (q *Queries) AddUserToGroup(ctx context.Context, arg AddUserToGroupParams) 
 		&i.Weight,
 	)
 	return i, err
+}
+
+const bulkAddGroupCurrencies = `-- name: BulkAddGroupCurrencies :exec
+INSERT INTO group_currencies (group_id, currency)
+SELECT ?1, value FROM json_each(?2)
+`
+
+type BulkAddGroupCurrenciesParams struct {
+	GroupID    string
+	Currencies interface{}
+}
+
+func (q *Queries) BulkAddGroupCurrencies(ctx context.Context, arg BulkAddGroupCurrenciesParams) error {
+	_, err := q.db.ExecContext(ctx, bulkAddGroupCurrencies, arg.GroupID, arg.Currencies)
+	return err
+}
+
+const clearGroupCurrencies = `-- name: ClearGroupCurrencies :exec
+DELETE FROM group_currencies
+WHERE group_id = ?1
+`
+
+func (q *Queries) ClearGroupCurrencies(ctx context.Context, groupID string) error {
+	_, err := q.db.ExecContext(ctx, clearGroupCurrencies, groupID)
+	return err
 }
 
 const createGroup = `-- name: CreateGroup :one
@@ -119,6 +160,36 @@ func (q *Queries) GetGroupById(ctx context.Context, groupID string) (ExpenseGrou
 		&i.Description,
 	)
 	return i, err
+}
+
+const getGroupCurrencies = `-- name: GetGroupCurrencies :many
+SELECT currency
+FROM group_currencies
+WHERE group_id = ?1
+ORDER BY currency
+`
+
+func (q *Queries) GetGroupCurrencies(ctx context.Context, groupID string) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, getGroupCurrencies, groupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var currency string
+		if err := rows.Scan(&currency); err != nil {
+			return nil, err
+		}
+		items = append(items, currency)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getGroupMembers = `-- name: GetGroupMembers :many
@@ -232,6 +303,21 @@ func (q *Queries) IsUserInGroup(ctx context.Context, arg IsUserInGroupParams) (b
 	var is_member bool
 	err := row.Scan(&is_member)
 	return is_member, err
+}
+
+const removeGroupCurrency = `-- name: RemoveGroupCurrency :exec
+DELETE FROM group_currencies
+WHERE group_id = ?1 AND currency = ?2
+`
+
+type RemoveGroupCurrencyParams struct {
+	GroupID  string
+	Currency string
+}
+
+func (q *Queries) RemoveGroupCurrency(ctx context.Context, arg RemoveGroupCurrencyParams) error {
+	_, err := q.db.ExecContext(ctx, removeGroupCurrency, arg.GroupID, arg.Currency)
+	return err
 }
 
 const removeUserFromGroup = `-- name: RemoveUserFromGroup :exec

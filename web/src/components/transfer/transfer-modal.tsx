@@ -66,6 +66,7 @@ interface TransferModalProps {
   groupMembers: MemberBalance[];
   currentUserId: string;
   defaultCurrency: string;
+  currencies: string[];
 }
 
 const userGroupsKey = createConnectQueryKey({
@@ -87,6 +88,7 @@ export const TransferModal = ({
   groupMembers,
   currentUserId,
   defaultCurrency,
+  currencies,
 }: TransferModalProps) => {
   const isEditMode = mode === "edit";
   const memberItems = groupMembers.map((m) => ({ value: m.userId, label: m.userName }));
@@ -255,6 +257,7 @@ export const TransferModal = ({
                     <AmountInput
                       id="amountWithCurrency"
                       required
+                      currencies={currencies}
                       inputValue={field.value}
                       disabled={field.disabled}
                       onValueChange={field.onChange}

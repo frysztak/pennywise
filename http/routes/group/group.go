@@ -11,6 +11,7 @@ import (
 	"pennywise/http/helpers"
 	"pennywise/log"
 	"pennywise/utils"
+	"slices"
 	"sort"
 	"time"
 
@@ -54,6 +55,19 @@ func (s *GroupService) CreateExpenseGroup(ctx context.Context, r *apiv1.CreateEx
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
+	if !slices.Contains(r.Currencies, r.DefaultCurrency) {
+		return nil, connect.NewError(connect.CodeInvalidArgument,
+			errors.New("default currency must be one of the selected currencies"))
+	}
+
+	if err := db.WriteQueries.BulkAddGroupCurrencies(ctx, database.BulkAddGroupCurrenciesParams{
+		GroupID:    group.ID,
+		Currencies: utils.SliceToJSONString(r.Currencies...),
+	}); err != nil {
+		logger.Error("failed to seed group currencies", "error", err, "group_id", group.ID)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
 	logger.Info("group created successfully", "group_id", group.ID, "name", group.Name)
 
 	return &apiv1.CreateExpenseGroupResponse{
@@ -68,7 +82,22 @@ func (s *GroupService) UpdateGroup(ctx context.Context, r *apiv1.UpdateGroupRequ
 	logger := log.FromContext(ctx)
 	// TODO: check if user is admin
 
-	group, err := db.WriteQueries.UpdateGroup(ctx, database.UpdateGroupParams{
+	if !slices.Contains(r.Currencies, r.DefaultCurrency) {
+		return nil, connect.NewError(connect.CodeInvalidArgument,
+			errors.New("default currency must be one of the selected currencies"))
+	}
+
+	currenciesJSON := utils.SliceToJSONString(r.Currencies...)
+
+	tx, err := db.WriteDB.BeginTx(ctx, nil)
+	if err != nil {
+		logger.Error("failed to begin transaction", "error", err, "group_id", r.Id)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	defer tx.Rollback()
+	qtx := db.WriteQueries.WithTx(tx)
+
+	group, err := qtx.UpdateGroup(ctx, database.UpdateGroupParams{
 		ID:              r.Id,
 		Name:            r.Name,
 		Description:     &r.Description,
@@ -76,6 +105,23 @@ func (s *GroupService) UpdateGroup(ctx context.Context, r *apiv1.UpdateGroupRequ
 	})
 	if err != nil {
 		logger.Error("failed to update group", "error", err, "group_id", r.Id)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	if err := qtx.ClearGroupCurrencies(ctx, r.Id); err != nil {
+		logger.Error("failed to clear group currencies", "error", err, "group_id", r.Id)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if err := qtx.BulkAddGroupCurrencies(ctx, database.BulkAddGroupCurrenciesParams{
+		GroupID:    r.Id,
+		Currencies: currenciesJSON,
+	}); err != nil {
+		logger.Error("failed to bulk add group currencies", "error", err, "group_id", r.Id)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		logger.Error("failed to commit transaction", "error", err, "group_id", r.Id)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
@@ -258,6 +304,19 @@ func (s *GroupService) GetUserGroups(ctx context.Context, r *apiv1.GetUserGroups
 			totalSpending[row.Currency] = row.TotalAmount
 		}
 
+		groupCurrencies, err := db.ReadQueries.GetGroupCurrencies(ctx, *v.GroupID)
+		if err != nil {
+			logger.Error("failed to get group currencies", "error", err, "group_id", *v.GroupID)
+			return nil, connect.NewError(connect.CodeInternal, err)
+		}
+		currencies := make([]string, 0, len(groupCurrencies))
+		currencies = append(currencies, v.DefaultCurrency)
+		for _, c := range groupCurrencies {
+			if c != v.DefaultCurrency {
+				currencies = append(currencies, c)
+			}
+		}
+
 		pbGroups[i] = &apiv1.UserGroup{
 			UserId:               *v.UserID,
 			GroupId:              *v.GroupID,
@@ -266,6 +325,7 @@ func (s *GroupService) GetUserGroups(ctx context.Context, r *apiv1.GetUserGroups
 			GroupDefaultCurrency: v.DefaultCurrency,
 			MemberBalances:       memberBalances,
 			TotalSpending:        totalSpending,
+			Currencies:           currencies,
 		}
 	}
 

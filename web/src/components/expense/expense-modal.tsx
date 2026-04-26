@@ -71,6 +71,7 @@ interface ExpenseModalProps {
   groupMembers: MemberBalance[];
   currentUserId: string;
   defaultCurrency: string;
+  currencies: string[];
 }
 
 export const ExpenseModal = ({
@@ -84,6 +85,7 @@ export const ExpenseModal = ({
   groupMembers,
   currentUserId,
   defaultCurrency,
+  currencies,
 }: ExpenseModalProps) => {
   const isEditMode = mode === "edit";
 
@@ -287,6 +289,7 @@ export const ExpenseModal = ({
                     <AmountInput
                       id="amountWithCurrency"
                       required
+                      currencies={currencies}
                       inputValue={field.value}
                       disabled={field.disabled}
                       onValueChange={field.onChange}

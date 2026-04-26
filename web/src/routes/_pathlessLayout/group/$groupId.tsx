@@ -201,6 +201,7 @@ function RouteComponent() {
         groupMembers={groupInfo.memberBalances}
         currentUserId={currentUser.id}
         defaultCurrency={groupInfo.groupDefaultCurrency}
+        currencies={groupInfo.currencies}
       />
 
       {/* Transfer Modal (Create/Edit) */}
@@ -214,6 +215,7 @@ function RouteComponent() {
         groupMembers={groupInfo.memberBalances}
         currentUserId={currentUser.id}
         defaultCurrency={groupInfo.groupDefaultCurrency}
+        currencies={groupInfo.currencies}
       />
 
       {/* Recurring Expense Modal (Create/Edit) */}
@@ -226,6 +228,7 @@ function RouteComponent() {
         groupMembers={groupInfo.memberBalances}
         currentUserId={currentUser.id}
         defaultCurrency={groupInfo.groupDefaultCurrency}
+        currencies={groupInfo.currencies}
       />
 
       <DeleteExpenseDialog {...deleteExpenseModal.dialogProps} />
@@ -238,6 +241,7 @@ function RouteComponent() {
           {...editGroupModal.dialogProps}
           group={editGroupModal.dialogProps.group}
           memberBalances={groupInfo.memberBalances}
+          currencies={groupInfo.currencies}
         />
       )}
     </>

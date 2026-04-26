@@ -1,7 +1,5 @@
 import { type ChangeEvent } from "react";
 
-import { COMMON_CURRENCIES } from "@/lib/currencies";
-
 import { ButtonGroup } from "./ui/button-group";
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "./ui/combobox";
 import { Input } from "./ui/input";
@@ -16,11 +14,12 @@ export interface AmountInputProps {
   required?: boolean;
   invalid?: boolean;
   disabled?: boolean;
+  currencies: string[];
   inputValue?: AmountWithCurrency;
   onValueChange?: (newValue: AmountWithCurrency) => void;
 }
 
-export function AmountInput({ id, required, invalid, disabled, inputValue, onValueChange }: AmountInputProps) {
+export function AmountInput({ id, required, invalid, disabled, currencies, inputValue, onValueChange }: AmountInputProps) {
   const onAmountChange = (event: ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
     onValueChange?.({ ...inputValue!, amount: event.target.valueAsNumber });
   };
@@ -45,7 +44,7 @@ export function AmountInput({ id, required, invalid, disabled, inputValue, onVal
         onChange={onAmountChange}
       />
       <Combobox
-        items={COMMON_CURRENCIES}
+        items={currencies}
         value={inputValue?.currency}
         onValueChange={onCurrencyChange}
         disabled={disabled}
@@ -56,8 +55,8 @@ export function AmountInput({ id, required, invalid, disabled, inputValue, onVal
           <ComboboxEmpty>No items found.</ComboboxEmpty>
           <ComboboxList>
             {(item) => (
-              <ComboboxItem key={item.value} value={item.value}>
-                {item.value}
+              <ComboboxItem key={item} value={item}>
+                {item}
               </ComboboxItem>
             )}
           </ComboboxList>

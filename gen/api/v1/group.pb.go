@@ -78,6 +78,7 @@ type CreateExpenseGroupRequest struct {
 	Name            string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Description     string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
 	DefaultCurrency string                 `protobuf:"bytes,3,opt,name=default_currency,json=defaultCurrency,proto3" json:"default_currency,omitempty"`
+	Currencies      []string               `protobuf:"bytes,4,rep,name=currencies,proto3" json:"currencies,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -131,6 +132,13 @@ func (x *CreateExpenseGroupRequest) GetDefaultCurrency() string {
 		return x.DefaultCurrency
 	}
 	return ""
+}
+
+func (x *CreateExpenseGroupRequest) GetCurrencies() []string {
+	if x != nil {
+		return x.Currencies
+	}
+	return nil
 }
 
 type CreateExpenseGroupResponse struct {
@@ -371,6 +379,7 @@ type UpdateGroupRequest struct {
 	Name            string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Description     string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	DefaultCurrency string                 `protobuf:"bytes,4,opt,name=default_currency,json=defaultCurrency,proto3" json:"default_currency,omitempty"`
+	Currencies      []string               `protobuf:"bytes,5,rep,name=currencies,proto3" json:"currencies,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -431,6 +440,13 @@ func (x *UpdateGroupRequest) GetDefaultCurrency() string {
 		return x.DefaultCurrency
 	}
 	return ""
+}
+
+func (x *UpdateGroupRequest) GetCurrencies() []string {
+	if x != nil {
+		return x.Currencies
+	}
+	return nil
 }
 
 type UpdateGroupResponse struct {
@@ -578,6 +594,7 @@ type UserGroup struct {
 	GroupDefaultCurrency string                 `protobuf:"bytes,5,opt,name=group_default_currency,json=groupDefaultCurrency,proto3" json:"group_default_currency,omitempty"`
 	MemberBalances       []*MemberBalance       `protobuf:"bytes,6,rep,name=member_balances,json=memberBalances,proto3" json:"member_balances,omitempty"`
 	TotalSpending        map[string]int64       `protobuf:"bytes,7,rep,name=total_spending,json=totalSpending,proto3" json:"total_spending,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	Currencies           []string               `protobuf:"bytes,8,rep,name=currencies,proto3" json:"currencies,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -657,6 +674,13 @@ func (x *UserGroup) GetMemberBalances() []*MemberBalance {
 func (x *UserGroup) GetTotalSpending() map[string]int64 {
 	if x != nil {
 		return x.TotalSpending
+	}
+	return nil
+}
+
+func (x *UserGroup) GetCurrencies() []string {
+	if x != nil {
+		return x.Currencies
 	}
 	return nil
 }
@@ -1401,11 +1425,14 @@ var File_api_v1_group_proto protoreflect.FileDescriptor
 
 const file_api_v1_group_proto_rawDesc = "" +
 	"\n" +
-	"\x12api/v1/group.proto\x12\x06api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8e\x01\n" +
+	"\x12api/v1/group.proto\x12\x06api.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb8\x01\n" +
 	"\x19CreateExpenseGroupRequest\x12\x1b\n" +
 	"\x04name\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x122\n" +
-	"\x10default_currency\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\x0fdefaultCurrency\"\x81\x01\n" +
+	"\x10default_currency\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\x0fdefaultCurrency\x12(\n" +
+	"\n" +
+	"currencies\x18\x04 \x03(\tB\b\xbaH\x05\x92\x01\x02\b\x01R\n" +
+	"currencies\"\x81\x01\n" +
 	"\x1aCreateExpenseGroupResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -1421,12 +1448,15 @@ const file_api_v1_group_proto_rawDesc = "" +
 	"\x17UpdateUserWeightRequest\x12!\n" +
 	"\auser_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06userId\x12#\n" +
 	"\bgroup_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\x12&\n" +
-	"\x06weight\x18\x03 \x01(\x01B\x0e\xbaH\v\x12\t!\x00\x00\x00\x00\x00\x00\x00\x00R\x06weight\"\xa0\x01\n" +
+	"\x06weight\x18\x03 \x01(\x01B\x0e\xbaH\v\x12\t!\x00\x00\x00\x00\x00\x00\x00\x00R\x06weight\"\xca\x01\n" +
 	"\x12UpdateGroupRequest\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\x02id\x12\x1b\n" +
 	"\x04name\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x122\n" +
-	"\x10default_currency\x18\x04 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\x0fdefaultCurrency\"z\n" +
+	"\x10default_currency\x18\x04 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\x0fdefaultCurrency\x12(\n" +
+	"\n" +
+	"currencies\x18\x05 \x03(\tB\b\xbaH\x05\x92\x01\x02\b\x01R\n" +
+	"currencies\"z\n" +
 	"\x13UpdateGroupResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -1440,7 +1470,7 @@ const file_api_v1_group_proto_rawDesc = "" +
 	"\x06weight\x18\x04 \x01(\x01R\x06weight\x1a:\n" +
 	"\fBalanceEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x01\"\x90\x03\n" +
+	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x01\"\xb0\x03\n" +
 	"\tUserGroup\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x19\n" +
 	"\bgroup_id\x18\x02 \x01(\tR\agroupId\x12\x1d\n" +
@@ -1449,7 +1479,10 @@ const file_api_v1_group_proto_rawDesc = "" +
 	"\x11group_description\x18\x04 \x01(\tR\x10groupDescription\x124\n" +
 	"\x16group_default_currency\x18\x05 \x01(\tR\x14groupDefaultCurrency\x12>\n" +
 	"\x0fmember_balances\x18\x06 \x03(\v2\x15.api.v1.MemberBalanceR\x0ememberBalances\x12K\n" +
-	"\x0etotal_spending\x18\a \x03(\v2$.api.v1.UserGroup.TotalSpendingEntryR\rtotalSpending\x1a@\n" +
+	"\x0etotal_spending\x18\a \x03(\v2$.api.v1.UserGroup.TotalSpendingEntryR\rtotalSpending\x12\x1e\n" +
+	"\n" +
+	"currencies\x18\b \x03(\tR\n" +
+	"currencies\x1a@\n" +
 	"\x12TotalSpendingEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x01\"\x16\n" +

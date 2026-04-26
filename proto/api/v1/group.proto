@@ -10,6 +10,7 @@ message CreateExpenseGroupRequest {
   string name = 1 [(buf.validate.field).string.min_len = 2];
   string description = 2;
   string default_currency = 3 [(buf.validate.field).string.min_len = 2];
+  repeated string currencies = 4 [(buf.validate.field).repeated.min_items = 1];
 }
 
 message CreateExpenseGroupResponse {
@@ -40,6 +41,7 @@ message UpdateGroupRequest {
   string name = 2 [(buf.validate.field).string.min_len = 2];
   string description = 3;
   string default_currency = 4 [(buf.validate.field).string.min_len = 2];
+  repeated string currencies = 5 [(buf.validate.field).repeated.min_items = 1];
 }
 
 message UpdateGroupResponse {
@@ -64,6 +66,7 @@ message UserGroup {
   string group_default_currency = 5;
   repeated MemberBalance member_balances = 6;
   map<string, int64> total_spending = 7;
+  repeated string currencies = 8;
 }
 
 message GetUserGroupsRequest {}

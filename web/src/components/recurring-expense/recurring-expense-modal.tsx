@@ -49,6 +49,7 @@ interface RecurringExpenseModalProps {
   groupMembers: MemberBalance[];
   currentUserId: string;
   defaultCurrency: string;
+  currencies: string[];
   recurringExpense?: GetGroupRecurringExpensesResponse_RecurringExpense;
 }
 
@@ -60,6 +61,7 @@ export const RecurringExpenseModal = ({
   groupMembers,
   currentUserId,
   defaultCurrency,
+  currencies,
   recurringExpense,
 }: RecurringExpenseModalProps) => {
   const isEditMode = mode === "edit";
@@ -237,6 +239,7 @@ export const RecurringExpenseModal = ({
                     <FieldLabel htmlFor="amountWithCurrency">Amount (optional)</FieldLabel>
                     <AmountInput
                       id="amountWithCurrency"
+                      currencies={currencies}
                       inputValue={field.value as { amount: number; currency: string } | undefined}
                       disabled={field.disabled}
                       onValueChange={field.onChange}

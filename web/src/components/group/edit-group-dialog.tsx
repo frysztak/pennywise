@@ -13,21 +13,35 @@ import { Card, CardContent } from "../ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
+import {
+  MultiSelect,
+  MultiSelectContent,
+  MultiSelectItem,
+  MultiSelectTrigger,
+  MultiSelectValue,
+} from "../ui/multi-select";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Spinner } from "../ui/spinner";
 
-const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  description: z.string(),
-  defaultCurrency: z.string().min(2, "Currency is required"),
-});
+const formSchema = z
+  .object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    description: z.string(),
+    defaultCurrency: z.string().min(2, "Currency is required"),
+    currencies: z.array(z.string()).min(1, "Select at least one currency"),
+  })
+  .refine((data) => data.currencies.includes(data.defaultCurrency), {
+    message: "Default currency must be one of the selected currencies",
+    path: ["defaultCurrency"],
+  });
 
 interface EditGroupDialogProps {
   open: boolean;
   group: EditingGroup;
   memberBalances: MemberBalance[];
+  currencies: string[];
   onOpenChange: (open: boolean) => void;
-  onUpdateGroup: (data: { name: string; description: string; defaultCurrency: string }) => void;
+  onUpdateGroup: (data: { name: string; description: string; defaultCurrency: string; currencies: string[] }) => void;
   onUpdateWeight: (userId: string, weight: number) => void;
 }
 
@@ -35,6 +49,7 @@ export function EditGroupDialog({
   open,
   group,
   memberBalances,
+  currencies,
   onOpenChange,
   onUpdateGroup,
   onUpdateWeight,
@@ -55,8 +70,12 @@ export function EditGroupDialog({
       name: group.groupName,
       description: group.groupDescription,
       defaultCurrency: group.defaultCurrency,
+      currencies,
     },
   });
+
+  const selectedCurrencies = form.watch("currencies");
+  const defaultCurrencyItems = selectedCurrencies.map((c) => ({ value: c, label: c }));
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     setIsPending(true);
@@ -129,18 +148,59 @@ export function EditGroupDialog({
                 )}
               />
               <Controller
+                name="currencies"
+                disabled={isPending}
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="groupCurrencies">Currencies</FieldLabel>
+                    <MultiSelect
+                      values={field.value}
+                      onValuesChange={(values) => {
+                        field.onChange(values);
+                        if (!values.includes(form.getValues("defaultCurrency")) && values.length > 0) {
+                          form.setValue("defaultCurrency", values[0], { shouldValidate: true });
+                        }
+                      }}
+                    >
+                      <MultiSelectTrigger
+                        id="groupCurrencies"
+                        aria-invalid={fieldState.invalid}
+                        disabled={isPending}
+                        className="w-full"
+                      >
+                        <MultiSelectValue placeholder="Select currencies" />
+                      </MultiSelectTrigger>
+                      <MultiSelectContent>
+                        {COMMON_CURRENCIES.map((c) => (
+                          <MultiSelectItem key={c} value={c}>
+                            {c}
+                          </MultiSelectItem>
+                        ))}
+                      </MultiSelectContent>
+                    </MultiSelect>
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
+              />
+              <Controller
                 name="defaultCurrency"
                 disabled={isPending}
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel htmlFor="defaultCurrency">Default currency</FieldLabel>
-                    <Select items={COMMON_CURRENCIES} value={field.value} onValueChange={field.onChange} disabled={isPending}>
+                    <Select
+                      items={defaultCurrencyItems}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      disabled={isPending || defaultCurrencyItems.length === 0}
+                    >
                       <SelectTrigger id="defaultCurrency" aria-invalid={fieldState.invalid}>
                         <SelectValue placeholder="Select currency" />
                       </SelectTrigger>
                       <SelectContent>
-                        {COMMON_CURRENCIES.map((currency) => (
+                        {defaultCurrencyItems.map((currency) => (
                           <SelectItem key={currency.value} value={currency.value}>
                             {currency.label}
                           </SelectItem>

@@ -53,13 +53,19 @@ export function useEditGroupModal() {
     setEditingGroup(group);
   };
 
-  const handleUpdateGroup = (data: { name: string; description: string; defaultCurrency: string }) => {
+  const handleUpdateGroup = (data: {
+    name: string;
+    description: string;
+    defaultCurrency: string;
+    currencies: string[];
+  }) => {
     if (editingGroup) {
       updateGroupMutate({
         id: editingGroup.groupId,
         name: data.name,
         description: data.description,
         defaultCurrency: data.defaultCurrency,
+        currencies: data.currencies,
       });
     }
   };

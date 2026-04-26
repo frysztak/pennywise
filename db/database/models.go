@@ -41,6 +41,11 @@ type ExpensePayer struct {
 	Amount    int64
 }
 
+type GroupCurrency struct {
+	GroupID  string
+	Currency string
+}
+
 type RecurringExpense struct {
 	ID             string
 	CreatedAt      overrides.TextTime

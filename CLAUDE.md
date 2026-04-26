@@ -63,6 +63,7 @@ npm run dev              # Start dev server
 npm run build            # Build for production (runs tsc then vite build)
 npm run lint             # Run ESLint
 npm run buf:generate     # Generate protobuf client code
+npx tsc -b --noEmit      # Type check (must use -b flag, plain `tsc --noEmit` produces no output)
 ```
 
 ### All Code Generation

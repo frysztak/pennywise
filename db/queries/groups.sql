@@ -66,3 +66,26 @@ SELECT EXISTS(
     SELECT 1 FROM user_expense_groups
     WHERE user_id = @user_id AND group_id = @group_id
 ) as is_member;
+
+-- name: AddGroupCurrency :exec
+INSERT INTO group_currencies (group_id, currency)
+VALUES (@group_id, @currency)
+ON CONFLICT DO NOTHING;
+
+-- name: BulkAddGroupCurrencies :exec
+INSERT INTO group_currencies (group_id, currency)
+SELECT @group_id, value FROM json_each(@currencies);
+
+-- name: RemoveGroupCurrency :exec
+DELETE FROM group_currencies
+WHERE group_id = @group_id AND currency = @currency;
+
+-- name: ClearGroupCurrencies :exec
+DELETE FROM group_currencies
+WHERE group_id = @group_id;
+
+-- name: GetGroupCurrencies :many
+SELECT currency
+FROM group_currencies
+WHERE group_id = @group_id
+ORDER BY currency;
