@@ -36,62 +36,72 @@ export function LoginForm({ className, onSubmit, isLoading, ...props }: React.Co
       <Card>
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
-          <CardDescription>Enter your email below to login to your account</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <FieldGroup>
-              <Controller
-                name="email"
-                disabled={isLoading}
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel htmlFor="email">Email</FieldLabel>
-                    <Input
-                      {...field}
-                      id="email"
-                      type="email"
-                      placeholder="john@example.com"
-                      required
-                      autoComplete="email"
-                      aria-invalid={fieldState.invalid}
-                    />
-                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                  </Field>
-                )}
-              />
-              <Controller
-                name="password"
-                control={form.control}
-                disabled={isLoading}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <div className="flex items-center">
-                      <FieldLabel htmlFor="password">Password</FieldLabel>
-                      {/* <a href="#" className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
+              {getConfig().passwordLoginEnabled && (
+                <>
+                  <Controller
+                    name="email"
+                    disabled={isLoading}
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel htmlFor="email">Email</FieldLabel>
+                        <Input
+                          {...field}
+                          id="email"
+                          type="email"
+                          placeholder="john@example.com"
+                          required
+                          autoComplete="email"
+                          aria-invalid={fieldState.invalid}
+                        />
+                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                      </Field>
+                    )}
+                  />
+                  <Controller
+                    name="password"
+                    control={form.control}
+                    disabled={isLoading}
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <div className="flex items-center">
+                          <FieldLabel htmlFor="password">Password</FieldLabel>
+                          {/* <a href="#" className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
                         Forgot your password?
                       </a> */}
-                    </div>
-                    <Input
-                      {...field}
-                      id="password"
-                      type="password"
-                      required
-                      autoComplete="current-password"
-                      aria-invalid={fieldState.invalid}
-                    />
-                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                  </Field>
-                )}
-              />
+                        </div>
+                        <Input
+                          {...field}
+                          id="password"
+                          type="password"
+                          required
+                          autoComplete="current-password"
+                          aria-invalid={fieldState.invalid}
+                        />
+                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                      </Field>
+                    )}
+                  />
+                </>
+              )}
               <Field>
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading && <Spinner />}
-                  Login
-                </Button>
+                {getConfig().passwordLoginEnabled && (
+                  <Button type="submit" disabled={isLoading}>
+                    {isLoading && <Spinner />}
+                    Login
+                  </Button>
+                )}
                 {getConfig().oidcEnabled && (
-                  <Button variant="outline" type="button" render={<a href="/auth/oidc/login">Login with OIDC</a>} />
+                  <Button
+                    variant="outline"
+                    type="button"
+                    nativeButton={false}
+                    render={<a href="/auth/oidc/login">Login with OIDC</a>}
+                  />
                 )}
                 {getConfig().registrationEnabled && (
                   <FieldDescription className="text-center">

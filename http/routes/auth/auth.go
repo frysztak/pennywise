@@ -12,8 +12,8 @@ import (
 	"pennywise/db/overrides"
 	apiv1 "pennywise/gen/api/v1"
 	"pennywise/http/helpers"
-	logPkg "pennywise/log"
 	userPkg "pennywise/http/routes/user"
+	logPkg "pennywise/log"
 	"time"
 
 	"connectrpc.com/connect"
@@ -30,7 +30,8 @@ var (
 	OIDCVerifier *oidc.IDTokenVerifier
 	TokenAuth    *jwtauth.JWTAuth
 
-	ErrInvalidPassword = connect.NewError(connect.CodeInvalidArgument, errors.New("invalid password"))
+	ErrInvalidPassword       = connect.NewError(connect.CodeInvalidArgument, errors.New("invalid password"))
+	ErrPasswordLoginDisabled = connect.NewError(connect.CodePermissionDenied, errors.New("password login disabled"))
 )
 
 // OIDCClaims represents the claims extracted from an OIDC ID token
@@ -80,6 +81,11 @@ func InitOIDCAuth() {
 
 func (s *AuthService) LoginWithPassword(ctx context.Context, r *apiv1.LoginWithPasswordRequest) (*apiv1.LoginWithPasswordResponse, error) {
 	logger := logPkg.FromContext(ctx)
+
+	if !config.Config.PasswordLoginEnabled {
+		logger.Warn("attempting to login using password", "email", r.Email)
+		return nil, ErrPasswordLoginDisabled
+	}
 
 	user, err := db.ReadQueries.GetUserByEmail(ctx, r.Email)
 	if err != nil {
@@ -247,13 +253,19 @@ func HandlerOIDCCallback(w http.ResponseWriter, r *http.Request) {
 			username = claims.Email // Fallback to email if name is not provided
 		}
 
+		noUsers, err := db.ReadQueries.IsUsersEmpty(ctx)
+		role := apiv1.UserRole_USER_ROLE_REGULAR
+		if noUsers {
+			role = apiv1.UserRole_USER_ROLE_ADMIN
+		}
+
 		user, err = db.WriteQueries.CreateUser(ctx, database.CreateUserParams{
 			ID:           uuid.NewString(),
 			Email:        claims.Email,
 			Username:     username,
 			PasswordHash: nil, // OIDC users don't have a password
 			CreatedAt:    overrides.TextTime{Time: time.Now()},
-			Role:         int64(apiv1.UserRole_USER_ROLE_REGULAR),
+			Role:         int64(role),
 		})
 		if err != nil {
 			logger.Error("failed to create OIDC user", "error", err, "email", claims.Email)
