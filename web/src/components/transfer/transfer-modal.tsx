@@ -22,8 +22,8 @@ import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Spinner } from "../ui/spinner";
+import { TransferFlow } from "./transfer-flow";
 
 const formSchema = z
   .object({
@@ -91,7 +91,6 @@ export const TransferModal = ({
   currencies,
 }: TransferModalProps) => {
   const isEditMode = mode === "edit";
-  const memberItems = groupMembers.map((m) => ({ value: m.userId, label: m.userName }));
 
   const getFormDefaults = useCallback((): FormValues => {
     if (isEditMode && transfer) {
@@ -160,6 +159,12 @@ export const TransferModal = ({
 
   const isPending = isCreating || isUpdating;
 
+  const senderId = form.watch("senderId");
+  const receiverId = form.watch("receiverId");
+  const senderError = form.formState.errors.senderId;
+  const receiverError = form.formState.errors.receiverId;
+  const partyError = receiverError ?? senderError;
+
   const onSubmit = (data: FormValues) => {
     if (isEditMode && transfer) {
       updateMutate({
@@ -200,52 +205,24 @@ export const TransferModal = ({
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
-            <Controller
-              name="senderId"
-              disabled={isPending}
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel htmlFor="sender">From (sender)</FieldLabel>
-                  <Select items={memberItems} value={field.value} onValueChange={field.onChange} disabled={isPending}>
-                    <SelectTrigger id="sender" aria-invalid={fieldState.invalid}>
-                      <SelectValue placeholder="Select sender" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {groupMembers.map((member) => (
-                        <SelectItem key={member.userId} value={member.userId}>
-                          {member.userName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                </Field>
-              )}
-            />
-            <Controller
-              name="receiverId"
-              disabled={isPending}
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel htmlFor="receiver">To (receiver)</FieldLabel>
-                  <Select items={memberItems} value={field.value} onValueChange={field.onChange} disabled={isPending}>
-                    <SelectTrigger id="receiver" aria-invalid={fieldState.invalid}>
-                      <SelectValue placeholder="Select receiver" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {groupMembers.map((member) => (
-                        <SelectItem key={member.userId} value={member.userId}>
-                          {member.userName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                </Field>
-              )}
-            />
+            <Field>
+              <FieldLabel>Transfer</FieldLabel>
+              <TransferFlow
+                members={groupMembers}
+                senderId={senderId}
+                receiverId={receiverId}
+                currentUserId={currentUserId}
+                disabled={isPending}
+                invalid={!!partyError}
+                onSenderChange={(id) =>
+                  form.setValue("senderId", id, { shouldValidate: true, shouldDirty: true })
+                }
+                onReceiverChange={(id) =>
+                  form.setValue("receiverId", id, { shouldValidate: true, shouldDirty: true })
+                }
+              />
+              {partyError && <FieldError errors={[partyError]} />}
+            </Field>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Controller
                 name="amountWithCurrency"
