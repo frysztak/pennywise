@@ -1,5 +1,5 @@
 # Stage 1: Build frontend
-FROM node:22-alpine AS frontend-builder
+FROM node:24-alpine AS frontend-builder
 
 WORKDIR /app/web
 
@@ -12,7 +12,7 @@ COPY web/ ./
 RUN npm run build
 
 # Stage 2: Build backend
-FROM golang:1.25-alpine AS backend-builder
+FROM golang:1.26-alpine AS backend-builder
 
 # Install build dependencies for CGO (required by go-sqlite3)
 RUN apk add --no-cache gcc musl-dev
@@ -33,7 +33,7 @@ COPY --from=frontend-builder /app/web/dist ./web/dist
 RUN CGO_ENABLED=1 go build -ldflags="-s -w" -o pennywise .
 
 # Stage 3: Runtime
-FROM alpine:3.21
+FROM alpine:3.23
 
 # Install runtime dependencies for SQLite
 RUN apk add --no-cache ca-certificates tzdata
