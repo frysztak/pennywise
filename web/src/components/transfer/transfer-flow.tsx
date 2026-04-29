@@ -121,7 +121,7 @@ interface PartyCardProps {
   disabled?: boolean;
 }
 
-function PartyCard({ label, member, isYou, isOpen, disabled }: PartyCardProps) {
+function PartyCard({ label, member, isOpen, disabled }: PartyCardProps) {
   return (
     <PopoverTrigger
       render={
