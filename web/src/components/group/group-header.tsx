@@ -55,7 +55,7 @@ export function GroupHeader({
                 </Button>
               }
             />
-            <DropdownMenuContent align="end" className="[--radius:1rem]">
+            <DropdownMenuContent align="end" className="w-36 [--radius:1rem]">
               <DropdownMenuGroup>
                 <DropdownMenuItem onClick={onCreateTransfer}>
                   <Redo2Icon />

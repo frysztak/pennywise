@@ -1,7 +1,7 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
-import { MoreHorizontal, RepeatIcon } from "lucide-react";
+import { EditIcon, MoreHorizontal, RepeatIcon, TrashIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { AmountWithCurrency } from "@/components/amount-with-currency";
@@ -120,7 +120,7 @@ export function RecurringReminderRow({ reminder, groupId, onPay, onEdit, onDelet
 
       <TableCell>
         <div className="flex items-center gap-2">
-          <Button size="sm" onClick={handlePay} disabled={isPending} className="bg-money hover:bg-money/90">
+          <Button size="sm" onClick={handlePay} disabled={isPending}>
             Pay
           </Button>
           <Button size="sm" variant="outline" onClick={handleSkip} disabled={isPending}>
@@ -136,13 +136,16 @@ export function RecurringReminderRow({ reminder, groupId, onPay, onEdit, onDelet
             />
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onEdit?.(reminder)} disabled={isPending}>
+                <EditIcon />
                 Edit
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => onDelete?.(reminder.id)}
                 disabled={isPending}
                 className="text-destructive focus:text-destructive"
+                variant="destructive"
               >
+                <TrashIcon />
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
