@@ -98,6 +98,11 @@ export default defineConfig({
     rollupOptions: {
       // overwrite default .html entry
       input: "/src/main.tsx",
+      output: {
+        manualChunks: {
+          'ui': ['react', 'react-dom', '@base-ui/react', 'sonner', 'tailwind-merge']
+        }
+      }
     },
   },
   test: {
