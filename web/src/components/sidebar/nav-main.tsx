@@ -9,12 +9,15 @@ export function NavMain() {
       {/* <SidebarGroupLabel>Platform</SidebarGroupLabel> */}
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton asChild tooltip="Dashboard">
-            <Link to="/dashboard">
-              <LayoutDashboard />
-              <span className="font-bold text-base">Dashboard</span>
-            </Link>
-          </SidebarMenuButton>
+          <SidebarMenuButton
+            tooltip="Dashboard"
+            render={
+              <Link to="/dashboard">
+                <LayoutDashboard />
+                <span className="font-bold text-base">Dashboard</span>
+              </Link>
+            }
+          />
         </SidebarMenuItem>
       </SidebarMenu>
     </SidebarGroup>

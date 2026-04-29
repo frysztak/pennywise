@@ -91,9 +91,7 @@ export function LoginForm({ className, onSubmit, isLoading, ...props }: React.Co
                   Login
                 </Button>
                 {getConfig().oidcEnabled && (
-                  <Button variant="outline" type="button" asChild>
-                    <a href="/auth/oidc/login">Login with OIDC</a>
-                  </Button>
+                  <Button variant="outline" type="button" render={<a href="/auth/oidc/login">Login with OIDC</a>} />
                 )}
                 {getConfig().registrationEnabled && (
                   <FieldDescription className="text-center">

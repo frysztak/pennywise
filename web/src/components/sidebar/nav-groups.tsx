@@ -53,16 +53,19 @@ export function NavGroups() {
           <SidebarMenu>
             {data.groups.map((item) => (
               <SidebarMenuItem key={item.groupId}>
-                <SidebarMenuButton asChild className="h-auto">
-                  <Link to="/group/$groupId" params={{ groupId: item.groupId }}>
-                    <div className="flex flex-col">
-                      <strong>{item.groupName}</strong>
-                      <AmountWithCurrency
-                        balance={item.memberBalances.find((balance) => balance.userId === currentUser.id)!.balance}
-                      />
-                    </div>
-                  </Link>
-                </SidebarMenuButton>
+                <SidebarMenuButton
+                  className="h-auto"
+                  render={
+                    <Link to="/group/$groupId" params={{ groupId: item.groupId }}>
+                      <div className="flex flex-col">
+                        <strong>{item.groupName}</strong>
+                        <AmountWithCurrency
+                          balance={item.memberBalances.find((balance) => balance.userId === currentUser.id)!.balance}
+                        />
+                      </div>
+                    </Link>
+                  }
+                />
                 <DropdownMenu>
                   <DropdownMenuTrigger
                     render={
