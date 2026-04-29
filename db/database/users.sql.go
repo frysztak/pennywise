@@ -155,6 +155,17 @@ func (q *Queries) GetUsers(ctx context.Context) ([]GetUsersRow, error) {
 	return items, nil
 }
 
+const isUsersEmpty = `-- name: IsUsersEmpty :one
+SELECT EXISTS(SELECT 1 FROM users LIMIT 1)
+`
+
+func (q *Queries) IsUsersEmpty(ctx context.Context) (bool, error) {
+	row := q.db.QueryRowContext(ctx, isUsersEmpty)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const updateUserAvatar = `-- name: UpdateUserAvatar :exec
 UPDATE users
 SET avatar_data = ?1, avatar_mime_type = ?2, avatar_updated_at = ?3

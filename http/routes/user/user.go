@@ -39,13 +39,19 @@ func (s *UserService) UserRegister(ctx context.Context, r *apiv1.UserRegisterReq
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
+	noUsers, err := db.ReadQueries.IsUsersEmpty(ctx)
+	role := apiv1.UserRole_USER_ROLE_REGULAR
+	if noUsers {
+		role = apiv1.UserRole_USER_ROLE_ADMIN
+	}
+
 	user, err := db.WriteQueries.CreateUser(ctx, database.CreateUserParams{
 		ID:           uuid.NewString(),
 		Email:        r.Email,
 		Username:     r.Username,
 		PasswordHash: &hash,
 		CreatedAt:    overrides.TextTime{Time: time.Now()},
-		Role:         int64(apiv1.UserRole_USER_ROLE_REGULAR),
+		Role:         int64(role),
 	})
 	if err != nil {
 		logger.Error("failed to create user", "error", err, "email", r.Email, "username", r.Username)

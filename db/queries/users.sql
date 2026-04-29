@@ -20,6 +20,9 @@ SELECT * FROM users WHERE email = @email LIMIT 1;
 -- name: GetUsers :many
 SELECT id, username, email FROM users;
 
+-- name: IsUsersEmpty :one
+SELECT EXISTS(SELECT 1 FROM users LIMIT 1);
+
 -- name: UpdateUserAvatar :exec
 UPDATE users
 SET avatar_data = @avatar_data, avatar_mime_type = @avatar_mime_type, avatar_updated_at = @avatar_updated_at
