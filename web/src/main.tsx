@@ -7,6 +7,7 @@ import { registerSW } from "virtual:pwa-register";
 import { Toaster } from "sonner";
 
 import { AuthProvider, useAuth } from "./auth";
+import { ErrorScreen } from "./components/error-screen";
 import { ThemeProvider } from "./components/theme-provider";
 import "./index.css";
 import { routeTree } from "./routeTree.gen";
@@ -19,6 +20,7 @@ const router = createRouter({
   routeTree,
   defaultPreload: "intent",
   scrollRestoration: true,
+  defaultErrorComponent: ({ error }) => <ErrorScreen error={error} />,
   context: {
     // auth will be passed down from App component
     auth: undefined!,

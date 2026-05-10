@@ -57,7 +57,7 @@ export function AuthHeading({ title, description }: { title: string; description
 function AuthFooter({ version }: { version: string }) {
   const hostname = typeof window === "undefined" ? "" : window.location.hostname;
   return (
-    <div className="text-muted-foreground/80 flex items-center justify-center gap-3.5 font-mono text-xs tabular-nums">
+    <div className="text-muted-foreground/80 flex flex-wrap items-center justify-center gap-3.5 font-mono text-xs tabular-nums">
       <span>{version.startsWith("v") ? version : `v${version}`}</span>
       <FooterDot />
       <a

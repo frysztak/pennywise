@@ -180,6 +180,7 @@ func setupVite(isDev bool, mux *http.ServeMux) {
 		"/dashboard",
 		"/group/{id}",
 		"/scan-receipt",
+		"/debug-error",
 	}
 	feHandler := FrontendHandler(isDev, appFS, publicFS, fePaths...)
 	for _, page := range fePaths {
