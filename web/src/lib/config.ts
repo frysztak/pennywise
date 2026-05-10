@@ -3,6 +3,7 @@ interface PennywiseConfig {
   oidcEnabled: boolean;
   registrationEnabled: boolean;
   passwordLoginEnabled: boolean;
+  receiptScanningEnabled: boolean;
 }
 
 declare global {
@@ -12,5 +13,12 @@ declare global {
 }
 
 export function getConfig(): PennywiseConfig {
-  return window.__PENNYWISE_CONFIG__ ?? { oidcEnabled: false, registrationEnabled: true, passwordLoginEnabled: true };
+  return (
+    window.__PENNYWISE_CONFIG__ ?? {
+      oidcEnabled: false,
+      registrationEnabled: true,
+      passwordLoginEnabled: true,
+      receiptScanningEnabled: false,
+    }
+  );
 }

@@ -43,3 +43,8 @@ func (c *config) OIDCEnabled() bool {
 		c.OIDCClientSecret != "" &&
 		c.OIDCRedirectUrl != ""
 }
+
+// ReceiptScanningEnabled returns true if all required AI OCR configuration values are set
+func (c *config) ReceiptScanningEnabled() bool {
+	return c.OpenAIAPIKey != "" && c.OpenAIOCRModel != ""
+}

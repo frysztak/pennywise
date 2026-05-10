@@ -2,7 +2,9 @@ package receipt
 
 import (
 	"context"
+	"errors"
 	"pennywise/ai"
+	"pennywise/config"
 	apiv1 "pennywise/gen/api/v1"
 	"pennywise/log"
 
@@ -18,6 +20,10 @@ func NewReceiptService() *ReceiptService {
 
 func (s *ReceiptService) ScanReceipt(ctx context.Context, r *apiv1.ScanReceiptRequest) (*apiv1.ScanReceiptResponse, error) {
 	logger := log.FromContext(ctx)
+
+	if !config.Config.ReceiptScanningEnabled() {
+		return nil, connect.NewError(connect.CodeUnimplemented, errors.New("receipt scanning is not enabled"))
+	}
 
 	processed, err := ai.ProcessImage(r.ImageData)
 	if err != nil {

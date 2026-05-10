@@ -1,7 +1,7 @@
 import { timestampDate, timestampFromDate } from "@bufbuild/protobuf/wkt";
 import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -17,9 +17,16 @@ import { getGroupActivity, getUserGroups } from "@/gen/api/v1/group-GroupService
 import type { ReceiptData } from "@/gen/api/v1/receipt_pb";
 import { scanReceipt } from "@/gen/api/v1/receipt-ReceiptService_connectquery";
 import { useAuth } from "@/auth";
+import { getConfig } from "@/lib/config";
 import { handleError } from "@/lib/utils";
 
 export const Route = createFileRoute("/_pathlessLayout/scan-receipt")({
+  beforeLoad: () => {
+    if (!getConfig().receiptScanningEnabled) {
+      toast.error("Receipt scanning is disabled");
+      throw redirect({ to: "/dashboard" });
+    }
+  },
   component: RouteComponent,
   head: () => ({
     meta: [{ title: "Scan receipt" }],
