@@ -13,6 +13,7 @@ type config struct {
 	OIDCClientId         string `env:"OIDC_CLIENT_ID"`
 	OIDCClientSecret     string `env:"OIDC_CLIENT_SECRET"`
 	OIDCRedirectUrl      string `env:"OIDC_REDIRECT_URL"`
+	OIDCProviderName     string `env:"OIDC_PROVIDER_NAME"`
 	RegistrationEnabled  bool   `env:"REGISTRATION_ENABLED" envDefault:"true"`
 	PasswordLoginEnabled bool   `env:"PASSWORD_LOGIN_ENABLED" envDefault:"true"`
 	OpenAIBaseUrl        string `env:"OPENAI_BASE_URL"`

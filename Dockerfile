@@ -29,8 +29,10 @@ COPY . .
 # Copy built frontend from previous stage
 COPY --from=frontend-builder /app/web/dist ./web/dist
 
-# Build the binary with CGO enabled
-RUN CGO_ENABLED=1 go build -ldflags="-s -w" -o pennywise .
+# Build the binary with CGO enabled. APP_VERSION is baked in via -ldflags;
+# CI passes a tag (v1.2.3) or dev-<short sha>, default keeps local builds buildable.
+ARG APP_VERSION=dev
+RUN CGO_ENABLED=1 go build -ldflags="-s -w -X main.Version=${APP_VERSION}" -o pennywise .
 
 # Stage 3: Runtime
 FROM alpine:3.23

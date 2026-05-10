@@ -17,6 +17,8 @@ import (
 	"pennywise/db"
 	"pennywise/http/router"
 	"pennywise/log"
+	"runtime/debug"
+	"sync"
 	"syscall"
 	"time"
 
@@ -33,6 +35,47 @@ var public embed.FS
 
 //go:embed web/index.gohtml
 var indexTmpl string
+
+// Version is the app build version. Override at build time with
+//
+//	go build -ldflags "-X main.Version=v0.14.2"
+//
+// Otherwise it falls back to VCS info embedded by the Go toolchain.
+var Version = "dev"
+
+var versionOnce sync.Once
+
+func appVersion() string {
+	versionOnce.Do(func() {
+		if Version != "dev" {
+			return
+		}
+		info, ok := debug.ReadBuildInfo()
+		if !ok {
+			return
+		}
+		var revision, modified string
+		for _, s := range info.Settings {
+			switch s.Key {
+			case "vcs.revision":
+				revision = s.Value
+			case "vcs.modified":
+				modified = s.Value
+			}
+		}
+		if revision == "" {
+			return
+		}
+		if len(revision) > 7 {
+			revision = revision[:7]
+		}
+		Version = revision
+		if modified == "true" {
+			Version += "-dirty"
+		}
+	})
+	return Version
+}
 
 func main() {
 	var (
@@ -161,10 +204,12 @@ func setupVite(isDev bool, mux *http.ServeMux) {
 
 // FrontendConfig holds configuration values passed to the frontend
 type FrontendConfig struct {
-	OIDCEnabled             bool `json:"oidcEnabled"`
-	RegistrationEnabled     bool `json:"registrationEnabled"`
-	PasswordLoginEnabled    bool `json:"passwordLoginEnabled"`
-	ReceiptScanningEnabled  bool `json:"receiptScanningEnabled"`
+	OIDCEnabled            bool   `json:"oidcEnabled"`
+	OIDCProviderName       string `json:"oidcProviderName,omitempty"`
+	RegistrationEnabled    bool   `json:"registrationEnabled"`
+	PasswordLoginEnabled   bool   `json:"passwordLoginEnabled"`
+	ReceiptScanningEnabled bool   `json:"receiptScanningEnabled"`
+	AppVersion             string `json:"appVersion"`
 }
 
 func FrontendHandler(isDev bool, appFS, publicFS fs.FS, paths ...string) http.HandlerFunc {
@@ -180,9 +225,11 @@ func FrontendHandler(isDev bool, appFS, publicFS fs.FS, paths ...string) http.Ha
 	// Build frontend config and serialize to JSON
 	feConfig := FrontendConfig{
 		OIDCEnabled:            config.Config.OIDCEnabled(),
+		OIDCProviderName:       config.Config.OIDCProviderName,
 		RegistrationEnabled:    config.Config.RegistrationEnabled,
 		PasswordLoginEnabled:   config.Config.PasswordLoginEnabled,
 		ReceiptScanningEnabled: config.Config.ReceiptScanningEnabled(),
+		AppVersion:             appVersion(),
 	}
 	configJSON, err := json.Marshal(feConfig)
 	if err != nil {

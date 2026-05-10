@@ -96,7 +96,10 @@ environment:
   - OIDC_CLIENT_ID=pennywise
   - OIDC_CLIENT_SECRET=<...client secret...>
   - OIDC_REDIRECT_URL=https://pennywise.example.com/auth/oidc/callback
+  - OIDC_PROVIDER_NAME=authelia
 ```
+
+`OIDC_PROVIDER_NAME` is optional and only affects the login screen — it controls which name and brand icon the "Continue with …" button shows. Recognized values (case-insensitive): `authelia`, `authentik`, `keycloak`. Any other string renders with a generic key icon and the given label (e.g. `OIDC_PROVIDER_NAME="My SSO"`). Leave unset for a generic "Continue with OIDC" button.
 
 You'll also need to configure your OIDC provider. Example configuration for Authelia:
 

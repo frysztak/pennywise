@@ -1,9 +1,11 @@
 // Frontend configuration injected by the server
 interface PennywiseConfig {
   oidcEnabled: boolean;
+  oidcProviderName?: string;
   registrationEnabled: boolean;
   passwordLoginEnabled: boolean;
   receiptScanningEnabled: boolean;
+  appVersion: string;
 }
 
 declare global {
@@ -19,6 +21,7 @@ export function getConfig(): PennywiseConfig {
       registrationEnabled: true,
       passwordLoginEnabled: true,
       receiptScanningEnabled: false,
+      appVersion: "dev",
     }
   );
 }
