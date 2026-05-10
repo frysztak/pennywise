@@ -132,6 +132,27 @@ Generate `OIDC_CLIENT_SECRET` and `client_secret` using:
 docker run authelia/authelia:latest authelia crypto hash generate pbkdf2 --variant sha512 --random --random.length 72 --random.charset rfc3986
 ```
 
+## Receipt Scanning (AI OCR)
+
+Pennywise can extract expense details from receipt photos using any vision model. To enable it with OpenAI, set the following environment variables:
+
+```yaml
+environment:
+  - OPENAI_API_KEY=<...your api key...>
+  - OPENAI_OCR_MODEL=gpt-5.4-mini
+```
+
+### Ollama Example
+
+You can also point Pennywise at a local [Ollama](https://ollama.com/) instance running a vision-capable model:
+
+```yaml
+environment:
+  - OPENAI_BASE_URL=http://ollama:11434/v1
+  - OPENAI_API_KEY=ollama
+  - OPENAI_OCR_MODEL=gemma4:9b
+```
+
 ## License
 
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
