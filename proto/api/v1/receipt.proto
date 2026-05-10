@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package api.v1;
+
+import "google/protobuf/timestamp.proto";
+
+service ReceiptService {
+  rpc ScanReceipt(ScanReceiptRequest) returns (ScanReceiptResponse);
+}
+
+message ScanReceiptRequest {
+  bytes image_data = 1;
+}
+
+message ScanReceiptResponse {
+  ReceiptData receipt = 1;
+}
+
+message ReceiptData {
+  string merchant_name = 1;
+  google.protobuf.Timestamp date = 2;
+  string currency = 3;
+  double total = 4;
+  repeated ReceiptItem items = 5;
+}
+
+message ReceiptItem {
+  string name = 1;
+  double price = 2;
+  double confidence = 3;
+  int32 qty = 4;
+}

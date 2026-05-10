@@ -2,6 +2,7 @@ package expense
 
 import (
 	"context"
+	"database/sql"
 	"pennywise/db"
 	"pennywise/db/database"
 	"pennywise/db/overrides"
@@ -30,6 +31,49 @@ func (s *ExpenseService) CreateExpense(ctx context.Context, r *apiv1.CreateExpen
 	}
 	defer tx.Rollback()
 
+	resp, err := createExpenseTx(ctx, tx, r)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		logger.Error("failed to commit transaction", "error", err, "expense_id", resp.Id)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	return resp, nil
+}
+
+func (s *ExpenseService) BulkCreateExpenses(ctx context.Context, r *apiv1.BulkCreateExpensesRequest) (*apiv1.BulkCreateExpensesResponse, error) {
+	logger := log.FromContext(ctx)
+	tx, err := db.WriteDB.BeginTx(ctx, nil)
+	if err != nil {
+		logger.Error("failed to begin transaction", "error", err)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	defer tx.Rollback()
+
+	out := make([]*apiv1.CreateExpenseResponse, 0, len(r.Expenses))
+	for i, req := range r.Expenses {
+		resp, err := createExpenseTx(ctx, tx, req)
+		if err != nil {
+			logger.Error("bulk create failed mid-flight", "error", err, "index", i, "name", req.Name)
+			return nil, err
+		}
+		out = append(out, resp)
+	}
+
+	if err := tx.Commit(); err != nil {
+		logger.Error("failed to commit bulk transaction", "error", err, "count", len(out))
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	logger.Info("bulk expenses created", "count", len(out))
+	return &apiv1.BulkCreateExpensesResponse{Expenses: out}, nil
+}
+
+func createExpenseTx(ctx context.Context, tx *sql.Tx, r *apiv1.CreateExpenseRequest) (*apiv1.CreateExpenseResponse, error) {
+	logger := log.FromContext(ctx)
 	qtx := db.WriteQueries.WithTx(tx)
 
 	expense, err := qtx.CreateExpense(ctx, database.CreateExpenseParams{
@@ -58,15 +102,8 @@ func (s *ExpenseService) CreateExpense(ctx context.Context, r *apiv1.CreateExpen
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
-	err = db.CreateExpenseBeneficiariesBatch(ctx, tx, expense.ID, r.BeneficiariesIds)
-	if err != nil {
+	if err := db.CreateExpenseBeneficiariesBatch(ctx, tx, expense.ID, r.BeneficiariesIds); err != nil {
 		logger.Error("failed to create expense beneficiaries", "error", err, "expense_id", expense.ID)
-		return nil, connect.NewError(connect.CodeInternal, err)
-	}
-
-	err = tx.Commit()
-	if err != nil {
-		logger.Error("failed to commit transaction", "error", err, "expense_id", expense.ID)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 

@@ -495,6 +495,94 @@ func (x *GetGroupExpensesResponse) GetExpenses() []*GetGroupExpensesResponse_Exp
 	return nil
 }
 
+type BulkCreateExpensesRequest struct {
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	Expenses      []*CreateExpenseRequest `protobuf:"bytes,1,rep,name=expenses,proto3" json:"expenses,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BulkCreateExpensesRequest) Reset() {
+	*x = BulkCreateExpensesRequest{}
+	mi := &file_api_v1_expense_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BulkCreateExpensesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BulkCreateExpensesRequest) ProtoMessage() {}
+
+func (x *BulkCreateExpensesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_expense_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BulkCreateExpensesRequest.ProtoReflect.Descriptor instead.
+func (*BulkCreateExpensesRequest) Descriptor() ([]byte, []int) {
+	return file_api_v1_expense_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *BulkCreateExpensesRequest) GetExpenses() []*CreateExpenseRequest {
+	if x != nil {
+		return x.Expenses
+	}
+	return nil
+}
+
+type BulkCreateExpensesResponse struct {
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	Expenses      []*CreateExpenseResponse `protobuf:"bytes,1,rep,name=expenses,proto3" json:"expenses,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BulkCreateExpensesResponse) Reset() {
+	*x = BulkCreateExpensesResponse{}
+	mi := &file_api_v1_expense_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BulkCreateExpensesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BulkCreateExpensesResponse) ProtoMessage() {}
+
+func (x *BulkCreateExpensesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_expense_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BulkCreateExpensesResponse.ProtoReflect.Descriptor instead.
+func (*BulkCreateExpensesResponse) Descriptor() ([]byte, []int) {
+	return file_api_v1_expense_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *BulkCreateExpensesResponse) GetExpenses() []*CreateExpenseResponse {
+	if x != nil {
+		return x.Expenses
+	}
+	return nil
+}
+
 type GetGroupExpensesResponse_Expense struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -513,7 +601,7 @@ type GetGroupExpensesResponse_Expense struct {
 
 func (x *GetGroupExpensesResponse_Expense) Reset() {
 	*x = GetGroupExpensesResponse_Expense{}
-	mi := &file_api_v1_expense_proto_msgTypes[8]
+	mi := &file_api_v1_expense_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -525,7 +613,7 @@ func (x *GetGroupExpensesResponse_Expense) String() string {
 func (*GetGroupExpensesResponse_Expense) ProtoMessage() {}
 
 func (x *GetGroupExpensesResponse_Expense) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_expense_proto_msgTypes[8]
+	mi := &file_api_v1_expense_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -661,9 +749,14 @@ const file_api_v1_expense_proto_rawDesc = "" +
 	"\x11beneficiaries_ids\x18\t \x03(\tR\x10beneficiariesIds\x12.\n" +
 	"\x04date\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\x04dateB\x0e\n" +
-	"\f_description2\xd9\x02\n" +
+	"\f_description\"_\n" +
+	"\x19BulkCreateExpensesRequest\x12B\n" +
+	"\bexpenses\x18\x01 \x03(\v2\x1c.api.v1.CreateExpenseRequestB\b\xbaH\x05\x92\x01\x02\b\x01R\bexpenses\"W\n" +
+	"\x1aBulkCreateExpensesResponse\x129\n" +
+	"\bexpenses\x18\x01 \x03(\v2\x1d.api.v1.CreateExpenseResponseR\bexpenses2\xb8\x03\n" +
 	"\x0eExpenseService\x12N\n" +
-	"\rCreateExpense\x12\x1c.api.v1.CreateExpenseRequest\x1a\x1d.api.v1.CreateExpenseResponse\"\x00\x12N\n" +
+	"\rCreateExpense\x12\x1c.api.v1.CreateExpenseRequest\x1a\x1d.api.v1.CreateExpenseResponse\"\x00\x12]\n" +
+	"\x12BulkCreateExpenses\x12!.api.v1.BulkCreateExpensesRequest\x1a\".api.v1.BulkCreateExpensesResponse\"\x00\x12N\n" +
 	"\rUpdateExpense\x12\x1c.api.v1.UpdateExpenseRequest\x1a\x1d.api.v1.UpdateExpenseResponse\"\x00\x12N\n" +
 	"\rDeleteExpense\x12\x1c.api.v1.DeleteExpenseRequest\x1a\x1d.api.v1.DeleteExpenseResponse\"\x00\x12W\n" +
 	"\x10GetGroupExpenses\x12\x1f.api.v1.GetGroupExpensesRequest\x1a .api.v1.GetGroupExpensesResponse\"\x00Bo\n" +
@@ -682,7 +775,7 @@ func file_api_v1_expense_proto_rawDescGZIP() []byte {
 	return file_api_v1_expense_proto_rawDescData
 }
 
-var file_api_v1_expense_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_api_v1_expense_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_api_v1_expense_proto_goTypes = []any{
 	(*CreateExpenseRequest)(nil),             // 0: api.v1.CreateExpenseRequest
 	(*CreateExpenseResponse)(nil),            // 1: api.v1.CreateExpenseResponse
@@ -692,28 +785,34 @@ var file_api_v1_expense_proto_goTypes = []any{
 	(*DeleteExpenseResponse)(nil),            // 5: api.v1.DeleteExpenseResponse
 	(*GetGroupExpensesRequest)(nil),          // 6: api.v1.GetGroupExpensesRequest
 	(*GetGroupExpensesResponse)(nil),         // 7: api.v1.GetGroupExpensesResponse
-	(*GetGroupExpensesResponse_Expense)(nil), // 8: api.v1.GetGroupExpensesResponse.Expense
-	(*timestamppb.Timestamp)(nil),            // 9: google.protobuf.Timestamp
+	(*BulkCreateExpensesRequest)(nil),        // 8: api.v1.BulkCreateExpensesRequest
+	(*BulkCreateExpensesResponse)(nil),       // 9: api.v1.BulkCreateExpensesResponse
+	(*GetGroupExpensesResponse_Expense)(nil), // 10: api.v1.GetGroupExpensesResponse.Expense
+	(*timestamppb.Timestamp)(nil),            // 11: google.protobuf.Timestamp
 }
 var file_api_v1_expense_proto_depIdxs = []int32{
-	9, // 0: api.v1.CreateExpenseRequest.date:type_name -> google.protobuf.Timestamp
-	9, // 1: api.v1.UpdateExpenseRequest.date:type_name -> google.protobuf.Timestamp
-	8, // 2: api.v1.GetGroupExpensesResponse.expenses:type_name -> api.v1.GetGroupExpensesResponse.Expense
-	9, // 3: api.v1.GetGroupExpensesResponse.Expense.created_at:type_name -> google.protobuf.Timestamp
-	9, // 4: api.v1.GetGroupExpensesResponse.Expense.date:type_name -> google.protobuf.Timestamp
-	0, // 5: api.v1.ExpenseService.CreateExpense:input_type -> api.v1.CreateExpenseRequest
-	2, // 6: api.v1.ExpenseService.UpdateExpense:input_type -> api.v1.UpdateExpenseRequest
-	4, // 7: api.v1.ExpenseService.DeleteExpense:input_type -> api.v1.DeleteExpenseRequest
-	6, // 8: api.v1.ExpenseService.GetGroupExpenses:input_type -> api.v1.GetGroupExpensesRequest
-	1, // 9: api.v1.ExpenseService.CreateExpense:output_type -> api.v1.CreateExpenseResponse
-	3, // 10: api.v1.ExpenseService.UpdateExpense:output_type -> api.v1.UpdateExpenseResponse
-	5, // 11: api.v1.ExpenseService.DeleteExpense:output_type -> api.v1.DeleteExpenseResponse
-	7, // 12: api.v1.ExpenseService.GetGroupExpenses:output_type -> api.v1.GetGroupExpensesResponse
-	9, // [9:13] is the sub-list for method output_type
-	5, // [5:9] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	11, // 0: api.v1.CreateExpenseRequest.date:type_name -> google.protobuf.Timestamp
+	11, // 1: api.v1.UpdateExpenseRequest.date:type_name -> google.protobuf.Timestamp
+	10, // 2: api.v1.GetGroupExpensesResponse.expenses:type_name -> api.v1.GetGroupExpensesResponse.Expense
+	0,  // 3: api.v1.BulkCreateExpensesRequest.expenses:type_name -> api.v1.CreateExpenseRequest
+	1,  // 4: api.v1.BulkCreateExpensesResponse.expenses:type_name -> api.v1.CreateExpenseResponse
+	11, // 5: api.v1.GetGroupExpensesResponse.Expense.created_at:type_name -> google.protobuf.Timestamp
+	11, // 6: api.v1.GetGroupExpensesResponse.Expense.date:type_name -> google.protobuf.Timestamp
+	0,  // 7: api.v1.ExpenseService.CreateExpense:input_type -> api.v1.CreateExpenseRequest
+	8,  // 8: api.v1.ExpenseService.BulkCreateExpenses:input_type -> api.v1.BulkCreateExpensesRequest
+	2,  // 9: api.v1.ExpenseService.UpdateExpense:input_type -> api.v1.UpdateExpenseRequest
+	4,  // 10: api.v1.ExpenseService.DeleteExpense:input_type -> api.v1.DeleteExpenseRequest
+	6,  // 11: api.v1.ExpenseService.GetGroupExpenses:input_type -> api.v1.GetGroupExpensesRequest
+	1,  // 12: api.v1.ExpenseService.CreateExpense:output_type -> api.v1.CreateExpenseResponse
+	9,  // 13: api.v1.ExpenseService.BulkCreateExpenses:output_type -> api.v1.BulkCreateExpensesResponse
+	3,  // 14: api.v1.ExpenseService.UpdateExpense:output_type -> api.v1.UpdateExpenseResponse
+	5,  // 15: api.v1.ExpenseService.DeleteExpense:output_type -> api.v1.DeleteExpenseResponse
+	7,  // 16: api.v1.ExpenseService.GetGroupExpenses:output_type -> api.v1.GetGroupExpensesResponse
+	12, // [12:17] is the sub-list for method output_type
+	7,  // [7:12] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_api_v1_expense_proto_init() }
@@ -721,14 +820,14 @@ func file_api_v1_expense_proto_init() {
 	if File_api_v1_expense_proto != nil {
 		return
 	}
-	file_api_v1_expense_proto_msgTypes[8].OneofWrappers = []any{}
+	file_api_v1_expense_proto_msgTypes[10].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_v1_expense_proto_rawDesc), len(file_api_v1_expense_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

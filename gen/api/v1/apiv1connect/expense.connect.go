@@ -36,6 +36,9 @@ const (
 	// ExpenseServiceCreateExpenseProcedure is the fully-qualified name of the ExpenseService's
 	// CreateExpense RPC.
 	ExpenseServiceCreateExpenseProcedure = "/api.v1.ExpenseService/CreateExpense"
+	// ExpenseServiceBulkCreateExpensesProcedure is the fully-qualified name of the ExpenseService's
+	// BulkCreateExpenses RPC.
+	ExpenseServiceBulkCreateExpensesProcedure = "/api.v1.ExpenseService/BulkCreateExpenses"
 	// ExpenseServiceUpdateExpenseProcedure is the fully-qualified name of the ExpenseService's
 	// UpdateExpense RPC.
 	ExpenseServiceUpdateExpenseProcedure = "/api.v1.ExpenseService/UpdateExpense"
@@ -50,6 +53,7 @@ const (
 // ExpenseServiceClient is a client for the api.v1.ExpenseService service.
 type ExpenseServiceClient interface {
 	CreateExpense(context.Context, *v1.CreateExpenseRequest) (*v1.CreateExpenseResponse, error)
+	BulkCreateExpenses(context.Context, *v1.BulkCreateExpensesRequest) (*v1.BulkCreateExpensesResponse, error)
 	UpdateExpense(context.Context, *v1.UpdateExpenseRequest) (*v1.UpdateExpenseResponse, error)
 	DeleteExpense(context.Context, *v1.DeleteExpenseRequest) (*v1.DeleteExpenseResponse, error)
 	GetGroupExpenses(context.Context, *v1.GetGroupExpensesRequest) (*v1.GetGroupExpensesResponse, error)
@@ -70,6 +74,12 @@ func NewExpenseServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+ExpenseServiceCreateExpenseProcedure,
 			connect.WithSchema(expenseServiceMethods.ByName("CreateExpense")),
+			connect.WithClientOptions(opts...),
+		),
+		bulkCreateExpenses: connect.NewClient[v1.BulkCreateExpensesRequest, v1.BulkCreateExpensesResponse](
+			httpClient,
+			baseURL+ExpenseServiceBulkCreateExpensesProcedure,
+			connect.WithSchema(expenseServiceMethods.ByName("BulkCreateExpenses")),
 			connect.WithClientOptions(opts...),
 		),
 		updateExpense: connect.NewClient[v1.UpdateExpenseRequest, v1.UpdateExpenseResponse](
@@ -95,15 +105,25 @@ func NewExpenseServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 
 // expenseServiceClient implements ExpenseServiceClient.
 type expenseServiceClient struct {
-	createExpense    *connect.Client[v1.CreateExpenseRequest, v1.CreateExpenseResponse]
-	updateExpense    *connect.Client[v1.UpdateExpenseRequest, v1.UpdateExpenseResponse]
-	deleteExpense    *connect.Client[v1.DeleteExpenseRequest, v1.DeleteExpenseResponse]
-	getGroupExpenses *connect.Client[v1.GetGroupExpensesRequest, v1.GetGroupExpensesResponse]
+	createExpense      *connect.Client[v1.CreateExpenseRequest, v1.CreateExpenseResponse]
+	bulkCreateExpenses *connect.Client[v1.BulkCreateExpensesRequest, v1.BulkCreateExpensesResponse]
+	updateExpense      *connect.Client[v1.UpdateExpenseRequest, v1.UpdateExpenseResponse]
+	deleteExpense      *connect.Client[v1.DeleteExpenseRequest, v1.DeleteExpenseResponse]
+	getGroupExpenses   *connect.Client[v1.GetGroupExpensesRequest, v1.GetGroupExpensesResponse]
 }
 
 // CreateExpense calls api.v1.ExpenseService.CreateExpense.
 func (c *expenseServiceClient) CreateExpense(ctx context.Context, req *v1.CreateExpenseRequest) (*v1.CreateExpenseResponse, error) {
 	response, err := c.createExpense.CallUnary(ctx, connect.NewRequest(req))
+	if response != nil {
+		return response.Msg, err
+	}
+	return nil, err
+}
+
+// BulkCreateExpenses calls api.v1.ExpenseService.BulkCreateExpenses.
+func (c *expenseServiceClient) BulkCreateExpenses(ctx context.Context, req *v1.BulkCreateExpensesRequest) (*v1.BulkCreateExpensesResponse, error) {
+	response, err := c.bulkCreateExpenses.CallUnary(ctx, connect.NewRequest(req))
 	if response != nil {
 		return response.Msg, err
 	}
@@ -140,6 +160,7 @@ func (c *expenseServiceClient) GetGroupExpenses(ctx context.Context, req *v1.Get
 // ExpenseServiceHandler is an implementation of the api.v1.ExpenseService service.
 type ExpenseServiceHandler interface {
 	CreateExpense(context.Context, *v1.CreateExpenseRequest) (*v1.CreateExpenseResponse, error)
+	BulkCreateExpenses(context.Context, *v1.BulkCreateExpensesRequest) (*v1.BulkCreateExpensesResponse, error)
 	UpdateExpense(context.Context, *v1.UpdateExpenseRequest) (*v1.UpdateExpenseResponse, error)
 	DeleteExpense(context.Context, *v1.DeleteExpenseRequest) (*v1.DeleteExpenseResponse, error)
 	GetGroupExpenses(context.Context, *v1.GetGroupExpensesRequest) (*v1.GetGroupExpensesResponse, error)
@@ -156,6 +177,12 @@ func NewExpenseServiceHandler(svc ExpenseServiceHandler, opts ...connect.Handler
 		ExpenseServiceCreateExpenseProcedure,
 		svc.CreateExpense,
 		connect.WithSchema(expenseServiceMethods.ByName("CreateExpense")),
+		connect.WithHandlerOptions(opts...),
+	)
+	expenseServiceBulkCreateExpensesHandler := connect.NewUnaryHandlerSimple(
+		ExpenseServiceBulkCreateExpensesProcedure,
+		svc.BulkCreateExpenses,
+		connect.WithSchema(expenseServiceMethods.ByName("BulkCreateExpenses")),
 		connect.WithHandlerOptions(opts...),
 	)
 	expenseServiceUpdateExpenseHandler := connect.NewUnaryHandlerSimple(
@@ -180,6 +207,8 @@ func NewExpenseServiceHandler(svc ExpenseServiceHandler, opts ...connect.Handler
 		switch r.URL.Path {
 		case ExpenseServiceCreateExpenseProcedure:
 			expenseServiceCreateExpenseHandler.ServeHTTP(w, r)
+		case ExpenseServiceBulkCreateExpensesProcedure:
+			expenseServiceBulkCreateExpensesHandler.ServeHTTP(w, r)
 		case ExpenseServiceUpdateExpenseProcedure:
 			expenseServiceUpdateExpenseHandler.ServeHTTP(w, r)
 		case ExpenseServiceDeleteExpenseProcedure:
@@ -197,6 +226,10 @@ type UnimplementedExpenseServiceHandler struct{}
 
 func (UnimplementedExpenseServiceHandler) CreateExpense(context.Context, *v1.CreateExpenseRequest) (*v1.CreateExpenseResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.ExpenseService.CreateExpense is not implemented"))
+}
+
+func (UnimplementedExpenseServiceHandler) BulkCreateExpenses(context.Context, *v1.BulkCreateExpensesRequest) (*v1.BulkCreateExpensesResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.ExpenseService.BulkCreateExpenses is not implemented"))
 }
 
 func (UnimplementedExpenseServiceHandler) UpdateExpense(context.Context, *v1.UpdateExpenseRequest) (*v1.UpdateExpenseResponse, error) {

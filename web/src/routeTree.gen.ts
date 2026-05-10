@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as PathlessLayoutSettingsRouteImport } from './routes/_pathlessLayout/settings'
+import { Route as PathlessLayoutScanReceiptRouteImport } from './routes/_pathlessLayout/scan-receipt'
 import { Route as PathlessLayoutDashboardRouteImport } from './routes/_pathlessLayout/dashboard'
 import { Route as PathlessLayoutGroupGroupIdRouteImport } from './routes/_pathlessLayout/group/$groupId'
 
@@ -47,6 +48,12 @@ const PathlessLayoutSettingsRoute = PathlessLayoutSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => PathlessLayoutRouteRoute,
 } as any)
+const PathlessLayoutScanReceiptRoute =
+  PathlessLayoutScanReceiptRouteImport.update({
+    id: '/scan-receipt',
+    path: '/scan-receipt',
+    getParentRoute: () => PathlessLayoutRouteRoute,
+  } as any)
 const PathlessLayoutDashboardRoute = PathlessLayoutDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -63,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/dashboard': typeof PathlessLayoutDashboardRoute
+  '/scan-receipt': typeof PathlessLayoutScanReceiptRoute
   '/settings': typeof PathlessLayoutSettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
@@ -72,6 +80,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/dashboard': typeof PathlessLayoutDashboardRoute
+  '/scan-receipt': typeof PathlessLayoutScanReceiptRoute
   '/settings': typeof PathlessLayoutSettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
@@ -83,6 +92,7 @@ export interface FileRoutesById {
   '/_pathlessLayout': typeof PathlessLayoutRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/_pathlessLayout/dashboard': typeof PathlessLayoutDashboardRoute
+  '/_pathlessLayout/scan-receipt': typeof PathlessLayoutScanReceiptRoute
   '/_pathlessLayout/settings': typeof PathlessLayoutSettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
@@ -94,6 +104,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/dashboard'
+    | '/scan-receipt'
     | '/settings'
     | '/auth/login'
     | '/auth/register'
@@ -103,6 +114,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/dashboard'
+    | '/scan-receipt'
     | '/settings'
     | '/auth/login'
     | '/auth/register'
@@ -113,6 +125,7 @@ export interface FileRouteTypes {
     | '/_pathlessLayout'
     | '/about'
     | '/_pathlessLayout/dashboard'
+    | '/_pathlessLayout/scan-receipt'
     | '/_pathlessLayout/settings'
     | '/auth/login'
     | '/auth/register'
@@ -171,6 +184,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PathlessLayoutSettingsRouteImport
       parentRoute: typeof PathlessLayoutRouteRoute
     }
+    '/_pathlessLayout/scan-receipt': {
+      id: '/_pathlessLayout/scan-receipt'
+      path: '/scan-receipt'
+      fullPath: '/scan-receipt'
+      preLoaderRoute: typeof PathlessLayoutScanReceiptRouteImport
+      parentRoute: typeof PathlessLayoutRouteRoute
+    }
     '/_pathlessLayout/dashboard': {
       id: '/_pathlessLayout/dashboard'
       path: '/dashboard'
@@ -190,12 +210,14 @@ declare module '@tanstack/react-router' {
 
 interface PathlessLayoutRouteRouteChildren {
   PathlessLayoutDashboardRoute: typeof PathlessLayoutDashboardRoute
+  PathlessLayoutScanReceiptRoute: typeof PathlessLayoutScanReceiptRoute
   PathlessLayoutSettingsRoute: typeof PathlessLayoutSettingsRoute
   PathlessLayoutGroupGroupIdRoute: typeof PathlessLayoutGroupGroupIdRoute
 }
 
 const PathlessLayoutRouteRouteChildren: PathlessLayoutRouteRouteChildren = {
   PathlessLayoutDashboardRoute: PathlessLayoutDashboardRoute,
+  PathlessLayoutScanReceiptRoute: PathlessLayoutScanReceiptRoute,
   PathlessLayoutSettingsRoute: PathlessLayoutSettingsRoute,
   PathlessLayoutGroupGroupIdRoute: PathlessLayoutGroupGroupIdRoute,
 }

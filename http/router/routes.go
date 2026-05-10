@@ -10,6 +10,7 @@ import (
 	"pennywise/http/routes/avatar"
 	"pennywise/http/routes/expense"
 	"pennywise/http/routes/group"
+	"pennywise/http/routes/receipt"
 	"pennywise/http/routes/recurring_expense"
 	"pennywise/http/routes/transfer"
 	"pennywise/http/routes/user"
@@ -50,6 +51,7 @@ func InitRouter(mux *http.ServeMux) {
 		apiv1connect.ExpenseServiceName,
 		apiv1connect.TransferServiceName,
 		apiv1connect.RecurringExpenseServiceName,
+		apiv1connect.ReceiptServiceName,
 	)
 	mux.Handle(grpcreflect.NewHandlerV1(reflector))
 	mux.Handle(grpcreflect.NewHandlerV1Alpha(reflector))
@@ -92,6 +94,12 @@ func InitRouter(mux *http.ServeMux) {
 
 	path, handler = apiv1connect.NewRecurringExpenseServiceHandler(
 		recurring_expense.NewRecurringExpenseService(),
+		interceptors,
+	)
+	mux.Handle(path, session.Wrap(handler))
+
+	path, handler = apiv1connect.NewReceiptServiceHandler(
+		receipt.NewReceiptService(),
 		interceptors,
 	)
 	mux.Handle(path, session.Wrap(handler))

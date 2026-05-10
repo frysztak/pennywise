@@ -15,6 +15,9 @@ type config struct {
 	OIDCRedirectUrl      string `env:"OIDC_REDIRECT_URL"`
 	RegistrationEnabled  bool   `env:"REGISTRATION_ENABLED" envDefault:"true"`
 	PasswordLoginEnabled bool   `env:"PASSWORD_LOGIN_ENABLED" envDefault:"true"`
+	OpenAIBaseUrl        string `env:"OPENAI_BASE_URL"`
+	OpenAIAPIKey         string `env:"OPENAI_API_KEY"`
+	OpenAIOCRModel       string `env:"OPENAI_OCR_MODEL"`
 	LogLevel             string `env:"LOG_LEVEL" envDefault:"info"`
 	LogFormat            string `env:"LOG_FORMAT" envDefault:"text"`
 }

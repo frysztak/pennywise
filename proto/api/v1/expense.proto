@@ -64,8 +64,18 @@ message GetGroupExpensesResponse {
   repeated Expense expenses = 1;
 }
 
+message BulkCreateExpensesRequest {
+  repeated CreateExpenseRequest expenses = 1 [(buf.validate.field).repeated.min_items = 1];
+}
+
+message BulkCreateExpensesResponse {
+  repeated CreateExpenseResponse expenses = 1;
+}
+
 service ExpenseService {
   rpc CreateExpense(CreateExpenseRequest) returns (CreateExpenseResponse) {}
+
+  rpc BulkCreateExpenses(BulkCreateExpensesRequest) returns (BulkCreateExpensesResponse) {}
 
   rpc UpdateExpense(UpdateExpenseRequest) returns (UpdateExpenseResponse) {}
 
