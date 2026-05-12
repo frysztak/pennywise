@@ -7,7 +7,7 @@ export const preset: Preset = {
   },
   maskable: {
     sizes: [512],
-    padding: 0.5,
+    padding: 0.45,
   },
   apple: {
     sizes: [180],

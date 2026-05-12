@@ -6,7 +6,14 @@
 	<link rel="icon" href="/logo.svg" sizes="any" type="image/svg+xml">
 	<link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png">
     <link rel="manifest" href="/manifest.webmanifest">
-    <meta name="theme-color" content="#ffffff">
+    <meta
+      name="theme-color"
+      content="#f6f5f1"
+      media="(prefers-color-scheme: light)" />
+    <meta
+      name="theme-color"
+      content="#08090d"
+      media="(prefers-color-scheme: dark)" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     {{ .Vite.Tags }}
     <script>window.__PENNYWISE_CONFIG__ = {{ .ConfigJSON }};</script>
