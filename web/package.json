@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "buf:generate": "buf generate",
     "prepare": "husky",
-    "generate-pwa-assets": "pwa-assets-generator --preset minimal-2023 public/logo.svg",
+    "generate-pwa-assets": "pwa-assets-generator",
     "storybook": "storybook dev -p 6006 --no-open",
     "build-storybook": "storybook build"
   },

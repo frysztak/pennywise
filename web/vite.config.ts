@@ -8,7 +8,6 @@ import { fileURLToPath } from "node:url";
 import path from "path";
 import Sonda from "sonda/vite";
 import { defineConfig } from "vite";
-
 import { VitePWA } from "vite-plugin-pwa";
 
 const dirname = typeof __dirname !== "undefined" ? __dirname : path.dirname(fileURLToPath(import.meta.url));
@@ -36,11 +35,12 @@ export default defineConfig({
         name: "Pennywise",
         short_name: "Pennywise",
         description: "Expense tracking and splitting made simple",
-        theme_color: "#111111",
-        background_color: "#111111",
+        theme_color: "ffffff",
+        background_color: "ffffff",
         display: "standalone",
         scope: "/",
         start_url: "/",
+        orientation: "natural",
         icons: [
           {
             src: "pwa-64x64.png",
@@ -100,9 +100,9 @@ export default defineConfig({
       input: "/src/main.tsx",
       output: {
         manualChunks: {
-          'ui': ['react', 'react-dom', '@base-ui/react', 'sonner', 'tailwind-merge']
-        }
-      }
+          ui: ["react", "react-dom", "@base-ui/react", "sonner", "tailwind-merge"],
+        },
+      },
     },
   },
   test: {
