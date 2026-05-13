@@ -4,7 +4,8 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
-import { Toaster } from "sonner";
+
+import { Toaster } from "@/components/ui/sonner";
 
 import { AuthProvider, useAuth } from "./auth";
 import { ErrorScreen } from "./components/error-screen";
@@ -53,7 +54,7 @@ if (!rootElement.innerHTML) {
           <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
             <AuthProvider>
               <InnerApp />
-              <Toaster closeButton />
+              <Toaster closeButton richColors />
             </AuthProvider>
           </ThemeProvider>
         </QueryClientProvider>
