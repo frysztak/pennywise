@@ -255,8 +255,9 @@ func FrontendHandler(isDev bool, appFS, publicFS fs.FS, paths ...string) http.Ha
 				}
 
 				if err = tmpl.Execute(w, map[string]any{
-					"Vite":       viteFragment,
-					"ConfigJSON": template.JS(configJSON),
+					"Vite":            viteFragment,
+					"ConfigJSON":      template.JS(configJSON),
+					"ProductionBuild": !isDev,
 				}); err != nil {
 					stdlog.Fatalf("Error executing template: %v", err)
 					http.Error(w, "Error executing template", http.StatusInternalServerError)
