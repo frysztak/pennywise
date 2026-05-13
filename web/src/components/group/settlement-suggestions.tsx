@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@connectrpc/connect-query";
 import { Info } from "lucide-react";
 
+import { SettlementCards } from "@/components/group/settlement-cards";
 import { MemberAvatar } from "@/components/member-avatar";
 import { Button } from "@/components/ui/button";
 import { getSettlementSuggestions } from "@/gen/api/v1/group-GroupService_connectquery";
@@ -9,7 +10,7 @@ import type { TransferTemplateDefaults } from "@/hooks/use-transfer-modal";
 import { formatCurrency } from "@/lib/utils";
 
 import { Card, CardContent } from "../ui/card";
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 
 interface SettlementSuggestionsProps {
   groupId: string;
@@ -30,50 +31,42 @@ export function SettlementSuggestions({ groupId, currentUserId, onSettle }: Sett
     );
   }
 
-  // Separate settlements involving current user from others
   const mySettlements = data.suggestions.filter((s) => s.fromUserId === currentUserId || s.toUserId === currentUserId);
   const otherSettlements = data.suggestions.filter(
     (s) => s.fromUserId !== currentUserId && s.toUserId !== currentUserId,
   );
+  const sortedSuggestions = [...mySettlements, ...otherSettlements];
 
   return (
-    <Table>
-      <TableCaption>
-        <div className="flex gap-2 text-xs text-muted-foreground">
-          <Info className="h-4 w-4 shrink-0" />
-          <p>
-            These suggestions are optimized to minimize the number of transfers. The suggested payer may differ from who
-            originally owed the money.
-          </p>
-        </div>
-      </TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead>From</TableHead>
-          <TableHead>To</TableHead>
-          <TableHead>Amount</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {mySettlements.map((suggestion, index) => (
-          <SettlementRow
-            key={`my-${index}`}
-            suggestion={suggestion}
-            currentUserId={currentUserId}
-            onSettle={onSettle}
-          />
-        ))}
-        {otherSettlements.map((suggestion, index) => (
-          <SettlementRow
-            key={`other-${index}`}
-            suggestion={suggestion}
-            currentUserId={currentUserId}
-            onSettle={onSettle}
-          />
-        ))}
-      </TableBody>
-    </Table>
+    <>
+      <div className="hidden md:block">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>From</TableHead>
+              <TableHead>To</TableHead>
+              <TableHead>Amount</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sortedSuggestions.map((suggestion, index) => (
+              <SettlementRow key={index} suggestion={suggestion} currentUserId={currentUserId} onSettle={onSettle} />
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+      <div className="md:hidden">
+        <SettlementCards suggestions={sortedSuggestions} currentUserId={currentUserId} onSettle={onSettle} />
+      </div>
+      <div className="flex gap-2 text-xs text-muted-foreground mt-4">
+        <Info className="h-4 w-4 shrink-0" />
+        <p>
+          These suggestions are optimized to minimize the number of transfers. The suggested payer may differ from who
+          originally owed the money.
+        </p>
+      </div>
+    </>
   );
 }
 

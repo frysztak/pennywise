@@ -4,18 +4,18 @@ import { EditIcon, MoreHorizontal, RepeatIcon, TrashIcon } from "lucide-react";
 import { AmountWithCurrency } from "@/components/amount-with-currency";
 import { MemberAvatar } from "@/components/member-avatar";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { TableCell, TableRow } from "@/components/ui/table";
 import type { GetGroupRecurringExpensesResponse_RecurringExpense } from "@/gen/api/v1/recurring_expense_pb";
 import { useSkipRecurringExpense } from "@/hooks/use-skip-recurring-expense";
 import { frequencyToString } from "@/lib/recurring-expense";
 
-interface RecurringReminderRowProps {
+interface RecurringReminderCardProps {
   reminder: GetGroupRecurringExpensesResponse_RecurringExpense;
   groupId: string;
   onPay?: (reminder: GetGroupRecurringExpensesResponse_RecurringExpense) => void;
@@ -23,7 +23,7 @@ interface RecurringReminderRowProps {
   onDelete?: (reminderId: string) => void;
 }
 
-export function RecurringReminderRow({ reminder, groupId, onPay, onEdit, onDelete }: RecurringReminderRowProps) {
+export function RecurringReminderCard({ reminder, groupId, onPay, onEdit, onDelete }: RecurringReminderCardProps) {
   const { mutate: skipMutate, isPending } = useSkipRecurringExpense(groupId);
 
   const handlePay = () => {
@@ -42,52 +42,12 @@ export function RecurringReminderRow({ reminder, groupId, onPay, onEdit, onDelet
   });
 
   return (
-    <TableRow className="">
-      <TableCell className="text-sm">{formattedDate}</TableCell>
-
-      <TableCell>
-        <div className="flex items-center gap-2">
-          <RepeatIcon className="h-4 w-4" />
-          <span className="font-medium">{reminder.name}</span>
-        </div>
-        {reminder.description && <div className="text-sm text-muted-foreground mt-1">{reminder.description}</div>}
-      </TableCell>
-
-      <TableCell>{frequencyToString(reminder.frequency)}</TableCell>
-
-      <TableCell className="text-right">
-        {(reminder.amount !== undefined && reminder.currency && (
-          <AmountWithCurrency
-            disableColor
-            className="text-right"
-            balance={[
-              {
-                amount: BigInt(Math.round(reminder.amount * 100)),
-                currency: reminder.currency,
-              },
-            ]}
-          />
-        )) ||
-          "-"}
-      </TableCell>
-
-      <TableCell>
-        {reminder.payerName && (
-          <div className="flex items-center gap-2">
-            <MemberAvatar userId={reminder.payerId || ""} username={reminder.payerName} className="w-6 h-6" />
-            <span className="text-sm truncate max-w-[150px]">{reminder.payerName}</span>
-          </div>
-        )}
-      </TableCell>
-
-      <TableCell>
-        <div className="flex items-center gap-2">
-          <Button size="sm" onClick={handlePay} disabled={isPending}>
-            Pay
-          </Button>
-          <Button size="sm" variant="outline" onClick={handleSkip} disabled={isPending}>
-            Skip
-          </Button>
+    <Card className="p-3">
+      <CardContent className="flex flex-col gap-2 px-0">
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">
+            {formattedDate} · {frequencyToString(reminder.frequency)}
+          </span>
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
@@ -113,7 +73,45 @@ export function RecurringReminderRow({ reminder, groupId, onPay, onEdit, onDelet
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      </TableCell>
-    </TableRow>
+
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex flex-col gap-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <RepeatIcon className="h-4 w-4 shrink-0" />
+              <span className="font-medium line-clamp-1">{reminder.name}</span>
+            </div>
+            {reminder.description && <p className="text-sm text-muted-foreground line-clamp-2">{reminder.description}</p>}
+          </div>
+          {reminder.amount !== undefined && reminder.currency && (
+            <AmountWithCurrency
+              disableColor
+              className="font-medium text-lg shrink-0"
+              balance={[
+                {
+                  amount: BigInt(Math.round(reminder.amount * 100)),
+                  currency: reminder.currency,
+                },
+              ]}
+            />
+          )}
+        </div>
+
+        {reminder.payerName && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <MemberAvatar userId={reminder.payerId || ""} username={reminder.payerName} className="w-6 h-6" />
+            <span className="line-clamp-1">paid by {reminder.payerName}</span>
+          </div>
+        )}
+
+        <div className="flex gap-2">
+          <Button className="flex-1" onClick={handlePay} disabled={isPending}>
+            Pay
+          </Button>
+          <Button className="flex-1" variant="outline" onClick={handleSkip} disabled={isPending}>
+            Skip
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

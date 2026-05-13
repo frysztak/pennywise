@@ -1,16 +1,9 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
-import { ArrowRight, BanknoteIcon, MoreHorizontal, Pencil, Redo2Icon, Trash } from "lucide-react";
+import { ArrowRight, BanknoteIcon, Redo2Icon } from "lucide-react";
 
 import { AmountWithCurrency } from "@/components/amount-with-currency";
+import { ActivityItemMenu } from "@/components/group/activity-item-menu";
 import { MemberAvatar } from "@/components/member-avatar";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type {
   GetGroupActivityResponse_ActivityItem_Expense,
@@ -36,16 +29,6 @@ export function ActivityTable({
   onEditTransfer,
   onDeleteTransfer,
 }: ActivityTableProps) {
-  if (recentActivity.length === 0) {
-    return (
-      <Card>
-        <CardContent className="p-4 text-center">
-          <p className="text-muted-foreground">No activity yet in this group.</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <Table>
       <TableHeader>
@@ -87,29 +70,10 @@ export function ActivityTable({
                   </div>
                 </TableCell>
                 <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      }
-                    />
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => onEditExpense(expense)}>
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => onDeleteExpense(expense)}
-                        className="text-destructive focus:text-destructive"
-                      >
-                        <Trash className="mr-2 h-4 w-4" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <ActivityItemMenu
+                    onEdit={() => onEditExpense(expense)}
+                    onDelete={() => onDeleteExpense(expense)}
+                  />
                 </TableCell>
               </TableRow>
             );
@@ -146,29 +110,10 @@ export function ActivityTable({
                   </div>
                 </TableCell>
                 <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      }
-                    />
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => onEditTransfer(transfer)}>
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => onDeleteTransfer(transfer)}
-                        className="text-destructive focus:text-destructive"
-                      >
-                        <Trash className="mr-2 h-4 w-4" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <ActivityItemMenu
+                    onEdit={() => onEditTransfer(transfer)}
+                    onDelete={() => onDeleteTransfer(transfer)}
+                  />
                 </TableCell>
               </TableRow>
             );
