@@ -1,4 +1,4 @@
-import { Camera, Check, ChevronRight, Image as ImageIcon, Receipt, X } from "lucide-react";
+import { Check, ChevronRight, Receipt, X } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
@@ -48,7 +48,7 @@ export function ScanUpload({ file, onFileChange }: { file: File | null; onFileCh
   }, [onFileChange]);
 
   return (
-    <div className="grid md:min-h-[480px] md:grid-cols-[1.6fr_1fr]">
+    <div className="grid md:min-h-120 md:grid-cols-[1.6fr_1fr]">
       <div className="flex flex-col gap-4 border-b p-4 md:border-r md:border-b-0 md:p-6">
         <input
           ref={inputRef}
@@ -64,7 +64,7 @@ export function ScanUpload({ file, onFileChange }: { file: File | null; onFileCh
         {file && previewUrl ? (
           <div className="relative flex flex-1 flex-col gap-3 overflow-hidden rounded-xl border bg-muted/40 p-3 md:min-h-72">
             <div className="bg-background relative flex flex-1 items-center justify-center overflow-hidden rounded-lg">
-              <img src={previewUrl} alt={file.name} className="max-h-[420px] w-auto object-contain" />
+              <img src={previewUrl} alt={file.name} className="max-h-105 w-auto object-contain" />
             </div>
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div className="min-w-0">
@@ -122,29 +122,6 @@ export function ScanUpload({ file, onFileChange }: { file: File | null; onFileCh
                 <span className="mx-1.5">·</span>
                 JPG, PNG, WebP up to 10 MB
               </div>
-            </div>
-
-            <div className="relative mt-1 flex flex-wrap justify-center gap-2 md:gap-2.5">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  inputRef.current?.click();
-                }}
-              >
-                <ImageIcon /> Choose file
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // Webcam not implemented yet
-                }}
-              >
-                <Camera /> Use webcam
-              </Button>
             </div>
           </div>
         )}

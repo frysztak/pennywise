@@ -2,6 +2,7 @@ import { timestampDate, timestampFromDate } from "@bufbuild/protobuf/wkt";
 import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { parseISO } from "date-fns";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -48,7 +49,7 @@ function RouteComponent() {
   const [confirmState, setConfirmState] = React.useState<ConfirmState>({
     groupId: "",
     payerId: "",
-    includedIds: new Set(),
+    beneficiaryIds: [],
     mode: "single",
   });
 
@@ -73,7 +74,7 @@ function RouteComponent() {
     setConfirmState({
       groupId: g.groupId,
       payerId: memberIds.includes(currentUserId) ? currentUserId : (memberIds[0] ?? ""),
-      includedIds: new Set(memberIds),
+      beneficiaryIds: memberIds,
       mode: "single",
     });
   }, [step, confirmState.groupId, groups, currentUserId]);
@@ -128,8 +129,8 @@ function RouteComponent() {
     const selectedItems = draft.items.filter((i) => i.selected);
     if (selectedItems.length === 0) return;
 
-    const beneficiaries = Array.from(confirmState.includedIds);
-    const dateTs = timestampFromDate(parseDate(draft.date));
+    const beneficiaries = confirmState.beneficiaryIds;
+    const dateTs = timestampFromDate(parseISO(draft.date));
 
     const expenses =
       confirmState.mode === "single"
@@ -188,7 +189,7 @@ function RouteComponent() {
   const canSave =
     confirmState.groupId !== "" &&
     confirmState.payerId !== "" &&
-    confirmState.includedIds.size > 0 &&
+    confirmState.beneficiaryIds.length > 0 &&
     !!draft &&
     draft.items.some((i) => i.selected);
 
@@ -258,7 +259,3 @@ function receiptToDraft(receipt: ReceiptData): ReceiptDraft {
   };
 }
 
-function parseDate(iso: string): Date {
-  const [y, m, d] = iso.split("-").map(Number);
-  return new Date(y, (m ?? 1) - 1, d ?? 1);
-}

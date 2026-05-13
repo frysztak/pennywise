@@ -4,7 +4,7 @@ const ReceiptOCRPrompt = `Analyze this receipt and extract data as JSON.
 
 Rules:
 1. Merchant name means store name, seller name or business name. It cannot contain the address.
-2. Date is the date the receipt was printed.
+2. Date is the date the receipt was printed. Parse date according to locale, e.g. if receipt is in an European language, date is likely to be in DD.MM.YYYY format.
 3. Extract ALL visible line items
 4. confidence = image quality / extraction certainty
 5. Prices as positive numbers, 2 decimal places

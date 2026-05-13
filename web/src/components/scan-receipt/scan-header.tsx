@@ -31,7 +31,7 @@ export function ScanHeader({
 
       <Stepper current={step} className="hidden md:flex" />
 
-      <Button variant="ghost" size="icon-sm" onClick={onClose} aria-label="Close">
+      <Button variant="ghost" size="icon-sm" onClick={onClose} aria-label="Close" className="md:invisible">
         <X />
       </Button>
     </div>

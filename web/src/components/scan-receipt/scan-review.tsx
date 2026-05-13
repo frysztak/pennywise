@@ -1,4 +1,5 @@
-import { ArrowRight, Eye, Plus, RefreshCcw, Sparkles, TriangleAlert } from "lucide-react";
+import { format, parseISO } from "date-fns";
+import { ArrowRight, Plus, Sparkles, TriangleAlert } from "lucide-react";
 import * as React from "react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -10,12 +11,7 @@ import { cn } from "@/lib/utils";
 import type { ItemDraft, ReceiptDraft } from "./types";
 
 const fmtMoney = (n: number, currency: string) => `${n.toFixed(2)} ${currency}`;
-const fmtDate = (iso: string) => {
-  const [y, m, d] = iso.split("-").map(Number);
-  if (!y || !m || !d) return iso;
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  return `${months[m - 1]} ${d}, ${y}`;
-};
+const fmtDate = (iso: string) => format(parseISO(iso), "MMM d, yyyy");
 
 const newItemId = () => `new-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -38,8 +34,7 @@ export function ScanReview({
       items: draft.items.map((it) => (it.id === id ? { ...it, selected: !it.selected } : it)),
     });
 
-  const selectAll = () =>
-    setDraft({ ...draft, items: draft.items.map((i) => ({ ...i, selected: !allSelected })) });
+  const selectAll = () => setDraft({ ...draft, items: draft.items.map((i) => ({ ...i, selected: !allSelected })) });
 
   const updateItem = (id: string, patch: Partial<ItemDraft>) =>
     setDraft({ ...draft, items: draft.items.map((it) => (it.id === id ? { ...it, ...patch } : it)) });
@@ -51,26 +46,16 @@ export function ScanReview({
     });
 
   return (
-    <div className="grid md:min-h-[480px] md:grid-cols-[0.85fr_1.15fr]">
+    <div className="grid md:min-h-120 md:grid-cols-[0.85fr_1.15fr]">
       {/* Left: original photo */}
       <div className="bg-muted/30 flex flex-col gap-3 overflow-hidden border-b p-4 md:border-r md:border-b-0 md:p-6">
-        <div className="flex items-center justify-between">
-          <div className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Original</div>
-          <div className="flex gap-1">
-            <Button variant="ghost" size="sm" disabled>
-              <RefreshCcw /> Rescan
-            </Button>
-            <Button variant="ghost" size="sm" disabled>
-              <Eye /> Zoom
-            </Button>
-          </div>
-        </div>
+        <div className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Original</div>
         <div className="flex flex-1 items-center justify-center overflow-hidden">
           {imageUrl ? (
             <img
               src={imageUrl}
               alt="Receipt"
-              className="border-border max-h-[420px] max-w-full rounded-md border shadow-md"
+              className="border-border max-h-105 max-w-full rounded-md border shadow-md"
             />
           ) : (
             <div className="text-muted-foreground text-sm">No image preview</div>
@@ -106,11 +91,7 @@ export function ScanReview({
             <Input value={draft.merchant} onChange={(e) => setDraft({ ...draft, merchant: e.target.value })} />
           </FieldGroup>
           <FieldGroup label="Date">
-            <Input
-              type="date"
-              value={draft.date}
-              onChange={(e) => setDraft({ ...draft, date: e.target.value })}
-            />
+            <Input type="date" value={draft.date} onChange={(e) => setDraft({ ...draft, date: e.target.value })} />
           </FieldGroup>
           <FieldGroup label="Total">
             <div className="border-input bg-muted/40 text-foreground/80 flex h-9 items-center justify-end rounded-md border px-3 font-mono text-sm tabular-nums">
@@ -323,19 +304,13 @@ export function ScanReviewFooter({
         <span className="text-muted-foreground text-xs">
           {selectedItems.length} of {draft.items.length} item{draft.items.length === 1 ? "" : "s"} selected
         </span>
-        <span className="font-mono text-base font-semibold tabular-nums">
-          {fmtMoney(selectedSum, draft.currency)}
-        </span>
+        <span className="font-mono text-base font-semibold tabular-nums">{fmtMoney(selectedSum, draft.currency)}</span>
       </div>
       <div className="flex gap-2.5">
         <Button variant="outline" onClick={onBack} className="flex-1 md:flex-initial">
           Back
         </Button>
-        <Button
-          disabled={selectedItems.length === 0}
-          onClick={onContinue}
-          className="flex-1 md:flex-initial"
-        >
+        <Button disabled={selectedItems.length === 0} onClick={onContinue} className="flex-1 md:flex-initial">
           Continue <ArrowRight />
         </Button>
       </div>

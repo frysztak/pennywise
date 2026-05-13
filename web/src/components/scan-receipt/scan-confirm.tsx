@@ -1,7 +1,7 @@
-import { Layers, Receipt, Users } from "lucide-react";
+import { Calendar, Layers, Receipt, Users } from "lucide-react";
 import * as React from "react";
 
-import { MemberAvatar } from "@/components/member-avatar";
+import { PeopleSelector } from "@/components/expense/people-selector";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
@@ -16,7 +16,7 @@ export type SaveMode = "single" | "multiple";
 export interface ConfirmState {
   groupId: string;
   payerId: string;
-  includedIds: Set<string>;
+  beneficiaryIds: string[];
   mode: SaveMode;
 }
 
@@ -36,11 +36,10 @@ export function ScanConfirm({
   const selected = draft.items.filter((i) => i.selected);
   const total = selected.reduce((s, i) => s + i.price, 0);
 
-  const group = groups.find((g) => g.groupId === state.groupId);
-  const members = group?.memberBalances ?? [];
-
-  const includedCount = Math.max(state.includedIds.size, 1);
-  const perHead = total / includedCount;
+  const members = React.useMemo(() => {
+    const group = groups.find((g) => g.groupId === state.groupId);
+    return group?.memberBalances ?? [];
+  }, [groups, state.groupId]);
 
   const setMode = (mode: SaveMode) => onChange({ ...state, mode });
 
@@ -49,41 +48,26 @@ export function ScanConfirm({
     if (!g) return;
     const memberIds = g.memberBalances.map((m) => m.userId);
     const payerId = memberIds.includes(currentUserId) ? currentUserId : (memberIds[0] ?? "");
-    onChange({ ...state, groupId, payerId, includedIds: new Set(memberIds) });
-  };
-
-  const toggleIncluded = (userId: string) => {
-    const next = new Set(state.includedIds);
-    if (next.has(userId)) {
-      if (userId === state.payerId || next.size <= 1) return;
-      next.delete(userId);
-    } else {
-      next.add(userId);
-    }
-    onChange({ ...state, includedIds: next });
-  };
-
-  const setPayer = (userId: string) => {
-    const next = new Set(state.includedIds);
-    next.add(userId);
-    onChange({ ...state, payerId: userId, includedIds: next });
+    onChange({ ...state, groupId, payerId, beneficiaryIds: memberIds });
   };
 
   return (
-    <div className="grid md:min-h-[480px] md:grid-cols-2">
+    <div className="grid md:min-h-120 md:grid-cols-2">
       {/* Left: summary + mode + group/date */}
       <div className="flex flex-col gap-4 overflow-y-auto border-b p-4 md:border-r md:border-b-0 md:p-6">
         <div className="bg-muted/30 flex items-center gap-3 rounded-lg border p-4">
           <div className="bg-primary/10 text-primary flex size-12 shrink-0 items-center justify-center rounded-md">
             <Receipt className="size-6" />
           </div>
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-base font-semibold">{draft.merchant || "Untitled receipt"}</div>
-            <div className="text-muted-foreground mt-0.5 text-xs">
-              {selected.length} {selected.length === 1 ? "item" : "items"} · {fmtDate(draft.date)}
+          <div className="flex flex-wrap flex-col md:flex-row">
+            <div>
+              <div className="wrap-anywhere text-base font-semibold">{draft.merchant || "Untitled receipt"}</div>
+              <div className="text-muted-foreground mt-0.5 text-xs">
+                {selected.length} {selected.length === 1 ? "item" : "items"} · {fmtDate(draft.date)}
+              </div>
             </div>
+            <div className="font-mono text-lg font-semibold tabular-nums">{fmtMoney(total, draft.currency)}</div>
           </div>
-          <div className="font-mono text-lg font-semibold tabular-nums">{fmtMoney(total, draft.currency)}</div>
         </div>
 
         <div>
@@ -120,7 +104,7 @@ export function ScanConfirm({
                   value={state.groupId}
                   onValueChange={(v) => v && setGroupId(v)}
                 >
-                  <SelectTrigger className="h-8 border-transparent bg-transparent px-2 text-sm font-medium shadow-none">
+                  <SelectTrigger className="h-8 border-transparent bg-transparent px-2 -mr-3 text-sm font-medium shadow-none">
                     <SelectValue placeholder="Select group" />
                   </SelectTrigger>
                   <SelectContent>
@@ -133,7 +117,7 @@ export function ScanConfirm({
                 </Select>
               )}
             </MetaRow>
-            <MetaRow label="Date">
+            <MetaRow label="Date" icon={<Calendar className="text-muted-foreground size-4" />}>
               <span className="text-sm font-medium">{fmtDate(draft.date)}</span>
             </MetaRow>
           </div>
@@ -158,83 +142,25 @@ export function ScanConfirm({
 
       {/* Right: people + split */}
       <div className="flex flex-col gap-4 overflow-y-auto p-4 md:p-6">
-        <div className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">People</div>
         {members.length === 0 ? (
-          <div className="text-muted-foreground rounded-lg border p-6 text-center text-sm">
-            Pick a group to choose who pays and who shares this expense.
-          </div>
+          <>
+            <div className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">People</div>
+            <div className="text-muted-foreground rounded-lg border p-6 text-center text-sm">
+              Pick a group to choose who pays and who shares this expense.
+            </div>
+          </>
         ) : (
-          <div className="bg-card overflow-hidden rounded-lg border">
-            {members.map((m, i) => {
-              const isIncluded = state.includedIds.has(m.userId);
-              const isPayer = state.payerId === m.userId;
-              return (
-                <div
-                  key={m.userId}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => toggleIncluded(m.userId)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      toggleIncluded(m.userId);
-                    }
-                  }}
-                  className={cn(
-                    "flex w-full cursor-pointer items-center gap-3 px-3.5 py-3 text-left transition-colors outline-none",
-                    "focus-visible:bg-muted/60",
-                    i > 0 && "border-t",
-                    isPayer && "bg-primary/10",
-                    !isIncluded && "opacity-50",
-                  )}
-                >
-                  <MemberAvatar userId={m.userId} username={m.userName} className="size-8" />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">{m.userName}</span>
-                      {isPayer && (
-                        <span className="bg-primary/15 text-primary rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wider uppercase">
-                          Paid
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-muted-foreground mt-0.5 font-mono text-xs tabular-nums">
-                      {isIncluded ? `owes ${fmtMoney(perHead, draft.currency)}` : "not included"}
-                    </div>
-                  </div>
-                  <Button
-                    variant={isPayer ? "secondary" : "outline"}
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setPayer(m.userId);
-                    }}
-                    className="rounded-full"
-                  >
-                    {isPayer ? "✓ Payer" : "Set as payer"}
-                  </Button>
-                  <div
-                    className={cn(
-                      "flex size-5 shrink-0 items-center justify-center rounded border-[1.5px]",
-                      isIncluded ? "border-primary bg-primary text-primary-foreground" : "border-input bg-transparent",
-                    )}
-                  >
-                    {isIncluded && (
-                      <svg viewBox="0 0 24 24" className="size-3" fill="none" stroke="currentColor" strokeWidth="3">
-                        <polyline points="4 12 10 18 20 6" />
-                      </svg>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <PeopleSelector
+            members={members}
+            payerId={state.payerId}
+            beneficiaryIds={state.beneficiaryIds}
+            totalAmount={total}
+            currency={draft.currency}
+            currentUserId={currentUserId}
+            onPayerChange={(payerId) => onChange({ ...state, payerId })}
+            onBeneficiariesChange={(beneficiaryIds) => onChange({ ...state, beneficiaryIds })}
+          />
         )}
-
-        <div className="text-muted-foreground text-xs leading-relaxed">
-          Click a row to toggle who's included in the split. Click{" "}
-          <span className="text-foreground/80">Set as payer</span> to change who paid.
-        </div>
       </div>
     </div>
   );

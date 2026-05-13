@@ -20,7 +20,7 @@ export function ScanProcessing() {
   }, []);
 
   return (
-    <div className="flex min-h-[480px] flex-col items-center justify-center gap-8 p-10">
+    <div className="flex min-h-120 flex-col items-center justify-center gap-8 p-10">
       <style>{`
         @keyframes pw-pulse {
           0%   { transform: scale(1);    opacity: 0.18; }
@@ -43,7 +43,7 @@ export function ScanProcessing() {
         <div className="text-muted-foreground text-sm">This usually takes a few seconds</div>
       </div>
 
-      <div className="bg-border h-[3px] w-80 max-w-full overflow-hidden rounded-full">
+      <div className="bg-border h-0.75 w-80 max-w-full overflow-hidden rounded-full">
         <div
           className="bg-primary h-full rounded-full transition-[width] duration-150 ease-out"
           style={{ width: `${progress}%` }}
