@@ -20,7 +20,7 @@ import { handleError } from "@/lib/utils";
 
 import { AmountInput } from "../amount-input";
 import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { Spinner } from "../ui/spinner";
@@ -233,14 +233,14 @@ export const ExpenseModal = ({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{isEditMode ? "Edit expense" : "Add new expense"}</DialogTitle>
           <DialogDescription>
             {isEditMode ? "Update expense details." : "Create a new expense for this group."}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form id="expense-form" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
             <Controller
               name="name"
@@ -325,23 +325,21 @@ export const ExpenseModal = ({
                 currentUserId={currentUserId}
                 disabled={isPending}
                 onPayerChange={(id) => form.setValue("payerId", id, { shouldValidate: true })}
-                onBeneficiariesChange={(ids) =>
-                  form.setValue("beneficiariesIds", ids, { shouldValidate: true })
-                }
+                onBeneficiariesChange={(ids) => form.setValue("beneficiariesIds", ids, { shouldValidate: true })}
               />
               {form.formState.errors.beneficiariesIds && (
                 <FieldError errors={[form.formState.errors.beneficiariesIds]} />
               )}
               {form.formState.errors.payerId && <FieldError errors={[form.formState.errors.payerId]} />}
             </Field>
-            <Field>
-              <Button type="submit" disabled={isPending}>
-                {isPending && <Spinner />}
-                {isEditMode ? "Update Expense" : "Create Expense"}
-              </Button>
-            </Field>
           </FieldGroup>
         </form>
+        <DialogFooter>
+          <Button type="submit" form="expense-form" disabled={isPending} size="lg">
+            {isPending && <Spinner />}
+            {isEditMode ? "Update Expense" : "Create Expense"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

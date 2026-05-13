@@ -63,7 +63,7 @@ export function AvatarUpload() {
       <UserAvatar className="h-20 w-20" />
       <div className="flex flex-col gap-2">
         <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
-        <Button variant="outline" onClick={handleButtonClick} disabled={isPending}>
+        <Button variant="outline" onClick={handleButtonClick} disabled={isPending} size="lg">
           <Upload />
           {isPending ? "Uploading..." : "Upload Avatar"}
         </Button>

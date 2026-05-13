@@ -1,7 +1,7 @@
 import { ChevronDownIcon, EditIcon, Plus, Redo2Icon, RepeatIcon, TrashIcon, UserRoundSearchIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { ButtonGroup, ButtonGroupSeparator } from "@/components/ui/button-group";
+import { ButtonGroup } from "@/components/ui/button-group";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,15 +42,14 @@ export function GroupHeader({
       </div>
       <div className="flex gap-2">
         <ButtonGroup>
-          <Button onClick={onCreateExpense}>
+          <Button onClick={onCreateExpense} size="lg" className="h-10">
             <Plus />
             Add Expense
           </Button>
-          <ButtonGroupSeparator />
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
-                <Button className="pl-2!">
+                <Button className="h-10" size="icon-lg">
                   <ChevronDownIcon />
                 </Button>
               }

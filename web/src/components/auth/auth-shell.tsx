@@ -17,7 +17,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
             "radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--primary) 8%, transparent) 0%, transparent 55%)",
         }}
       />
-      <div className="relative z-10 flex w-full max-w-[420px] flex-col gap-7">
+      <div className="relative z-10 flex w-full max-w-105 flex-col gap-7">
         <BrandBlock />
         {children}
         <AuthFooter version={appVersion} />
@@ -80,5 +80,5 @@ function AuthFooter({ version }: { version: string }) {
 }
 
 function FooterDot() {
-  return <span className="bg-input size-[3px] rounded-full" />;
+  return <span className="bg-input size-0.75 rounded-full" />;
 }

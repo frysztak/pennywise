@@ -58,7 +58,8 @@ function RouteComponent() {
               <Button
                 variant={theme === "light" ? "default" : "outline"}
                 onClick={() => setTheme("light")}
-                className="flex-1"
+                size="lg"
+                className="md:flex-1"
               >
                 <Sun />
                 Light
@@ -66,7 +67,8 @@ function RouteComponent() {
               <Button
                 variant={theme === "dark" ? "default" : "outline"}
                 onClick={() => setTheme("dark")}
-                className="flex-1"
+                size="lg"
+                className="md:flex-1"
               >
                 <Moon />
                 Dark
@@ -74,7 +76,8 @@ function RouteComponent() {
               <Button
                 variant={theme === "system" ? "default" : "outline"}
                 onClick={() => setTheme("system")}
-                className="flex-1"
+                size="lg"
+                className="md:flex-1"
               >
                 <Monitor />
                 Auto

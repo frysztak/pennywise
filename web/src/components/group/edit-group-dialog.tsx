@@ -11,7 +11,7 @@ import { COMMON_CURRENCIES } from "@/lib/currencies";
 import { cn } from "@/lib/utils";
 
 import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import {
@@ -176,12 +176,12 @@ export function EditGroupDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Group</DialogTitle>
           <DialogDescription>Update group details and manage member weights</DialogDescription>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form id="edit-group-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Group Details Section */}
           <div>
             <FieldGroup>
@@ -362,18 +362,18 @@ export function EditGroupDialog({
               })}
             </div>
           </div>
-
-          {/* Submit Button */}
-          <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
+        </form>
+        <DialogFooter>
+          <div className="flex justify-end gap-3">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending} size="lg">
               Cancel
             </Button>
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" form="edit-group-form" disabled={isPending} size="lg">
               {isPending && <Spinner />}
               Save Changes
             </Button>
           </div>
-        </form>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -19,7 +19,7 @@ import { handleError } from "@/lib/utils";
 
 import { AmountInput } from "../amount-input";
 import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -165,7 +165,7 @@ export const RecurringExpenseModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{isEditMode ? "Edit Recurring Expense" : "Create Recurring Expense"}</DialogTitle>
           <DialogDescription>
@@ -174,7 +174,7 @@ export const RecurringExpenseModal = ({
               : "Create a template that will remind you to record expenses."}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form id="recurring-expense-form" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
             <Controller
               name="name"
@@ -295,15 +295,14 @@ export const RecurringExpenseModal = ({
             <div className="text-sm text-muted-foreground p-3 bg-muted rounded-md">
               Expense will be split equally among all group members
             </div>
-
-            <Field>
-              <Button type="submit" disabled={isPending}>
-                {isPending && <Spinner />}
-                {isEditMode ? "Update Template" : "Create Template"}
-              </Button>
-            </Field>
           </FieldGroup>
         </form>
+        <DialogFooter>
+          <Button type="submit" form="recurring-expense-form" disabled={isPending} size="lg">
+            {isPending && <Spinner />}
+            {isEditMode ? "Update Template" : "Create Template"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -19,7 +19,7 @@ import { handleError } from "@/lib/utils";
 
 import { AmountInput } from "../amount-input";
 import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { Spinner } from "../ui/spinner";
@@ -196,14 +196,14 @@ export const TransferModal = ({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{isEditMode ? "Edit transfer" : "Record transfer"}</DialogTitle>
           <DialogDescription>
             {isEditMode ? "Update transfer details." : "Record a payment between group members."}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form id="transfer-form" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
             <Field>
               <FieldLabel>Transfer</FieldLabel>
@@ -214,12 +214,8 @@ export const TransferModal = ({
                 currentUserId={currentUserId}
                 disabled={isPending}
                 invalid={!!partyError}
-                onSenderChange={(id) =>
-                  form.setValue("senderId", id, { shouldValidate: true, shouldDirty: true })
-                }
-                onReceiverChange={(id) =>
-                  form.setValue("receiverId", id, { shouldValidate: true, shouldDirty: true })
-                }
+                onSenderChange={(id) => form.setValue("senderId", id, { shouldValidate: true, shouldDirty: true })}
+                onReceiverChange={(id) => form.setValue("receiverId", id, { shouldValidate: true, shouldDirty: true })}
               />
               {partyError && <FieldError errors={[partyError]} />}
             </Field>
@@ -259,14 +255,17 @@ export const TransferModal = ({
                 )}
               />
             </div>
-            <Field>
-              <Button type="submit" disabled={isPending}>
-                {isPending && <Spinner />}
-                {isEditMode ? "Update Transfer" : "Record Transfer"}
-              </Button>
-            </Field>
           </FieldGroup>
         </form>
+
+        <DialogFooter>
+          <Field>
+            <Button type="submit" form="transfer-form" disabled={isPending} size="lg">
+              {isPending && <Spinner />}
+              {isEditMode ? "Update Transfer" : "Record Transfer"}
+            </Button>
+          </Field>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

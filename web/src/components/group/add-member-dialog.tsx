@@ -50,7 +50,7 @@ export function AddMemberDialog({ open, onOpenChange, onAddMember }: AddMemberDi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Add Members to Group</DialogTitle>
           <DialogDescription>Search and select users to add them to the group.</DialogDescription>
@@ -85,10 +85,10 @@ export function AddMemberDialog({ open, onOpenChange, onAddMember }: AddMemberDi
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleCancel}>
+          <Button variant="outline" onClick={handleCancel} size="lg">
             Cancel
           </Button>
-          <Button onClick={handleAddMembers} disabled={selectedUsers.length === 0}>
+          <Button onClick={handleAddMembers} disabled={selectedUsers.length === 0} size="lg">
             Add {selectedUsers.length > 0 && `(${selectedUsers.length})`}
           </Button>
         </DialogFooter>

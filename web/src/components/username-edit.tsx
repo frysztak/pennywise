@@ -39,7 +39,7 @@ export function UsernameEdit() {
   return (
     <div className="flex gap-2">
       <Input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Enter username" />
-      <Button onClick={handleSave} disabled={isPending || username === user?.username}>
+      <Button onClick={handleSave} disabled={isPending || username === user?.username} size="lg">
         {isPending ? "Saving..." : "Save"}
       </Button>
     </div>

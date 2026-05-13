@@ -11,7 +11,7 @@ import { COMMON_CURRENCIES } from "@/lib/currencies";
 import { handleError } from "@/lib/utils";
 
 import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import {
@@ -84,7 +84,7 @@ export const NewGroupModal = ({ open, onOpenChange }: NewGroupModalProps) => {
           <DialogTitle>Add new group</DialogTitle>
           <DialogDescription>Create new expense group.</DialogDescription>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form id="new-group-form" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
             <Controller
               name="name"
@@ -180,14 +180,15 @@ export const NewGroupModal = ({ open, onOpenChange }: NewGroupModalProps) => {
                 </Field>
               )}
             />
-            <Field>
-              <Button type="submit" disabled={isPending}>
-                {isPending && <Spinner />}
-                Submit
-              </Button>
-            </Field>
           </FieldGroup>
         </form>
+
+        <DialogFooter>
+          <Button type="submit" form="new-group-form" disabled={isPending} size="lg">
+            {isPending && <Spinner />}
+            Submit
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

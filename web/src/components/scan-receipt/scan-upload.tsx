@@ -105,7 +105,7 @@ export function ScanUpload({ file, onFileChange }: { file: File | null; onFileCh
           >
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-0 opacity-40"
+              className="pointer-events-none absolute inset-0 opacity-20"
               style={{
                 backgroundImage: "repeating-linear-gradient(0deg, transparent 0 23px, var(--border) 23px 24px)",
               }}
