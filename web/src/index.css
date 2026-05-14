@@ -43,7 +43,7 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
   --radius: var(--radius-md-token);
@@ -67,7 +67,7 @@
 /* ---------- Pennywise base palette ---------- */
 :root {
   /* Sage — primary brand */
-  --sage-50:  #f4f9f0;
+  --sage-50: #f4f9f0;
   --sage-100: #e3f1da;
   --sage-200: #c0e0b2;
   --sage-300: #97ca88;
@@ -79,34 +79,34 @@
   --sage-900: #162c12;
 
   /* Ink — cool neutral */
-  --ink-0:    #ffffff;
-  --ink-25:   #fafbfc;
-  --ink-50:   #f4f5f7;
-  --ink-100:  #e8eaee;
-  --ink-200:  #d0d4db;
-  --ink-300:  #a8aeba;
-  --ink-400:  #7a8190;
-  --ink-500:  #545b6a;
-  --ink-600:  #3a404c;
-  --ink-700:  #272c36;
-  --ink-800:  #1a1e26;
-  --ink-850:  #14171d;
-  --ink-900:  #0e1116;
-  --ink-950:  #08090d;
+  --ink-0: #ffffff;
+  --ink-25: #fafbfc;
+  --ink-50: #f4f5f7;
+  --ink-100: #e8eaee;
+  --ink-200: #d0d4db;
+  --ink-300: #a8aeba;
+  --ink-400: #7a8190;
+  --ink-500: #545b6a;
+  --ink-600: #3a404c;
+  --ink-700: #272c36;
+  --ink-800: #1a1e26;
+  --ink-850: #14171d;
+  --ink-900: #0e1116;
+  --ink-950: #08090d;
 
   /* Cream — warm accent */
-  --cream-50:  #fdfbf5;
+  --cream-50: #fdfbf5;
   --cream-100: #f7f1e1;
   --cream-200: #ede2c4;
 
   /* Semantic accents */
-  --red-400:    #f87171;
-  --red-500:    #ef4444;
-  --red-600:    #dc2626;
-  --amber-400:  #fbbf24;
-  --amber-500:  #f59e0b;
-  --blue-400:   #60a5fa;
-  --blue-500:   #3b82f6;
+  --red-400: #f87171;
+  --red-500: #ef4444;
+  --red-600: #dc2626;
+  --amber-400: #fbbf24;
+  --amber-500: #f59e0b;
+  --blue-400: #60a5fa;
+  --blue-500: #3b82f6;
   --violet-400: #a78bfa;
 
   /* Radii */
@@ -145,7 +145,7 @@
 
   --money: var(--sage-600);
 
-  --border: rgba(14, 17, 22, 0.10);
+  --border: rgba(14, 17, 22, 0.1);
   --input: rgba(14, 17, 22, 0.12);
   --ring: var(--sage-500);
 
@@ -167,7 +167,7 @@
   --shadow-xs: 0 1px 2px rgba(14, 17, 22, 0.04);
   --shadow-sm: 0 2px 6px rgba(14, 17, 22, 0.06);
   --shadow-md: 0 6px 18px rgba(14, 17, 22, 0.08);
-  --shadow-lg: 0 18px 44px rgba(14, 17, 22, 0.10);
+  --shadow-lg: 0 18px 44px rgba(14, 17, 22, 0.1);
 
   --tracking-normal: 0em;
 
@@ -202,7 +202,7 @@
 
   --money: var(--sage-300);
 
-  --border: rgba(255, 255, 255, 0.10);
+  --border: rgba(255, 255, 255, 0.1);
   --input: rgba(255, 255, 255, 0.14);
   --ring: var(--sage-300);
 
@@ -221,10 +221,10 @@
   --sidebar-border: rgba(255, 255, 255, 0.06);
   --sidebar-ring: var(--sage-300);
 
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.30);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.32);
   --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.38);
-  --shadow-lg: 0 16px 44px rgba(0, 0, 0, 0.50);
+  --shadow-lg: 0 16px 44px rgba(0, 0, 0, 0.5);
 
   color-scheme: dark;
 }
@@ -238,6 +238,6 @@
     font-family: var(--font-sans);
     letter-spacing: var(--tracking-normal);
     -webkit-font-smoothing: antialiased;
-    font-feature-settings: 'cv11', 'ss01';
+    font-feature-settings: "cv11", "ss01";
   }
 }
