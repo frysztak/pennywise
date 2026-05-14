@@ -10,7 +10,6 @@ RUN npm ci
 # Copy frontend source and build
 COPY web/ ./
 RUN npm run build
-RUN rm dist/assets/*.map
 
 # Stage 2: Build backend
 FROM golang:1.26-alpine AS backend-builder
