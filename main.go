@@ -23,8 +23,8 @@ import (
 	"time"
 
 	"github.com/olivere/vite"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
+	"github.com/vearutop/statigz"
+	"github.com/vearutop/statigz/brotli"
 )
 
 //go:embed all:web/dist
@@ -106,8 +106,11 @@ func main() {
 	addr := fmt.Sprintf(":%s", config.Config.Port)
 	srv := &http.Server{
 		Addr:    addr,
-		Handler: h2c.NewHandler(mux, &http2.Server{}),
+		Handler: mux,
 	}
+	srv.Protocols = new(http.Protocols)
+	srv.Protocols.SetHTTP1(true)
+	srv.Protocols.SetUnencryptedHTTP2(true)
 
 	// Channel to listen for shutdown signals
 	shutdown := make(chan os.Signal, 1)
@@ -167,8 +170,10 @@ func setupVite(isDev bool, mux *http.ServeMux) {
 		publicFS = publicSub
 	}
 
+	assetHandler := statigz.FileServer(appFS.(fs.ReadDirFS), brotli.AddEncoding)
+
 	// Handle requests for Vite-managed assets.
-	mux.Handle("/assets/", http.FileServerFS(appFS))
+	mux.Handle("/assets/", assetHandler)
 
 	// Register the endpoints that get served by the frontend.
 	fePaths := []string{
@@ -180,6 +185,7 @@ func setupVite(isDev bool, mux *http.ServeMux) {
 		"/dashboard",
 		"/group/{id}",
 		"/scan-receipt",
+		"/settings",
 		"/debug-error",
 	}
 	feHandler := FrontendHandler(isDev, appFS, publicFS, fePaths...)
@@ -199,7 +205,7 @@ func setupVite(isDev bool, mux *http.ServeMux) {
 				return
 			}
 		}
-		http.FileServerFS(appFS).ServeHTTP(w, r)
+		assetHandler.ServeHTTP(w, r)
 	})
 }
 

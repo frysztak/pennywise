@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import path from "path";
 import Sonda from "sonda/vite";
 import { defineConfig } from "vite";
+import { compression } from "vite-plugin-compression2";
 import { VitePWA } from "vite-plugin-pwa";
 
 const dirname = typeof __dirname !== "undefined" ? __dirname : path.dirname(fileURLToPath(import.meta.url));
@@ -84,6 +85,12 @@ export default defineConfig({
           },
         ],
       },
+    }),
+    compression({
+      include: [/\.(js|mjs|json|css|html|svg)$/], // Text-based files
+      exclude: [/\.(png|jpg|jpeg|gif|webp|woff|woff2)$/], // Already compressed formats
+      threshold: 1024,
+      algorithms: ["brotliCompress"],
     }),
   ],
   resolve: {

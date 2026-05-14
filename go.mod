@@ -27,8 +27,8 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.44
 	github.com/olivere/vite v0.1.0
 	github.com/openai/openai-go/v3 v3.35.0
+	github.com/vearutop/statigz v1.5.0
 	golang.org/x/image v0.40.0
-	golang.org/x/net v0.54.0
 	google.golang.org/protobuf v1.36.11
 )
 
@@ -38,6 +38,7 @@ require (
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/air-verse/air v1.63.2 // indirect
 	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b // indirect
+	github.com/andybalholm/brotli v1.2.1 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/bep/godartsass/v2 v2.5.0 // indirect
@@ -82,6 +83,7 @@ require (
 	go.yaml.in/yaml/v4 v4.0.0-rc.4 // indirect
 	golang.org/x/crypto v0.51.0 // indirect
 	golang.org/x/exp v0.0.0-20260508232706-74f9aab9d74a // indirect
+	golang.org/x/net v0.54.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.44.0 // indirect
 	golang.org/x/text v0.37.0 // indirect
