@@ -1,6 +1,11 @@
-# Pennywise
+<p align="center">
+  <img src="https://raw.githubusercontent.com/frysztak/pennywise/refs/heads/main/web/public/logo.svg" width="128px" height="128px" alt="logo">
+  <h1 align="center">Pennywise</h2>
+  <p align="center">
+    A self-hosted expense tracking and splitting application for groups. Keep track of shared expenses, record money transfers between members, and see who owes what at a glance.
+  </p>
+</p>
 
-A modern expense tracking and splitting application for groups. Keep track of shared expenses, record money transfers between members, and see who owes what at a glance.
 
 ## Features
 
@@ -10,6 +15,7 @@ A modern expense tracking and splitting application for groups. Keep track of sh
 - **Real-Time Balances** - See who owes what, updated instantly as expenses and transfers are added
 - **Activity Feed** - View all group transactions in one unified timeline
 - **Group Management** - Create groups, invite members, and customize splitting weights
+- **AI-based receipt scanning** - Automatically extract data from receipts
 
 ## Screenshots
 
