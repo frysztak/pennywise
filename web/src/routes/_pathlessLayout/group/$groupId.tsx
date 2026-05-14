@@ -4,7 +4,6 @@ import { Suspense } from "react";
 import { toast } from "sonner";
 
 import { ExpenseModal } from "@/components/expense/expense-modal";
-import { ActivitySection } from "@/components/group/activity-section";
 import { AddMemberDialog } from "@/components/group/add-member-dialog";
 import { BalanceCards } from "@/components/group/balance-cards";
 import { DeleteExpenseDialog } from "@/components/group/delete-expense-dialog";
@@ -12,10 +11,9 @@ import { DeleteGroupDialog } from "@/components/group/delete-group-dialog";
 import { DeleteRecurringExpenseDialog } from "@/components/group/delete-recurring-expense-dialog";
 import { DeleteTransferDialog } from "@/components/group/delete-transfer-dialog";
 import { EditGroupDialog } from "@/components/group/edit-group-dialog";
-import { GroupBalances } from "@/components/group/group-balances";
 import { GroupHeader } from "@/components/group/group-header";
+import { GroupSections } from "@/components/group/group-sections";
 import { RecurringRemindersSection } from "@/components/group/recurring-reminders-section";
-import { SettlementSuggestions } from "@/components/group/settlement-suggestions";
 import { RecurringExpenseModal } from "@/components/recurring-expense/recurring-expense-modal";
 import { TransferModal } from "@/components/transfer/transfer-modal";
 import { Spinner } from "@/components/ui/spinner";
@@ -116,33 +114,7 @@ function RouteComponent() {
         defaultCurrency={groupInfo.groupDefaultCurrency}
       />
 
-      {/* Group Balances */}
-      <h2 className="text-xl font-bold mb-4">Group Balances</h2>
-      <GroupBalances
-        memberBalances={groupInfo.memberBalances}
-        currentUserId={currentUser.id}
-        defaultCurrency={groupInfo.groupDefaultCurrency}
-      />
-
-      {/* Settlement Suggestions */}
-      <div>
-        <h2 className="text-xl font-bold mb-4">Settle Up</h2>
-        <Suspense
-          fallback={
-            <div className="flex items-center justify-center h-32">
-              <Spinner className="size-8" />
-            </div>
-          }
-        >
-          <SettlementSuggestions
-            groupId={groupId}
-            currentUserId={currentUser.id}
-            onSettle={transferModal.openCreate}
-          />
-        </Suspense>
-      </div>
-
-      {/* Recurring Reminders */}
+      {/* Balances + Settle Up + Recurring Reminders + Activity (with merged empty states) */}
       <Suspense
         fallback={
           <div className="flex items-center justify-center h-64">
@@ -150,44 +122,45 @@ function RouteComponent() {
           </div>
         }
       >
-        <RecurringRemindersSection
+        <GroupSections
           groupId={groupId}
-          onPayReminder={(reminder) =>
-            expenseModal.openCreate(
-              {
-                name: reminder.name,
-                description: reminder.description,
-                amount: reminder.amount,
-                currency: reminder.currency,
-                payerId: reminder.payerId,
-              },
-              reminder.id,
-            )
+          memberBalances={groupInfo.memberBalances}
+          currentUserId={currentUser.id}
+          defaultCurrency={groupInfo.groupDefaultCurrency}
+          onSettle={transferModal.openCreate}
+          onEditExpense={expenseModal.openEdit}
+          onDeleteExpense={deleteExpenseModal.confirmDelete}
+          onEditTransfer={transferModal.openEdit}
+          onDeleteTransfer={deleteTransferModal.confirmDelete}
+          remindersSlot={
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center h-64">
+                  <Spinner className="size-8" />
+                </div>
+              }
+            >
+              <RecurringRemindersSection
+                groupId={groupId}
+                onPayReminder={(reminder) =>
+                  expenseModal.openCreate(
+                    {
+                      name: reminder.name,
+                      description: reminder.description,
+                      amount: reminder.amount,
+                      currency: reminder.currency,
+                      payerId: reminder.payerId,
+                    },
+                    reminder.id,
+                  )
+                }
+                onEditReminder={(reminder) => recurringExpenseModal.openEdit(reminder)}
+                onDeleteReminder={(reminderId) => deleteRecurringExpenseModal.confirmDelete(reminderId)}
+              />
+            </Suspense>
           }
-          onEditReminder={(reminder) => recurringExpenseModal.openEdit(reminder)}
-          onDeleteReminder={(reminderId) => deleteRecurringExpenseModal.confirmDelete(reminderId)}
         />
       </Suspense>
-
-      {/* Recent Activity */}
-      <div>
-        <h2 className="text-xl font-bold mb-4">Recent Activity</h2>
-        <Suspense
-          fallback={
-            <div className="flex items-center justify-center h-64">
-              <Spinner className="size-8" />
-            </div>
-          }
-        >
-          <ActivitySection
-            groupId={groupId}
-            onEditExpense={expenseModal.openEdit}
-            onDeleteExpense={deleteExpenseModal.confirmDelete}
-            onEditTransfer={transferModal.openEdit}
-            onDeleteTransfer={deleteTransferModal.confirmDelete}
-          />
-        </Suspense>
-      </div>
 
       {/* Expense Modal (Create/Edit) */}
       <ExpenseModal
