@@ -2,47 +2,82 @@
 
 ## Overview
 
-Implement cursor-based pagination and filtering for the activity table using shadcn's DataTable (built on TanStack Table). This will enable efficient loading of large activity datasets with server-side pagination and client-side filtering controls.
+Implement cursor-based pagination and filtering for the group activity feed. The desktop view uses shadcn's Data Table (built on TanStack Table + Base UI primitives); the mobile view continues to use `ActivityCards`. Both views share the same paginated data source and pagination controls.
 
 ## Current State
 
-- **Frontend**: Manual HTML table in `activity-table.tsx`, no pagination or filtering
-- **Backend**: `GetGroupActivity` RPC loads ALL expenses and transfers, sorts in-memory
-- **Dependencies**: TanStack Table not installed, basic `ui/table.tsx` exists
+- **Frontend**:
+  - `activity-section.tsx` renders `ActivityTable` on `md+` and `ActivityCards` on mobile (`md:hidden`)
+  - No pagination, no filtering
+- **Backend**: `GetGroupActivity` returns all expenses and transfers, sorted in-memory
+- **Dependencies**: TanStack Table not installed; `ui/table.tsx` exists; UI components compose via Base UI's `render={}` prop
 
-## Architecture Decision: Cursor-Based Pagination
+## Architecture Decisions
 
-**Why cursor-based over offset-based:**
-- More efficient for large datasets (no counting/skipping rows)
-- Stable pagination (no duplicate/missing items when data changes)
-- Natural fit for chronologically sorted activity data
-- Cursor = composite of `(date, created_at, id)` for deterministic ordering
+### Cursor-Based Pagination with Bidirectional Navigation
 
-**Cursor format:** Base64-encoded JSON: `{ date, createdAt, id, type }`
+We keep cursor-based pagination on the server (stable, efficient on large datasets) but expose **prev/next + page numbers + total items** in the UI. We reconcile these by:
+
+- Server returns: `items`, `next_cursor`, `total_count` (filtered)
+- Client maintains a **cursor stack** for prev navigation (`[c0=null, c1, c2, ...]`); `Prev` pops, `Next` pushes `next_cursor`
+- "Page X of Y" is derived from `floor(total_count / limit) + 1` and the stack depth
+- Cursor = base64-encoded JSON of `{ date, createdAt, id }` (composite for stable ordering)
+
+### Generic Pagination Proto
+
+Define a reusable `PageRequest`/`PageResponse` pair under `proto/api/v1/pagination.proto` so future paginated endpoints can adopt the same wire format.
+
+### shadcn Data Table (Base UI)
+
+The project already uses shadcn primitives with Base UI's `render={}` composition pattern (see `feedback_render_prop.md` / `feedback_use_shadcn_primitives.md`). Install TanStack Table and add `ui/data-table.tsx` consistent with these conventions. Mobile keeps `ActivityCards`; both views are driven by the same paginated query result.
 
 ---
 
 ## Implementation Steps
 
-### Phase 1: Backend Changes
+### Phase 1: Backend
 
-#### 1.1 Update Protobuf Definitions
+#### 1.1 Generic pagination proto
+
+**File:** `proto/api/v1/pagination.proto` (new)
+
+```protobuf
+syntax = "proto3";
+
+package api.v1;
+
+import "buf/validate/validate.proto";
+
+// Reusable cursor-based pagination request.
+// Embed as `PageRequest page = N;` in any list RPC.
+message PageRequest {
+  // Page size. Server clamps to [1, 100]; defaults to 20 when zero.
+  int32 limit = 1 [(buf.validate.field).int32 = { gte: 0, lte: 100 }];
+
+  // Opaque cursor returned by a previous PageResponse. Empty/unset = first page.
+  optional string cursor = 2;
+}
+
+// Reusable cursor-based pagination response.
+// Embed as `PageResponse page = N;` in any list RPC response.
+message PageResponse {
+  // Cursor to fetch the next page. Unset when there is no next page.
+  optional string next_cursor = 1;
+
+  // Total number of items matching the (filtered) query, across all pages.
+  // Used by clients to render "X items" / "Page X of Y".
+  int64 total_count = 2;
+}
+```
+
+#### 1.2 Activity request/response
 
 **File:** `proto/api/v1/group.proto`
 
+Modify `GetGroupActivityRequest` / `GetGroupActivityResponse`:
+
 ```protobuf
-message GetGroupActivityRequest {
-  string group_id = 1 [(buf.validate.field).string.uuid = true];
-
-  // Pagination
-  int32 limit = 2 [(buf.validate.field).int32 = { gte: 1, lte: 100 }];
-  optional string cursor = 3; // Base64 encoded cursor for next page
-
-  // Filters
-  optional ActivityTypeFilter type_filter = 4;
-  optional string currency_filter = 5;
-  optional string member_filter = 6; // Filter by payer/sender/receiver user_id
-}
+import "api/v1/pagination.proto";
 
 enum ActivityTypeFilter {
   ACTIVITY_TYPE_FILTER_UNSPECIFIED = 0; // All types
@@ -50,37 +85,46 @@ enum ActivityTypeFilter {
   ACTIVITY_TYPE_FILTER_TRANSFER = 2;
 }
 
-message GetGroupActivityResponse {
-  // ... existing ActivityItem message ...
+message GetGroupActivityRequest {
+  string group_id = 1 [(buf.validate.field).string.uuid = true];
+  PageRequest page = 2;
 
+  // Filters (all optional; unset = no filter on that dimension)
+  ActivityTypeFilter type_filter = 3;
+  optional string currency_filter = 4;
+  optional string member_filter = 5; // payer/sender/receiver user_id
+}
+
+message GetGroupActivityResponse {
   repeated ActivityItem items = 1;
-  optional string next_cursor = 2; // Null if no more pages
-  bool has_more = 3;
-  int32 total_count = 4; // Optional: total matching items (for UI)
+  PageResponse page = 2;
+
+  // (ActivityItem message unchanged)
 }
 ```
 
-#### 1.2 Add Paginated Database Queries
+#### 1.3 Paginated SQL queries
 
-**File:** `db/queries/activity.sql` (new file)
+**File:** `db/queries/activity.sql` (new)
+
+Two queries — one for the page, one for the filtered count.
 
 ```sql
 -- name: GetGroupActivityPaginated :many
--- Combined query using UNION ALL for expenses and transfers with cursor pagination
 WITH activity AS (
   SELECT
     e.id,
-    'expense' as type,
+    'expense' AS type,
     e.date,
     e.created_at,
-    e.name as description,
+    e.name AS description,
     e.currency,
     p.amount,
-    p.user_id as actor_id,
-    u.username as actor_name,
-    NULL as receiver_id,
-    NULL as receiver_name,
-    json_group_array(b.user_id) as beneficiaries_ids,
+    p.user_id AS actor_id,
+    u.username AS actor_name,
+    NULL AS receiver_id,
+    NULL AS receiver_name,
+    json_group_array(b.user_id) AS beneficiaries_ids,
     e.recurring_id
   FROM expenses e
   INNER JOIN expense_payers p ON p.expense_id = e.id
@@ -96,18 +140,18 @@ WITH activity AS (
 
   SELECT
     t.id,
-    'transfer' as type,
+    'transfer' AS type,
     t.date,
     t.created_at,
-    'Transfer' as description,
+    'Transfer' AS description,
     t.currency,
     t.amount,
-    t.sender_id as actor_id,
-    s.username as actor_name,
+    t.sender_id AS actor_id,
+    s.username AS actor_name,
     t.receiver_id,
-    r.username as receiver_name,
-    NULL as beneficiaries_ids,
-    NULL as recurring_id
+    r.username AS receiver_name,
+    NULL AS beneficiaries_ids,
+    NULL AS recurring_id
   FROM transfers t
   JOIN users s ON s.id = t.sender_id
   JOIN users r ON r.id = t.receiver_id
@@ -127,8 +171,7 @@ ORDER BY date DESC, created_at DESC, id DESC
 LIMIT @limit;
 
 -- name: GetGroupActivityCount :one
--- Count total matching items for pagination info
-SELECT COUNT(*) as total FROM (
+SELECT COUNT(*) AS total FROM (
   SELECT e.id FROM expenses e
   INNER JOIN expense_payers p ON p.expense_id = e.id
   INNER JOIN expense_beneficiaries b ON b.expense_id = e.id
@@ -148,16 +191,17 @@ SELECT COUNT(*) as total FROM (
 );
 ```
 
-#### 1.3 Update Backend Handler
+#### 1.4 Handler update
 
 **File:** `http/routes/group/group.go`
 
 Update `GetGroupActivity` to:
-1. Parse cursor (base64 decode → JSON parse)
-2. Apply filters to the paginated query
-3. Fetch `limit + 1` items to detect `has_more`
-4. Build next cursor from last item
-5. Return paginated response
+1. Read `req.Msg.Page` (limit, cursor); apply defaults/clamps (`limit=20` when 0)
+2. Base64-decode the cursor → `activityCursor{Date, CreatedAt, ID}`
+3. Run the paginated query with `limit + 1` to detect "has next"
+4. Run the count query (same filters, no cursor) in parallel
+5. Build `next_cursor` from the last returned item if `has_next`
+6. Return `{ items, page: { next_cursor, total_count } }`
 
 ```go
 type activityCursor struct {
@@ -165,323 +209,290 @@ type activityCursor struct {
     CreatedAt string `json:"createdAt"`
     ID        string `json:"id"`
 }
-
-func (s *GroupService) GetGroupActivity(ctx context.Context, req *connect.Request[v1.GetGroupActivityRequest]) (*connect.Response[v1.GetGroupActivityResponse], error) {
-    limit := int32(20) // Default
-    if req.Msg.Limit > 0 {
-        limit = req.Msg.Limit
-    }
-
-    // Parse cursor
-    var cursor activityCursor
-    if req.Msg.Cursor != nil && *req.Msg.Cursor != "" {
-        // Decode and parse cursor
-    }
-
-    // Query with limit+1 to detect has_more
-    items, err := db.ReadQueries.GetGroupActivityPaginated(ctx, database.GetGroupActivityPaginatedParams{
-        GroupID:        req.Msg.GroupId,
-        Limit:          limit + 1,
-        TypeFilter:     mapTypeFilter(req.Msg.TypeFilter),
-        CurrencyFilter: req.Msg.GetCurrencyFilter(),
-        MemberFilter:   req.Msg.GetMemberFilter(),
-        CursorDate:     cursor.Date,
-        CursorCreatedAt: cursor.CreatedAt,
-        CursorID:       cursor.ID,
-    })
-
-    hasMore := len(items) > int(limit)
-    if hasMore {
-        items = items[:limit]
-    }
-
-    // Build next cursor
-    var nextCursor *string
-    if hasMore && len(items) > 0 {
-        last := items[len(items)-1]
-        cursor := activityCursor{Date: last.Date, CreatedAt: last.CreatedAt, ID: last.ID}
-        encoded := base64.StdEncoding.EncodeToString(jsonMarshal(cursor))
-        nextCursor = &encoded
-    }
-
-    return connect.NewResponse(&v1.GetGroupActivityResponse{
-        Items:      mapToProtoItems(items),
-        NextCursor: nextCursor,
-        HasMore:    hasMore,
-    }), nil
-}
 ```
+
+Encode/decode via `encoding/base64` + `encoding/json`. Reject malformed cursors with `connect.CodeInvalidArgument`.
 
 ---
 
-### Phase 2: Frontend Changes
+### Phase 2: Frontend
 
-#### 2.1 Install TanStack Table
+#### 2.1 Dependency
 
 ```bash
 cd web && npm install @tanstack/react-table
 ```
 
-#### 2.2 Add DataTable Component
+#### 2.2 Shared DataTable primitive
 
-**File:** `web/src/components/ui/data-table.tsx`
+**File:** `web/src/components/ui/data-table.tsx` (new)
 
-Create a reusable DataTable component following shadcn patterns:
+Generic, headless wrapper around TanStack Table + the existing `ui/table.tsx` primitives. Composition follows Base UI's `render={}` pattern; no `asChild`.
 
 ```tsx
 import {
-  ColumnDef,
+  type ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./table";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "./table";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  emptyMessage?: React.ReactNode;
 }
 
-export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
+export function DataTable<TData, TValue>({
+  columns, data, emptyMessage,
+}: DataTableProps<TData, TValue>) {
+  const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel() });
+  const rows = table.getRowModel().rows;
 
   return (
     <Table>
       <TableHeader>
-        {table.getHeaderGroups().map((headerGroup) => (
-          <TableRow key={headerGroup.id}>
-            {headerGroup.headers.map((header) => (
-              <TableHead key={header.id}>
-                {flexRender(header.column.columnDef.header, header.getContext())}
+        {table.getHeaderGroups().map((hg) => (
+          <TableRow key={hg.id}>
+            {hg.headers.map((h) => (
+              <TableHead key={h.id}>
+                {flexRender(h.column.columnDef.header, h.getContext())}
               </TableHead>
             ))}
           </TableRow>
         ))}
       </TableHeader>
       <TableBody>
-        {table.getRowModel().rows.map((row) => (
-          <TableRow key={row.id}>
-            {row.getVisibleCells().map((cell) => (
-              <TableCell key={cell.id}>
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-              </TableCell>
-            ))}
+        {rows.length === 0 ? (
+          <TableRow>
+            <TableCell colSpan={columns.length} className="text-center text-muted-foreground">
+              {emptyMessage ?? "No results."}
+            </TableCell>
           </TableRow>
-        ))}
+        ) : (
+          rows.map((row) => (
+            <TableRow key={row.id}>
+              {row.getVisibleCells().map((cell) => (
+                <TableCell key={cell.id}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))
+        )}
       </TableBody>
     </Table>
   );
 }
 ```
 
-#### 2.3 Create Activity Table Columns
+#### 2.3 Activity column definitions
 
-**File:** `web/src/components/group/activity-columns.tsx`
+**File:** `web/src/components/group/activity-columns.tsx` (new)
+
+Move the per-row rendering logic out of `activity-table.tsx` into `ColumnDef<ActivityItem>[]`. Cell renderers receive callbacks (`onEditExpense`, `onDeleteExpense`, …) via column meta or by exporting a `makeActivityColumns(callbacks)` factory — factory is simpler and avoids leaking callbacks through `table.options.meta`.
 
 ```tsx
-import { ColumnDef } from "@tanstack/react-table";
-import { ActivityItem } from "./activity-types";
-
-export const activityColumns: ColumnDef<ActivityItem>[] = [
-  {
-    accessorKey: "date",
-    header: "Date",
-    cell: ({ row }) => formatDate(row.original.data.date),
-  },
-  {
-    accessorKey: "description",
-    header: "Description",
-    cell: ({ row }) => <DescriptionCell item={row.original} />,
-  },
-  {
-    accessorKey: "amount",
-    header: () => <div className="text-right">Amount</div>,
-    cell: ({ row }) => <AmountCell item={row.original} />,
-  },
-  {
-    accessorKey: "details",
-    header: "Details",
-    cell: ({ row }) => <DetailsCell item={row.original} />,
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => <ActionsCell item={row.original} />,
-  },
-];
+export function makeActivityColumns(callbacks: ActivityCallbacks): ColumnDef<ActivityItem>[]
 ```
 
-#### 2.4 Add Filter Controls Component
+#### 2.4 Cursor stack hook
 
-**File:** `web/src/components/group/activity-filters.tsx`
+**File:** `web/src/hooks/use-cursor-pagination.ts` (new)
+
+Encapsulates the prev/next cursor stack so the server stays cursor-based while the UI gets bidirectional navigation.
+
+```tsx
+export function useCursorPagination(opts: { limit: number; totalCount: number }) {
+  const [stack, setStack] = useState<(string | undefined)[]>([undefined]);
+  const cursor = stack[stack.length - 1];
+  const pageIndex = stack.length - 1;
+  const totalPages = Math.max(1, Math.ceil(opts.totalCount / opts.limit));
+
+  return {
+    cursor,
+    pageIndex,
+    totalPages,
+    canPrev: stack.length > 1,
+    canNext: pageIndex + 1 < totalPages,
+    next: (nextCursor: string | undefined) =>
+      nextCursor && setStack((s) => [...s, nextCursor]),
+    prev: () => setStack((s) => (s.length > 1 ? s.slice(0, -1) : s)),
+    reset: () => setStack([undefined]),
+  };
+}
+```
+
+Reset is called whenever filters change (so we always land on page 1 for a new filter set).
+
+#### 2.5 Filter controls
+
+**File:** `web/src/components/group/activity-filters.tsx` (new)
+
+Three selects (Type / Currency / Member), built on existing shadcn `select` / `combobox` primitives. Compact layout that wraps on narrow widths so it works in both the desktop section and above the mobile cards.
 
 ```tsx
 interface ActivityFiltersProps {
   typeFilter: ActivityTypeFilter;
-  currencyFilter: string;
-  memberFilter: string;
+  currencyFilter?: string;
+  memberFilter?: string;
   currencies: string[];
   members: { id: string; name: string }[];
-  onTypeChange: (type: ActivityTypeFilter) => void;
-  onCurrencyChange: (currency: string) => void;
-  onMemberChange: (memberId: string) => void;
-}
-
-export function ActivityFilters({ ... }: ActivityFiltersProps) {
-  return (
-    <div className="flex gap-2 mb-4">
-      <Select value={typeFilter} onValueChange={onTypeChange}>
-        <SelectTrigger className="w-[140px]">
-          <SelectValue placeholder="Type" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Types</SelectItem>
-          <SelectItem value="expense">Expenses</SelectItem>
-          <SelectItem value="transfer">Transfers</SelectItem>
-        </SelectContent>
-      </Select>
-
-      <Select value={currencyFilter} onValueChange={onCurrencyChange}>
-        <SelectTrigger className="w-[120px]">
-          <SelectValue placeholder="Currency" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Currencies</SelectItem>
-          {currencies.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-        </SelectContent>
-      </Select>
-
-      <Select value={memberFilter} onValueChange={onMemberChange}>
-        <SelectTrigger className="w-[160px]">
-          <SelectValue placeholder="Member" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Members</SelectItem>
-          {members.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}
-        </SelectContent>
-      </Select>
-    </div>
-  );
+  onChange: (next: Partial<ActivityFiltersState>) => void;
 }
 ```
 
-#### 2.5 Add Pagination Controls Component
+Currency labels follow the existing rule: ISO code only (per `feedback_currency_labels.md`).
 
-**File:** `web/src/components/group/activity-pagination.tsx`
+#### 2.6 Pagination controls
+
+**File:** `web/src/components/group/activity-pagination.tsx` (new)
+
+Single component used for both desktop and mobile. Shows:
+- Left: `"{from}–{to} of {totalCount} items"` (e.g. `"21–40 of 137 items"`)
+- Right: `[Prev] Page X of Y [Next]`
 
 ```tsx
 interface ActivityPaginationProps {
-  hasMore: boolean;
+  pageIndex: number;     // 0-based
+  totalPages: number;
+  totalCount: number;
+  limit: number;
+  itemsOnPage: number;   // rows actually rendered (last page may be short)
+  canPrev: boolean;
+  canNext: boolean;
   isLoading: boolean;
-  onLoadMore: () => void;
-}
-
-export function ActivityPagination({ hasMore, isLoading, onLoadMore }: ActivityPaginationProps) {
-  if (!hasMore) return null;
-
-  return (
-    <div className="flex justify-center mt-4">
-      <Button
-        variant="outline"
-        onClick={onLoadMore}
-        disabled={isLoading}
-      >
-        {isLoading ? <Spinner className="mr-2 h-4 w-4" /> : null}
-        Load More
-      </Button>
-    </div>
-  );
+  onPrev: () => void;
+  onNext: () => void;
 }
 ```
 
-#### 2.6 Update ActivitySection with Infinite Query
+`from = pageIndex * limit + 1`, `to = pageIndex * limit + itemsOnPage`. Both buttons are disabled while `isLoading` to prevent double-clicks. Buttons use shadcn `Button` with the Base UI `render={}` pattern where needed (e.g. wrapping icons).
+
+#### 2.7 `ActivitySection` orchestration
 
 **File:** `web/src/components/group/activity-section.tsx`
 
-Use TanStack Query's `useInfiniteQuery` for cursor-based pagination:
+The section owns:
+- Filter state (`useState<ActivityFiltersState>`)
+- Cursor stack (`useCursorPagination`)
+- Single paginated query — feeding **both** `ActivityTable` (desktop) and `ActivityCards` (mobile)
 
 ```tsx
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { useState } from "react";
+const [filters, setFilters] = useState<ActivityFiltersState>({});
+const limit = 20;
 
-export function ActivitySection({ groupId, ...callbacks }: ActivitySectionProps) {
-  const [filters, setFilters] = useState({
-    typeFilter: undefined,
-    currencyFilter: undefined,
-    memberFilter: undefined,
-  });
+// First fetch: no cursor → response includes totalCount.
+// Subsequent fetches: cursor present; totalCount still returned (cheap COUNT)
+// so the hook can keep totalPages fresh.
+const { data, isFetching } = useQuery(getGroupActivity, {
+  groupId,
+  page: { limit, cursor },
+  typeFilter: filters.typeFilter,
+  currencyFilter: filters.currencyFilter,
+  memberFilter: filters.memberFilter,
+});
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery({
-    queryKey: ["groupActivity", groupId, filters],
-    queryFn: async ({ pageParam }) => {
-      return client.getGroupActivity({
-        groupId,
-        limit: 20,
-        cursor: pageParam,
-        ...filters,
-      });
-    },
-    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-    initialPageParam: undefined as string | undefined,
-  });
+const totalCount = Number(data?.page?.totalCount ?? 0n);
+const pager = useCursorPagination({ limit, totalCount });
 
-  const allItems = data?.pages.flatMap((page) =>
-    page.items.map(transformActivityItem)
-  ) ?? [];
+useEffect(() => { pager.reset(); }, [filters]);
 
-  return (
-    <div>
-      <ActivityFilters
-        {...filters}
-        onChange={(newFilters) => setFilters(newFilters)}
-      />
-      <DataTable columns={activityColumns} data={allItems} />
-      <ActivityPagination
-        hasMore={hasNextPage ?? false}
-        isLoading={isFetchingNextPage}
-        onLoadMore={fetchNextPage}
-      />
+const items = transformItems(data?.items ?? []);
+
+return (
+  <div className="flex flex-col gap-4">
+    <ActivityFilters {...filters} onChange={(p) => setFilters((f) => ({ ...f, ...p }))} />
+
+    <div className="hidden md:block">
+      <ActivityTable recentActivity={items} {...callbacks} />
     </div>
-  );
-}
+    <div className="md:hidden">
+      <ActivityCards recentActivity={items} {...callbacks} />
+    </div>
+
+    <ActivityPagination
+      pageIndex={pager.pageIndex}
+      totalPages={pager.totalPages}
+      totalCount={totalCount}
+      limit={limit}
+      itemsOnPage={items.length}
+      canPrev={pager.canPrev}
+      canNext={pager.canNext}
+      isLoading={isFetching}
+      onPrev={pager.prev}
+      onNext={() => pager.next(data?.page?.nextCursor)}
+    />
+  </div>
+);
 ```
+
+Note: `useSuspenseQuery` is replaced with `useQuery` because `isFetching` is needed to disable the pagination buttons during page transitions. Empty state moves into `DataTable.emptyMessage` for desktop and a conditional render for mobile.
+
+#### 2.8 Convert `ActivityTable` to use `DataTable`
+
+**File:** `web/src/components/group/activity-table.tsx`
+
+Replace the manual `<table>` JSX with `<DataTable columns={makeActivityColumns(callbacks)} data={recentActivity} />`. Cell components (description, amount, details, actions) move into `activity-columns.tsx` unchanged.
+
+`ActivityCards` is **not** changed structurally — it continues to render the same `recentActivity` array, which is now just shorter (one page).
 
 ---
 
-### Phase 3: Code Generation & Testing
-
-#### 3.1 Generate Code
+### Phase 3: Code generation
 
 ```bash
-just gen  # Runs buf generate + sqlc generate
+just gen  # buf generate + sqlc generate
 ```
 
-#### 3.2 Backend Tests
+Add `proto/api/v1/pagination.proto` to whatever buf module config aggregates the v1 protos (no action needed if the config globs the directory).
 
-**File:** `http/routes/group/group_test.go`
+---
 
-Add tests for:
-- Pagination with various limits
-- Cursor encoding/decoding
-- Filter combinations (type, currency, member)
-- Edge cases (empty results, single page, exact limit)
-- Cursor stability when new items are added
+### Phase 4: Tests
 
-#### 3.3 Frontend Tests
+#### 4.1 Backend — `http/routes/group/group_test.go`
 
-Test the ActivitySection component:
-- Initial load shows first page
-- "Load More" fetches next page and appends
-- Filter changes reset pagination and refetch
-- Empty state handling
+- **Cursor codec**: round-trip encode/decode; malformed base64 / malformed JSON → `CodeInvalidArgument`
+- **First page**: `limit=20`, no cursor → returns ≤20 items, `next_cursor` set iff more, `total_count` matches filtered count
+- **Subsequent pages**: feeding `next_cursor` returns items strictly older than the last item of the previous page; no duplicates across page boundaries
+- **Last page**: returns `< limit` items, `next_cursor` unset
+- **Exact boundary**: total items == `limit` → one full page, `next_cursor` unset
+- **Filters**:
+  - `type_filter=EXPENSE` excludes transfers and vice versa
+  - `currency_filter` excludes other currencies
+  - `member_filter` matches payer, beneficiary, sender, and receiver
+  - Combined filters AND together
+  - `total_count` reflects filters
+- **Stable ordering under ties**: two items with identical `(date, created_at)` are disambiguated by `id` — fabricate the tie and assert deterministic ordering across pages
+- **Limit clamping**: `limit=0` defaults to 20; `limit=101` rejected by buf.validate
+
+#### 4.2 Frontend
+
+- **`useCursorPagination`** (`web/src/hooks/use-cursor-pagination.test.ts`):
+  - Initial state: `pageIndex=0`, `canPrev=false`
+  - `next("c1")` pushes cursor → `pageIndex=1`, `canPrev=true`
+  - `prev()` pops → returns to previous cursor
+  - `next(undefined)` is a no-op
+  - `reset()` returns to initial state regardless of depth
+  - `totalPages` reflects `ceil(totalCount / limit)`, min 1
+
+- **`ActivityPagination`** (`web/src/components/group/activity-pagination.test.tsx`):
+  - Renders `"21–40 of 137 items"` and `"Page 2 of 7"` for `pageIndex=1, limit=20, itemsOnPage=20, totalCount=137`
+  - Renders `"1–13 of 13 items"` and `"Page 1 of 1"` for a short single page
+  - Prev disabled when `!canPrev`; Next disabled when `!canNext`; both disabled when `isLoading`
+  - Click handlers fire `onPrev` / `onNext`
+
+- **`ActivitySection`** (`web/src/components/group/activity-section.test.tsx`):
+  - Renders the table on desktop viewport, cards on mobile (assert by query for both containers; CSS visibility is class-driven, so assert classnames or use jsdom matchMedia stub)
+  - Clicking Next refetches with the returned `cursor` and updates the rows
+  - Changing a filter resets the cursor stack (next request goes out with `cursor=undefined`) and re-renders page 1
+  - Loading state disables pagination buttons
+
+Use the existing test setup (vitest + RTL). Mock the Connect Query hook with a small stub that returns scripted page responses.
 
 ---
 
@@ -489,34 +500,42 @@ Test the ActivitySection component:
 
 | File | Action | Description |
 |------|--------|-------------|
-| `proto/api/v1/group.proto` | Modify | Add pagination/filter fields to request/response |
-| `db/queries/activity.sql` | Create | New paginated activity query with filters |
-| `http/routes/group/group.go` | Modify | Update handler for pagination & filters |
-| `web/package.json` | Modify | Add `@tanstack/react-table` dependency |
-| `web/src/components/ui/data-table.tsx` | Create | Reusable DataTable component |
-| `web/src/components/group/activity-columns.tsx` | Create | Column definitions for activity table |
-| `web/src/components/group/activity-filters.tsx` | Create | Filter controls UI |
-| `web/src/components/group/activity-pagination.tsx` | Create | Pagination controls UI |
-| `web/src/components/group/activity-section.tsx` | Modify | Use useInfiniteQuery + filters |
-| `web/src/components/group/activity-table.tsx` | Modify | Convert to use DataTable |
+| `proto/api/v1/pagination.proto` | Create | Generic `PageRequest` / `PageResponse` |
+| `proto/api/v1/group.proto` | Modify | Embed `PageRequest`/`PageResponse`; add filter fields & enum |
+| `db/queries/activity.sql` | Create | Paginated + count queries with filters |
+| `http/routes/group/group.go` | Modify | Cursor codec, paginated handler, filter wiring |
+| `http/routes/group/group_test.go` | Modify | Pagination + filter tests |
+| `web/package.json` | Modify | Add `@tanstack/react-table` |
+| `web/src/components/ui/data-table.tsx` | Create | Generic shadcn DataTable wrapper |
+| `web/src/components/group/activity-columns.tsx` | Create | `makeActivityColumns(callbacks)` factory |
+| `web/src/components/group/activity-filters.tsx` | Create | Type/Currency/Member filter controls |
+| `web/src/components/group/activity-pagination.tsx` | Create | Prev/Next + "X–Y of N items" / "Page X of Y" |
+| `web/src/hooks/use-cursor-pagination.ts` | Create | Cursor stack hook |
+| `web/src/components/group/activity-section.tsx` | Modify | Wire query + filters + pagination; keep desktop/mobile split |
+| `web/src/components/group/activity-table.tsx` | Modify | Render via `DataTable` |
+| `web/src/components/group/activity-cards.tsx` | Unchanged | Receives the same paged `recentActivity` |
+| `web/src/hooks/use-cursor-pagination.test.ts` | Create | Hook unit tests |
+| `web/src/components/group/activity-pagination.test.tsx` | Create | Component tests |
+| `web/src/components/group/activity-section.test.tsx` | Create | Integration tests |
 
 ---
 
 ## Considerations
 
+### UX
+
+- `Prev` is only enabled when the cursor stack has depth > 1 — the user cannot navigate backward across a filter change (the stack resets), which is the correct behavior since the page index space is filter-dependent.
+- "Page X of Y" can drift mid-session if new items are inserted/deleted by other users between fetches. This is acceptable for cursor-based pagination; the cursor still guarantees no duplicates/skips for forward traversal.
+- Mobile users see the same pagination controls below the cards.
+
 ### Performance
-- Default limit of 20 items per page balances UX and load time
-- Count query is optional (can be removed if performance is a concern)
-- Filters reduce dataset size server-side
 
-### UX Decisions
-- "Load More" button vs infinite scroll (button chosen for explicit control)
-- Filters persist in URL query params (optional enhancement)
-- Loading skeleton while fetching next page
+- The COUNT query runs on every page fetch. For very large groups this is cheap on SQLite with the right indexes; if it becomes a hot spot, we can return `total_count` only on the first page (cursor unset) and have the client cache it until filters change.
+- Default `limit=20` keeps the rendered DOM small on mobile.
 
-### Future Enhancements
-- Date range filter
+### Future enhancements
+
+- Date-range filter
 - Search by expense name
-- Export filtered results
-- Infinite scroll option
-- Sort direction toggle (ASC/DESC)
+- URL-persisted filters/page
+- Sort direction toggle

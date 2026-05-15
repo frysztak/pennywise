@@ -125,6 +125,7 @@ function RouteComponent() {
         <GroupSections
           groupId={groupId}
           memberBalances={groupInfo.memberBalances}
+          currencies={groupInfo.currencies}
           currentUserId={currentUser.id}
           defaultCurrency={groupInfo.groupDefaultCurrency}
           onSettle={transferModal.openCreate}

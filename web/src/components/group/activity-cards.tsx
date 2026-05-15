@@ -29,6 +29,12 @@ export function ActivityCards({
   onEditTransfer,
   onDeleteTransfer,
 }: ActivityCardsProps) {
+  if (recentActivity.length === 0) {
+    return (
+      <p className="py-6 text-center text-sm text-muted-foreground">No activity yet in this group.</p>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-2">
       {recentActivity.map((item) => {

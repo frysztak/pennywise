@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package api.v1;
+
+import "buf/validate/validate.proto";
+
+message PageRequest {
+  // Page size. Server clamps to [1, 100]; defaults to 20 when zero.
+  int32 limit = 1 [(buf.validate.field).int32 = { gte: 0, lte: 100 }];
+
+  // Opaque cursor from a previous PageResponse. Empty = first page.
+  optional string cursor = 2;
+}
+
+message PageResponse {
+  // Cursor for the next page. Unset when there is no next page.
+  optional string next_cursor = 1;
+
+  // Total items matching the (filtered) query, across all pages.
+  int64 total_count = 2;
+}

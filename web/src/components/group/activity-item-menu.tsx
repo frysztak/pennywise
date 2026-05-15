@@ -29,7 +29,7 @@ export function ActivityItemMenu({ onEdit, onDelete }: ActivityItemMenuProps) {
           <Pencil className="mr-2 h-4 w-4" />
           Edit
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={onDelete} className="text-destructive focus:text-destructive">
+        <DropdownMenuItem onClick={onDelete} variant="destructive">
           <Trash className="mr-2 h-4 w-4" />
           Delete
         </DropdownMenuItem>

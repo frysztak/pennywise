@@ -2,9 +2,16 @@ syntax = "proto3";
 
 package api.v1;
 
+import "api/v1/pagination.proto";
 import "buf/validate/validate.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
+
+enum ActivityTypeFilter {
+  ACTIVITY_TYPE_FILTER_UNSPECIFIED = 0;
+  ACTIVITY_TYPE_FILTER_EXPENSE = 1;
+  ACTIVITY_TYPE_FILTER_TRANSFER = 2;
+}
 
 message CreateExpenseGroupRequest {
   string name = 1 [(buf.validate.field).string.min_len = 2];
@@ -77,6 +84,11 @@ message GetUserGroupsResponse {
 
 message GetGroupActivityRequest {
   string group_id = 1 [(buf.validate.field).string.uuid = true];
+  PageRequest page = 2;
+
+  ActivityTypeFilter type_filter = 3;
+  optional string currency_filter = 4;
+  optional string member_filter = 5;
 }
 
 message GetGroupActivityResponse {
@@ -121,6 +133,7 @@ message GetGroupActivityResponse {
   }
 
   repeated ActivityItem items = 1;
+  PageResponse page = 2;
 }
 
 message DeleteGroupRequest {

@@ -5,7 +5,7 @@ import { ActivitySection } from "@/components/group/activity-section";
 import { EmptyState } from "@/components/group/empty-state";
 import { GroupBalances } from "@/components/group/group-balances";
 import { SettlementSuggestions } from "@/components/group/settlement-suggestions";
-import { getGroupActivity, getSettlementSuggestions } from "@/gen/api/v1/group-GroupService_connectquery";
+import { getSettlementSuggestions } from "@/gen/api/v1/group-GroupService_connectquery";
 import type { MemberBalance } from "@/gen/api/v1/group_pb";
 import type { useDeleteExpenseModal } from "@/hooks/use-delete-expense-modal";
 import type { useDeleteTransferModal } from "@/hooks/use-delete-transfer-modal";
@@ -15,6 +15,7 @@ import type { useTransferModal } from "@/hooks/use-transfer-modal";
 interface GroupSectionsProps {
   groupId: string;
   memberBalances: MemberBalance[];
+  currencies: string[];
   currentUserId: string;
   defaultCurrency: string;
   remindersSlot: ReactNode;
@@ -28,6 +29,7 @@ interface GroupSectionsProps {
 export function GroupSections({
   groupId,
   memberBalances,
+  currencies,
   currentUserId,
   defaultCurrency,
   remindersSlot,
@@ -38,12 +40,27 @@ export function GroupSections({
   onDeleteTransfer,
 }: GroupSectionsProps) {
   const { data: settlementData } = useSuspenseQuery(getSettlementSuggestions, { groupId });
-  const { data: activityData } = useSuspenseQuery(getGroupActivity, { groupId });
 
   const otherMembers = memberBalances.filter((m) => m.userId !== currentUserId);
   const noBalances = otherMembers.length === 0;
   const noDebts = settlementData.suggestions.length === 0;
-  const noActivity = activityData.items.length === 0;
+
+  const members = memberBalances.map((m) => ({ id: m.userId, name: m.userName }));
+
+  const activitySection = (
+    <div>
+      <h2 className="text-xl font-bold mb-4">Recent Activity</h2>
+      <ActivitySection
+        groupId={groupId}
+        currencies={currencies}
+        members={members}
+        onEditExpense={onEditExpense}
+        onDeleteExpense={onDeleteExpense}
+        onEditTransfer={onEditTransfer}
+        onDeleteTransfer={onDeleteTransfer}
+      />
+    </div>
+  );
 
   const balancesSection = (
     <div>
@@ -59,30 +76,7 @@ export function GroupSections({
     </div>
   );
 
-  const activitySection = (
-    <div>
-      <h2 className="text-xl font-bold mb-4">Recent Activity</h2>
-      <ActivitySection
-        groupId={groupId}
-        onEditExpense={onEditExpense}
-        onDeleteExpense={onDeleteExpense}
-        onEditTransfer={onEditTransfer}
-        onDeleteTransfer={onDeleteTransfer}
-      />
-    </div>
-  );
-
-  if (noBalances && noDebts && noActivity) {
-    return (
-      <>
-        <EmptyState
-          title="All settled"
-          description="No balances, no debts, no activity yet. Add an expense to get started."
-        />
-        {remindersSlot}
-      </>
-    );
-  } else if (noBalances && noDebts) {
+  if (noBalances && noDebts) {
     return (
       <>
         <EmptyState title="All settled" description="No balances, no debts. Add a group member to get started." />

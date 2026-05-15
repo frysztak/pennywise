@@ -2,6 +2,8 @@ package group
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"pennywise/calc"
 	"pennywise/db"
@@ -20,6 +22,47 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
+
+type activityCursor struct {
+	Date      string `json:"date"`
+	CreatedAt string `json:"createdAt"`
+	ID        string `json:"id"`
+}
+
+func encodeActivityCursor(c activityCursor) string {
+	b, _ := json.Marshal(c)
+	return base64.StdEncoding.EncodeToString(b)
+}
+
+func decodeActivityCursor(s string) (activityCursor, error) {
+	b, err := base64.StdEncoding.DecodeString(s)
+	if err != nil {
+		return activityCursor{}, err
+	}
+	var c activityCursor
+	if err := json.Unmarshal(b, &c); err != nil {
+		return activityCursor{}, err
+	}
+	return c, nil
+}
+
+func activityTypeFilterToString(f apiv1.ActivityTypeFilter) string {
+	switch f {
+	case apiv1.ActivityTypeFilter_ACTIVITY_TYPE_FILTER_EXPENSE:
+		return "expense"
+	case apiv1.ActivityTypeFilter_ACTIVITY_TYPE_FILTER_TRANSFER:
+		return "transfer"
+	default:
+		return ""
+	}
+}
+
+func derefStr(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
 
 type GroupService struct{}
 
@@ -437,102 +480,162 @@ func (s *GroupService) GetSettlementSuggestions(ctx context.Context, r *apiv1.Ge
 
 func (s *GroupService) GetGroupActivity(ctx context.Context, r *apiv1.GetGroupActivityRequest) (*apiv1.GetGroupActivityResponse, error) {
 	logger := log.FromContext(ctx)
-	// Fetch expenses
-	expenses, err := db.ReadQueries.GetGroupExpenses(ctx, r.GroupId)
-	if err != nil {
-		logger.Error("failed to get group expenses for activity", "error", err, "group_id", r.GroupId)
-		return nil, connect.NewError(connect.CodeInternal, err)
+
+	// Parse pagination
+	limit := int64(20)
+	if r.Page != nil && r.Page.Limit > 0 {
+		limit = int64(r.Page.Limit)
+	}
+	if limit > 100 {
+		limit = 100
 	}
 
-	// Fetch transfers
-	transfers, err := db.ReadQueries.GetGroupTransfers(ctx, r.GroupId)
-	if err != nil {
-		logger.Error("failed to get group transfers for activity", "error", err, "group_id", r.GroupId)
-		return nil, connect.NewError(connect.CodeInternal, err)
-	}
-
-	// Combine into activity items
-	items := make([]*apiv1.GetGroupActivityResponse_ActivityItem, 0, len(expenses)+len(transfers))
-
-	// Add expenses
-	for _, expense := range expenses {
-		beneficiariesIds, err := utils.JSONStringToSlice(expense.BeneficiariesIds)
+	// Decode cursor
+	var cursor activityCursor
+	if r.Page != nil && r.Page.Cursor != nil && *r.Page.Cursor != "" {
+		var err error
+		cursor, err = decodeActivityCursor(*r.Page.Cursor)
 		if err != nil {
-			logger.Error("failed to parse beneficiaries IDs", "error", err, "expense_id", expense.ID, "beneficiaries_ids", expense.BeneficiariesIds)
-			return nil, connect.NewError(connect.CodeInternal, err)
+			return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("invalid cursor"))
 		}
+	}
 
-		var recurringID *string
-		if expense.RecurringID != nil {
-			recurringID = expense.RecurringID
-		}
+	typeFilter := activityTypeFilterToString(r.TypeFilter)
+	currencyFilter := ""
+	if r.CurrencyFilter != nil {
+		currencyFilter = *r.CurrencyFilter
+	}
+	memberFilter := ""
+	if r.MemberFilter != nil {
+		memberFilter = *r.MemberFilter
+	}
 
-		items = append(items, &apiv1.GetGroupActivityResponse_ActivityItem{
-			Type: apiv1.GetGroupActivityResponse_ActivityItem_TYPE_EXPENSE,
-			Data: &apiv1.GetGroupActivityResponse_ActivityItem_Expense_{
-				Expense: &apiv1.GetGroupActivityResponse_ActivityItem_Expense{
-					Id:               expense.ID,
-					CreatedAt:        timestamppb.New(expense.CreatedAt.Time),
-					Name:             expense.Name,
-					Description:      expense.Description,
-					Currency:         expense.Currency,
-					PayerId:          expense.PayerID,
-					PayerName:        expense.PayerName,
-					Amount:           expense.Amount,
-					BeneficiariesIds: beneficiariesIds,
-					Date:             timestamppb.New(expense.Date.Time),
-					RecurringId:      recurringID,
-				},
-			},
+	// Run paginated query and count query in parallel
+	type countResult struct {
+		total int64
+		err   error
+	}
+	countCh := make(chan countResult, 1)
+	go func() {
+		total, err := db.ReadQueries.GetGroupActivityCount(ctx, database.GetGroupActivityCountParams{
+			GroupID:        r.GroupId,
+			TypeFilter:     typeFilter,
+			CurrencyFilter: currencyFilter,
+			MemberFilter:   memberFilter,
 		})
-	}
+		countCh <- countResult{total, err}
+	}()
 
-	// Add transfers
-	for _, transfer := range transfers {
-		items = append(items, &apiv1.GetGroupActivityResponse_ActivityItem{
-			Type: apiv1.GetGroupActivityResponse_ActivityItem_TYPE_TRANSFER,
-			Data: &apiv1.GetGroupActivityResponse_ActivityItem_Transfer_{
-				Transfer: &apiv1.GetGroupActivityResponse_ActivityItem_Transfer{
-					Id:           transfer.ID,
-					CreatedAt:    timestamppb.New(transfer.CreatedAt.Time),
-					SenderId:     transfer.SenderID,
-					SenderName:   transfer.SenderName,
-					ReceiverId:   transfer.ReceiverID,
-					ReceiverName: transfer.ReceiverName,
-					Amount:       transfer.Amount,
-					Currency:     transfer.Currency,
-					Date:         timestamppb.New(transfer.Date.Time),
-				},
-			},
-		})
-	}
-
-	// Helper to extract timestamps from activity items
-	getItemTimes := func(item *apiv1.GetGroupActivityResponse_ActivityItem) (date, createdAt time.Time) {
-		switch item.Type {
-		case apiv1.GetGroupActivityResponse_ActivityItem_TYPE_EXPENSE:
-			return item.GetExpense().Date.AsTime(), item.GetExpense().CreatedAt.AsTime()
-		case apiv1.GetGroupActivityResponse_ActivityItem_TYPE_TRANSFER:
-			return item.GetTransfer().Date.AsTime(), item.GetTransfer().CreatedAt.AsTime()
-		default:
-			return time.Time{}, time.Time{}
+	var cursorCreatedAt overrides.TextTime
+	if cursor.CreatedAt != "" {
+		t, err := time.Parse(time.RFC3339, cursor.CreatedAt)
+		if err != nil {
+			return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("invalid cursor"))
 		}
+		cursorCreatedAt = overrides.TextTime{Time: t}
 	}
 
-	// Sort by date descending (most recent first), then by created_at descending
-	sort.Slice(items, func(i, j int) bool {
-		dateI, createdAtI := getItemTimes(items[i])
-		dateJ, createdAtJ := getItemTimes(items[j])
-
-		if !dateI.Equal(dateJ) {
-			return dateI.After(dateJ)
-		}
-		return createdAtI.After(createdAtJ)
+	rows, err := db.ReadQueries.GetGroupActivityPaginated(ctx, database.GetGroupActivityPaginatedParams{
+		Limit:           limit + 1,
+		GroupID:         r.GroupId,
+		TypeFilter:      typeFilter,
+		CurrencyFilter:  currencyFilter,
+		MemberFilter:    memberFilter,
+		CursorDate:      cursor.Date,
+		CursorCreatedAt: cursorCreatedAt,
+		CursorID:        cursor.ID,
 	})
+	if err != nil {
+		logger.Error("failed to get paginated activity", "error", err, "group_id", r.GroupId)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
 
-	logger.Info("group activity retrieved", "group_id", r.GroupId, "expenses_count", len(expenses), "transfers_count", len(transfers))
+	// Detect next page
+	hasNext := len(rows) > int(limit)
+	if hasNext {
+		rows = rows[:limit]
+	}
+
+	// Build next cursor from last row
+	var nextCursor *string
+	if hasNext && len(rows) > 0 {
+		last := rows[len(rows)-1]
+		nc := encodeActivityCursor(activityCursor{
+			Date:      last.Date.Format(time.RFC3339),
+			CreatedAt: last.CreatedAt.Format(time.RFC3339),
+			ID:        last.ID,
+		})
+		nextCursor = &nc
+	}
+
+	// Wait for count
+	cr := <-countCh
+	if cr.err != nil {
+		logger.Error("failed to get activity count", "error", cr.err, "group_id", r.GroupId)
+		return nil, connect.NewError(connect.CodeInternal, cr.err)
+	}
+
+	// Build response items
+	items := make([]*apiv1.GetGroupActivityResponse_ActivityItem, 0, len(rows))
+	for _, row := range rows {
+		if row.Type == "expense" {
+			var beneficiariesIds []string
+			if row.BeneficiariesIds != nil {
+				bStr, ok := row.BeneficiariesIds.(string)
+				if ok {
+					var parseErr error
+					beneficiariesIds, parseErr = utils.JSONStringToSlice(bStr)
+					if parseErr != nil {
+						logger.Error("failed to parse beneficiaries IDs", "error", parseErr, "expense_id", row.ID)
+						return nil, connect.NewError(connect.CodeInternal, parseErr)
+					}
+				}
+			}
+
+			items = append(items, &apiv1.GetGroupActivityResponse_ActivityItem{
+				Type: apiv1.GetGroupActivityResponse_ActivityItem_TYPE_EXPENSE,
+				Data: &apiv1.GetGroupActivityResponse_ActivityItem_Expense_{
+					Expense: &apiv1.GetGroupActivityResponse_ActivityItem_Expense{
+						Id:               row.ID,
+						CreatedAt:        timestamppb.New(row.CreatedAt.Time),
+						Name:             row.Description,
+						Currency:         row.Currency,
+						PayerId:          row.ActorID,
+						PayerName:        row.ActorName,
+						Amount:           row.Amount,
+						BeneficiariesIds: beneficiariesIds,
+						Date:             timestamppb.New(row.Date.Time),
+						RecurringId:      row.RecurringID,
+					},
+				},
+			})
+		} else {
+			items = append(items, &apiv1.GetGroupActivityResponse_ActivityItem{
+				Type: apiv1.GetGroupActivityResponse_ActivityItem_TYPE_TRANSFER,
+				Data: &apiv1.GetGroupActivityResponse_ActivityItem_Transfer_{
+					Transfer: &apiv1.GetGroupActivityResponse_ActivityItem_Transfer{
+						Id:           row.ID,
+						CreatedAt:    timestamppb.New(row.CreatedAt.Time),
+						SenderId:     row.ActorID,
+						SenderName:   row.ActorName,
+						ReceiverId:   derefStr(row.ReceiverID),
+						ReceiverName: derefStr(row.ReceiverName),
+						Amount:       row.Amount,
+						Currency:     row.Currency,
+						Date:         timestamppb.New(row.Date.Time),
+					},
+				},
+			})
+		}
+	}
+
+	logger.Info("group activity retrieved", "group_id", r.GroupId, "count", len(items), "total", cr.total)
 
 	return &apiv1.GetGroupActivityResponse{
 		Items: items,
+		Page: &apiv1.PageResponse{
+			NextCursor: nextCursor,
+			TotalCount: cr.total,
+		},
 	}, nil
 }
