@@ -19,7 +19,7 @@ function RouteComponent() {
 
   return (
     <div className="flex flex-1 flex-col gap-4">
-      <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+      <h1 className="text-5xl font-bold font-serif tracking-tight">Settings</h1>
 
       <Card className="max-w-xl">
         <CardHeader>

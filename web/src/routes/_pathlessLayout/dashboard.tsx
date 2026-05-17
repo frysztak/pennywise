@@ -17,7 +17,7 @@ function RouteComponent() {
   return (
     <>
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <h1 className="text-5xl font-bold tracking-tight font-serif">Dashboard</h1>
         <p className="text-muted-foreground mt-2">Overview of your expense groups and balances</p>
       </div>
 

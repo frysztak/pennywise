@@ -31,7 +31,10 @@ function BrandBlock() {
     <div className="flex flex-col items-center gap-3.5 text-center">
       <img src={logoMark} alt="Pennywise" className="size-12 rounded-[14px]" />
       <div className="flex flex-col items-center gap-1">
-        <span className="text-lg font-semibold tracking-tight">Pennywise</span>
+        <span className="text-5xl font-bold font-serif tracking-tight">
+          Pennywise
+          <span className="text-money">.</span>
+        </span>
       </div>
     </div>
   );
