@@ -35,6 +35,10 @@ sql:
             go_type:
               import: "pennywise/db/overrides"
               type: "TextTime"
+          - column: "expense_groups.image_updated_at"
+            go_type:
+              import: "pennywise/db/overrides"
+              type: "NullTextTime"
           # Timestamp columns - user_expense_groups table
           - column: "user_expense_groups.added_at"
             go_type:

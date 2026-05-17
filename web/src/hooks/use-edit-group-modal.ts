@@ -1,3 +1,4 @@
+import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -21,6 +22,7 @@ export interface EditingGroup {
   groupName: string;
   groupDescription: string;
   defaultCurrency: string;
+  imageUpdatedAt?: Timestamp;
 }
 
 export function useEditGroupModal() {

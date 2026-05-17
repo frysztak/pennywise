@@ -21,6 +21,14 @@ SELECT *
 FROM expense_groups
 WHERE id = @group_id;
 
+-- name: UpdateGroupImage :exec
+UPDATE expense_groups
+SET image_data = @image_data, image_mime_type = @image_mime_type, image_updated_at = @image_updated_at
+WHERE id = @id;
+
+-- name: GetGroupImage :one
+SELECT image_data, image_mime_type FROM expense_groups WHERE id = @id LIMIT 1;
+
 -- name: AddUserToGroup :one
 INSERT INTO user_expense_groups
 (

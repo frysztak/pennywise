@@ -32,6 +32,9 @@ type ExpenseGroup struct {
 	Name            string
 	DefaultCurrency string
 	Description     *string
+	ImageData       []byte
+	ImageMimeType   *string
+	ImageUpdatedAt  overrides.NullTextTime
 }
 
 type ExpensePayer struct {

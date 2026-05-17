@@ -43,6 +43,12 @@ const (
 	// GroupServiceDeleteGroupProcedure is the fully-qualified name of the GroupService's DeleteGroup
 	// RPC.
 	GroupServiceDeleteGroupProcedure = "/api.v1.GroupService/DeleteGroup"
+	// GroupServiceUploadGroupImageProcedure is the fully-qualified name of the GroupService's
+	// UploadGroupImage RPC.
+	GroupServiceUploadGroupImageProcedure = "/api.v1.GroupService/UploadGroupImage"
+	// GroupServiceDeleteGroupImageProcedure is the fully-qualified name of the GroupService's
+	// DeleteGroupImage RPC.
+	GroupServiceDeleteGroupImageProcedure = "/api.v1.GroupService/DeleteGroupImage"
 	// GroupServiceAddUserToGroupProcedure is the fully-qualified name of the GroupService's
 	// AddUserToGroup RPC.
 	GroupServiceAddUserToGroupProcedure = "/api.v1.GroupService/AddUserToGroup"
@@ -68,6 +74,8 @@ type GroupServiceClient interface {
 	CreateExpenseGroup(context.Context, *v1.CreateExpenseGroupRequest) (*v1.CreateExpenseGroupResponse, error)
 	UpdateGroup(context.Context, *v1.UpdateGroupRequest) (*v1.UpdateGroupResponse, error)
 	DeleteGroup(context.Context, *v1.DeleteGroupRequest) (*emptypb.Empty, error)
+	UploadGroupImage(context.Context, *v1.UploadGroupImageRequest) (*v1.UploadGroupImageResponse, error)
+	DeleteGroupImage(context.Context, *v1.DeleteGroupImageRequest) (*emptypb.Empty, error)
 	AddUserToGroup(context.Context, *v1.AddUserToGroupRequest) (*emptypb.Empty, error)
 	RemoveUserFromGroup(context.Context, *v1.RemoveUserFromGroupRequest) (*emptypb.Empty, error)
 	UpdateUserWeight(context.Context, *v1.UpdateUserWeightRequest) (*emptypb.Empty, error)
@@ -103,6 +111,18 @@ func NewGroupServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			httpClient,
 			baseURL+GroupServiceDeleteGroupProcedure,
 			connect.WithSchema(groupServiceMethods.ByName("DeleteGroup")),
+			connect.WithClientOptions(opts...),
+		),
+		uploadGroupImage: connect.NewClient[v1.UploadGroupImageRequest, v1.UploadGroupImageResponse](
+			httpClient,
+			baseURL+GroupServiceUploadGroupImageProcedure,
+			connect.WithSchema(groupServiceMethods.ByName("UploadGroupImage")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteGroupImage: connect.NewClient[v1.DeleteGroupImageRequest, emptypb.Empty](
+			httpClient,
+			baseURL+GroupServiceDeleteGroupImageProcedure,
+			connect.WithSchema(groupServiceMethods.ByName("DeleteGroupImage")),
 			connect.WithClientOptions(opts...),
 		),
 		addUserToGroup: connect.NewClient[v1.AddUserToGroupRequest, emptypb.Empty](
@@ -149,6 +169,8 @@ type groupServiceClient struct {
 	createExpenseGroup       *connect.Client[v1.CreateExpenseGroupRequest, v1.CreateExpenseGroupResponse]
 	updateGroup              *connect.Client[v1.UpdateGroupRequest, v1.UpdateGroupResponse]
 	deleteGroup              *connect.Client[v1.DeleteGroupRequest, emptypb.Empty]
+	uploadGroupImage         *connect.Client[v1.UploadGroupImageRequest, v1.UploadGroupImageResponse]
+	deleteGroupImage         *connect.Client[v1.DeleteGroupImageRequest, emptypb.Empty]
 	addUserToGroup           *connect.Client[v1.AddUserToGroupRequest, emptypb.Empty]
 	removeUserFromGroup      *connect.Client[v1.RemoveUserFromGroupRequest, emptypb.Empty]
 	updateUserWeight         *connect.Client[v1.UpdateUserWeightRequest, emptypb.Empty]
@@ -178,6 +200,24 @@ func (c *groupServiceClient) UpdateGroup(ctx context.Context, req *v1.UpdateGrou
 // DeleteGroup calls api.v1.GroupService.DeleteGroup.
 func (c *groupServiceClient) DeleteGroup(ctx context.Context, req *v1.DeleteGroupRequest) (*emptypb.Empty, error) {
 	response, err := c.deleteGroup.CallUnary(ctx, connect.NewRequest(req))
+	if response != nil {
+		return response.Msg, err
+	}
+	return nil, err
+}
+
+// UploadGroupImage calls api.v1.GroupService.UploadGroupImage.
+func (c *groupServiceClient) UploadGroupImage(ctx context.Context, req *v1.UploadGroupImageRequest) (*v1.UploadGroupImageResponse, error) {
+	response, err := c.uploadGroupImage.CallUnary(ctx, connect.NewRequest(req))
+	if response != nil {
+		return response.Msg, err
+	}
+	return nil, err
+}
+
+// DeleteGroupImage calls api.v1.GroupService.DeleteGroupImage.
+func (c *groupServiceClient) DeleteGroupImage(ctx context.Context, req *v1.DeleteGroupImageRequest) (*emptypb.Empty, error) {
+	response, err := c.deleteGroupImage.CallUnary(ctx, connect.NewRequest(req))
 	if response != nil {
 		return response.Msg, err
 	}
@@ -243,6 +283,8 @@ type GroupServiceHandler interface {
 	CreateExpenseGroup(context.Context, *v1.CreateExpenseGroupRequest) (*v1.CreateExpenseGroupResponse, error)
 	UpdateGroup(context.Context, *v1.UpdateGroupRequest) (*v1.UpdateGroupResponse, error)
 	DeleteGroup(context.Context, *v1.DeleteGroupRequest) (*emptypb.Empty, error)
+	UploadGroupImage(context.Context, *v1.UploadGroupImageRequest) (*v1.UploadGroupImageResponse, error)
+	DeleteGroupImage(context.Context, *v1.DeleteGroupImageRequest) (*emptypb.Empty, error)
 	AddUserToGroup(context.Context, *v1.AddUserToGroupRequest) (*emptypb.Empty, error)
 	RemoveUserFromGroup(context.Context, *v1.RemoveUserFromGroupRequest) (*emptypb.Empty, error)
 	UpdateUserWeight(context.Context, *v1.UpdateUserWeightRequest) (*emptypb.Empty, error)
@@ -274,6 +316,18 @@ func NewGroupServiceHandler(svc GroupServiceHandler, opts ...connect.HandlerOpti
 		GroupServiceDeleteGroupProcedure,
 		svc.DeleteGroup,
 		connect.WithSchema(groupServiceMethods.ByName("DeleteGroup")),
+		connect.WithHandlerOptions(opts...),
+	)
+	groupServiceUploadGroupImageHandler := connect.NewUnaryHandlerSimple(
+		GroupServiceUploadGroupImageProcedure,
+		svc.UploadGroupImage,
+		connect.WithSchema(groupServiceMethods.ByName("UploadGroupImage")),
+		connect.WithHandlerOptions(opts...),
+	)
+	groupServiceDeleteGroupImageHandler := connect.NewUnaryHandlerSimple(
+		GroupServiceDeleteGroupImageProcedure,
+		svc.DeleteGroupImage,
+		connect.WithSchema(groupServiceMethods.ByName("DeleteGroupImage")),
 		connect.WithHandlerOptions(opts...),
 	)
 	groupServiceAddUserToGroupHandler := connect.NewUnaryHandlerSimple(
@@ -320,6 +374,10 @@ func NewGroupServiceHandler(svc GroupServiceHandler, opts ...connect.HandlerOpti
 			groupServiceUpdateGroupHandler.ServeHTTP(w, r)
 		case GroupServiceDeleteGroupProcedure:
 			groupServiceDeleteGroupHandler.ServeHTTP(w, r)
+		case GroupServiceUploadGroupImageProcedure:
+			groupServiceUploadGroupImageHandler.ServeHTTP(w, r)
+		case GroupServiceDeleteGroupImageProcedure:
+			groupServiceDeleteGroupImageHandler.ServeHTTP(w, r)
 		case GroupServiceAddUserToGroupProcedure:
 			groupServiceAddUserToGroupHandler.ServeHTTP(w, r)
 		case GroupServiceRemoveUserFromGroupProcedure:
@@ -351,6 +409,14 @@ func (UnimplementedGroupServiceHandler) UpdateGroup(context.Context, *v1.UpdateG
 
 func (UnimplementedGroupServiceHandler) DeleteGroup(context.Context, *v1.DeleteGroupRequest) (*emptypb.Empty, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.GroupService.DeleteGroup is not implemented"))
+}
+
+func (UnimplementedGroupServiceHandler) UploadGroupImage(context.Context, *v1.UploadGroupImageRequest) (*v1.UploadGroupImageResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.GroupService.UploadGroupImage is not implemented"))
+}
+
+func (UnimplementedGroupServiceHandler) DeleteGroupImage(context.Context, *v1.DeleteGroupImageRequest) (*emptypb.Empty, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.GroupService.DeleteGroupImage is not implemented"))
 }
 
 func (UnimplementedGroupServiceHandler) AddUserToGroup(context.Context, *v1.AddUserToGroupRequest) (*emptypb.Empty, error) {

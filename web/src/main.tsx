@@ -6,6 +6,7 @@ import { createRoot } from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
 
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 import { AuthProvider, useAuth } from "./auth";
 import { ErrorScreen } from "./components/error-screen";
@@ -52,10 +53,12 @@ if (!rootElement.innerHTML) {
       <TransportProvider transport={transport}>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-            <AuthProvider>
-              <InnerApp />
-              <Toaster closeButton richColors />
-            </AuthProvider>
+            <TooltipProvider delay={150}>
+              <AuthProvider>
+                <InnerApp />
+                <Toaster closeButton richColors />
+              </AuthProvider>
+            </TooltipProvider>
           </ThemeProvider>
         </QueryClientProvider>
       </TransportProvider>

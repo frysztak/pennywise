@@ -74,6 +74,7 @@ message UserGroup {
   repeated MemberBalance member_balances = 6;
   map<string, int64> total_spending = 7;
   repeated string currencies = 8;
+  optional google.protobuf.Timestamp image_updated_at = 9;
 }
 
 message GetUserGroupsRequest {}
@@ -140,6 +141,20 @@ message DeleteGroupRequest {
   string group_id = 1 [(buf.validate.field).string.uuid = true];
 }
 
+message UploadGroupImageRequest {
+  string group_id = 1 [(buf.validate.field).string.uuid = true];
+  bytes image_data = 2 [(buf.validate.field).bytes.min_len = 1];
+  string mime_type = 3 [(buf.validate.field).string.min_len = 1];
+}
+
+message UploadGroupImageResponse {
+  google.protobuf.Timestamp image_updated_at = 1;
+}
+
+message DeleteGroupImageRequest {
+  string group_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
 message GetSettlementSuggestionsRequest {
   string group_id = 1 [(buf.validate.field).string.uuid = true];
 
@@ -171,6 +186,8 @@ service GroupService {
   rpc CreateExpenseGroup(CreateExpenseGroupRequest) returns (CreateExpenseGroupResponse) {}
   rpc UpdateGroup(UpdateGroupRequest) returns (UpdateGroupResponse) {}
   rpc DeleteGroup(DeleteGroupRequest) returns (google.protobuf.Empty) {}
+  rpc UploadGroupImage(UploadGroupImageRequest) returns (UploadGroupImageResponse) {}
+  rpc DeleteGroupImage(DeleteGroupImageRequest) returns (google.protobuf.Empty) {}
 
   rpc AddUserToGroup(AddUserToGroupRequest) returns (google.protobuf.Empty) {}
   rpc RemoveUserFromGroup(RemoveUserFromGroupRequest) returns (google.protobuf.Empty) {}

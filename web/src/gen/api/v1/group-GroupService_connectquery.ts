@@ -20,6 +20,16 @@ export const updateGroup = GroupService.method.updateGroup;
 export const deleteGroup = GroupService.method.deleteGroup;
 
 /**
+ * @generated from rpc api.v1.GroupService.UploadGroupImage
+ */
+export const uploadGroupImage = GroupService.method.uploadGroupImage;
+
+/**
+ * @generated from rpc api.v1.GroupService.DeleteGroupImage
+ */
+export const deleteGroupImage = GroupService.method.deleteGroupImage;
+
+/**
  * @generated from rpc api.v1.GroupService.AddUserToGroup
  */
 export const addUserToGroup = GroupService.method.addUserToGroup;
