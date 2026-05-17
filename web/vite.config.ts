@@ -1,8 +1,9 @@
 /// <reference types="vitest/config" />
+import babel from "@rolldown/plugin-babel";
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
-import react from "@vitejs/plugin-react";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { playwright } from "@vitest/browser-playwright";
 import { fileURLToPath } from "node:url";
 import path from "path";
@@ -20,11 +21,8 @@ export default defineConfig({
       target: "react",
       autoCodeSplitting: true,
     }),
-    react({
-      babel: {
-        plugins: ["babel-plugin-react-compiler"],
-      },
-    }),
+    react(),
+    babel({ presets: [reactCompilerPreset()] }),
     tailwindcss(),
     Sonda({
       open: false,
@@ -102,14 +100,9 @@ export default defineConfig({
     sourcemap: true,
     // generates .vite/manifest.json in outDir
     manifest: true,
-    rollupOptions: {
+    rolldownOptions: {
       // overwrite default .html entry
       input: "/src/main.tsx",
-      output: {
-        manualChunks: {
-          ui: ["react", "react-dom", "@base-ui/react", "sonner", "tailwind-merge"],
-        },
-      },
     },
   },
   test: {
