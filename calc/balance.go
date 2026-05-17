@@ -1,6 +1,7 @@
 package calc
 
 import (
+	"math"
 	"pennywise/db/database"
 	"pennywise/utils"
 )
@@ -8,6 +9,12 @@ import (
 type PerCurrencyBalance map[string]int64
 type GroupBalance map[string]PerCurrencyBalance
 
+// ComputeGroupBalance accumulates every per-beneficiary share as a float64
+// in sub-cent precision and rounds only once per user/currency at the end.
+// This mirrors ihatemoney's settlement math: no per-expense truncation, no
+// systematic bias toward whoever happens to appear first in beneficiaries.
+// The displayed sum across users may differ from zero by ±1¢ per currency
+// when shares don't divide cleanly — same property as ihatemoney's UI.
 func ComputeGroupBalance(
 	members *[]database.GetGroupMembersRow,
 	expenses *[]database.GetGroupExpensesRow,
@@ -18,7 +25,6 @@ func ComputeGroupBalance(
 	for _, value := range *members {
 		userWeights[value.UserID] = value.Weight
 	}
-	balances := make(GroupBalance)
 
 	// Collect all currencies used in expenses and transfers, starting with default currency
 	currencies := make(map[string]bool)
@@ -30,38 +36,45 @@ func ComputeGroupBalance(
 		currencies[transfer.Currency] = true
 	}
 
-	// Initialize all members with zero balances for all currencies
+	// Internal accumulator in float cents.
+	floatBalances := make(map[string]map[string]float64, len(userWeights))
 	for userID := range userWeights {
-		balances[userID] = make(PerCurrencyBalance)
-		for currency := range currencies {
-			balances[userID][currency] = 0
+		floatBalances[userID] = make(map[string]float64, len(currencies))
+		for c := range currencies {
+			floatBalances[userID][c] = 0
 		}
 	}
 
 	for _, expense := range *expenses {
 		beneficiaries, _ := utils.JSONStringToSlice(expense.BeneficiariesIds)
 
-		// total weight for this expense
 		totalWeight := 0.0
 		for _, beneficiaryId := range beneficiaries {
 			totalWeight += userWeights[beneficiaryId]
 		}
-
-		// owed shares
-		for _, beneficiaryId := range beneficiaries {
-			share := int64(float64(expense.Amount) * (userWeights[beneficiaryId] / totalWeight))
-			balances[beneficiaryId][expense.Currency] -= share
+		if totalWeight == 0 {
+			continue
 		}
 
-		// payments
-		balances[expense.PayerID][expense.Currency] += expense.Amount
+		for _, beneficiaryId := range beneficiaries {
+			share := float64(expense.Amount) * userWeights[beneficiaryId] / totalWeight
+			floatBalances[beneficiaryId][expense.Currency] -= share
+		}
+		floatBalances[expense.PayerID][expense.Currency] += float64(expense.Amount)
 	}
 
-	// Process transfers: sender gave money, receiver got money
+	// Transfers are already in integer cents — no rounding needed.
 	for _, transfer := range *transfers {
-		balances[transfer.SenderID][transfer.Currency] += transfer.Amount
-		balances[transfer.ReceiverID][transfer.Currency] -= transfer.Amount
+		floatBalances[transfer.SenderID][transfer.Currency] += float64(transfer.Amount)
+		floatBalances[transfer.ReceiverID][transfer.Currency] -= float64(transfer.Amount)
 	}
 
+	balances := make(GroupBalance, len(floatBalances))
+	for userID, perCurr := range floatBalances {
+		balances[userID] = make(PerCurrencyBalance, len(perCurr))
+		for c, v := range perCurr {
+			balances[userID][c] = int64(math.Round(v))
+		}
+	}
 	return balances
 }
