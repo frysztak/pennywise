@@ -17,10 +17,13 @@ type Mapping struct {
 	// ProjectName overrides the imported group name. Optional;
 	// falls back to ihatemoney's Project.name when empty.
 	ProjectName string `json:"projectName,omitempty"`
-	// CreatorUserID is the Pennywise user recorded as `expense_groups.created_by`.
-	// Must resolve to one of the mapped users.
-	CreatorUserID string         `json:"creatorUserId"`
-	Persons       []PersonMapping `json:"persons"`
+	// Creator identifies the Pennywise user recorded as
+	// `expense_groups.created_by`. Exactly one of CreatorUserID /
+	// CreatorUserEmail must be set; both are resolved against the live DB
+	// and must end up pointing at one of the mapped users.
+	CreatorUserID    string          `json:"creatorUserId,omitempty"`
+	CreatorUserEmail string          `json:"creatorUserEmail,omitempty"`
+	Persons          []PersonMapping `json:"persons"`
 }
 
 // PersonMapping resolves a single ihatemoney person to a Pennywise user.
@@ -103,8 +106,32 @@ type ResolvedUser struct {
 func Validate(ctx context.Context, persons []Person, m *Mapping) (*Resolved, error) {
 	var errs ValidationErrors
 
-	if m.CreatorUserID == "" {
-		errs = append(errs, ValidationError{Field: "creatorUserId", Message: "is required"})
+	// Resolve the creator to a Pennywise user ID. Exactly one of
+	// creatorUserId / creatorUserEmail must be set; we normalize to ID so
+	// downstream code only needs to look at CreatorUserID.
+	creatorIDSet := m.CreatorUserID != ""
+	creatorEmailSet := m.CreatorUserEmail != ""
+	switch {
+	case !creatorIDSet && !creatorEmailSet:
+		errs = append(errs, ValidationError{
+			Field:   "creator",
+			Message: "one of creatorUserId or creatorUserEmail is required",
+		})
+	case creatorIDSet && creatorEmailSet:
+		errs = append(errs, ValidationError{
+			Field:   "creator",
+			Message: "set only one of creatorUserId or creatorUserEmail, not both",
+		})
+	case creatorEmailSet:
+		u, err := db.ReadQueries.GetUserByEmail(ctx, m.CreatorUserEmail)
+		if err != nil {
+			errs = append(errs, ValidationError{
+				Field:   "creatorUserEmail",
+				Message: fmt.Sprintf("user with email %q not found", m.CreatorUserEmail),
+			})
+		} else {
+			m.CreatorUserID = u.ID
+		}
 	}
 
 	// Index source persons and detect coverage gaps.

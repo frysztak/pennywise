@@ -16,6 +16,7 @@
 - **Activity Feed** - View all group transactions in one unified timeline
 - **Group Management** - Create groups, invite members, and customize splitting weights
 - **AI-based receipt scanning** - Automatically extract data from receipts
+- **Import from ihatemoney** - Migrate existing projects from [ihatemoney](https://github.com/spiral-project/ihatemoney) via a CLI tool
 
 ## Screenshots
 
@@ -161,6 +162,16 @@ environment:
   - OPENAI_API_KEY=ollama
   - OPENAI_OCR_MODEL=gemma4:9b
 ```
+
+## Migrating from ihatemoney
+
+A CLI tool ships with the repo for importing projects from an [ihatemoney](https://github.com/spiral-project/ihatemoney) SQLite database. Inspect a source DB, generate a person → user mapping, dry-run with `plan`, then `apply` to write the new group inside a single transaction:
+
+```bash
+go run ./cmd/migrate-ihatemoney inspect --ihatemoney-db budget.db
+```
+
+See [`cmd/migrate-ihatemoney/README.md`](cmd/migrate-ihatemoney/README.md) for the full workflow, mapping file format, and flags.
 
 ## License
 

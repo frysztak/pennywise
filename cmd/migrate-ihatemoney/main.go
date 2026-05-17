@@ -134,14 +134,14 @@ func printMappingSkeleton(ctx context.Context, src *ihatemoney.Source, projectID
 	// `_comment` is a hint for the operator; unknown fields are ignored by
 	// the loader, so the file is safe to feed straight back into `plan`.
 	out, err := json.MarshalIndent(struct {
-		Comment       string        `json:"_comment"`
-		ProjectName   string        `json:"projectName"`
-		CreatorUserID string        `json:"creatorUserId"`
-		Persons       []personEntry `json:"persons"`
+		Comment          string        `json:"_comment"`
+		ProjectName      string        `json:"projectName"`
+		CreatorUserEmail string        `json:"creatorUserEmail"`
+		CreatorUserID    string        `json:"creatorUserId,omitempty"`
+		Persons          []personEntry `json:"persons"`
 	}{
-		Comment:       "Fill creatorUserId and user_email for each person, then run `plan`. _ihm_name is a hint only.",
+		Comment:       "Fill creatorUserEmail (or creatorUserId) and user_email for each person, then run `plan`. _ihm_name is a hint only.",
 		ProjectName:   skel.ProjectName,
-		CreatorUserID: "",
 		Persons:       entries,
 	}, "", "  ")
 	if err != nil {

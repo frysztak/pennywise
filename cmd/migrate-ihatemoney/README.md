@@ -57,7 +57,7 @@ rolls back — nothing is written.
 ```json
 {
   "projectName": "Roommates",
-  "creatorUserId": "11111111-1111-...",
+  "creatorUserEmail": "alice@example.com",
   "persons": [
     { "ihm_id": 1, "user_email": "alice@example.com" },
     { "ihm_id": 2, "user_id": "22222222-2222-..." }
@@ -66,7 +66,7 @@ rolls back — nothing is written.
 ```
 
 - `projectName` — optional; defaults to ihatemoney's project name.
-- `creatorUserId` — required; must be one of the mapped Pennywise users.
+- Creator — **exactly one** of `creatorUserEmail` or `creatorUserId`. Must resolve to one of the mapped Pennywise users.
 - Each person needs **exactly one** of `user_email` or `user_id`.
 
 ## Flags
