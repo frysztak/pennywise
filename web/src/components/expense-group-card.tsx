@@ -27,7 +27,7 @@ export function ExpenseGroupCard({
 }: ExpenseGroupCardProps) {
   return (
     <Card className="transition-all hover:shadow-md hover:border-primary/50 h-full overflow-hidden gap-0 pt-0 pb-4">
-      <div className="bg-muted aspect-3/2 w-full overflow-hidden relative">
+      <div className="bg-muted aspect-2/1 w-full overflow-hidden relative">
         <GroupImage groupId={groupId} groupName={groupName} imageUpdatedAt={imageUpdatedAt} className="size-full" />
         <GroupMemberStack members={members} className="absolute left-3 bottom-3" avatarClassName="size-7" />
       </div>

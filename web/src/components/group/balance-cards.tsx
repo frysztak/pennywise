@@ -1,16 +1,18 @@
 import { AmountWithCurrency } from "@/components/amount-with-currency";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { MemberBalance } from "@/gen/api/v1/group_pb";
+import { cn } from "@/lib/utils";
 
 interface BalanceCardsProps {
   userBalance: MemberBalance;
   totalSpending: Record<string, bigint>;
   defaultCurrency: string;
+  className?: string;
 }
 
-export function BalanceCards({ userBalance, totalSpending, defaultCurrency }: BalanceCardsProps) {
+export function BalanceCards({ userBalance, totalSpending, defaultCurrency, className }: BalanceCardsProps) {
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className={cn("grid gap-4 md:grid-cols-2", className)}>
       <Card className="gap-1">
         <CardHeader>
           <CardTitle className="text-lg">Your total balance</CardTitle>

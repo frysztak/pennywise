@@ -41,7 +41,6 @@ interface GroupHeaderProps {
 export function GroupHeader({
   groupId,
   groupName,
-  groupDescription,
   imageUpdatedAt,
   members,
   onCreateExpense,
@@ -53,9 +52,9 @@ export function GroupHeader({
   onDeleteGroup,
 }: GroupHeaderProps) {
   return (
-    <div className="space-y-4">
+    <div className="absolute top-0 left-0 right-0 h-80">
       {imageUpdatedAt && (
-        <div className="relative h-48 sm:h-64 w-full overflow-hidden rounded-xl bg-muted">
+        <div className="relative h-full w-full overflow-hidden rounded-t-xl bg-muted">
           <GroupImage groupId={groupId} groupName={groupName} imageUpdatedAt={imageUpdatedAt} className="size-full" />
           <div
             className="pointer-events-none absolute inset-0"
@@ -64,17 +63,12 @@ export function GroupHeader({
                 "linear-gradient(to bottom, rgba(8,9,13,0.15) 0%, rgba(8,9,13,0.05) 35%, rgba(8,9,13,0.7) 100%)",
             }}
           />
-          <GroupMemberStack members={members} className="absolute left-4 bottom-4" avatarClassName="size-9" />
         </div>
       )}
-      <div className="flex flex-wrap gap-4 items-start justify-between">
-        <div>
-          <h1 className="text-4xl font-bold font-serif tracking-tight">{groupName}</h1>
-          <p className="text-muted-foreground mt-2">
-            {groupDescription || "Manage and track shared expenses for your group."}
-          </p>
-        </div>
-        <div className="flex gap-2">
+      <div className="absolute top-50 left-6 right-6 flex flex-wrap flex-col gap-4 items-stretch justify-between">
+        <h1 className="text-5xl font-bold font-serif tracking-tight">{groupName}</h1>
+        <div className="flex flex-row justify-between gap-2">
+          <GroupMemberStack members={members} className="" avatarClassName="size-9" />
           <ButtonGroup>
             <Button onClick={onCreateExpense} size="lg" className="h-10">
               <Plus />

@@ -117,6 +117,7 @@ function RouteComponent() {
 
       {/* Balance Cards */}
       <BalanceCards
+        className="mt-72 md:mt-64"
         userBalance={currentUserBalance}
         totalSpending={groupInfo.totalSpending}
         defaultCurrency={groupInfo.groupDefaultCurrency}
