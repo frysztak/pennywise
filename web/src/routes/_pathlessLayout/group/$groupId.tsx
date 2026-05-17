@@ -11,6 +11,7 @@ import { DeleteGroupDialog } from "@/components/group/delete-group-dialog";
 import { DeleteRecurringExpenseDialog } from "@/components/group/delete-recurring-expense-dialog";
 import { DeleteTransferDialog } from "@/components/group/delete-transfer-dialog";
 import { EditGroupDialog } from "@/components/group/edit-group-dialog";
+import { EditGroupImageDialog } from "@/components/group/edit-group-image-dialog";
 import { GroupHeader } from "@/components/group/group-header";
 import { GroupSections } from "@/components/group/group-sections";
 import { RecurringRemindersSection } from "@/components/group/recurring-reminders-section";
@@ -25,6 +26,7 @@ import { useDeleteExpenseModal } from "@/hooks/use-delete-expense-modal";
 import { useDeleteGroupModal } from "@/hooks/use-delete-group-modal";
 import { useDeleteRecurringExpenseModal } from "@/hooks/use-delete-recurring-expense-modal";
 import { useDeleteTransferModal } from "@/hooks/use-delete-transfer-modal";
+import { useEditGroupImageModal } from "@/hooks/use-edit-group-image-modal";
 import { useEditGroupModal } from "@/hooks/use-edit-group-modal";
 import { useExpenseModal } from "@/hooks/use-expense-modal";
 import { useRecurringExpenseModal } from "@/hooks/use-recurring-expense-modal";
@@ -77,6 +79,7 @@ function RouteComponent() {
   const deleteGroupModal = useDeleteGroupModal();
   const addMemberModal = useAddMemberModal();
   const editGroupModal = useEditGroupModal();
+  const editGroupImageModal = useEditGroupImageModal();
 
   // Find current user's balance from member balances
   const currentUserBalance = groupInfo.memberBalances.find((mb) => mb.userId === currentUser.id)!;
@@ -85,8 +88,11 @@ function RouteComponent() {
     <>
       {/* Header */}
       <GroupHeader
+        groupId={groupId}
         groupName={groupInfo.groupName}
         groupDescription={groupInfo.groupDescription}
+        imageUpdatedAt={groupInfo.imageUpdatedAt}
+        members={groupInfo.memberBalances.map((m) => ({ userId: m.userId, userName: m.userName }))}
         onCreateExpense={expenseModal.openCreate}
         onCreateTransfer={transferModal.openCreate}
         onCreateRecurring={recurringExpenseModal.openCreate}
@@ -97,8 +103,10 @@ function RouteComponent() {
             groupName: groupInfo.groupName,
             groupDescription: groupInfo.groupDescription,
             defaultCurrency: groupInfo.groupDefaultCurrency,
+            imageUpdatedAt: groupInfo.imageUpdatedAt,
           })
         }
+        onEditImage={() => editGroupImageModal.openModal(groupId)}
         onDeleteGroup={() =>
           deleteGroupModal.confirmDelete({
             groupId,
@@ -217,6 +225,9 @@ function RouteComponent() {
           memberBalances={groupInfo.memberBalances}
           currencies={groupInfo.currencies}
         />
+      )}
+      {editGroupImageModal.dialogProps.open && editGroupImageModal.dialogProps.groupId && (
+        <EditGroupImageDialog {...editGroupImageModal.dialogProps} groupId={editGroupImageModal.dialogProps.groupId} />
       )}
     </>
   );

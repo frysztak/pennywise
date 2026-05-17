@@ -111,6 +111,8 @@ func (s *GroupService) CreateExpenseGroup(ctx context.Context, r *apiv1.CreateEx
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
+	setDefaultGroupImage(ctx, group.ID)
+
 	logger.Info("group created successfully", "group_id", group.ID, "name", group.Name)
 
 	return &apiv1.CreateExpenseGroupResponse{
@@ -369,6 +371,9 @@ func (s *GroupService) GetUserGroups(ctx context.Context, r *apiv1.GetUserGroups
 			MemberBalances:       memberBalances,
 			TotalSpending:        totalSpending,
 			Currencies:           currencies,
+		}
+		if v.ImageUpdatedAt.Valid {
+			pbGroups[i].ImageUpdatedAt = timestamppb.New(v.ImageUpdatedAt.Time)
 		}
 	}
 

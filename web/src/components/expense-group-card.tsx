@@ -1,33 +1,40 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import type { Timestamp } from "@bufbuild/protobuf/wkt";
+
+import { GroupImage } from "@/components/group/group-image";
+import { GroupMemberStack } from "@/components/group/group-member-stack";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { AmountWithCurrency } from "./amount-with-currency";
 
 interface ExpenseGroupCardProps {
+  groupId: string;
   groupName: string;
-  groupDescription: string;
   groupDefaultCurrency: string;
   balance: Record<string, bigint>;
+  imageUpdatedAt?: Timestamp;
+  members: Array<{ userId: string; userName: string }>;
   recentExpenses?: Array<{ name: string; amount: number; currency: string }>;
 }
 
 export function ExpenseGroupCard({
+  groupId,
   groupName,
-  groupDescription,
   groupDefaultCurrency,
   balance,
+  imageUpdatedAt,
+  members,
   recentExpenses,
 }: ExpenseGroupCardProps) {
   return (
-    <Card className="transition-all hover:shadow-md hover:border-primary/50 h-full">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="text-2xl">{groupName}</CardTitle>
-            <CardDescription className="mt-2 line-clamp-1">{groupDescription || "\u200B"}</CardDescription>
-          </div>
-        </div>
+    <Card className="transition-all hover:shadow-md hover:border-primary/50 h-full overflow-hidden gap-0 pt-0 pb-4">
+      <div className="bg-muted aspect-3/2 w-full overflow-hidden relative">
+        <GroupImage groupId={groupId} groupName={groupName} imageUpdatedAt={imageUpdatedAt} className="size-full" />
+        <GroupMemberStack members={members} className="absolute left-3 bottom-3" avatarClassName="size-7" />
+      </div>
+      <CardHeader className="p-4 pb-0">
+        <CardTitle className="text-3xl font-serif tracking-tight">{groupName}</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-1 px-4">
         <div>
           <div className="text-sm text-muted-foreground mb-1">Your balance:</div>
           <AmountWithCurrency className="text-lg" balance={balance} defaultCurrency={groupDefaultCurrency} />

@@ -35,10 +35,12 @@ function RouteComponent() {
             return (
               <Link key={group.groupId} to="/group/$groupId" params={{ groupId: group.groupId }} className="group">
                 <ExpenseGroupCard
+                  groupId={group.groupId}
                   groupName={group.groupName}
-                  groupDescription={group.groupDescription}
                   groupDefaultCurrency={group.groupDefaultCurrency}
                   balance={currentUserBalance?.balance || {}}
+                  imageUpdatedAt={group.imageUpdatedAt}
+                  members={group.memberBalances.map((m) => ({ userId: m.userId, userName: m.userName }))}
                 />
               </Link>
             );
