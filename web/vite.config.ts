@@ -85,7 +85,7 @@ export default defineConfig({
       },
     }),
     compression({
-      include: [/\.(js|mjs|json|css|html|svg)$/], // Text-based files
+      include: [/\.(js|mjs|json|css|html|svg|map)$/], // Text-based files
       exclude: [/\.(png|jpg|jpeg|gif|webp|woff|woff2)$/], // Already compressed formats
       threshold: 1024,
       algorithms: ["brotliCompress"],

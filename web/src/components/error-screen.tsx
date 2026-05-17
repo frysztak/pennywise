@@ -1,7 +1,8 @@
 import { SiGithub } from "@icons-pack/react-simple-icons";
 import { Link } from "@tanstack/react-router";
 import { AlertCircle, Check, ChevronDown, Copy, Home, RefreshCw, Terminal } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { SourceMapConsumer } from "source-map-js";
 
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -19,6 +20,27 @@ interface StackFrame {
   fn: string;
   location: string;
   app: boolean;
+  url?: string;
+  line?: number;
+  column?: number;
+}
+
+const LOCATION_RE = /^(.*):(\d+):(\d+)$/;
+
+function parseFrameLocation(loc: string): { url: string; line: number; column: number } | null {
+  const m = loc.match(LOCATION_RE);
+  if (!m) return null;
+  return { url: m[1], line: Number(m[2]), column: Number(m[3]) };
+}
+
+function isAppLocation(loc: string): boolean {
+  return (
+    !!loc &&
+    !loc.includes("node_modules") &&
+    !loc.includes("react-dom") &&
+    !loc.includes("react-stack-bottom-frame") &&
+    !loc.startsWith("native")
+  );
 }
 
 function parseStack(stack: string | undefined): StackFrame[] {
@@ -27,26 +49,92 @@ function parseStack(stack: string | undefined): StackFrame[] {
   const frames: StackFrame[] = [];
   for (const raw of lines) {
     const line = raw.trim();
-    if (!line.startsWith("at ")) continue;
-    const body = line.slice(3);
+    if (!line) continue;
     let fn = "<anonymous>";
     let location = "";
-    const parenMatch = body.match(/^(.+?)\s+\((.+)\)$/);
-    if (parenMatch) {
-      fn = parenMatch[1];
-      location = parenMatch[2];
+
+    if (line.startsWith("at ")) {
+      // V8: "at fn (loc)" or "at loc"
+      const body = line.slice(3);
+      const parenMatch = body.match(/^(.+?)\s+\((.+)\)$/);
+      if (parenMatch) {
+        fn = parenMatch[1];
+        location = parenMatch[2];
+      } else {
+        location = body;
+      }
+    } else if (line.includes("@")) {
+      // Firefox/Safari: "fn@loc" or "@loc"
+      const atIdx = line.lastIndexOf("@");
+      const left = line.slice(0, atIdx);
+      const right = line.slice(atIdx + 1);
+      if (left) fn = left;
+      location = right;
     } else {
-      location = body;
+      continue;
     }
-    const app =
-      !!location &&
-      !location.includes("node_modules") &&
-      !location.includes("react-dom") &&
-      !location.includes("react-stack-bottom-frame") &&
-      !location.startsWith("native");
-    frames.push({ fn, location, app });
+
+    const parsed = parseFrameLocation(location);
+    frames.push({
+      fn,
+      location,
+      app: isAppLocation(location),
+      url: parsed?.url,
+      line: parsed?.line,
+      column: parsed?.column,
+    });
   }
   return frames;
+}
+
+const consumerCache = new Map<string, Promise<SourceMapConsumer | null>>();
+
+function loadConsumer(jsUrl: string): Promise<SourceMapConsumer | null> {
+  const cached = consumerCache.get(jsUrl);
+  if (cached) return cached;
+  const p = (async () => {
+    try {
+      const res = await fetch(jsUrl + ".map");
+      if (!res.ok) return null;
+      const raw = await res.json();
+      const { SourceMapConsumer } = await import("source-map-js");
+      return new SourceMapConsumer(raw);
+    } catch {
+      return null;
+    }
+  })();
+  consumerCache.set(jsUrl, p);
+  return p;
+}
+
+async function resolveFrames(frames: StackFrame[]): Promise<StackFrame[]> {
+  const out: StackFrame[] = [];
+  for (const f of frames) {
+    if (!f.url || f.line == null || f.column == null) {
+      out.push(f);
+      continue;
+    }
+    const consumer = await loadConsumer(f.url);
+    if (!consumer) {
+      out.push(f);
+      continue;
+    }
+    const pos = consumer.originalPositionFor({ line: f.line, column: f.column });
+    if (!pos.source || pos.line == null) {
+      out.push(f);
+      continue;
+    }
+    const source = pos.source;
+    out.push({
+      fn: pos.name || f.fn,
+      location: `${source}:${pos.line}:${pos.column ?? 0}`,
+      app: source.includes("/src/") && !source.includes("node_modules"),
+      url: f.url,
+      line: pos.line,
+      column: pos.column ?? undefined,
+    });
+  }
+  return out;
 }
 
 function makeDigest(input: string) {
@@ -57,7 +145,10 @@ function makeDigest(input: string) {
   return "PW-" + (h >>> 0).toString(16).padStart(8, "0");
 }
 
-function buildReport(error: Error, version: string, timestamp: string, digest: string) {
+function buildReport(error: Error, version: string, timestamp: string, digest: string, frames: StackFrame[]) {
+  const stack = frames.length
+    ? frames.map((f) => `  at ${f.fn} (${f.location})`).join("\n")
+    : (error.stack ?? "(no stack)");
   return [
     "Pennywise error report",
     `ref:     ${digest}`,
@@ -67,21 +158,32 @@ function buildReport(error: Error, version: string, timestamp: string, digest: s
     `name:    ${error.name}`,
     `message: ${error.message}`,
     "",
-    error.stack ?? "(no stack)",
+    stack,
   ].join("\n");
 }
 
 export function ErrorScreen({ error }: ErrorScreenProps) {
   const [copied, setCopied] = useState(false);
   const { appVersion } = getConfig();
-  const frames = parseStack(error.stack);
+  const rawFrames = useMemo(() => parseStack(error.stack), [error.stack]);
+  const [frames, setFrames] = useState<StackFrame[]>(rawFrames);
   const digest = makeDigest((error.stack ?? "") + (error.message ?? "") + (error.name ?? ""));
   const timestamp = new Date().toISOString().replace("T", " ").slice(0, 19) + " UTC";
   const versionLabel = appVersion.startsWith("v") ? appVersion : `v${appVersion}`;
 
+  useEffect(() => {
+    let cancelled = false;
+    resolveFrames(rawFrames).then((resolved) => {
+      if (!cancelled) setFrames(resolved);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [rawFrames]);
+
   const copyReport = async () => {
     try {
-      await navigator.clipboard.writeText(buildReport(error, appVersion, timestamp, digest));
+      await navigator.clipboard.writeText(buildReport(error, appVersion, timestamp, digest, frames));
       setCopied(true);
       setTimeout(() => setCopied(false), 1400);
     } catch {
