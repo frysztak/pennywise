@@ -40,9 +40,13 @@ func TestComputeGroupBalance(t *testing.T) {
 				},
 			},
 			defaultCurrency: "PLN",
+			// 21.37 split 50/50 = 10.685 each. uA owes 10.685 of their own
+			// expense, leaving them +10.685. uB owes 10.685. Both round half
+			// away from zero → ±10.69. Matches ihatemoney's display, which
+			// also rounds each balance independently from float.
 			want: GroupBalance{
 				"uA": PerCurrencyBalance{"PLN": amount(10.69)},
-				"uB": PerCurrencyBalance{"PLN": amount(-10.68)},
+				"uB": PerCurrencyBalance{"PLN": amount(-10.69)},
 			},
 		},
 		{
@@ -441,5 +445,40 @@ func TestComputeGroupBalance(t *testing.T) {
 				t.Errorf("Wrong balance:\n%s", cmp.Diff(tc.want, got))
 			}
 		})
+	}
+}
+
+// TestComputeGroupBalance_NoSystematicBias guards against the bias the old
+// integer-truncation implementation had: any rounding fraction leaked to the
+// payer, so after many awkward-split expenses the sum drifted by tens of
+// cents. With float accumulation + a single round per user, the sum stays
+// within ±1¢ per currency even for many awkward splits.
+func TestComputeGroupBalance_NoSystematicBias(t *testing.T) {
+	members := []database.GetGroupMembersRow{
+		{UserID: "uA", Weight: 1.0},
+		{UserID: "uB", Weight: 1.0},
+		{UserID: "uC", Weight: 1.0},
+	}
+
+	// 30 small awkward-cent expenses split three ways. Old truncation
+	// would have leaked ~30¢ to the payer in total.
+	expenses := make([]database.GetGroupExpensesRow, 0, 30)
+	for i := range 30 {
+		expenses = append(expenses, database.GetGroupExpensesRow{
+			ID: "e" + string(rune('A'+i)), Currency: "USD", GroupID: "g1",
+			PayerID:          "uA",
+			Amount:           amount(10.00) + int64(i), // 10.00, 10.01, …, 10.29
+			BeneficiariesIds: utils.SliceToJSONString("uA", "uB", "uC"),
+		})
+	}
+
+	got := ComputeGroupBalance(&members, &expenses, &[]database.GetGroupTransfersForBalanceRow{}, "USD")
+
+	var sum int64
+	for _, perCurrency := range got {
+		sum += perCurrency["USD"]
+	}
+	if sum < -1 || sum > 1 {
+		t.Errorf("per-currency balance sum = %d, want within ±1¢ (drift indicates systematic bias)", sum)
 	}
 }
