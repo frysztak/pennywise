@@ -6,6 +6,8 @@
 tmp
 web/stats.html
 pennywise
+/migrate
+!/migrate/
 coverage.out
 demo-users.txt
 mapping.json

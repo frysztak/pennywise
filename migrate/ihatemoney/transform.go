@@ -3,65 +3,45 @@ package ihatemoney
 import (
 	"fmt"
 	"math"
-	"pennywise/db/database"
-	"pennywise/db/overrides"
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
+
+	"pennywise/db/database"
+	"pennywise/db/overrides"
+	"pennywise/migrate"
 )
 
-// Plan is the immutable output of Build. Apply walks it once and writes
-// every row inside a single transaction.
-type Plan struct {
-	GroupID    string
-	Group      database.CreateGroupParams
-	Currencies []string // distinct currencies seen in bills + default; used for group_currencies
-	Members    []database.AddUserToGroupParams
-	Expenses   []PlannedExpense
-	Transfers  []database.CreateTransferParams
-	Warnings   []string
+// buildOpts bundles the shared migrate.BuildOptions with ihatemoney's
+// source-specific knobs. Tests construct it directly; production code goes
+// through (*Source).Build.
+type buildOpts struct {
+	Shared migrate.BuildOptions
+	Strict bool
 }
 
-// PlannedExpense bundles every row that makes up one Pennywise expense:
-// the expense itself, exactly one payer row, and N beneficiary rows.
-type PlannedExpense struct {
-	Expense       database.CreateExpenseParams
-	Payer         database.CreateExpensePayerParams
-	Beneficiaries []string // pennywise user IDs
-}
-
-// BuildOptions tweaks transformation behavior.
-type BuildOptions struct {
-	// StrictReimbursement rejects (rather than fans out) multi-ower
-	// reimbursements. Default false matches ihatemoney's own settlement
-	// math, splitting by ower weight across multiple Pennywise transfers.
-	StrictReimbursement bool
-	// Now is the clock used for created_at on derived rows that don't
-	// have a source equivalent (group, group memberships). Defaults to
-	// time.Now() when zero.
-	Now time.Time
-}
-
-// Build runs the full pure transformation. It performs no I/O. All Pennywise
+// build runs the full pure transformation. It performs no I/O. All Pennywise
 // IDs are freshly generated UUIDs; the original ihatemoney IDs are discarded.
-func Build(
-	project *Project,
-	persons []Person,
-	bills []Bill,
+func build(
+	proj *project,
+	persons []person,
+	bills []bill,
 	owers map[int64][]int64,
-	resolved *Resolved,
-	opts BuildOptions,
-) (*Plan, error) {
-	if opts.Now.IsZero() {
-		opts.Now = time.Now().UTC()
+	resolved *migrate.Resolved,
+	opts buildOpts,
+) (*migrate.Plan, error) {
+	now := opts.Shared.Now
+	if now.IsZero() {
+		now = time.Now().UTC()
 	}
 
-	plan := &Plan{
+	plan := &migrate.Plan{
 		GroupID: uuid.NewString(),
 	}
 
-	name := project.Name
+	name := proj.Name
 	if resolved.Mapping.ProjectName != "" {
 		name = resolved.Mapping.ProjectName
 	}
@@ -69,8 +49,8 @@ func Build(
 	plan.Group = database.CreateGroupParams{
 		ID:              plan.GroupID,
 		CreatedBy:       resolved.Mapping.CreatorUserID,
-		CreatedAt:       overrides.TextTime{Time: opts.Now},
-		DefaultCurrency: project.DefaultCurrency,
+		CreatedAt:       overrides.TextTime{Time: now},
+		DefaultCurrency: proj.DefaultCurrency,
 		Name:            name,
 		Description:     &emptyDesc,
 	}
@@ -84,7 +64,7 @@ func Build(
 				fmt.Sprintf("person %q (id=%d) is deactivated in source; importing as active member",
 					p.Name, p.ID))
 		}
-		u, ok := resolved.UsersByIHM[p.ID]
+		u, ok := resolved.UsersBySource[ihmKey(p.ID)]
 		if !ok {
 			// Should have been caught in Validate, but guard anyway.
 			return nil, fmt.Errorf("internal: no resolved user for person id %d", p.ID)
@@ -93,20 +73,20 @@ func Build(
 			UserID:  u.ID,
 			GroupID: plan.GroupID,
 			Weight:  p.Weight,
-			AddedAt: overrides.TextTime{Time: opts.Now},
+			AddedAt: overrides.TextTime{Time: now},
 		})
 	}
 
 	// Track distinct currencies for group_currencies.
-	currencySet := map[string]struct{}{project.DefaultCurrency: {}}
+	currencySet := map[string]struct{}{proj.DefaultCurrency: {}}
 
 	for _, b := range bills {
 		currency := b.OriginalCurrency
 		if currency == "" {
-			currency = project.DefaultCurrency
+			currency = proj.DefaultCurrency
 			plan.Warnings = append(plan.Warnings,
 				fmt.Sprintf("bill %d (%q): no original_currency, defaulted to %s",
-					b.ID, b.What, project.DefaultCurrency))
+					b.ID, b.What, proj.DefaultCurrency))
 		}
 		currencySet[currency] = struct{}{}
 
@@ -116,7 +96,7 @@ func Build(
 				fmt.Sprintf("bill %d (%q): %s", b.ID, b.What, warn))
 		}
 
-		payerUser, ok := resolved.UsersByIHM[b.PayerID]
+		payerUser, ok := resolved.UsersBySource[ihmKey(b.PayerID)]
 		if !ok {
 			return nil, fmt.Errorf("bill %d: payer person id %d not in mapping", b.ID, b.PayerID)
 		}
@@ -129,7 +109,7 @@ func Build(
 		}
 
 		switch b.BillType {
-		case BillTypeReimbursement:
+		case billTypeReimbursement:
 			transfers, err := buildReimbursement(b, owerIDs, personWeight, resolved,
 				plan.GroupID, payerUser, currency, amountCents, opts)
 			if err != nil {
@@ -156,9 +136,12 @@ func Build(
 	return plan, nil
 }
 
+// ihmKey is the stringified person id used as the mapping key.
+func ihmKey(id int64) string { return strconv.FormatInt(id, 10) }
+
 // toCents converts a float amount to integer cents with a sanity check.
-// SQLAlchemy floats from ihatemoney are usually clean to 2dp, but we
-// surface anything that rounds off by more than 0.001¢ for operator review.
+// SQLAlchemy floats from ihatemoney are usually clean to 2dp, but we surface
+// anything that rounds off by more than 0.001¢ for operator review.
 func toCents(amount float64) (int64, string) {
 	scaled := amount * 100
 	rounded := math.Round(scaled)
@@ -170,25 +153,25 @@ func toCents(amount float64) (int64, string) {
 }
 
 func buildExpense(
-	b Bill,
+	b bill,
 	owerIDs []int64,
-	resolved *Resolved,
+	resolved *migrate.Resolved,
 	groupID string,
-	payer ResolvedUser,
+	payer migrate.ResolvedUser,
 	currency string,
 	amountCents int64,
-) (PlannedExpense, error) {
+) (migrate.PlannedExpense, error) {
 	beneficiaries := make([]string, 0, len(owerIDs))
 	for _, oid := range owerIDs {
-		u, ok := resolved.UsersByIHM[oid]
+		u, ok := resolved.UsersBySource[ihmKey(oid)]
 		if !ok {
-			return PlannedExpense{}, fmt.Errorf("bill %d: ower person id %d not in mapping", b.ID, oid)
+			return migrate.PlannedExpense{}, fmt.Errorf("bill %d: ower person id %d not in mapping", b.ID, oid)
 		}
 		beneficiaries = append(beneficiaries, u.ID)
 	}
 
 	expenseID := uuid.NewString()
-	return PlannedExpense{
+	return migrate.PlannedExpense{
 		Expense: database.CreateExpenseParams{
 			ID:        expenseID,
 			CreatedAt: overrides.TextTime{Time: b.CreationDate},
@@ -207,23 +190,23 @@ func buildExpense(
 	}, nil
 }
 
-// buildReimbursement turns an ihatemoney REIMBURSEMENT bill into one or
-// more Pennywise transfers. Multi-ower reimbursements are split by ower
-// weight (matching ihatemoney's settlement formula); rounding remainders
-// are placed on the first ower so the cents sum exactly equals the source.
+// buildReimbursement turns an ihatemoney REIMBURSEMENT bill into one or more
+// Pennywise transfers. Multi-ower reimbursements are split by ower weight
+// (matching ihatemoney's settlement formula); rounding remainders are placed
+// on the last ower so the cents sum exactly equals the source.
 func buildReimbursement(
-	b Bill,
+	b bill,
 	owerIDs []int64,
 	personWeight map[int64]float64,
-	resolved *Resolved,
+	resolved *migrate.Resolved,
 	groupID string,
-	payer ResolvedUser,
+	payer migrate.ResolvedUser,
 	currency string,
 	amountCents int64,
-	opts BuildOptions,
+	opts buildOpts,
 ) ([]database.CreateTransferParams, error) {
 	if len(owerIDs) == 1 {
-		recv, ok := resolved.UsersByIHM[owerIDs[0]]
+		recv, ok := resolved.UsersBySource[ihmKey(owerIDs[0])]
 		if !ok {
 			return nil, fmt.Errorf("bill %d: ower person id %d not in mapping", b.ID, owerIDs[0])
 		}
@@ -239,7 +222,7 @@ func buildReimbursement(
 		}}, nil
 	}
 
-	if opts.StrictReimbursement {
+	if opts.Strict {
 		return nil, fmt.Errorf("bill %d: multi-ower reimbursement rejected under --strict-reimbursement", b.ID)
 	}
 
@@ -256,7 +239,7 @@ func buildReimbursement(
 	transfers := make([]database.CreateTransferParams, 0, len(owerIDs))
 	allocated := int64(0)
 	for i, oid := range owerIDs {
-		recv, ok := resolved.UsersByIHM[oid]
+		recv, ok := resolved.UsersBySource[ihmKey(oid)]
 		if !ok {
 			return nil, fmt.Errorf("bill %d: ower person id %d not in mapping", b.ID, oid)
 		}

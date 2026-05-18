@@ -4,6 +4,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"pennywise/migrate"
 )
 
 func TestToCents(t *testing.T) {
@@ -35,39 +37,39 @@ func TestToCents(t *testing.T) {
 
 // fixture builds a resolved 3-person mapping where Pennywise user IDs are
 // derived from the IHM IDs for easy assertion.
-func fixture() (*Project, []Person, *Resolved, BuildOptions) {
-	proj := &Project{ID: "test", Name: "Test", DefaultCurrency: "EUR"}
-	persons := []Person{
+func fixture() (*project, []person, *migrate.Resolved, buildOpts) {
+	proj := &project{ID: "test", Name: "Test", DefaultCurrency: "EUR"}
+	persons := []person{
 		{ID: 1, ProjectID: "test", Name: "Alice", Weight: 1, Activated: true},
 		{ID: 2, ProjectID: "test", Name: "Bob", Weight: 1, Activated: true},
 		{ID: 3, ProjectID: "test", Name: "Carol", Weight: 2, Activated: true},
 	}
-	users := map[int64]ResolvedUser{
-		1: {ID: "uid-1", Email: "alice@x"},
-		2: {ID: "uid-2", Email: "bob@x"},
-		3: {ID: "uid-3", Email: "carol@x"},
+	users := map[string]migrate.ResolvedUser{
+		"1": {ID: "uid-1", Email: "alice@x"},
+		"2": {ID: "uid-2", Email: "bob@x"},
+		"3": {ID: "uid-3", Email: "carol@x"},
 	}
-	resolved := &Resolved{
-		Mapping:    &Mapping{CreatorUserID: "uid-1"},
-		UsersByIHM: users,
+	resolved := &migrate.Resolved{
+		Mapping:       &migrate.Mapping{CreatorUserID: "uid-1"},
+		UsersBySource: users,
 	}
-	opts := BuildOptions{Now: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)}
+	opts := buildOpts{Shared: migrate.BuildOptions{Now: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)}}
 	return proj, persons, resolved, opts
 }
 
 func TestBuild_ExpenseBasic(t *testing.T) {
 	proj, persons, resolved, opts := fixture()
-	bills := []Bill{{
+	bills := []bill{{
 		ID: 10, PayerID: 1, Amount: 30.00,
 		Date:         time.Date(2025, 1, 5, 0, 0, 0, 0, time.UTC),
 		CreationDate: time.Date(2025, 1, 5, 12, 0, 0, 0, time.UTC),
-		What:         "Groceries", OriginalCurrency: "EUR", BillType: BillTypeExpense,
+		What:         "Groceries", OriginalCurrency: "EUR", BillType: billTypeExpense,
 	}}
 	owers := map[int64][]int64{10: {1, 2, 3}}
 
-	plan, err := Build(proj, persons, bills, owers, resolved, opts)
+	plan, err := build(proj, persons, bills, owers, resolved, opts)
 	if err != nil {
-		t.Fatalf("Build: %v", err)
+		t.Fatalf("build: %v", err)
 	}
 	if len(plan.Expenses) != 1 || len(plan.Transfers) != 0 {
 		t.Fatalf("got %d expenses, %d transfers", len(plan.Expenses), len(plan.Transfers))
@@ -86,16 +88,16 @@ func TestBuild_ExpenseBasic(t *testing.T) {
 
 func TestBuild_ReimbursementSingleOwer(t *testing.T) {
 	proj, persons, resolved, opts := fixture()
-	bills := []Bill{{
+	bills := []bill{{
 		ID: 20, PayerID: 1, Amount: 12.50,
 		Date: time.Now(), CreationDate: time.Now(),
-		What: "Repay Bob", OriginalCurrency: "EUR", BillType: BillTypeReimbursement,
+		What: "Repay Bob", OriginalCurrency: "EUR", BillType: billTypeReimbursement,
 	}}
 	owers := map[int64][]int64{20: {2}}
 
-	plan, err := Build(proj, persons, bills, owers, resolved, opts)
+	plan, err := build(proj, persons, bills, owers, resolved, opts)
 	if err != nil {
-		t.Fatalf("Build: %v", err)
+		t.Fatalf("build: %v", err)
 	}
 	if len(plan.Expenses) != 0 || len(plan.Transfers) != 1 {
 		t.Fatalf("got %d expenses, %d transfers", len(plan.Expenses), len(plan.Transfers))
@@ -109,16 +111,16 @@ func TestBuild_ReimbursementSingleOwer(t *testing.T) {
 func TestBuild_ReimbursementFanOutByWeight(t *testing.T) {
 	proj, persons, resolved, opts := fixture()
 	// Alice repays Bob (w=1) and Carol (w=2) for 30.00 → 10, 20.
-	bills := []Bill{{
+	bills := []bill{{
 		ID: 30, PayerID: 1, Amount: 30.00,
 		Date: time.Now(), CreationDate: time.Now(),
-		What: "Settle up", OriginalCurrency: "EUR", BillType: BillTypeReimbursement,
+		What: "Settle up", OriginalCurrency: "EUR", BillType: billTypeReimbursement,
 	}}
 	owers := map[int64][]int64{30: {2, 3}}
 
-	plan, err := Build(proj, persons, bills, owers, resolved, opts)
+	plan, err := build(proj, persons, bills, owers, resolved, opts)
 	if err != nil {
-		t.Fatalf("Build: %v", err)
+		t.Fatalf("build: %v", err)
 	}
 	if len(plan.Transfers) != 2 {
 		t.Fatalf("got %d transfers, want 2", len(plan.Transfers))
@@ -139,31 +141,31 @@ func TestBuild_ReimbursementFanOutByWeight(t *testing.T) {
 
 func TestBuild_ReimbursementStrictRejectsMultiOwer(t *testing.T) {
 	proj, persons, resolved, opts := fixture()
-	opts.StrictReimbursement = true
-	bills := []Bill{{
+	opts.Strict = true
+	bills := []bill{{
 		ID: 40, PayerID: 1, Amount: 10,
 		Date: time.Now(), CreationDate: time.Now(),
-		What: "x", OriginalCurrency: "EUR", BillType: BillTypeReimbursement,
+		What: "x", OriginalCurrency: "EUR", BillType: billTypeReimbursement,
 	}}
 	owers := map[int64][]int64{40: {2, 3}}
 
-	if _, err := Build(proj, persons, bills, owers, resolved, opts); err == nil {
+	if _, err := build(proj, persons, bills, owers, resolved, opts); err == nil {
 		t.Fatalf("expected error under strict mode")
 	}
 }
 
 func TestBuild_CurrencyFallback(t *testing.T) {
 	proj, persons, resolved, opts := fixture()
-	bills := []Bill{{
+	bills := []bill{{
 		ID: 50, PayerID: 1, Amount: 5,
 		Date: time.Now(), CreationDate: time.Now(),
-		What: "no-currency", OriginalCurrency: "", BillType: BillTypeExpense,
+		What: "no-currency", OriginalCurrency: "", BillType: billTypeExpense,
 	}}
 	owers := map[int64][]int64{50: {1}}
 
-	plan, err := Build(proj, persons, bills, owers, resolved, opts)
+	plan, err := build(proj, persons, bills, owers, resolved, opts)
 	if err != nil {
-		t.Fatalf("Build: %v", err)
+		t.Fatalf("build: %v", err)
 	}
 	if plan.Expenses[0].Expense.Currency != "EUR" {
 		t.Errorf("currency = %q, want EUR (default)", plan.Expenses[0].Expense.Currency)
@@ -181,17 +183,17 @@ func TestBuild_CurrencyFallback(t *testing.T) {
 
 func TestBuild_MultiCurrencyCollectsCurrencies(t *testing.T) {
 	proj, persons, resolved, opts := fixture()
-	bills := []Bill{
+	bills := []bill{
 		{ID: 1, PayerID: 1, Amount: 1, Date: time.Now(), CreationDate: time.Now(),
-			What: "a", OriginalCurrency: "USD", BillType: BillTypeExpense},
+			What: "a", OriginalCurrency: "USD", BillType: billTypeExpense},
 		{ID: 2, PayerID: 1, Amount: 1, Date: time.Now(), CreationDate: time.Now(),
-			What: "b", OriginalCurrency: "GBP", BillType: BillTypeExpense},
+			What: "b", OriginalCurrency: "GBP", BillType: billTypeExpense},
 	}
 	owers := map[int64][]int64{1: {1}, 2: {1}}
 
-	plan, err := Build(proj, persons, bills, owers, resolved, opts)
+	plan, err := build(proj, persons, bills, owers, resolved, opts)
 	if err != nil {
-		t.Fatalf("Build: %v", err)
+		t.Fatalf("build: %v", err)
 	}
 	want := map[string]bool{"EUR": true, "USD": true, "GBP": true}
 	if len(plan.Currencies) != len(want) {
@@ -207,15 +209,15 @@ func TestBuild_MultiCurrencyCollectsCurrencies(t *testing.T) {
 func TestBuild_DeactivatedPayerWarns(t *testing.T) {
 	proj, persons, resolved, opts := fixture()
 	persons[0].Activated = false
-	bills := []Bill{{
+	bills := []bill{{
 		ID: 1, PayerID: 1, Amount: 1, Date: time.Now(), CreationDate: time.Now(),
-		What: "x", OriginalCurrency: "EUR", BillType: BillTypeExpense,
+		What: "x", OriginalCurrency: "EUR", BillType: billTypeExpense,
 	}}
 	owers := map[int64][]int64{1: {1}}
 
-	plan, err := Build(proj, persons, bills, owers, resolved, opts)
+	plan, err := build(proj, persons, bills, owers, resolved, opts)
 	if err != nil {
-		t.Fatalf("Build: %v", err)
+		t.Fatalf("build: %v", err)
 	}
 	if len(plan.Warnings) == 0 {
 		t.Errorf("expected deactivated-person warning")

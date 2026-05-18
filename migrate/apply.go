@@ -1,9 +1,10 @@
-package ihatemoney
+package migrate
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"pennywise/db"
 	"pennywise/db/database"
 )
@@ -24,8 +25,8 @@ func Apply(ctx context.Context, plan *Plan) (string, error) {
 		return "", fmt.Errorf("create group: %w", err)
 	}
 
-	// Encode currencies as a JSON array — the BulkAddGroupCurrencies
-	// query consumes it via SQLite's json_each().
+	// Encode currencies as a JSON array — the BulkAddGroupCurrencies query
+	// consumes it via SQLite's json_each().
 	currenciesJSON, err := json.Marshal(plan.Currencies)
 	if err != nil {
 		return "", fmt.Errorf("marshal currencies: %w", err)

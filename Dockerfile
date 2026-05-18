@@ -33,6 +33,7 @@ COPY --from=frontend-builder /app/web/dist ./web/dist
 # CI passes a tag (v1.2.3) or dev-<short sha>, default keeps local builds buildable.
 ARG APP_VERSION=dev
 RUN CGO_ENABLED=1 go build -ldflags="-s -w -X main.Version=${APP_VERSION}" -o pennywise .
+RUN CGO_ENABLED=1 go build -ldflags="-s -w" -o migrate ./cmd/migrate
 
 # Stage 3: Runtime
 FROM alpine:3.23
@@ -42,8 +43,10 @@ RUN apk add --no-cache ca-certificates tzdata
 
 WORKDIR /app
 
-# Copy the binary from builder
+# Copy the binaries from builder. The migrator goes on PATH so it can be
+# launched with `--entrypoint migrate` against the same image.
 COPY --from=backend-builder /app/pennywise .
+COPY --from=backend-builder /app/migrate /usr/local/bin/migrate
 
 # Create data directory for SQLite database
 RUN mkdir -p /data

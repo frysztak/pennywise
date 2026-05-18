@@ -1,21 +1,22 @@
-package ihatemoney
+package migrate
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
 	"os"
-	"pennywise/db"
 	"sort"
 	"strings"
+
+	"pennywise/db"
 )
 
-// Mapping is the hand-edited bridge between ihatemoney persons and
+// Mapping is the hand-edited bridge between source-side persons and
 // Pennywise users. Persons must be resolved by either e-mail or user ID;
 // no placeholder accounts are ever created.
 type Mapping struct {
 	// ProjectName overrides the imported group name. Optional;
-	// falls back to ihatemoney's Project.name when empty.
+	// falls back to the source's project name when empty.
 	ProjectName string `json:"projectName,omitempty"`
 	// Creator identifies the Pennywise user recorded as
 	// `expense_groups.created_by`. Exactly one of CreatorUserID /
@@ -26,10 +27,12 @@ type Mapping struct {
 	Persons          []PersonMapping `json:"persons"`
 }
 
-// PersonMapping resolves a single ihatemoney person to a Pennywise user.
+// PersonMapping resolves a single source-side person to a Pennywise user.
 // Exactly one of UserEmail / UserID must be set.
 type PersonMapping struct {
-	IhmID     int64  `json:"ihm_id"`
+	// SourceID is the opaque source-side identifier — an int64 for
+	// ihatemoney, a Splitwise user id, etc. — stringified for transport.
+	SourceID  string `json:"source_id"`
 	UserEmail string `json:"user_email,omitempty"`
 	UserID    string `json:"user_id,omitempty"`
 }
@@ -45,20 +48,6 @@ func LoadMapping(path string) (*Mapping, error) {
 		return nil, fmt.Errorf("parse mapping: %w", err)
 	}
 	return &m, nil
-}
-
-// MappingSkeleton produces a mapping JSON template for a project, with one
-// blank entry per person. Operator fills in `user_email` (or `user_id`) and
-// `creatorUserId` before running `plan`.
-func MappingSkeleton(project *Project, persons []Person) *Mapping {
-	m := &Mapping{
-		ProjectName: project.Name,
-		Persons:     make([]PersonMapping, len(persons)),
-	}
-	for i, p := range persons {
-		m.Persons[i] = PersonMapping{IhmID: p.ID}
-	}
-	return m
 }
 
 // ValidationError describes a single problem with a mapping. Multiple are
@@ -87,11 +76,11 @@ func (v ValidationErrors) Error() string {
 	return b.String()
 }
 
-// Resolved is the validation output — every IHM person ID maps to a
+// Resolved is the validation output — every source person ID maps to a
 // Pennywise user record fetched from the live database.
 type Resolved struct {
-	Mapping    *Mapping
-	UsersByIHM map[int64]ResolvedUser
+	Mapping       *Mapping
+	UsersBySource map[string]ResolvedUser
 }
 
 // ResolvedUser is the subset of a Pennywise user identity needed downstream.
@@ -103,7 +92,7 @@ type ResolvedUser struct {
 // Validate cross-references the mapping with the live Pennywise database and
 // the source project. Returns Resolved on success, or ValidationErrors with
 // one entry per problem found.
-func Validate(ctx context.Context, persons []Person, m *Mapping) (*Resolved, error) {
+func Validate(ctx context.Context, persons []PersonInfo, m *Mapping) (*Resolved, error) {
 	var errs ValidationErrors
 
 	// Resolve the creator to a Pennywise user ID. Exactly one of
@@ -135,37 +124,37 @@ func Validate(ctx context.Context, persons []Person, m *Mapping) (*Resolved, err
 	}
 
 	// Index source persons and detect coverage gaps.
-	srcByID := make(map[int64]Person, len(persons))
+	srcByID := make(map[string]PersonInfo, len(persons))
 	for _, p := range persons {
-		srcByID[p.ID] = p
+		srcByID[p.SourceID] = p
 	}
-	mapByIHM := make(map[int64]PersonMapping, len(m.Persons))
+	mapBySource := make(map[string]PersonMapping, len(m.Persons))
 	for _, pm := range m.Persons {
-		if _, dup := mapByIHM[pm.IhmID]; dup {
+		if _, dup := mapBySource[pm.SourceID]; dup {
 			errs = append(errs, ValidationError{
-				Field:   fmt.Sprintf("persons[%d]", pm.IhmID),
-				Message: "duplicate ihm_id entry",
+				Field:   fmt.Sprintf("persons[%s]", pm.SourceID),
+				Message: "duplicate source_id entry",
 			})
 		}
-		mapByIHM[pm.IhmID] = pm
+		mapBySource[pm.SourceID] = pm
 	}
 	for _, p := range persons {
-		if _, ok := mapByIHM[p.ID]; !ok {
+		if _, ok := mapBySource[p.SourceID]; !ok {
 			errs = append(errs, ValidationError{
-				Field:   fmt.Sprintf("persons[%d]", p.ID),
-				Message: fmt.Sprintf("ihatemoney person %q (id=%d) has no mapping", p.Name, p.ID),
+				Field:   fmt.Sprintf("persons[%s]", p.SourceID),
+				Message: fmt.Sprintf("source person %q (source_id=%s) has no mapping", p.Name, p.SourceID),
 			})
 		}
 	}
 
 	// Resolve each mapping entry against the live DB.
-	resolved := make(map[int64]ResolvedUser, len(m.Persons))
-	seenUserIDs := make(map[string]int64, len(m.Persons))
+	resolved := make(map[string]ResolvedUser, len(m.Persons))
+	seenUserIDs := make(map[string]string, len(m.Persons))
 	for _, pm := range m.Persons {
-		if _, ok := srcByID[pm.IhmID]; !ok {
+		if _, ok := srcByID[pm.SourceID]; !ok {
 			errs = append(errs, ValidationError{
-				Field:   fmt.Sprintf("persons[%d]", pm.IhmID),
-				Message: "ihm_id does not exist in source project",
+				Field:   fmt.Sprintf("persons[%s]", pm.SourceID),
+				Message: "source_id does not exist in source project",
 			})
 			continue
 		}
@@ -173,7 +162,7 @@ func Validate(ctx context.Context, persons []Person, m *Mapping) (*Resolved, err
 		idSet := pm.UserID != ""
 		if emailSet == idSet {
 			errs = append(errs, ValidationError{
-				Field:   fmt.Sprintf("persons[%d]", pm.IhmID),
+				Field:   fmt.Sprintf("persons[%s]", pm.SourceID),
 				Message: "exactly one of user_email or user_id is required",
 			})
 			continue
@@ -182,20 +171,20 @@ func Validate(ctx context.Context, persons []Person, m *Mapping) (*Resolved, err
 		u, err := resolveUser(ctx, pm)
 		if err != nil {
 			errs = append(errs, ValidationError{
-				Field:   fmt.Sprintf("persons[%d]", pm.IhmID),
+				Field:   fmt.Sprintf("persons[%s]", pm.SourceID),
 				Message: err.Error(),
 			})
 			continue
 		}
 		if prev, dup := seenUserIDs[u.ID]; dup {
 			errs = append(errs, ValidationError{
-				Field:   fmt.Sprintf("persons[%d]", pm.IhmID),
-				Message: fmt.Sprintf("pennywise user %s already mapped to ihm_id %d", u.ID, prev),
+				Field:   fmt.Sprintf("persons[%s]", pm.SourceID),
+				Message: fmt.Sprintf("pennywise user %s already mapped to source_id %s", u.ID, prev),
 			})
 			continue
 		}
-		seenUserIDs[u.ID] = pm.IhmID
-		resolved[pm.IhmID] = u
+		seenUserIDs[u.ID] = pm.SourceID
+		resolved[pm.SourceID] = u
 	}
 
 	if m.CreatorUserID != "" {
@@ -212,7 +201,7 @@ func Validate(ctx context.Context, persons []Person, m *Mapping) (*Resolved, err
 		sort.SliceStable(errs, func(i, j int) bool { return errs[i].Field < errs[j].Field })
 		return nil, errs
 	}
-	return &Resolved{Mapping: m, UsersByIHM: resolved}, nil
+	return &Resolved{Mapping: m, UsersBySource: resolved}, nil
 }
 
 func resolveUser(ctx context.Context, pm PersonMapping) (ResolvedUser, error) {

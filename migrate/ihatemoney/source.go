@@ -1,6 +1,6 @@
 // Package ihatemoney reads an ihatemoney SQLite database and produces a
-// Plan that can be applied to a Pennywise database. The Source type is
-// strictly read-only: callers open the database file in SQLite read-only
+// migrate.Plan that can be applied to a Pennywise database. The Source type
+// is strictly read-only: callers open the database file in SQLite read-only
 // + immutable mode so a stale snapshot cannot be mutated by accident.
 package ihatemoney
 
@@ -9,28 +9,45 @@ import (
 	"database/sql"
 	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
+
+	"pennywise/migrate"
 )
 
-// Source is a handle to an ihatemoney SQLite database, opened read-only.
-type Source struct {
-	db *sql.DB
+// SourceName is the identifier used to select this backend from the CLI.
+const SourceName = "ihatemoney"
+
+// Options configures an ihatemoney Source. All fields are optional; defaults
+// match what we shipped before the refactor.
+type Options struct {
+	// StrictReimbursement rejects (rather than fans out) multi-ower
+	// reimbursements. Default false matches ihatemoney's own settlement
+	// math, splitting by ower weight across multiple Pennywise transfers.
+	StrictReimbursement bool
 }
 
-// Project mirrors the ihatemoney `project` row we care about. Fields not
-// represented in Pennywise (password, contact_email, logging_preference)
-// are intentionally omitted.
-type Project struct {
+// Source is a handle to an ihatemoney SQLite database, opened read-only.
+// It implements migrate.Source.
+type Source struct {
+	db   *sql.DB
+	opts Options
+}
+
+// internal types — these mirror ihatemoney rows. They are deliberately
+// unexported now that the package's public surface is the migrate.Source
+// interface; only the build pipeline and tests still touch them directly.
+
+type project struct {
 	ID              string
 	Name            string
 	DefaultCurrency string
 }
 
-// Person mirrors the ihatemoney `person` row.
-type Person struct {
+type person struct {
 	ID        int64
 	ProjectID string
 	Name      string
@@ -38,9 +55,7 @@ type Person struct {
 	Activated bool
 }
 
-// Bill mirrors the ihatemoney `bill` row. `OriginalCurrency` is nullable in
-// older databases — callers fall back to the project's default currency.
-type Bill struct {
+type bill struct {
 	ID               int64
 	PayerID          int64
 	Amount           float64
@@ -48,21 +63,19 @@ type Bill struct {
 	CreationDate     time.Time
 	What             string
 	OriginalCurrency string // empty when null in source
-	BillType         BillType
+	BillType         billType
 }
 
-// BillType is the kind of an ihatemoney bill. Older databases store these
-// as the Python enum name ("EXPENSE", "REIMBURSEMENT"); we normalize on read.
-type BillType string
+type billType string
 
 const (
-	BillTypeExpense       BillType = "EXPENSE"
-	BillTypeReimbursement BillType = "REIMBURSEMENT"
+	billTypeExpense       billType = "EXPENSE"
+	billTypeReimbursement billType = "REIMBURSEMENT"
 )
 
 // Open opens path read-only. The connection is also marked `immutable=1`
 // so SQLite skips locking entirely — we will never write to this DB.
-func Open(path string) (*Source, error) {
+func Open(path string, opts Options) (*Source, error) {
 	q := url.Values{}
 	q.Add("mode", "ro")
 	q.Add("immutable", "1")
@@ -76,23 +89,126 @@ func Open(path string) (*Source, error) {
 		db.Close()
 		return nil, fmt.Errorf("ping ihatemoney db: %w", err)
 	}
-	return &Source{db: db}, nil
+	return &Source{db: db, opts: opts}, nil
 }
+
+// Name implements migrate.Source.
+func (s *Source) Name() string { return SourceName }
 
 // Close releases the source connection.
 func (s *Source) Close() error { return s.db.Close() }
 
-// Projects returns every project in the source database.
-func (s *Source) Projects(ctx context.Context) ([]Project, error) {
+// Projects implements migrate.Source.
+func (s *Source) Projects(ctx context.Context) ([]migrate.ProjectInfo, error) {
+	projects, err := s.projects(ctx)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]migrate.ProjectInfo, 0, len(projects))
+	for _, p := range projects {
+		persons, err := s.persons(ctx, p.ID)
+		if err != nil {
+			return nil, err
+		}
+		bills, err := s.bills(ctx, p.ID)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, migrate.ProjectInfo{
+			ID:              p.ID,
+			Name:            p.Name,
+			DefaultCurrency: p.DefaultCurrency,
+			MemberCount:     len(persons),
+			RecordCount:     len(bills),
+		})
+	}
+	return out, nil
+}
+
+// Project implements migrate.Source.
+func (s *Source) Project(ctx context.Context, id string) (*migrate.ProjectInfo, error) {
+	p, err := s.project(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	persons, err := s.persons(ctx, p.ID)
+	if err != nil {
+		return nil, err
+	}
+	bills, err := s.bills(ctx, p.ID)
+	if err != nil {
+		return nil, err
+	}
+	return &migrate.ProjectInfo{
+		ID:              p.ID,
+		Name:            p.Name,
+		DefaultCurrency: p.DefaultCurrency,
+		MemberCount:     len(persons),
+		RecordCount:     len(bills),
+	}, nil
+}
+
+// Persons implements migrate.Source.
+func (s *Source) Persons(ctx context.Context, projectID string) ([]migrate.PersonInfo, error) {
+	ps, err := s.persons(ctx, projectID)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]migrate.PersonInfo, len(ps))
+	for i, p := range ps {
+		out[i] = migrate.PersonInfo{
+			SourceID: strconv.FormatInt(p.ID, 10),
+			Name:     p.Name,
+		}
+	}
+	return out, nil
+}
+
+// Build implements migrate.Source.
+func (s *Source) Build(
+	ctx context.Context,
+	projectID string,
+	resolved *migrate.Resolved,
+	opts migrate.BuildOptions,
+) (*migrate.Plan, error) {
+	proj, err := s.project(ctx, projectID)
+	if err != nil {
+		return nil, err
+	}
+	persons, err := s.persons(ctx, projectID)
+	if err != nil {
+		return nil, err
+	}
+	bills, err := s.bills(ctx, projectID)
+	if err != nil {
+		return nil, err
+	}
+	billIDs := make([]int64, len(bills))
+	for i, b := range bills {
+		billIDs[i] = b.ID
+	}
+	owers, err := s.billOwers(ctx, billIDs)
+	if err != nil {
+		return nil, err
+	}
+	return build(proj, persons, bills, owers, resolved, buildOpts{
+		Shared: opts,
+		Strict: s.opts.StrictReimbursement,
+	})
+}
+
+// --- raw SQLite readers ----------------------------------------------------
+
+func (s *Source) projects(ctx context.Context) ([]project, error) {
 	rows, err := s.db.QueryContext(ctx, `SELECT id, name, default_currency FROM project ORDER BY id`)
 	if err != nil {
 		return nil, fmt.Errorf("query projects: %w", err)
 	}
 	defer rows.Close()
 
-	out := []Project{}
+	out := []project{}
 	for rows.Next() {
-		var p Project
+		var p project
 		if err := rows.Scan(&p.ID, &p.Name, &p.DefaultCurrency); err != nil {
 			return nil, err
 		}
@@ -101,10 +217,9 @@ func (s *Source) Projects(ctx context.Context) ([]Project, error) {
 	return out, rows.Err()
 }
 
-// Project fetches a single project by ID (the ihatemoney slug).
-func (s *Source) Project(ctx context.Context, id string) (*Project, error) {
+func (s *Source) project(ctx context.Context, id string) (*project, error) {
 	row := s.db.QueryRowContext(ctx, `SELECT id, name, default_currency FROM project WHERE id = ?`, id)
-	var p Project
+	var p project
 	if err := row.Scan(&p.ID, &p.Name, &p.DefaultCurrency); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("project %q not found in source database", id)
@@ -114,8 +229,7 @@ func (s *Source) Project(ctx context.Context, id string) (*Project, error) {
 	return &p, nil
 }
 
-// Persons returns every person belonging to a project.
-func (s *Source) Persons(ctx context.Context, projectID string) ([]Person, error) {
+func (s *Source) persons(ctx context.Context, projectID string) ([]person, error) {
 	rows, err := s.db.QueryContext(ctx, `
 		SELECT id, project_id, name, weight, activated
 		FROM person
@@ -126,9 +240,9 @@ func (s *Source) Persons(ctx context.Context, projectID string) ([]Person, error
 	}
 	defer rows.Close()
 
-	out := []Person{}
+	out := []person{}
 	for rows.Next() {
-		var p Person
+		var p person
 		if err := rows.Scan(&p.ID, &p.ProjectID, &p.Name, &p.Weight, &p.Activated); err != nil {
 			return nil, err
 		}
@@ -137,8 +251,7 @@ func (s *Source) Persons(ctx context.Context, projectID string) ([]Person, error
 	return out, rows.Err()
 }
 
-// Bills returns every bill belonging to a project, ordered by creation time.
-func (s *Source) Bills(ctx context.Context, projectID string) ([]Bill, error) {
+func (s *Source) bills(ctx context.Context, projectID string) ([]bill, error) {
 	// `bill` joins to `person` to filter by project — bills have no
 	// direct project_id column in ihatemoney.
 	rows, err := s.db.QueryContext(ctx, `
@@ -153,9 +266,9 @@ func (s *Source) Bills(ctx context.Context, projectID string) ([]Bill, error) {
 	}
 	defer rows.Close()
 
-	out := []Bill{}
+	out := []bill{}
 	for rows.Next() {
-		var b Bill
+		var b bill
 		var date, created string
 		var currency sql.NullString
 		var btype string
@@ -180,9 +293,7 @@ func (s *Source) Bills(ctx context.Context, projectID string) ([]Bill, error) {
 	return out, rows.Err()
 }
 
-// BillOwers returns the person IDs that owe each bill, keyed by bill ID.
-// Order within each slice is stable on person ID.
-func (s *Source) BillOwers(ctx context.Context, billIDs []int64) (map[int64][]int64, error) {
+func (s *Source) billOwers(ctx context.Context, billIDs []int64) (map[int64][]int64, error) {
 	out := make(map[int64][]int64, len(billIDs))
 	if len(billIDs) == 0 {
 		return out, nil
@@ -249,13 +360,13 @@ func parseIHMTime(s string) (time.Time, error) {
 }
 
 // normalizeBillType maps ihatemoney's stored value (Python enum name or
-// lower-case string) to our canonical BillType. Anything unknown is treated
+// lower-case string) to our canonical billType. Anything unknown is treated
 // as EXPENSE, since the field was added late and older rows are all expenses.
-func normalizeBillType(s string) BillType {
+func normalizeBillType(s string) billType {
 	switch strings.ToUpper(strings.TrimSpace(s)) {
 	case "REIMBURSEMENT", "BILLTYPE.REIMBURSEMENT":
-		return BillTypeReimbursement
+		return billTypeReimbursement
 	default:
-		return BillTypeExpense
+		return billTypeExpense
 	}
 }
