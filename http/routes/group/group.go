@@ -111,7 +111,7 @@ func (s *GroupService) CreateExpenseGroup(ctx context.Context, r *apiv1.CreateEx
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
-	setDefaultGroupImage(ctx, group.ID)
+	setDefaultGroupImage(ctx, group.ID, group.Name)
 
 	logger.Info("group created successfully", "group_id", group.ID, "name", group.Name)
 
