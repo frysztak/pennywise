@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"pennywise/db"
 	"pennywise/calc"
+	"pennywise/db"
 	apiv1 "pennywise/gen/api/v1"
 	"pennywise/http/routes/expense"
 	"pennywise/http/routes/group"
@@ -230,11 +230,9 @@ func TestWeightUpdates(t *testing.T) {
 
 	balances = getGroupBalances(t, groupID)
 	// With weights 1:2 (total weight 3):
-	// The balance calculation uses weighted splits with rounding
-	// Due to integer division rounding, the payer gets any remainder
-	// Total: Alice: +3334, Bob: -3333 (rounding gives payer the extra cent)
+	// The balance calculation uses weighted splits
 	wantBalances = calc.GroupBalance{
-		aliceID: calc.PerCurrencyBalance{"USD": 3334},
+		aliceID: calc.PerCurrencyBalance{"USD": 3333},
 		bobID:   calc.PerCurrencyBalance{"USD": -3333},
 	}
 	if !cmp.Equal(balances, wantBalances) {
