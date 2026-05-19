@@ -66,7 +66,7 @@ export function GroupHeader({
         </div>
       )}
       <div className="absolute top-50 left-6 right-6 flex flex-wrap flex-col gap-4 items-stretch justify-between">
-        <h1 className="text-5xl font-bold font-serif tracking-tight">{groupName}</h1>
+        <h1 className="text-5xl font-bold font-serif tracking-tight text-(--cream-50)">{groupName}</h1>
         <div className="flex flex-row justify-between gap-2">
           <GroupMemberStack members={members} className="" avatarClassName="size-9" />
           <ButtonGroup>

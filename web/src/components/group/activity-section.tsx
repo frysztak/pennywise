@@ -1,4 +1,5 @@
 import { useQuery } from "@connectrpc/connect-query";
+import { keepPreviousData } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 import { ActivityCards } from "@/components/group/activity-cards";
@@ -40,13 +41,17 @@ export function ActivitySection({
 
   const cursor = cursorStack[cursorStack.length - 1];
 
-  const { data, isFetching } = useQuery(getGroupActivity, {
-    groupId,
-    page: { limit: LIMIT, cursor },
-    typeFilter: filters.typeFilter ?? ActivityTypeFilter.UNSPECIFIED,
-    currencyFilter: filters.currencyFilter,
-    memberFilter: filters.memberFilter,
-  });
+  const { data, isFetching } = useQuery(
+    getGroupActivity,
+    {
+      groupId,
+      page: { limit: LIMIT, cursor },
+      typeFilter: filters.typeFilter ?? ActivityTypeFilter.UNSPECIFIED,
+      currencyFilter: filters.currencyFilter,
+      memberFilter: filters.memberFilter,
+    },
+    { placeholderData: keepPreviousData },
+  );
 
   const totalCount = Number(data?.page?.totalCount ?? 0n);
   const totalPages = Math.max(1, Math.ceil(totalCount / LIMIT));
