@@ -8,6 +8,9 @@ import (
 	"pennywise/db/database"
 	"pennywise/db/overrides"
 	"pennywise/log"
+	"pennywise/storage"
+
+	"github.com/spf13/afero"
 	"testing"
 	"time"
 
@@ -59,6 +62,10 @@ func setupTestDB(t *testing.T) {
 
 	// Initialize logger to discard output during tests
 	log.Init("error", "text")
+
+	if err := storage.InitWithFs(afero.NewMemMapFs(), "."); err != nil {
+		t.Fatalf("failed to init blob storage: %v", err)
+	}
 
 	// Initialize config for tests with registration enabled
 	t.Setenv("DB_PATH", ":memory:")

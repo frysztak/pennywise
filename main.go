@@ -17,6 +17,7 @@ import (
 	"pennywise/db"
 	"pennywise/http/router"
 	"pennywise/log"
+	"pennywise/storage"
 	"runtime/debug"
 	"sync"
 	"syscall"
@@ -97,6 +98,10 @@ func main() {
 	}
 
 	db.RunMigrations()
+
+	if err := storage.Init(config.Config.StoragePath); err != nil {
+		stdlog.Fatalf("Failed to initialize blob storage: %v", err)
+	}
 
 	mux := http.NewServeMux()
 	setupVite(*isDev, mux)

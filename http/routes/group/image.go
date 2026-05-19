@@ -3,12 +3,12 @@ package group
 import (
 	"bytes"
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"image"
 	"image/jpeg"
 	_ "image/png"
+	"io/fs"
 	"net/http"
 	"time"
 
@@ -18,6 +18,7 @@ import (
 	apiv1 "pennywise/gen/api/v1"
 	"pennywise/http/helpers"
 	"pennywise/log"
+	"pennywise/storage"
 
 	"connectrpc.com/connect"
 	"golang.org/x/image/draw"
@@ -27,15 +28,21 @@ import (
 )
 
 const (
-	groupImageMaxWidth   = 1600
-	groupImageMaxHeight  = 1067
-	groupImageJPEGQual   = 80
+	groupImageLargeW     = 1600
+	groupImageLargeH     = 1067
+	groupImageSmallW     = 800
+	groupImageSmallH     = 534
+	groupImageJPEGQual   = 70
 	groupImageMaxBytesIn = 16 * 1024 * 1024 // 16MB cap on raw upload
 )
 
-// processGroupImage decodes an uploaded image, resizes it to cover groupImageMaxWidth x groupImageMaxHeight,
-// and re-encodes as JPEG.
-func processGroupImage(data []byte) ([]byte, error) {
+type processedImages struct {
+	large []byte
+	small []byte
+}
+
+// processGroupImage decodes a raster image, produces large and small JPEG variants.
+func processGroupImage(data []byte) (*processedImages, error) {
 	if len(data) > groupImageMaxBytesIn {
 		return nil, fmt.Errorf("image too large: %d bytes (max %d)", len(data), groupImageMaxBytesIn)
 	}
@@ -45,23 +52,27 @@ func processGroupImage(data []byte) ([]byte, error) {
 		return nil, fmt.Errorf("decode image: %w", err)
 	}
 
-	srcBounds := src.Bounds()
-	srcW := srcBounds.Dx()
-	srcH := srcBounds.Dy()
-
-	targetW, targetH := fitCover(srcW, srcH, groupImageMaxWidth, groupImageMaxHeight)
-	if targetW >= srcW && targetH >= srcH {
-		targetW, targetH = srcW, srcH
+	encodeSize := func(w, h int) ([]byte, error) {
+		srcBounds := src.Bounds()
+		targetW, targetH := fitCover(srcBounds.Dx(), srcBounds.Dy(), w, h)
+		dst := image.NewRGBA(image.Rect(0, 0, targetW, targetH))
+		draw.CatmullRom.Scale(dst, dst.Bounds(), src, srcBounds, draw.Over, nil)
+		var buf bytes.Buffer
+		if err := jpeg.Encode(&buf, dst, &jpeg.Options{Quality: groupImageJPEGQual}); err != nil {
+			return nil, fmt.Errorf("encode jpeg: %w", err)
+		}
+		return buf.Bytes(), nil
 	}
 
-	dst := image.NewRGBA(image.Rect(0, 0, targetW, targetH))
-	draw.CatmullRom.Scale(dst, dst.Bounds(), src, srcBounds, draw.Over, nil)
-
-	var buf bytes.Buffer
-	if err := jpeg.Encode(&buf, dst, &jpeg.Options{Quality: groupImageJPEGQual}); err != nil {
-		return nil, fmt.Errorf("encode jpeg: %w", err)
+	large, err := encodeSize(groupImageLargeW, groupImageLargeH)
+	if err != nil {
+		return nil, err
 	}
-	return buf.Bytes(), nil
+	small, err := encodeSize(groupImageSmallW, groupImageSmallH)
+	if err != nil {
+		return nil, err
+	}
+	return &processedImages{large: large, small: small}, nil
 }
 
 // fitCover scales (w,h) so it fits inside (maxW,maxH) preserving aspect ratio.
@@ -97,25 +108,37 @@ func (s *GroupService) UploadGroupImage(ctx context.Context, r *apiv1.UploadGrou
 		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("not a group member"))
 	}
 
+	// Remove any existing images (including old SVG default) before writing new ones.
+	if err := storage.Blobs.DeleteGroupImages(r.GroupId); err != nil {
+		logger.Warn("failed to delete old group images", "error", err, "group_id", r.GroupId)
+	}
+
 	processed, err := processGroupImage(r.ImageData)
 	if err != nil {
 		logger.Warn("failed to process group image", "error", err, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInvalidArgument, err)
 	}
 
-	mime := "image/jpeg"
-	now := overrides.NullTextTime{Time: time.Now(), Valid: true}
-	if err := db.WriteQueries.UpdateGroupImage(ctx, database.UpdateGroupImageParams{
-		ID:             r.GroupId,
-		ImageData:      processed,
-		ImageMimeType:  &mime,
-		ImageUpdatedAt: now,
-	}); err != nil {
-		logger.Error("failed to save group image", "error", err, "group_id", r.GroupId)
+	if err := storage.Blobs.SaveGroupImage(r.GroupId, storage.SizeLarge, processed.large, false); err != nil {
+		logger.Error("failed to save large group image", "error", err, "group_id", r.GroupId)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if err := storage.Blobs.SaveGroupImage(r.GroupId, storage.SizeSmall, processed.small, false); err != nil {
+		logger.Error("failed to save small group image", "error", err, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
-	logger.Info("group image uploaded", "group_id", r.GroupId, "size", len(processed))
+	now := overrides.NullTextTime{Time: time.Now(), Valid: true}
+	if err := db.WriteQueries.UpdateGroupImage(ctx, database.UpdateGroupImageParams{
+		ID:             r.GroupId,
+		ImageUpdatedAt: now,
+	}); err != nil {
+		logger.Error("failed to update group image timestamp", "error", err, "group_id", r.GroupId)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	logger.Info("group image uploaded", "group_id", r.GroupId,
+		"large_bytes", len(processed.large), "small_bytes", len(processed.small))
 
 	return &apiv1.UploadGroupImageResponse{
 		ImageUpdatedAt: timestamppb.New(now.Time),
@@ -137,6 +160,10 @@ func (s *GroupService) DeleteGroupImage(ctx context.Context, r *apiv1.DeleteGrou
 		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("not a group member"))
 	}
 
+	if err := storage.Blobs.DeleteGroupImages(r.GroupId); err != nil {
+		logger.Warn("failed to delete group images from storage", "error", err, "group_id", r.GroupId)
+	}
+
 	group, err := db.ReadQueries.GetGroupById(ctx, r.GroupId)
 	if err != nil {
 		logger.Error("failed to get group for default image", "error", err, "group_id", r.GroupId)
@@ -149,7 +176,8 @@ func (s *GroupService) DeleteGroupImage(ctx context.Context, r *apiv1.DeleteGrou
 	return &emptypb.Empty{}, nil
 }
 
-// HandleGroupImage serves group images from the database.
+// HandleGroupImage serves group images from filesystem blob storage.
+// Accepts an optional ?size=small query parameter; defaults to large.
 func HandleGroupImage(w http.ResponseWriter, r *http.Request) {
 	logger := log.Logger()
 
@@ -159,28 +187,21 @@ func HandleGroupImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	img, err := db.ReadQueries.GetGroupImage(r.Context(), groupID)
+	size := storage.SizeLarge
+	if r.URL.Query().Get("size") == string(storage.SizeSmall) {
+		size = storage.SizeSmall
+	}
+
+	img, err := storage.Blobs.LoadGroupImage(groupID, size)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, fs.ErrNotExist) {
 			http.Error(w, "Image not found", http.StatusNotFound)
 		} else {
-			logger.Error("failed to fetch group image", "error", err, "groupId", groupID)
+			logger.Error("failed to load group image", "error", err, "groupId", groupID)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 		}
 		return
 	}
 
-	if len(img.ImageData) == 0 {
-		http.Error(w, "Image not found", http.StatusNotFound)
-		return
-	}
-
-	if img.ImageMimeType != nil && *img.ImageMimeType != "" {
-		w.Header().Set("Content-Type", *img.ImageMimeType)
-	} else {
-		w.Header().Set("Content-Type", "image/jpeg")
-	}
-	w.Header().Set("Cache-Control", "public, max-age=3600")
-	w.WriteHeader(http.StatusOK)
-	w.Write(img.ImageData)
+	helpers.ServeImage(w, r, img)
 }

@@ -94,7 +94,7 @@ export function GroupImageUpload({ groupId, groupName, imageUpdatedAt }: GroupIm
           </Button>
         )}
       </div>
-      <p className="text-xs text-muted-foreground">JPG, PNG, or WebP. Resized to 1600×1067 on the server.</p>
+      <p className="text-xs text-muted-foreground">JPG, PNG, or WebP. Stored at 1600×1067 and 800×534.</p>
     </div>
   );
 }

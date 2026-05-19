@@ -35,9 +35,12 @@ export function GroupImage({ groupId, groupName, imageUpdatedAt, className, imgC
   }
 
   const v = timestampDate(imageUpdatedAt).getTime();
+  const base = `/group-image/${groupId}?v=${v}`;
   return (
     <img
-      src={`/group-image/${groupId}?v=${v}`}
+      src={`${base}&size=large`}
+      srcSet={`${base}&size=small 800w, ${base}&size=large 1600w`}
+      sizes="(max-width: 640px) 800px, 1600px"
       alt=""
       className={cn("size-full object-cover", imgClassName, className)}
       loading="lazy"

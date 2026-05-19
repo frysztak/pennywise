@@ -21,6 +21,7 @@ type config struct {
 	OpenAIOCRModel       string `env:"OPENAI_OCR_MODEL"`
 	LogLevel             string `env:"LOG_LEVEL" envDefault:"info"`
 	LogFormat            string `env:"LOG_FORMAT" envDefault:"text"`
+	StoragePath          string `env:"STORAGE_PATH" envDefault:"./data"`
 }
 
 // Global variables to hold the config

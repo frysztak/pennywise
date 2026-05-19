@@ -25,11 +25,8 @@ SELECT EXISTS(SELECT 1 FROM users LIMIT 1);
 
 -- name: UpdateUserAvatar :exec
 UPDATE users
-SET avatar_data = @avatar_data, avatar_mime_type = @avatar_mime_type, avatar_updated_at = @avatar_updated_at
+SET avatar_updated_at = @avatar_updated_at
 WHERE id = @id;
-
--- name: GetUserAvatar :one
-SELECT avatar_data, avatar_mime_type FROM users WHERE id = @id LIMIT 1;
 
 -- name: UpdateUserUsername :one
 UPDATE users

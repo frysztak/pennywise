@@ -5,6 +5,7 @@
 *.sqlite3-shm
 tmp
 web/stats.html
+data
 pennywise
 /migrate
 !/migrate/

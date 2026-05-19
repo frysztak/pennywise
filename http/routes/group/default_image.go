@@ -13,6 +13,7 @@ import (
 	"pennywise/db/database"
 	"pennywise/db/overrides"
 	"pennywise/log"
+	"pennywise/storage"
 
 	"github.com/lucasb-eyer/go-colorful"
 )
@@ -23,15 +24,17 @@ func setDefaultGroupImage(ctx context.Context, groupID, groupName string) {
 	logger := log.FromContext(ctx)
 
 	svg := generateDefaultGroupImage(groupName)
-	mime := "image/svg+xml"
+	if err := storage.Blobs.SaveGroupImage(groupID, storage.SizeLarge, svg, true); err != nil {
+		logger.Error("failed to save default group image", "error", err, "group_id", groupID)
+		return
+	}
+
 	now := overrides.NullTextTime{Time: time.Now(), Valid: true}
 	if err := db.WriteQueries.UpdateGroupImage(ctx, database.UpdateGroupImageParams{
 		ID:             groupID,
-		ImageData:      svg,
-		ImageMimeType:  &mime,
 		ImageUpdatedAt: now,
 	}); err != nil {
-		logger.Error("failed to set default group image", "error", err, "group_id", groupID)
+		logger.Error("failed to update default group image timestamp", "error", err, "group_id", groupID)
 	}
 }
 

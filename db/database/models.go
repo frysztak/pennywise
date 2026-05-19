@@ -32,8 +32,6 @@ type ExpenseGroup struct {
 	Name            string
 	DefaultCurrency string
 	Description     *string
-	ImageData       []byte
-	ImageMimeType   *string
 	ImageUpdatedAt  overrides.NullTextTime
 }
 
@@ -90,8 +88,6 @@ type User struct {
 	PasswordHash    *string
 	CreatedAt       overrides.TextTime
 	Role            int64
-	AvatarData      []byte
-	AvatarMimeType  *string
 	AvatarUpdatedAt overrides.NullTextTime
 }
 

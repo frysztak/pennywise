@@ -99,7 +99,7 @@ INSERT INTO expense_groups
     name
 ) VALUES (
     ?1, ?2, ?3, ?4, ?5, ?6
-) RETURNING id, created_at, created_by, name, default_currency, description, image_data, image_mime_type, image_updated_at
+) RETURNING id, created_at, created_by, name, default_currency, description, image_updated_at
 `
 
 type CreateGroupParams struct {
@@ -128,8 +128,6 @@ func (q *Queries) CreateGroup(ctx context.Context, arg CreateGroupParams) (Expen
 		&i.Name,
 		&i.DefaultCurrency,
 		&i.Description,
-		&i.ImageData,
-		&i.ImageMimeType,
 		&i.ImageUpdatedAt,
 	)
 	return i, err
@@ -146,7 +144,7 @@ func (q *Queries) DeleteGroup(ctx context.Context, groupID string) error {
 }
 
 const getGroupById = `-- name: GetGroupById :one
-SELECT id, created_at, created_by, name, default_currency, description, image_data, image_mime_type, image_updated_at
+SELECT id, created_at, created_by, name, default_currency, description, image_updated_at
 FROM expense_groups
 WHERE id = ?1
 `
@@ -161,8 +159,6 @@ func (q *Queries) GetGroupById(ctx context.Context, groupID string) (ExpenseGrou
 		&i.Name,
 		&i.DefaultCurrency,
 		&i.Description,
-		&i.ImageData,
-		&i.ImageMimeType,
 		&i.ImageUpdatedAt,
 	)
 	return i, err
@@ -196,22 +192,6 @@ func (q *Queries) GetGroupCurrencies(ctx context.Context, groupID string) ([]str
 		return nil, err
 	}
 	return items, nil
-}
-
-const getGroupImage = `-- name: GetGroupImage :one
-SELECT image_data, image_mime_type FROM expense_groups WHERE id = ?1 LIMIT 1
-`
-
-type GetGroupImageRow struct {
-	ImageData     []byte
-	ImageMimeType *string
-}
-
-func (q *Queries) GetGroupImage(ctx context.Context, id string) (GetGroupImageRow, error) {
-	row := q.db.QueryRowContext(ctx, getGroupImage, id)
-	var i GetGroupImageRow
-	err := row.Scan(&i.ImageData, &i.ImageMimeType)
-	return i, err
 }
 
 const getGroupMembers = `-- name: GetGroupMembers :many
@@ -254,7 +234,7 @@ func (q *Queries) GetGroupMembers(ctx context.Context, groupID string) ([]GetGro
 }
 
 const getGroupsByUserId = `-- name: GetGroupsByUserId :many
-SELECT id, created_at, created_by, name, default_currency, description, image_data, image_mime_type, image_updated_at, user_id, group_id, added_at, weight
+SELECT id, created_at, created_by, name, default_currency, description, image_updated_at, user_id, group_id, added_at, weight
 FROM
   expense_groups g
   LEFT JOIN user_expense_groups u ON u.group_id = g.id
@@ -268,8 +248,6 @@ type GetGroupsByUserIdRow struct {
 	Name            string
 	DefaultCurrency string
 	Description     *string
-	ImageData       []byte
-	ImageMimeType   *string
 	ImageUpdatedAt  overrides.NullTextTime
 	UserID          *string
 	GroupID         *string
@@ -293,8 +271,6 @@ func (q *Queries) GetGroupsByUserId(ctx context.Context, userID string) ([]GetGr
 			&i.Name,
 			&i.DefaultCurrency,
 			&i.Description,
-			&i.ImageData,
-			&i.ImageMimeType,
 			&i.ImageUpdatedAt,
 			&i.UserID,
 			&i.GroupID,
@@ -370,7 +346,7 @@ const updateGroup = `-- name: UpdateGroup :one
 
 UPDATE expense_groups SET name = ?1, description = ?2, default_currency = ?3
 WHERE id = ?4
-RETURNING id, created_at, created_by, name, default_currency, description, image_data, image_mime_type, image_updated_at
+RETURNING id, created_at, created_by, name, default_currency, description, image_updated_at
 `
 
 type UpdateGroupParams struct {
@@ -395,8 +371,6 @@ func (q *Queries) UpdateGroup(ctx context.Context, arg UpdateGroupParams) (Expen
 		&i.Name,
 		&i.DefaultCurrency,
 		&i.Description,
-		&i.ImageData,
-		&i.ImageMimeType,
 		&i.ImageUpdatedAt,
 	)
 	return i, err
@@ -404,24 +378,17 @@ func (q *Queries) UpdateGroup(ctx context.Context, arg UpdateGroupParams) (Expen
 
 const updateGroupImage = `-- name: UpdateGroupImage :exec
 UPDATE expense_groups
-SET image_data = ?1, image_mime_type = ?2, image_updated_at = ?3
-WHERE id = ?4
+SET image_updated_at = ?1
+WHERE id = ?2
 `
 
 type UpdateGroupImageParams struct {
-	ImageData      []byte
-	ImageMimeType  *string
 	ImageUpdatedAt overrides.NullTextTime
 	ID             string
 }
 
 func (q *Queries) UpdateGroupImage(ctx context.Context, arg UpdateGroupImageParams) error {
-	_, err := q.db.ExecContext(ctx, updateGroupImage,
-		arg.ImageData,
-		arg.ImageMimeType,
-		arg.ImageUpdatedAt,
-		arg.ID,
-	)
+	_, err := q.db.ExecContext(ctx, updateGroupImage, arg.ImageUpdatedAt, arg.ID)
 	return err
 }
 

@@ -1,8 +1,12 @@
 package user
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"image"
+	"image/jpeg"
+	_ "image/png"
 	"pennywise/config"
 	"pennywise/db"
 	"pennywise/db/database"
@@ -10,12 +14,14 @@ import (
 	apiv1 "pennywise/gen/api/v1"
 	"pennywise/http/helpers"
 	"pennywise/log"
+	"pennywise/storage"
 	"time"
 
 	"connectrpc.com/connect"
 	"github.com/alexedwards/argon2id"
 	"github.com/google/uuid"
 	"github.com/jonasdoesthings/plavatar/v3"
+	_ "golang.org/x/image/webp"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -87,7 +93,7 @@ func generateDefaultAvatar(email string) ([]byte, error) {
 	return avatarBuffer.Bytes(), nil
 }
 
-// SetDefaultAvatar generates and saves a default avatar for a user.
+// SetDefaultAvatar generates and saves a default SVG avatar for a user.
 // Errors are logged but not returned - avatar generation is non-critical.
 func SetDefaultAvatar(ctx context.Context, userID, email string) {
 	logger := log.FromContext(ctx)
@@ -98,17 +104,34 @@ func SetDefaultAvatar(ctx context.Context, userID, email string) {
 		return
 	}
 
-	mimeType := "image/svg+xml"
-	now := overrides.NullTextTime{Time: time.Now(), Valid: true}
-	err = db.WriteQueries.UpdateUserAvatar(ctx, database.UpdateUserAvatarParams{
-		ID:              userID,
-		AvatarData:      avatarData,
-		AvatarMimeType:  &mimeType,
-		AvatarUpdatedAt: now,
-	})
-	if err != nil {
+	if err := storage.Blobs.SaveAvatar(userID, avatarData, true); err != nil {
 		logger.Error("failed to save default avatar", "error", err, "user_id", userID)
+		return
 	}
+
+	now := overrides.NullTextTime{Time: time.Now(), Valid: true}
+	if err := db.WriteQueries.UpdateUserAvatar(ctx, database.UpdateUserAvatarParams{
+		ID:              userID,
+		AvatarUpdatedAt: now,
+	}); err != nil {
+		logger.Error("failed to update avatar timestamp", "error", err, "user_id", userID)
+	}
+}
+
+// processAvatar encodes a raster avatar image as JPEG 70%. SVG data is returned unchanged.
+func processAvatar(data []byte, mimeType string) (processed []byte, isSVG bool, err error) {
+	if mimeType == "image/svg+xml" {
+		return data, true, nil
+	}
+	src, _, decErr := image.Decode(bytes.NewReader(data))
+	if decErr != nil {
+		return nil, false, fmt.Errorf("decode avatar: %w", decErr)
+	}
+	var buf bytes.Buffer
+	if encErr := jpeg.Encode(&buf, src, &jpeg.Options{Quality: 70}); encErr != nil {
+		return nil, false, fmt.Errorf("encode avatar: %w", encErr)
+	}
+	return buf.Bytes(), false, nil
 }
 
 func (s *UserService) UserInfo(ctx context.Context, r *apiv1.UserInfoRequest) (*apiv1.UserInfoResponse, error) {
@@ -167,19 +190,27 @@ func (s *UserService) UploadAvatar(ctx context.Context, r *apiv1.UploadAvatarReq
 	logger := log.FromContext(ctx)
 	session := helpers.GetSessionInfo(ctx)
 
-	now := overrides.NullTextTime{Time: time.Now(), Valid: true}
-	err := db.WriteQueries.UpdateUserAvatar(ctx, database.UpdateUserAvatarParams{
-		ID:              session.UserID,
-		AvatarData:      r.AvatarData,
-		AvatarMimeType:  &r.MimeType,
-		AvatarUpdatedAt: now,
-	})
+	processed, isSVG, err := processAvatar(r.AvatarData, r.MimeType)
 	if err != nil {
-		logger.Error("failed to upload avatar", "error", err, "user_id", session.UserID)
+		logger.Warn("failed to process avatar", "error", err, "user_id", session.UserID)
+		return nil, connect.NewError(connect.CodeInvalidArgument, err)
+	}
+
+	if err := storage.Blobs.SaveAvatar(session.UserID, processed, isSVG); err != nil {
+		logger.Error("failed to save avatar", "error", err, "user_id", session.UserID)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
-	logger.Info("avatar uploaded successfully", "user_id", session.UserID, "size", len(r.AvatarData))
+	now := overrides.NullTextTime{Time: time.Now(), Valid: true}
+	if err := db.WriteQueries.UpdateUserAvatar(ctx, database.UpdateUserAvatarParams{
+		ID:              session.UserID,
+		AvatarUpdatedAt: now,
+	}); err != nil {
+		logger.Error("failed to update avatar timestamp", "error", err, "user_id", session.UserID)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	logger.Info("avatar uploaded successfully", "user_id", session.UserID, "size", len(processed))
 
 	return &apiv1.UploadAvatarResponse{}, nil
 }

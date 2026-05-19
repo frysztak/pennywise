@@ -82,7 +82,7 @@ services:
     image: ghcr.io/frysztak/pennywise:latest
     restart: unless-stopped
     volumes:
-      - /home/docker/pennywise/db:/data
+      - /home/docker/pennywise/data:/data
     environment:
       - AUTH_SECRET=<...your key...>
 ```

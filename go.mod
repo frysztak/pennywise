@@ -28,6 +28,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.44
 	github.com/olivere/vite v0.1.0
 	github.com/openai/openai-go/v3 v3.35.0
+	github.com/spf13/afero v1.15.0
 	github.com/vearutop/statigz v1.5.0
 	golang.org/x/image v0.40.0
 	google.golang.org/protobuf v1.36.11
@@ -68,7 +69,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/sethvargo/go-retry v0.3.0 // indirect
-	github.com/spf13/afero v1.14.0 // indirect
 	github.com/spf13/cast v1.9.2 // indirect
 	github.com/srwiley/oksvg v0.0.0-20221011165216-be6e8873101c // indirect
 	github.com/srwiley/rasterx v0.0.0-20220730225603-2ab79fcdd4ef // indirect
