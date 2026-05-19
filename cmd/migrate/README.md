@@ -10,6 +10,7 @@ Supported sources:
 | Source | Status | Backend identifier |
 |---|---|---|
 | [ihatemoney](https://github.com/spiral-project/ihatemoney) | ✅ stable | `ihatemoney` |
+| [Splitwise](https://www.splitwise.com/) | ✅ stable | `splitwise` |
 
 ## Prerequisites
 
@@ -18,7 +19,7 @@ Supported sources:
   (If you do have Go 1.25+ installed, you can also run `go run ./cmd/migrate
   ...` from a checkout; see [From source](#from-source).)
 - The Pennywise SQLite database, already migrated by a previous server run.
-- The source data (e.g. a copy of `budget.db` for ihatemoney).
+- The source data (e.g. a copy of `budget.db` for ihatemoney, or a Splitwise CSV export).
 - One Pennywise user account per source-side person. No placeholder users
   are created; create/invite missing users in Pennywise first.
 
@@ -142,6 +143,8 @@ If you have a Go toolchain and a checkout, you can skip Docker:
 
 ```bash
 # .env must define DB_PATH and AUTH_SECRET — same file the server uses.
+
+# ihatemoney
 go run ./cmd/migrate ihatemoney inspect --ihatemoney-db /path/to/budget.db
 go run ./cmd/migrate ihatemoney inspect --ihatemoney-db /path/to/budget.db \
     --project roommates > mapping.json
@@ -151,6 +154,15 @@ go run ./cmd/migrate ihatemoney plan  --ihatemoney-db /path/to/budget.db \
 # stop the server, then:
 go run ./cmd/migrate ihatemoney apply --ihatemoney-db /path/to/budget.db \
     --project roommates --mapping mapping.json
+
+# Splitwise
+go run ./cmd/migrate splitwise inspect --splitwise-csv "My Group.csv"
+go run ./cmd/migrate splitwise inspect --splitwise-csv "My Group.csv" \
+    --project "My Group" > mapping.json
+# edit mapping.json
+go run ./cmd/migrate splitwise plan  --splitwise-csv "My Group.csv" --mapping mapping.json
+# stop the server, then:
+go run ./cmd/migrate splitwise apply --splitwise-csv "My Group.csv" --mapping mapping.json
 ```
 
 ## Mapping file
@@ -178,6 +190,33 @@ user ids, …).
   (`inspect --project` populates these for you).
 
 ## Source-specific flags
+
+### `splitwise`
+
+Export a group's history from Splitwise via *Settings → Export as CSV* (or the equivalent in the mobile app), then point the tool at the downloaded file.
+
+| flag | applies to | meaning |
+|---|---|---|
+| `--splitwise-csv` | all | path to Splitwise CSV export file |
+| `--project` | inspect (optional), plan, apply | project slug (defaults to the filename without extension) |
+| `--mapping` | plan, apply | path to mapping JSON |
+
+What gets imported:
+
+| Splitwise CSV | Pennywise |
+|---|---|
+| Filename (without `.csv`) | `expense_groups.name` (overridable via `projectName` in mapping) |
+| Most-frequent currency in the file | `expense_groups.default_currency` |
+| Header columns (member names) | `user_expense_groups` rows (resolved to existing users) |
+| Expense rows | `expenses` + `expense_payers` + `expense_beneficiaries` |
+| Distinct currencies | `group_currencies` |
+
+Notes on the CSV format:
+
+- Each row's per-member columns hold the **net balance change** for that person: negative means they paid more than their share (they are the payer); positive means they owe money (they are a beneficiary).
+- The payer's own share is re-derived as `total_cost + net`; if non-zero the payer is also included as a beneficiary (equal split).
+- Balance summary rows (empty cost column) are silently skipped.
+- Member weights are not exported by Splitwise; all members are imported with equal weight (`1.0`).
 
 ### `ihatemoney`
 

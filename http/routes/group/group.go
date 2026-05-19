@@ -74,7 +74,15 @@ func (s *GroupService) CreateExpenseGroup(ctx context.Context, r *apiv1.CreateEx
 	logger := log.FromContext(ctx)
 	session := helpers.GetSessionInfo(ctx)
 
-	group, err := db.WriteQueries.CreateGroup(ctx, database.CreateGroupParams{
+	tx, err := db.WriteDB.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	defer tx.Rollback()
+
+	qtx := db.WriteQueries.WithTx(tx)
+
+	group, err := qtx.CreateGroup(ctx, database.CreateGroupParams{
 		ID:              uuid.NewString(),
 		Name:            r.Name,
 		Description:     &r.Description,
@@ -87,7 +95,7 @@ func (s *GroupService) CreateExpenseGroup(ctx context.Context, r *apiv1.CreateEx
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
-	_, err = db.WriteQueries.AddUserToGroup(ctx, database.AddUserToGroupParams{
+	_, err = qtx.AddUserToGroup(ctx, database.AddUserToGroupParams{
 		UserID:  session.UserID,
 		GroupID: group.ID,
 		Weight:  1.0,
@@ -103,7 +111,7 @@ func (s *GroupService) CreateExpenseGroup(ctx context.Context, r *apiv1.CreateEx
 			errors.New("default currency must be one of the selected currencies"))
 	}
 
-	if err := db.WriteQueries.BulkAddGroupCurrencies(ctx, database.BulkAddGroupCurrenciesParams{
+	if err := qtx.BulkAddGroupCurrencies(ctx, database.BulkAddGroupCurrenciesParams{
 		GroupID:    group.ID,
 		Currencies: utils.SliceToJSONString(r.Currencies...),
 	}); err != nil {
@@ -111,7 +119,11 @@ func (s *GroupService) CreateExpenseGroup(ctx context.Context, r *apiv1.CreateEx
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
-	setDefaultGroupImage(ctx, group.ID, group.Name)
+	SetDefaultGroupImage(ctx, qtx, group.ID, group.Name)
+
+	if err := tx.Commit(); err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
 
 	logger.Info("group created successfully", "group_id", group.ID, "name", group.Name)
 

@@ -7,6 +7,7 @@ import (
 
 	"pennywise/db"
 	"pennywise/db/database"
+	"pennywise/http/routes/group"
 )
 
 // Apply writes a Plan to the live Pennywise database inside a single
@@ -21,9 +22,12 @@ func Apply(ctx context.Context, plan *Plan) (string, error) {
 
 	qtx := db.WriteQueries.WithTx(tx)
 
-	if _, err := qtx.CreateGroup(ctx, plan.Group); err != nil {
+	createdGroup, err := qtx.CreateGroup(ctx, plan.Group)
+	if err != nil {
 		return "", fmt.Errorf("create group: %w", err)
 	}
+
+	group.SetDefaultGroupImage(ctx, qtx, createdGroup.ID, createdGroup.Name)
 
 	// Encode currencies as a JSON array — the BulkAddGroupCurrencies query
 	// consumes it via SQLite's json_each().

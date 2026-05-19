@@ -170,7 +170,7 @@ func (s *GroupService) DeleteGroupImage(ctx context.Context, r *apiv1.DeleteGrou
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
-	setDefaultGroupImage(ctx, r.GroupId, group.Name)
+	SetDefaultGroupImage(ctx, db.WriteQueries, r.GroupId, group.Name)
 
 	logger.Info("group image reset to default", "group_id", r.GroupId)
 	return &emptypb.Empty{}, nil

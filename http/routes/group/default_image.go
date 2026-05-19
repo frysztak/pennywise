@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"pennywise/db"
 	"pennywise/db/database"
 	"pennywise/db/overrides"
 	"pennywise/log"
@@ -20,7 +19,7 @@ import (
 
 // setDefaultGroupImage stores a deterministic gradient SVG as the group's image.
 // Failures are logged but not fatal — the frontend falls back to initials.
-func setDefaultGroupImage(ctx context.Context, groupID, groupName string) {
+func SetDefaultGroupImage(ctx context.Context, db *database.Queries, groupID, groupName string) {
 	logger := log.FromContext(ctx)
 
 	svg := generateDefaultGroupImage(groupName)
@@ -30,7 +29,7 @@ func setDefaultGroupImage(ctx context.Context, groupID, groupName string) {
 	}
 
 	now := overrides.NullTextTime{Time: time.Now(), Valid: true}
-	if err := db.WriteQueries.UpdateGroupImage(ctx, database.UpdateGroupImageParams{
+	if err := db.UpdateGroupImage(ctx, database.UpdateGroupImageParams{
 		ID:             groupID,
 		ImageUpdatedAt: now,
 	}); err != nil {

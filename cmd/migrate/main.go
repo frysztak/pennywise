@@ -23,6 +23,7 @@ import (
 	"pennywise/db"
 	"pennywise/log"
 	"pennywise/migrate"
+	"pennywise/storage"
 )
 
 // sourceBuilder constructs a migrate.Source from CLI args. Each source
@@ -241,6 +242,10 @@ func buildPlan(builder sourceBuilder, action string, args []string, quiet bool) 
 	}
 
 	if err := bootstrapDB(); err != nil {
+		return nil, nil, err
+	}
+
+	if err := storage.Init(config.Config.StoragePath); err != nil {
 		return nil, nil, err
 	}
 

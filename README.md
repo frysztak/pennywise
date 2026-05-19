@@ -16,7 +16,7 @@
 - **Activity Feed** - View all group transactions in one unified timeline
 - **Group Management** - Create groups, invite members, and customize splitting weights
 - **AI-based receipt scanning** - Automatically extract data from receipts
-- **Import from ihatemoney** - Migrate existing projects from [ihatemoney](https://github.com/spiral-project/ihatemoney) via a CLI tool
+- **Import from other apps** - Migrate existing projects from [ihatemoney](https://github.com/spiral-project/ihatemoney) or [Splitwise](https://www.splitwise.com/) via a CLI tool
 
 ## Screenshots
 
@@ -163,15 +163,21 @@ environment:
   - OPENAI_OCR_MODEL=gemma4:9b
 ```
 
-## Migrating from ihatemoney
+## Migrating from other apps
 
-A CLI tool ships with the repo for importing projects from an [ihatemoney](https://github.com/spiral-project/ihatemoney) SQLite database. Inspect a source DB, generate a person → user mapping, dry-run with `plan`, then `apply` to write the new group inside a single transaction:
+A CLI tool ships with the repo for importing projects from [ihatemoney](https://github.com/spiral-project/ihatemoney) or [Splitwise](https://www.splitwise.com/). Inspect a source, generate a person → user mapping, dry-run with `plan`, then `apply` to write the new group inside a single transaction.
 
+**ihatemoney** (SQLite database):
 ```bash
-go run ./cmd/migrate-ihatemoney inspect --ihatemoney-db budget.db
+go run ./cmd/migrate ihatemoney inspect --ihatemoney-db budget.db
 ```
 
-See [`cmd/migrate-ihatemoney/README.md`](cmd/migrate-ihatemoney/README.md) for the full workflow, mapping file format, and flags.
+**Splitwise** (CSV export — download via *Export as CSV* in the group settings):
+```bash
+go run ./cmd/migrate splitwise inspect --splitwise-csv "My Group.csv"
+```
+
+See [`cmd/migrate/README.md`](cmd/migrate/README.md) for the full workflow, mapping file format, and flags.
 
 ## License
 
