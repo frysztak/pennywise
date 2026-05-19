@@ -1,6 +1,6 @@
 import { useQuery } from "@connectrpc/connect-query";
 import { keepPreviousData } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { ActivityCards } from "@/components/group/activity-cards";
 import { ActivityFilters, type ActivityFiltersState } from "@/components/group/activity-filters";
@@ -59,11 +59,6 @@ export function ActivitySection({
   const canPrev = cursorStack.length > 1;
   const canNext = totalCount > 0 && pageIndex + 1 < totalPages;
 
-  // Reset to page 1 whenever filters change.
-  useEffect(() => {
-    setCursorStack([undefined]);
-  }, [filters]);
-
   const handleNext = (nextCursor: string | undefined) => {
     if (nextCursor) setCursorStack((s) => [...s, nextCursor]);
   };
@@ -83,7 +78,11 @@ export function ActivitySection({
         {...filters}
         currencies={currencies}
         members={members}
-        onChange={(next) => setFilters((f) => ({ ...f, ...next }))}
+        onChange={(next) => {
+          setFilters((f) => ({ ...f, ...next }));
+          // Reset to page 1 whenever filters change.
+          setCursorStack([undefined]);
+        }}
       />
 
       <div className="relative">

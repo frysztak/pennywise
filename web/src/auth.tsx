@@ -1,6 +1,6 @@
 import { createConnectQueryKey, useQuery } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext } from "react";
 
 import { userInfo } from "./gen/api/v1/user-UserService_connectquery";
 import type { UserInfoResponse } from "./gen/api/v1/user_pb";
@@ -21,25 +21,15 @@ const userInfoKey = createConnectQueryKey({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
 
-  const [user, setUser] = useState<UserInfoResponse | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
   // Restore auth state on app load
   const { data, status } = useQuery(userInfo, undefined, {
     retry: false,
     throwOnError: false,
   });
-  useEffect(() => {
-    if (status === "success") {
-      setUser(data!);
-      setIsAuthenticated(true);
-      setIsLoading(false);
-    } else if (status === "error") {
-      // go to homepage?
-      setIsLoading(false);
-    }
-  }, [data, status]);
+
+  const user = data ?? null;
+  const isAuthenticated = status === "success";
+  const isLoading = status === "pending";
 
   // Show loading state while checking auth
   //if (isLoading) {
@@ -51,10 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   //}
 
   const setUserData = (user: UserInfoResponse) => {
-    setUser(user);
-    setIsAuthenticated(true);
-    setIsLoading(false);
-
+    queryClient.setQueryData(userInfoKey, user);
     queryClient.invalidateQueries({
       queryKey: userInfoKey,
     });

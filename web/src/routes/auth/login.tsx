@@ -1,5 +1,5 @@
 import { useMutation } from "@connectrpc/connect-query";
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { Navigate, createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 import { useAuth } from "@/auth";
@@ -14,22 +14,20 @@ export const Route = createFileRoute("/auth/login")({
 });
 
 function RouteComponent() {
-  const navigate = Route.useNavigate();
-  const router = useRouter();
-
-  const { setUserData } = useAuth();
+  const { setUserData, isAuthenticated } = useAuth();
 
   const { mutate, isPending } = useMutation(loginWithPassword, {
     onSuccess: (data) => {
       setUserData({ ...data, $typeName: "api.v1.UserInfoResponse" });
-      router.invalidate().then(() => {
-        navigate({ to: "/dashboard" });
-      });
     },
     onError: (error) => {
       toast.error(error.rawMessage);
     },
   });
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" />;
+  }
 
   return <LoginForm onSubmit={mutate} isLoading={isPending} />;
 }

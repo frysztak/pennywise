@@ -30,7 +30,7 @@ const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   description: z.string(),
   amountWithCurrency: z.object({
-    amount: z.number({ error: (_) => "Amount must be a number" }).positive("Amount must be a positive number"),
+    amount: z.number({ error: () => "Amount must be a number" }).positive("Amount must be a positive number"),
     currency: z.string().min(2, "Currency is required"),
   }),
   payerId: z.string().min(1, "Payer is required"),

@@ -51,7 +51,7 @@ function parseStack(stack: string | undefined): StackFrame[] {
     const line = raw.trim();
     if (!line) continue;
     let fn = "<anonymous>";
-    let location = "";
+    let location;
 
     if (line.startsWith("at ")) {
       // V8: "at fn (loc)" or "at loc"
