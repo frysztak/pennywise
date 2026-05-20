@@ -1,7 +1,11 @@
 import { useSuspenseQuery } from "@connectrpc/connect-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { Plus } from "lucide-react";
+import { useState } from "react";
 
 import { ExpenseGroupCard } from "@/components/expense-group-card";
+import { NewGroupModal } from "@/components/sidebar/new-group-modal";
+import { Button } from "@/components/ui/button";
 import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
 
 export const Route = createFileRoute("/_pathlessLayout/dashboard")({
@@ -13,12 +17,19 @@ export const Route = createFileRoute("/_pathlessLayout/dashboard")({
 
 function RouteComponent() {
   const { data: groupsData } = useSuspenseQuery(getUserGroups);
+  const [newGroupOpen, setNewGroupOpen] = useState(false);
 
   return (
     <>
       <div>
         <h1 className="text-5xl font-bold tracking-tight font-serif">Dashboard</h1>
-        <p className="text-muted-foreground mt-2">Overview of your expense groups and balances</p>
+        <div className="flex justify-between items-center">
+          <p className="text-muted-foreground mt-2">Overview of your expense groups and balances</p>
+          <Button variant="outline" onClick={() => setNewGroupOpen(true)}>
+            <Plus />
+            New Group
+          </Button>
+        </div>
       </div>
 
       {groupsData.groups.length === 0 ? (
@@ -47,6 +58,7 @@ function RouteComponent() {
           })}
         </div>
       )}
+      <NewGroupModal open={newGroupOpen} onOpenChange={setNewGroupOpen} />
     </>
   );
 }

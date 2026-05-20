@@ -44,7 +44,7 @@ export function NavGroups() {
       <SidebarGroupLabel className="text-base">Groups</SidebarGroupLabel>
       <SidebarGroupAction onClick={() => setNewGroupOpen(true)}>
         <Plus className="size-6" />
-        <span className="sr-only">Add Group</span>
+        <span className="sr-only">New Group</span>
       </SidebarGroupAction>
       <SidebarGroupContent>
         {data.groups.length === 0 ? (
