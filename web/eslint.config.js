@@ -24,6 +24,7 @@ export default defineConfig([
     },
     rules: {
       "react-refresh/only-export-components": "off",
+      "react-hooks/incompatible-library": "off",
     },
   },
   ...storybook.configs["flat/recommended"],

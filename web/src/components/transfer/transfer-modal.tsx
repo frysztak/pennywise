@@ -3,7 +3,7 @@ import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, type FieldErrors, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
@@ -30,7 +30,7 @@ const formSchema = z
     senderId: z.string().min(1, "Sender is required"),
     receiverId: z.string().min(1, "Receiver is required"),
     amountWithCurrency: z.object({
-      amount: z.number({ error: (_) => "Amount must be a number" }).positive("Amount must be a positive number"),
+      amount: z.number({ error: () => "Amount must be a number" }).positive("Amount must be a positive number"),
       currency: z.string().min(2, "Currency is required"),
     }),
     date: z.string().date("Invalid date format"),
@@ -237,7 +237,12 @@ export const TransferModal = ({
                       invalid={fieldState.invalid}
                     />
                     {fieldState.invalid && (
-                      <FieldError errors={[(fieldState.error as any)?.amount || (fieldState.error as any)?.currency]} />
+                      <FieldError
+                        errors={[
+                          (fieldState.error as FieldErrors<FormValues["amountWithCurrency"]>)?.amount ||
+                            (fieldState.error as FieldErrors<FormValues["amountWithCurrency"]>)?.currency,
+                        ]}
+                      />
                     )}
                   </Field>
                 )}

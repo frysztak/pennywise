@@ -3,7 +3,7 @@ import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, type FieldErrors, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
@@ -17,7 +17,7 @@ import type { GetGroupRecurringExpensesResponse_RecurringExpense } from "@/gen/a
 import { RecurringFrequency } from "@/gen/api/v1/recurring_expense_pb";
 import { handleError } from "@/lib/utils";
 
-import { AmountInput } from "../amount-input";
+import { AmountInput, type AmountWithCurrency } from "../amount-input";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
@@ -240,13 +240,18 @@ export const RecurringExpenseModal = ({
                     <AmountInput
                       id="amountWithCurrency"
                       currencies={currencies}
-                      inputValue={field.value as { amount: number; currency: string } | undefined}
+                      inputValue={field.value as NonNullable<AmountWithCurrency>}
                       disabled={field.disabled}
                       onValueChange={field.onChange}
                       invalid={fieldState.invalid}
                     />
                     {fieldState.invalid && (
-                      <FieldError errors={[(fieldState.error as any)?.amount || (fieldState.error as any)?.currency]} />
+                      <FieldError
+                        errors={[
+                          (fieldState.error as FieldErrors<NonNullable<FormValues["amountWithCurrency"]>>)?.amount ||
+                            (fieldState.error as FieldErrors<NonNullable<FormValues["amountWithCurrency"]>>)?.currency,
+                        ]}
+                      />
                     )}
                   </Field>
                 )}

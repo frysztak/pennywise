@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Minus, Plus, RotateCcw } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -42,12 +42,6 @@ interface WeightStepperProps {
 }
 
 function WeightStepper({ value, onChange, disabled, min = 0, max = 99, step = 0.5, id }: WeightStepperProps) {
-  const [text, setText] = useState(String(value));
-
-  useEffect(() => {
-    if (parseFloat(text) !== value) setText(String(value));
-  }, [value, text]);
-
   const dec = () => onChange(Math.max(min, +(value - step).toFixed(2)));
   const inc = () => onChange(Math.min(max, +(value + step).toFixed(2)));
 
@@ -64,19 +58,18 @@ function WeightStepper({ value, onChange, disabled, min = 0, max = 99, step = 0.
       </button>
       <input
         id={id}
-        type="text"
+        type="number"
         inputMode="decimal"
-        value={text}
+        value={value}
         disabled={disabled}
         onChange={(e) => {
-          const v = e.target.value.replace(",", ".");
-          if (v === "" || /^\d*\.?\d{0,2}$/.test(v)) {
-            setText(v);
-            const num = v === "" ? 0 : parseFloat(v);
-            if (!isNaN(num)) onChange(num);
+          const v = parseFloat(e.target.value);
+          if (!isNaN(v)) {
+            const rounded = parseFloat(v.toFixed(2));
+            onChange(rounded);
           }
         }}
-        className="text-foreground w-14 border-none bg-transparent text-center font-mono text-[13px] font-medium tabular-nums outline-none disabled:opacity-50"
+        className="text-foreground w-14 border-none bg-transparent text-center font-mono text-[13px] font-medium tabular-nums outline-none disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
       />
       <button
         type="button"
@@ -348,7 +341,7 @@ export function EditGroupDialog({
                       />
                     </div>
                     <div className="truncate text-sm font-medium">{member.userName}</div>
-                    <div className="text-muted-foreground min-w-[42px] text-right font-mono text-xs tabular-nums">
+                    <div className="text-muted-foreground min-w-10.5 text-right font-mono text-xs tabular-nums">
                       {fmtPct(share)}
                     </div>
                     <WeightStepper

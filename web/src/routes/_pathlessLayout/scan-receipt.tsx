@@ -1,32 +1,35 @@
 import { timestampDate, timestampFromDate } from "@bufbuild/protobuf/wkt";
-import { createConnectQueryKey, useMutation, useQuery } from "@connectrpc/connect-query";
+import { createConnectQueryKey, createQueryOptions, useMutation, useSuspenseQuery } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { parseISO } from "date-fns";
-import * as React from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
-import { ScanConfirm, ScanConfirmFooter, type ConfirmState } from "@/components/scan-receipt/scan-confirm";
-import { ScanHeader, MobileProgress } from "@/components/scan-receipt/scan-header";
+import { useAuth } from "@/auth";
+import { type ConfirmState, ScanConfirm, ScanConfirmFooter } from "@/components/scan-receipt/scan-confirm";
+import { MobileProgress, ScanHeader } from "@/components/scan-receipt/scan-header";
 import { ScanProcessing, ScanProcessingFooter } from "@/components/scan-receipt/scan-processing";
 import { ScanReview, ScanReviewFooter } from "@/components/scan-receipt/scan-review";
 import { ScanUpload, ScanUploadFooter } from "@/components/scan-receipt/scan-upload";
-import { STEP_INDEX, type ItemDraft, type ReceiptDraft, type Step } from "@/components/scan-receipt/types";
+import { type ItemDraft, type ReceiptDraft, STEP_INDEX, type Step } from "@/components/scan-receipt/types";
 import { Card } from "@/components/ui/card";
 import { bulkCreateExpenses } from "@/gen/api/v1/expense-ExpenseService_connectquery";
 import { getGroupActivity, getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
-import type { ReceiptData } from "@/gen/api/v1/receipt_pb";
 import { scanReceipt } from "@/gen/api/v1/receipt-ReceiptService_connectquery";
-import { useAuth } from "@/auth";
+import type { ReceiptData } from "@/gen/api/v1/receipt_pb";
+import { useObjectUrl } from "@/hooks/use-object-url";
 import { getConfig } from "@/lib/config";
 import { handleError } from "@/lib/utils";
+import { transport } from "@/transport";
 
 export const Route = createFileRoute("/_pathlessLayout/scan-receipt")({
-  beforeLoad: () => {
+  beforeLoad: async ({ context }) => {
     if (!getConfig().receiptScanningEnabled) {
       toast.error("Receipt scanning is disabled");
       throw redirect({ to: "/dashboard" });
     }
+    await context.queryClient.ensureQueryData(createQueryOptions(getUserGroups, undefined, { transport }));
   },
   component: RouteComponent,
   head: () => ({
@@ -40,23 +43,28 @@ function RouteComponent() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const auth = useAuth();
-  const currentUserId = auth.user?.id ?? "";
+  // guarded by router
+  const currentUserId = auth.user!.id;
 
-  const [step, setStep] = React.useState<Step>("upload");
-  const [file, setFile] = React.useState<File | null>(null);
-  const [draft, setDraft] = React.useState<ReceiptDraft | null>(null);
-  const [imageUrl, setImageUrl] = React.useState<string | null>(null);
-  const [confirmState, setConfirmState] = React.useState<ConfirmState>({
-    groupId: "",
-    payerId: "",
-    beneficiaryIds: [],
-    mode: "single",
+  const { data: groups } = useSuspenseQuery(getUserGroups, undefined, { select: (response) => response.groups });
+
+  const [step, setStep] = useState<Step>("upload");
+  const [file, setFile] = useState<File | null>(null);
+  const imageUrl = useObjectUrl(file);
+  const [draft, setDraft] = useState<ReceiptDraft | null>(null);
+  const [confirmState, setConfirmState] = useState<ConfirmState>(() => {
+    // Default to the first group
+    const group = groups[0];
+    const memberIds = group.memberBalances.map((m) => m.userId);
+    return {
+      groupId: group.groupId,
+      payerId: memberIds.includes(currentUserId) ? currentUserId : (memberIds[0] ?? ""),
+      beneficiaryIds: memberIds,
+      mode: "single",
+    };
   });
 
-  const { data: groupsData } = useQuery(getUserGroups);
-  const groups = React.useMemo(() => groupsData?.groups ?? [], [groupsData]);
-
-  const groupActivityKey = React.useMemo(
+  const groupActivityKey = useMemo(
     () =>
       createConnectQueryKey({
         schema: getGroupActivity,
@@ -65,29 +73,6 @@ function RouteComponent() {
       }),
     [confirmState.groupId],
   );
-
-  // Default to the first group on Confirm if none selected yet.
-  React.useEffect(() => {
-    if (step !== "confirm" || confirmState.groupId || groups.length === 0) return;
-    const g = groups[0];
-    const memberIds = g.memberBalances.map((m) => m.userId);
-    setConfirmState({
-      groupId: g.groupId,
-      payerId: memberIds.includes(currentUserId) ? currentUserId : (memberIds[0] ?? ""),
-      beneficiaryIds: memberIds,
-      mode: "single",
-    });
-  }, [step, confirmState.groupId, groups, currentUserId]);
-
-  React.useEffect(() => {
-    if (!file) {
-      setImageUrl(null);
-      return;
-    }
-    const url = URL.createObjectURL(file);
-    setImageUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [file]);
 
   const onClose = () => navigate({ to: "/dashboard" });
 
@@ -258,4 +243,3 @@ function receiptToDraft(receipt: ReceiptData): ReceiptDraft {
     ),
   };
 }
-

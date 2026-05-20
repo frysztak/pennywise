@@ -23,7 +23,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   React.useEffect(() => {
     setOpenMobile(false);
-  }, [href]);
+  }, [href, setOpenMobile]);
 
   return (
     <Sidebar variant="inset" {...props}>

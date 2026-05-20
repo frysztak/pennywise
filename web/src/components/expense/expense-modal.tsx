@@ -3,7 +3,7 @@ import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo } from "react";
-import { Controller, type DeepPartial, useForm } from "react-hook-form";
+import { Controller, type DeepPartial, type FieldErrors, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
@@ -296,7 +296,12 @@ export const ExpenseModal = ({
                       invalid={fieldState.invalid}
                     />
                     {fieldState.invalid && (
-                      <FieldError errors={[(fieldState.error as any)?.amount || (fieldState.error as any)?.currency]} />
+                      <FieldError
+                        errors={[
+                          (fieldState.error as FieldErrors<FormValues["amountWithCurrency"]>)?.amount ||
+                            (fieldState.error as FieldErrors<FormValues["amountWithCurrency"]>)?.currency,
+                        ]}
+                      />
                     )}
                   </Field>
                 )}

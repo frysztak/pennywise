@@ -1,6 +1,5 @@
 import { format, parseISO } from "date-fns";
 import { ArrowRight, Plus, Sparkles, TriangleAlert } from "lucide-react";
-import * as React from "react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -22,7 +21,7 @@ export function ScanReview({
 }: {
   draft: ReceiptDraft;
   setDraft: (d: ReceiptDraft) => void;
-  imageUrl: string | null;
+  imageUrl?: string;
 }) {
   const allSelected = draft.items.length > 0 && draft.items.every((i) => i.selected);
   const selectedItems = draft.items.filter((i) => i.selected);
@@ -167,32 +166,21 @@ function MoneyInput({
   onChange: (n: number) => void;
   className?: string;
 }) {
-  const [focused, setFocused] = React.useState(false);
-  const [raw, setRaw] = React.useState(() => value.toString());
-  React.useEffect(() => {
-    if (!focused) setRaw(value.toFixed(2));
-  }, [value, focused]);
   return (
     <Input
-      type="text"
+      type="number"
       inputMode="decimal"
-      className={className}
-      value={raw}
-      onFocus={() => {
-        setFocused(true);
-        setRaw(value === 0 ? "" : String(value));
-      }}
-      onBlur={() => {
-        setFocused(false);
-        const n = Number(raw.replace(",", "."));
-        const safe = Number.isFinite(n) ? n : 0;
-        setRaw(safe.toFixed(2));
-        if (safe !== value) onChange(safe);
-      }}
+      className={cn(
+        className,
+        "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
+      )}
+      value={value}
       onChange={(e) => {
-        setRaw(e.target.value);
-        const n = Number(e.target.value.replace(",", "."));
-        if (Number.isFinite(n)) onChange(n);
+        const v = parseFloat(e.target.value);
+        if (!isNaN(v)) {
+          const rounded = parseFloat(v.toFixed(2));
+          onChange(rounded);
+        }
       }}
     />
   );

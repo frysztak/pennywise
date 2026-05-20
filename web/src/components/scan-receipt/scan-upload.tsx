@@ -1,25 +1,16 @@
 import { Check, ChevronRight, Receipt, X } from "lucide-react";
-import * as React from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
+import { useObjectUrl } from "@/hooks/use-object-url";
 import { cn } from "@/lib/utils";
 
 export function ScanUpload({ file, onFileChange }: { file: File | null; onFileChange: (file: File | null) => void }) {
-  const [dragOver, setDragOver] = React.useState(false);
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    if (!file) {
-      setPreviewUrl(null);
-      return;
-    }
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [file]);
+  const [dragOver, setDragOver] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const previewUrl = useObjectUrl(file);
 
   const handleFiles = (files: FileList | null | File[]) => {
     if (!files || files.length === 0) return;
@@ -28,7 +19,7 @@ export function ScanUpload({ file, onFileChange }: { file: File | null; onFileCh
     onFileChange(f);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     const onPaste = (e: ClipboardEvent) => {
       const items = e.clipboardData?.items;
       if (!items) return;
