@@ -23,6 +23,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/invopop/jsonschema v0.14.0
 	github.com/jonasdoesthings/plavatar/v3 v3.0.5
+	github.com/kolesa-team/go-webp v1.0.5
 	github.com/lmittmann/tint v1.1.3
 	github.com/lucasb-eyer/go-colorful v1.4.0
 	github.com/mattn/go-sqlite3 v1.14.44

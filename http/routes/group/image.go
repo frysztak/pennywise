@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"image"
-	"image/jpeg"
 	_ "image/png"
 	"io/fs"
 	"net/http"
@@ -21,7 +20,6 @@ import (
 	"pennywise/storage"
 
 	"connectrpc.com/connect"
-	"golang.org/x/image/draw"
 	_ "golang.org/x/image/webp"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -32,7 +30,7 @@ const (
 	groupImageLargeH     = 1067
 	groupImageSmallW     = 800
 	groupImageSmallH     = 534
-	groupImageJPEGQual   = 70
+	groupImageQuality    = 60
 	groupImageMaxBytesIn = 16 * 1024 * 1024 // 16MB cap on raw upload
 )
 
@@ -41,7 +39,7 @@ type processedImages struct {
 	small []byte
 }
 
-// processGroupImage decodes a raster image, produces large and small JPEG variants.
+// processGroupImage decodes a raster image, produces large and small WebP variants.
 func processGroupImage(data []byte) (*processedImages, error) {
 	if len(data) > groupImageMaxBytesIn {
 		return nil, fmt.Errorf("image too large: %d bytes (max %d)", len(data), groupImageMaxBytesIn)
@@ -52,44 +50,15 @@ func processGroupImage(data []byte) (*processedImages, error) {
 		return nil, fmt.Errorf("decode image: %w", err)
 	}
 
-	encodeSize := func(w, h int) ([]byte, error) {
-		srcBounds := src.Bounds()
-		targetW, targetH := fitCover(srcBounds.Dx(), srcBounds.Dy(), w, h)
-		dst := image.NewRGBA(image.Rect(0, 0, targetW, targetH))
-		draw.CatmullRom.Scale(dst, dst.Bounds(), src, srcBounds, draw.Over, nil)
-		var buf bytes.Buffer
-		if err := jpeg.Encode(&buf, dst, &jpeg.Options{Quality: groupImageJPEGQual}); err != nil {
-			return nil, fmt.Errorf("encode jpeg: %w", err)
-		}
-		return buf.Bytes(), nil
-	}
-
-	large, err := encodeSize(groupImageLargeW, groupImageLargeH)
+	large, err := helpers.EncodeSize(src, groupImageLargeW, groupImageLargeH, groupImageQuality)
 	if err != nil {
 		return nil, err
 	}
-	small, err := encodeSize(groupImageSmallW, groupImageSmallH)
+	small, err := helpers.EncodeSize(src, groupImageSmallW, groupImageSmallH, groupImageQuality)
 	if err != nil {
 		return nil, err
 	}
 	return &processedImages{large: large, small: small}, nil
-}
-
-// fitCover scales (w,h) so it fits inside (maxW,maxH) preserving aspect ratio.
-func fitCover(w, h, maxW, maxH int) (int, int) {
-	if w <= 0 || h <= 0 {
-		return maxW, maxH
-	}
-	rw := float64(maxW) / float64(w)
-	rh := float64(maxH) / float64(h)
-	r := rw
-	if rh < r {
-		r = rh
-	}
-	if r >= 1 {
-		return w, h
-	}
-	return int(float64(w) * r), int(float64(h) * r)
 }
 
 func (s *GroupService) UploadGroupImage(ctx context.Context, r *apiv1.UploadGroupImageRequest) (*apiv1.UploadGroupImageResponse, error) {

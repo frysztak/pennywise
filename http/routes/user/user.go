@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"image"
-	"image/jpeg"
 	_ "image/png"
 	"pennywise/config"
 	"pennywise/db"
@@ -118,7 +117,8 @@ func SetDefaultAvatar(ctx context.Context, userID, email string) {
 	}
 }
 
-// processAvatar encodes a raster avatar image as JPEG 70%. SVG data is returned unchanged.
+// processAvatar encodes a raster avatar image as JPEG 70%, resizing down to 512x512 if larger.
+// SVG data is returned unchanged.
 func processAvatar(data []byte, mimeType string) (processed []byte, isSVG bool, err error) {
 	if mimeType == "image/svg+xml" {
 		return data, true, nil
@@ -127,11 +127,11 @@ func processAvatar(data []byte, mimeType string) (processed []byte, isSVG bool, 
 	if decErr != nil {
 		return nil, false, fmt.Errorf("decode avatar: %w", decErr)
 	}
-	var buf bytes.Buffer
-	if encErr := jpeg.Encode(&buf, src, &jpeg.Options{Quality: 70}); encErr != nil {
-		return nil, false, fmt.Errorf("encode avatar: %w", encErr)
+	encoded, encErr := helpers.EncodeSize(src, 512, 512, 70)
+	if encErr != nil {
+		return nil, false, encErr
 	}
-	return buf.Bytes(), false, nil
+	return encoded, false, nil
 }
 
 func (s *UserService) UserInfo(ctx context.Context, r *apiv1.UserInfoRequest) (*apiv1.UserInfoResponse, error) {

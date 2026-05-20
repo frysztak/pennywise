@@ -56,14 +56,14 @@ func (s *BlobStorage) groupSVGPath(groupID string) string {
 	return filepath.Join(s.base, "images", "groups", groupID+".svg")
 }
 
-func (s *BlobStorage) groupJPEGPath(groupID string, size ImageSize) string {
-	return filepath.Join(s.base, "images", "groups", fmt.Sprintf("%s_%s.jpg", groupID, size))
+func (s *BlobStorage) groupImagePath(groupID string, size ImageSize) string {
+	return filepath.Join(s.base, "images", "groups", fmt.Sprintf("%s_%s.webp", groupID, size))
 }
 
 // SaveGroupImage writes a group image. For SVG (isSVG=true) the size parameter
 // is ignored and a single .svg file is stored. For JPEG, one file per size is written.
 func (s *BlobStorage) SaveGroupImage(groupID string, size ImageSize, data []byte, isSVG bool) error {
-	path := s.groupJPEGPath(groupID, size)
+	path := s.groupImagePath(groupID, size)
 	if isSVG {
 		path = s.groupSVGPath(groupID)
 	}
@@ -81,7 +81,7 @@ func (s *BlobStorage) LoadGroupImage(groupID string, size ImageSize) (*ImageFile
 		return &ImageFile{Data: data, ContentType: "image/svg+xml", Mtime: fi.ModTime()}, nil
 	}
 
-	p := s.groupJPEGPath(groupID, size)
+	p := s.groupImagePath(groupID, size)
 	fi, err := s.fs.Stat(p)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
@@ -93,15 +93,15 @@ func (s *BlobStorage) LoadGroupImage(groupID string, size ImageSize) (*ImageFile
 	if err != nil {
 		return nil, err
 	}
-	return &ImageFile{Data: data, ContentType: "image/jpeg", Mtime: fi.ModTime()}, nil
+	return &ImageFile{Data: data, ContentType: "image/webp", Mtime: fi.ModTime()}, nil
 }
 
-// DeleteGroupImages removes all stored variants (SVG + all JPEG sizes) for a group.
+// DeleteGroupImages removes all stored variants (SVG + all WebP sizes) for a group.
 func (s *BlobStorage) DeleteGroupImages(groupID string) error {
 	paths := []string{
 		s.groupSVGPath(groupID),
-		s.groupJPEGPath(groupID, SizeLarge),
-		s.groupJPEGPath(groupID, SizeSmall),
+		s.groupImagePath(groupID, SizeLarge),
+		s.groupImagePath(groupID, SizeSmall),
 	}
 	for _, p := range paths {
 		if err := s.fs.Remove(p); err != nil && !errors.Is(err, fs.ErrNotExist) {
@@ -117,18 +117,18 @@ func (s *BlobStorage) avatarSVGPath(userID string) string {
 	return filepath.Join(s.base, "images", "avatars", userID+".svg")
 }
 
-func (s *BlobStorage) avatarJPEGPath(userID string) string {
-	return filepath.Join(s.base, "images", "avatars", userID+".jpg")
+func (s *BlobStorage) avatarImagePath(userID string) string {
+	return filepath.Join(s.base, "images", "avatars", userID+".webp")
 }
 
 // SaveAvatar stores an avatar, removing the alternate format if one existed.
 func (s *BlobStorage) SaveAvatar(userID string, data []byte, isSVG bool) error {
 	if isSVG {
-		_ = s.fs.Remove(s.avatarJPEGPath(userID))
+		_ = s.fs.Remove(s.avatarImagePath(userID))
 		return afero.WriteFile(s.fs, s.avatarSVGPath(userID), data, 0644)
 	}
 	_ = s.fs.Remove(s.avatarSVGPath(userID))
-	return afero.WriteFile(s.fs, s.avatarJPEGPath(userID), data, 0644)
+	return afero.WriteFile(s.fs, s.avatarImagePath(userID), data, 0644)
 }
 
 // LoadAvatar returns the stored avatar. SVG is preferred over JPEG.
@@ -141,7 +141,7 @@ func (s *BlobStorage) LoadAvatar(userID string) (*ImageFile, error) {
 		return &ImageFile{Data: data, ContentType: "image/svg+xml", Mtime: fi.ModTime()}, nil
 	}
 
-	p := s.avatarJPEGPath(userID)
+	p := s.avatarImagePath(userID)
 	fi, err := s.fs.Stat(p)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
@@ -153,5 +153,5 @@ func (s *BlobStorage) LoadAvatar(userID string) (*ImageFile, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &ImageFile{Data: data, ContentType: "image/jpeg", Mtime: fi.ModTime()}, nil
+	return &ImageFile{Data: data, ContentType: "image/webp", Mtime: fi.ModTime()}, nil
 }

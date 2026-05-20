@@ -14,8 +14,8 @@ RUN npm run build
 # Stage 2: Build backend
 FROM golang:1.26-alpine AS backend-builder
 
-# Install build dependencies for CGO (required by go-sqlite3)
-RUN apk add --no-cache gcc musl-dev
+# Install build dependencies for CGO (required by go-sqlite3 and go-webp)
+RUN apk add --no-cache gcc musl-dev libwebp-dev
 
 WORKDIR /app
 
@@ -38,8 +38,8 @@ RUN CGO_ENABLED=1 go build -ldflags="-s -w" -o migrate-cli ./cmd/migrate
 # Stage 3: Runtime
 FROM alpine:3.23
 
-# Install runtime dependencies for SQLite
-RUN apk add --no-cache ca-certificates tzdata
+# Install runtime dependencies for SQLite and go-webp
+RUN apk add --no-cache ca-certificates tzdata libwebp
 
 WORKDIR /app
 
