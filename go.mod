@@ -19,6 +19,7 @@ require (
 	connectrpc.com/grpcreflect v1.3.0
 	connectrpc.com/validate v0.6.0
 	github.com/alexedwards/argon2id v1.0.0
+	github.com/disintegration/imageorient v0.0.0-20180920195336-8147d86e83ec
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
 	github.com/invopop/jsonschema v0.14.0
@@ -48,6 +49,7 @@ require (
 	github.com/bep/golibsass v1.2.0 // indirect
 	github.com/buger/jsonparser v1.2.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.1 // indirect
+	github.com/disintegration/gift v1.2.1 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.4 // indirect

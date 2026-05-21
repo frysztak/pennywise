@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"image"
 	_ "image/png"
 	"io/fs"
 	"net/http"
@@ -20,6 +19,7 @@ import (
 	"pennywise/storage"
 
 	"connectrpc.com/connect"
+	"github.com/disintegration/imageorient"
 	_ "golang.org/x/image/webp"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -45,7 +45,7 @@ func processGroupImage(data []byte) (*processedImages, error) {
 		return nil, fmt.Errorf("image too large: %d bytes (max %d)", len(data), groupImageMaxBytesIn)
 	}
 
-	src, _, err := image.Decode(bytes.NewReader(data))
+	src, _, err := imageorient.Decode(bytes.NewReader(data))
 	if err != nil {
 		return nil, fmt.Errorf("decode image: %w", err)
 	}

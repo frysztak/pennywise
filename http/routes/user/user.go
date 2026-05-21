@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"image"
 	_ "image/png"
 	"pennywise/config"
 	"pennywise/db"
@@ -15,6 +14,8 @@ import (
 	"pennywise/log"
 	"pennywise/storage"
 	"time"
+
+	"github.com/disintegration/imageorient"
 
 	"connectrpc.com/connect"
 	"github.com/alexedwards/argon2id"
@@ -123,7 +124,7 @@ func processAvatar(data []byte, mimeType string) (processed []byte, isSVG bool, 
 	if mimeType == "image/svg+xml" {
 		return data, true, nil
 	}
-	src, _, decErr := image.Decode(bytes.NewReader(data))
+	src, _, decErr := imageorient.Decode(bytes.NewReader(data))
 	if decErr != nil {
 		return nil, false, fmt.Errorf("decode avatar: %w", decErr)
 	}

@@ -7,6 +7,7 @@ import (
 	"image/jpeg"
 	_ "image/png"
 
+	"github.com/disintegration/imageorient"
 	"golang.org/x/image/draw"
 	_ "golang.org/x/image/webp"
 )
@@ -29,7 +30,7 @@ func ProcessImage(data []byte) (*ProcessedImage, error) {
 		return nil, fmt.Errorf("image too large: %d bytes (max %d)", len(data), MaxInputSize)
 	}
 
-	img, _, err := image.Decode(bytes.NewReader(data))
+	img, _, err := imageorient.Decode(bytes.NewReader(data))
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode image: %w", err)
 	}
