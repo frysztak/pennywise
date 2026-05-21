@@ -1,5 +1,5 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
-import { EditIcon, MoreHorizontal, RepeatIcon, TrashIcon } from "lucide-react";
+import { BanknoteArrowUp, CircleOff, EditIcon, MoreHorizontal, RepeatIcon, TrashIcon } from "lucide-react";
 
 import { AmountWithCurrency } from "@/components/amount-with-currency";
 import { MemberAvatar } from "@/components/member-avatar";
@@ -75,7 +75,7 @@ export function RecurringReminderRow({ reminder, groupId, onPay, onEdit, onDelet
         {reminder.payerName && (
           <div className="flex items-center gap-2">
             <MemberAvatar userId={reminder.payerId || ""} username={reminder.payerName} className="w-6 h-6" />
-            <span className="text-sm truncate max-w-[150px]">{reminder.payerName}</span>
+            <span className="text-sm truncate max-w-37.5">{reminder.payerName}</span>
           </div>
         )}
       </TableCell>
@@ -83,9 +83,11 @@ export function RecurringReminderRow({ reminder, groupId, onPay, onEdit, onDelet
       <TableCell>
         <div className="flex items-center gap-2">
           <Button size="sm" onClick={handlePay} disabled={isPending}>
+            <BanknoteArrowUp />
             Pay
           </Button>
           <Button size="sm" variant="outline" onClick={handleSkip} disabled={isPending}>
+            <CircleOff />
             Skip
           </Button>
           <DropdownMenu>

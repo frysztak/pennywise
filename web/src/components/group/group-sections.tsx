@@ -1,4 +1,5 @@
 import { useSuspenseQuery } from "@connectrpc/connect-query";
+import { Info } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { ActivitySection } from "@/components/group/activity-section";
@@ -12,7 +13,10 @@ import type { useDeleteTransferModal } from "@/hooks/use-delete-transfer-modal";
 import type { useExpenseModal } from "@/hooks/use-expense-modal";
 import type { useTransferModal } from "@/hooks/use-transfer-modal";
 
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+
 interface GroupSectionsProps {
+  className?: string;
   groupId: string;
   memberBalances: MemberBalance[];
   currencies: string[];
@@ -62,17 +66,32 @@ export function GroupSections({
     </div>
   );
 
-  const balancesSection = (
-    <div>
-      <h2 className="text-xl font-bold mb-4">Group Balances</h2>
-      <GroupBalances memberBalances={memberBalances} currentUserId={currentUserId} defaultCurrency={defaultCurrency} />
-    </div>
-  );
+  const balancesAndSettleSection = (
+    <div className="grid gap-3 md:grid-cols-2 mb-3">
+      <div>
+        <h2 className="text-xl font-bold mb-4">Group Balances</h2>
+        <GroupBalances
+          memberBalances={memberBalances}
+          currentUserId={currentUserId}
+          defaultCurrency={defaultCurrency}
+        />
+      </div>
 
-  const settleSection = (
-    <div>
-      <h2 className="text-xl font-bold mb-4">Settle Up</h2>
-      <SettlementSuggestions groupId={groupId} currentUserId={currentUserId} onSettle={onSettle} />
+      <div>
+        <h2 className="text-xl font-bold mb-4">
+          Settle Up{" "}
+          <Tooltip>
+            <TooltipTrigger>
+              <Info className="w-4 h-4 text-muted-foreground" />
+            </TooltipTrigger>
+            <TooltipContent>
+              These suggestions are optimized to minimize the number of transfers. The suggested payer may differ from
+              who originally owed the money.
+            </TooltipContent>
+          </Tooltip>
+        </h2>
+        <SettlementSuggestions groupId={groupId} currentUserId={currentUserId} onSettle={onSettle} />
+      </div>
     </div>
   );
 
@@ -91,7 +110,6 @@ export function GroupSections({
           title="Everyone's even"
           description="No balances yet. They'll appear here once someone adds an expense."
         />
-        {settleSection}
         {remindersSlot}
         {activitySection}
       </>
@@ -100,8 +118,7 @@ export function GroupSections({
 
   return (
     <>
-      {balancesSection}
-      {settleSection}
+      {balancesAndSettleSection}
       {remindersSlot}
       {activitySection}
     </>

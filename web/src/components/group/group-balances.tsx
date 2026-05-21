@@ -1,6 +1,9 @@
+import { Fragment } from "react/jsx-runtime";
+
 import { AmountWithCurrency } from "@/components/amount-with-currency";
 import { MemberAvatar } from "@/components/member-avatar";
 import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import type { MemberBalance } from "@/gen/api/v1/group_pb";
 
 interface GroupBalancesProps {
@@ -10,8 +13,7 @@ interface GroupBalancesProps {
 }
 
 export function GroupBalances({ memberBalances, currentUserId, defaultCurrency }: GroupBalancesProps) {
-  const otherMembers = memberBalances.filter((member) => member.userId !== currentUserId);
-  if (otherMembers.length === 0) {
+  if (memberBalances.length === 0) {
     return (
       <Card>
         <CardContent className="p-4 text-center">
@@ -22,22 +24,21 @@ export function GroupBalances({ memberBalances, currentUserId, defaultCurrency }
   }
 
   return (
-    <div>
-      <div className="grid gap-4 md:grid-cols-2">
-        {otherMembers.map((member) => (
-          <Card key={member.userId} className="py-0">
-            <CardContent className="p-4">
-              <div className="flex flex-col items-start md:items-center md:flex-row gap-2 justify-between">
-                <div className="flex items-center gap-3">
-                  <MemberAvatar userId={member.userId} username={member.userName} className="w-10 h-10" />
-                  <span className="font-medium">{member.userName}</span>
-                </div>
-                <AmountWithCurrency balance={member.balance} defaultCurrency={defaultCurrency} />
+    <Card>
+      <CardContent>
+        {memberBalances.map((member, idx) => (
+          <Fragment key={member.userId}>
+            {idx > 0 && <Separator className="my-3" />}
+            <div className="flex gap-2 justify-between items-center">
+              <div className="flex items-center gap-3">
+                <MemberAvatar userId={member.userId} username={member.userName} className="w-8 md:w-10 h-8 md:h-10" />
+                <span className={member.userId === currentUserId ? "font-bold" : "font-medium"}>{member.userName}</span>
               </div>
-            </CardContent>
-          </Card>
+              <AmountWithCurrency balance={member.balance} defaultCurrency={defaultCurrency} className="text-right" />
+            </div>
+          </Fragment>
         ))}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

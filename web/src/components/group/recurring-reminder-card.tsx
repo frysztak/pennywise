@@ -1,5 +1,13 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
-import { EditIcon, MoreHorizontal, RepeatIcon, TrashIcon } from "lucide-react";
+import {
+  BanknoteArrowUp,
+  BanknoteIcon,
+  CircleOff,
+  EditIcon,
+  MoreHorizontal,
+  RepeatIcon,
+  TrashIcon,
+} from "lucide-react";
 
 import { AmountWithCurrency } from "@/components/amount-with-currency";
 import { MemberAvatar } from "@/components/member-avatar";
@@ -42,8 +50,8 @@ export function RecurringReminderCard({ reminder, groupId, onPay, onEdit, onDele
   });
 
   return (
-    <Card className="p-3">
-      <CardContent className="flex flex-col gap-2 px-0">
+    <Card>
+      <CardContent className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <span className="text-xs text-muted-foreground">
             {formattedDate} · {frequencyToString(reminder.frequency)}
@@ -74,25 +82,30 @@ export function RecurringReminderCard({ reminder, groupId, onPay, onEdit, onDele
           </DropdownMenu>
         </div>
 
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex flex-col items-start justify-between gap-2">
           <div className="flex flex-col gap-1 min-w-0">
             <div className="flex items-center gap-2">
-              <RepeatIcon className="h-4 w-4 shrink-0" />
-              <span className="font-medium line-clamp-1">{reminder.name}</span>
+              <RepeatIcon className="h-6 w-6 shrink-0 text-muted-foreground" />
+              <span className="font-medium text-lg">{reminder.name}</span>
             </div>
-            {reminder.description && <p className="text-sm text-muted-foreground line-clamp-2">{reminder.description}</p>}
+            {reminder.description && (
+              <p className="text-sm text-muted-foreground line-clamp-2">{reminder.description}</p>
+            )}
           </div>
           {reminder.amount !== undefined && reminder.currency && (
-            <AmountWithCurrency
-              disableColor
-              className="font-medium text-lg shrink-0"
-              balance={[
-                {
-                  amount: BigInt(Math.round(reminder.amount * 100)),
-                  currency: reminder.currency,
-                },
-              ]}
-            />
+            <div className="flex items-center gap-2 min-w-0">
+              <BanknoteIcon className="h-6 w-6 shrink-0 text-muted-foreground" />
+              <AmountWithCurrency
+                disableColor
+                className="font-medium text-lg shrink-0"
+                balance={[
+                  {
+                    amount: BigInt(Math.round(reminder.amount * 100)),
+                    currency: reminder.currency,
+                  },
+                ]}
+              />
+            </div>
           )}
         </div>
 
@@ -105,9 +118,11 @@ export function RecurringReminderCard({ reminder, groupId, onPay, onEdit, onDele
 
         <div className="flex gap-2">
           <Button className="flex-1" onClick={handlePay} disabled={isPending}>
+            <BanknoteArrowUp />
             Pay
           </Button>
           <Button className="flex-1" variant="outline" onClick={handleSkip} disabled={isPending}>
+            <CircleOff />
             Skip
           </Button>
         </div>

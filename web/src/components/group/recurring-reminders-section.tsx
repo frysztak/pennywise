@@ -38,7 +38,7 @@ export function RecurringRemindersSection({
               <TableHead>Frequency</TableHead>
               <TableHead className="text-right">Amount</TableHead>
               <TableHead>Details</TableHead>
-              <TableHead className="w-[180px]">Actions</TableHead>
+              <TableHead className="w-45">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

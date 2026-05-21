@@ -5,7 +5,6 @@ import { toast } from "sonner";
 
 import { ExpenseModal } from "@/components/expense/expense-modal";
 import { AddMemberDialog } from "@/components/group/add-member-dialog";
-import { BalanceCards } from "@/components/group/balance-cards";
 import { DeleteExpenseDialog } from "@/components/group/delete-expense-dialog";
 import { DeleteGroupDialog } from "@/components/group/delete-group-dialog";
 import { DeleteRecurringExpenseDialog } from "@/components/group/delete-recurring-expense-dialog";
@@ -81,9 +80,6 @@ function RouteComponent() {
   const editGroupModal = useEditGroupModal();
   const editGroupImageModal = useEditGroupImageModal();
 
-  // Find current user's balance from member balances
-  const currentUserBalance = groupInfo.memberBalances.find((mb) => mb.userId === currentUser.id)!;
-
   return (
     <>
       {/* Header */}
@@ -115,14 +111,6 @@ function RouteComponent() {
         }
       />
 
-      {/* Balance Cards */}
-      <BalanceCards
-        className="mt-72 md:mt-64"
-        userBalance={currentUserBalance}
-        totalSpending={groupInfo.totalSpending}
-        defaultCurrency={groupInfo.groupDefaultCurrency}
-      />
-
       {/* Balances + Settle Up + Recurring Reminders + Activity (with merged empty states) */}
       <Suspense
         fallback={
@@ -131,45 +119,47 @@ function RouteComponent() {
           </div>
         }
       >
-        <GroupSections
-          groupId={groupId}
-          memberBalances={groupInfo.memberBalances}
-          currencies={groupInfo.currencies}
-          currentUserId={currentUser.id}
-          defaultCurrency={groupInfo.groupDefaultCurrency}
-          onSettle={transferModal.openCreate}
-          onEditExpense={expenseModal.openEdit}
-          onDeleteExpense={deleteExpenseModal.confirmDelete}
-          onEditTransfer={transferModal.openEdit}
-          onDeleteTransfer={deleteTransferModal.confirmDelete}
-          remindersSlot={
-            <Suspense
-              fallback={
-                <div className="flex items-center justify-center h-64">
-                  <Spinner className="size-8" />
-                </div>
-              }
-            >
-              <RecurringRemindersSection
-                groupId={groupId}
-                onPayReminder={(reminder) =>
-                  expenseModal.openCreate(
-                    {
-                      name: reminder.name,
-                      description: reminder.description,
-                      amount: reminder.amount,
-                      currency: reminder.currency,
-                      payerId: reminder.payerId,
-                    },
-                    reminder.id,
-                  )
+        <div className="mt-68 md:mt-64">
+          <GroupSections
+            groupId={groupId}
+            memberBalances={groupInfo.memberBalances}
+            currencies={groupInfo.currencies}
+            currentUserId={currentUser.id}
+            defaultCurrency={groupInfo.groupDefaultCurrency}
+            onSettle={transferModal.openCreate}
+            onEditExpense={expenseModal.openEdit}
+            onDeleteExpense={deleteExpenseModal.confirmDelete}
+            onEditTransfer={transferModal.openEdit}
+            onDeleteTransfer={deleteTransferModal.confirmDelete}
+            remindersSlot={
+              <Suspense
+                fallback={
+                  <div className="flex items-center justify-center h-64">
+                    <Spinner className="size-8" />
+                  </div>
                 }
-                onEditReminder={(reminder) => recurringExpenseModal.openEdit(reminder)}
-                onDeleteReminder={(reminderId) => deleteRecurringExpenseModal.confirmDelete(reminderId)}
-              />
-            </Suspense>
-          }
-        />
+              >
+                <RecurringRemindersSection
+                  groupId={groupId}
+                  onPayReminder={(reminder) =>
+                    expenseModal.openCreate(
+                      {
+                        name: reminder.name,
+                        description: reminder.description,
+                        amount: reminder.amount,
+                        currency: reminder.currency,
+                        payerId: reminder.payerId,
+                      },
+                      reminder.id,
+                    )
+                  }
+                  onEditReminder={(reminder) => recurringExpenseModal.openEdit(reminder)}
+                  onDeleteReminder={(reminderId) => deleteRecurringExpenseModal.confirmDelete(reminderId)}
+                />
+              </Suspense>
+            }
+          />
+        </div>
       </Suspense>
 
       {/* Expense Modal (Create/Edit) */}

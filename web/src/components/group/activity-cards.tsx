@@ -1,5 +1,5 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
-import { ArrowRight, BanknoteIcon, Redo2Icon } from "lucide-react";
+import { ArrowRight, BanknoteIcon, ReceiptText, Redo2Icon } from "lucide-react";
 
 import { AmountWithCurrency } from "@/components/amount-with-currency";
 import { ActivityItemMenu } from "@/components/group/activity-item-menu";
@@ -30,13 +30,11 @@ export function ActivityCards({
   onDeleteTransfer,
 }: ActivityCardsProps) {
   if (recentActivity.length === 0) {
-    return (
-      <p className="py-6 text-center text-sm text-muted-foreground">No activity yet in this group.</p>
-    );
+    return <p className="py-6 text-center text-sm text-muted-foreground">No activity yet in this group.</p>;
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
       {recentActivity.map((item) => {
         const date = timestampDate(item.data.date!);
         const formattedDate = date.toLocaleDateString("en-US", {
@@ -48,18 +46,21 @@ export function ActivityCards({
         if (item.type === "expense") {
           const expense = item.data;
           return (
-            <Card key={`expense-${expense.id}`} className="p-3">
-              <CardContent className="flex flex-col gap-2 px-0">
+            <Card key={`expense-${expense.id}`}>
+              <CardContent className="flex flex-col gap-2 ">
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">{formattedDate}</span>
                   <ActivityItemMenu onEdit={() => onEditExpense(expense)} onDelete={() => onDeleteExpense(expense)} />
                 </div>
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex flex-col items-start justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <BanknoteIcon className="h-4 w-4 shrink-0" />
-                    <span className="font-medium line-clamp-1">{expense.name}</span>
+                    <ReceiptText className="h-6 w-6 shrink-0 text-muted-foreground" />
+                    <span className="font-medium text-lg break-normal">{expense.name}</span>
                   </div>
-                  <AmountWithCurrency disableColor className="font-medium text-lg" balance={[expense]} />
+                  <div className="flex items-center gap-2 min-w-0">
+                    <BanknoteIcon className="h-6 w-6 shrink-0 text-muted-foreground" />
+                    <AmountWithCurrency disableColor className="font-medium text-lg" balance={[expense]} />
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <MemberAvatar userId={expense.payerId} username={expense.payerName} className="w-6 h-6" />
@@ -72,22 +73,25 @@ export function ActivityCards({
 
         const transfer = item.data;
         return (
-          <Card key={`transfer-${transfer.id}`} className="p-3">
-            <CardContent className="flex flex-col gap-2 px-0">
+          <Card key={`transfer-${transfer.id}`}>
+            <CardContent className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">{formattedDate}</span>
                 <ActivityItemMenu onEdit={() => onEditTransfer(transfer)} onDelete={() => onDeleteTransfer(transfer)} />
               </div>
-              <div className="flex items-center justify-between gap-2">
+              <div className="flex flex-col items-start justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
-                  <Redo2Icon className="h-4 w-4 shrink-0" />
-                  <span className="font-medium">Transfer</span>
+                  <Redo2Icon className="h-6 w-6 shrink-0 text-muted-foreground" />
+                  <span className="font-medium text-lg">Transfer</span>
                 </div>
-                <AmountWithCurrency
-                  disableColor
-                  className="font-medium text-lg"
-                  balance={[{ amount: transfer.amount, currency: transfer.currency }]}
-                />
+                <div className="flex items-center gap-2 min-w-0">
+                  <BanknoteIcon className="h-6 w-6 shrink-0 text-muted-foreground" />
+                  <AmountWithCurrency
+                    disableColor
+                    className="font-medium text-lg"
+                    balance={[{ amount: transfer.amount, currency: transfer.currency }]}
+                  />
+                </div>
               </div>
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                 <MemberAvatar userId={transfer.senderId} username={transfer.senderName} className="w-6 h-6" />
