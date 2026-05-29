@@ -18,6 +18,7 @@ import { RecurringFrequency } from "@/gen/api/v1/recurring_expense_pb";
 import { handleError } from "@/lib/utils";
 
 import { AmountInput, type AmountWithCurrency } from "../amount-input";
+import { AmountInputTooltip } from "../amount-input-tooltip";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
@@ -236,7 +237,10 @@ export const RecurringExpenseModal = ({
                 disabled={isPending}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor="amountWithCurrency">Amount (optional)</FieldLabel>
+                    <FieldLabel htmlFor="amountWithCurrency">
+                      Amount (optional)
+                      <AmountInputTooltip />
+                    </FieldLabel>
                     <AmountInput
                       id="amountWithCurrency"
                       currencies={currencies}

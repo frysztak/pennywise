@@ -19,6 +19,7 @@ import type { ExpenseTemplateDefaults } from "@/hooks/use-expense-modal";
 import { handleError } from "@/lib/utils";
 
 import { AmountInput } from "../amount-input";
+import { AmountInputTooltip } from "../amount-input-tooltip";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
@@ -285,7 +286,10 @@ export const ExpenseModal = ({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor="amountWithCurrency">Amount</FieldLabel>
+                    <FieldLabel htmlFor="amountWithCurrency">
+                      Amount
+                      <AmountInputTooltip />
+                    </FieldLabel>
                     <AmountInput
                       id="amountWithCurrency"
                       required

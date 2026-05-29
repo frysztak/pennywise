@@ -30,3 +30,13 @@ export const InitialValue: Story = {
     },
   },
 };
+
+// Type an expression like "(10+5)*2" into this story to see the "= 30.00 USD" hint.
+export const ExpressionHint: Story = {
+  args: {
+    inputValue: {
+      amount: 0,
+      currency: "USD",
+    },
+  },
+};

@@ -18,6 +18,7 @@ import type { TransferTemplateDefaults } from "@/hooks/use-transfer-modal";
 import { handleError } from "@/lib/utils";
 
 import { AmountInput } from "../amount-input";
+import { AmountInputTooltip } from "../amount-input-tooltip";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
@@ -226,7 +227,10 @@ export const TransferModal = ({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor="amountWithCurrency">Amount</FieldLabel>
+                    <FieldLabel htmlFor="amountWithCurrency">
+                      Amount
+                      <AmountInputTooltip />
+                    </FieldLabel>
                     <AmountInput
                       id="amountWithCurrency"
                       required
