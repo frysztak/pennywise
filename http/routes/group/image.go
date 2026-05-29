@@ -30,7 +30,7 @@ const (
 	groupImageLargeH     = 1067
 	groupImageSmallW     = 800
 	groupImageSmallH     = 534
-	groupImageQuality    = 60
+	groupImageQuality    = 75
 	groupImageMaxBytesIn = 16 * 1024 * 1024 // 16MB cap on raw upload
 )
 
