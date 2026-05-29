@@ -8,7 +8,11 @@ import { toast } from "sonner";
 import * as z from "zod";
 
 import { createExpense, updateExpense } from "@/gen/api/v1/expense-ExpenseService_connectquery";
-import { getGroupActivity, getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
+import {
+  getGroupActivity,
+  getSettlementSuggestions,
+  getUserGroups,
+} from "@/gen/api/v1/group-GroupService_connectquery";
 import type { MemberBalance } from "@/gen/api/v1/group_pb";
 import type { GetGroupActivityResponse_ActivityItem_Expense } from "@/gen/api/v1/group_pb";
 import {
@@ -149,6 +153,12 @@ export const ExpenseModal = ({
     input: { groupId },
   });
 
+  const settlementSuggestionsKey = createConnectQueryKey({
+    schema: getSettlementSuggestions,
+    cardinality: "finite",
+    input: { groupId },
+  });
+
   const queryClient = useQueryClient();
 
   const { isPending: isCreating, mutate: createMutate } = useMutation(createExpense, {
@@ -156,6 +166,7 @@ export const ExpenseModal = ({
       toast.success("Expense created!");
       queryClient.invalidateQueries({ queryKey: groupActivityKey });
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
+      queryClient.invalidateQueries({ queryKey: settlementSuggestionsKey });
       onOpenChange(false);
     },
     onError: handleError,
@@ -166,6 +177,7 @@ export const ExpenseModal = ({
       toast.success("Expense updated!");
       queryClient.invalidateQueries({ queryKey: groupActivityKey });
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
+      queryClient.invalidateQueries({ queryKey: settlementSuggestionsKey });
       onOpenChange(false);
     },
     onError: handleError,
@@ -177,6 +189,7 @@ export const ExpenseModal = ({
       queryClient.invalidateQueries({ queryKey: groupActivityKey });
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
       queryClient.invalidateQueries({ queryKey: recurringExpensesKey });
+      queryClient.invalidateQueries({ queryKey: settlementSuggestionsKey });
       onOpenChange(false);
     },
     onError: handleError,
