@@ -36,7 +36,7 @@ INSERT INTO user_expense_groups
     added_at
 ) VALUES (
     ?1, ?2, ?3, ?4
-) RETURNING user_id, group_id, added_at, weight
+) RETURNING user_id, group_id, added_at, weight, pinned_at
 `
 
 type AddUserToGroupParams struct {
@@ -59,6 +59,7 @@ func (q *Queries) AddUserToGroup(ctx context.Context, arg AddUserToGroupParams) 
 		&i.GroupID,
 		&i.AddedAt,
 		&i.Weight,
+		&i.PinnedAt,
 	)
 	return i, err
 }
@@ -234,11 +235,28 @@ func (q *Queries) GetGroupMembers(ctx context.Context, groupID string) ([]GetGro
 }
 
 const getGroupsByUserId = `-- name: GetGroupsByUserId :many
-SELECT id, created_at, created_by, name, default_currency, description, image_updated_at, user_id, group_id, added_at, weight
-FROM
-  expense_groups g
-  LEFT JOIN user_expense_groups u ON u.group_id = g.id
+SELECT
+  g.id,
+  g.created_at,
+  g.created_by,
+  g.name,
+  g.default_currency,
+  g.description,
+  g.image_updated_at,
+  u.user_id,
+  u.weight,
+  u.pinned_at,
+  MAX(
+    g.created_at,
+    COALESCE((SELECT MAX(e.created_at) FROM expenses e   WHERE e.group_id = g.id), g.created_at),
+    COALESCE((SELECT MAX(t.created_at) FROM transfers t WHERE t.group_id = g.id), g.created_at)
+  ) AS last_activity_at
+FROM expense_groups g
+JOIN user_expense_groups u ON u.group_id = g.id
 WHERE u.user_id = ?1
+ORDER BY
+  (u.pinned_at IS NOT NULL) DESC,
+  last_activity_at DESC
 `
 
 type GetGroupsByUserIdRow struct {
@@ -249,10 +267,10 @@ type GetGroupsByUserIdRow struct {
 	DefaultCurrency string
 	Description     *string
 	ImageUpdatedAt  overrides.NullTextTime
-	UserID          *string
-	GroupID         *string
-	AddedAt         overrides.TextTime
-	Weight          *float64
+	UserID          string
+	Weight          float64
+	PinnedAt        overrides.NullTextTime
+	LastActivityAt  interface{}
 }
 
 func (q *Queries) GetGroupsByUserId(ctx context.Context, userID string) ([]GetGroupsByUserIdRow, error) {
@@ -273,9 +291,9 @@ func (q *Queries) GetGroupsByUserId(ctx context.Context, userID string) ([]GetGr
 			&i.Description,
 			&i.ImageUpdatedAt,
 			&i.UserID,
-			&i.GroupID,
-			&i.AddedAt,
 			&i.Weight,
+			&i.PinnedAt,
+			&i.LastActivityAt,
 		); err != nil {
 			return nil, err
 		}
@@ -338,6 +356,23 @@ type RemoveUserFromGroupParams struct {
 
 func (q *Queries) RemoveUserFromGroup(ctx context.Context, arg RemoveUserFromGroupParams) error {
 	_, err := q.db.ExecContext(ctx, removeUserFromGroup, arg.UserID, arg.GroupID)
+	return err
+}
+
+const setGroupPinned = `-- name: SetGroupPinned :exec
+UPDATE user_expense_groups
+SET pinned_at = ?1
+WHERE user_id = ?2 AND group_id = ?3
+`
+
+type SetGroupPinnedParams struct {
+	PinnedAt overrides.NullTextTime
+	UserID   string
+	GroupID  string
+}
+
+func (q *Queries) SetGroupPinned(ctx context.Context, arg SetGroupPinnedParams) error {
+	_, err := q.db.ExecContext(ctx, setGroupPinned, arg.PinnedAt, arg.UserID, arg.GroupID)
 	return err
 }
 

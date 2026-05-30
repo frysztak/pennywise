@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { deleteExpense } from "@/gen/api/v1/expense-ExpenseService_connectquery";
-import { getGroupActivity, getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
+import { getGroupActivity, getUserGroups, setGroupPinned } from "@/gen/api/v1/group-GroupService_connectquery";
 import { deleteTransfer } from "@/gen/api/v1/transfer-TransferService_connectquery";
 import { handleError } from "@/lib/utils";
 
@@ -39,8 +39,16 @@ export function useGroupMutations(groupId: string) {
     onError: handleError,
   });
 
+  const { mutate: setPinnedMutate } = useMutation(setGroupPinned, {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userGroupsKey });
+    },
+    onError: handleError,
+  });
+
   return {
     deleteExpense: deleteExpenseMutate,
     deleteTransfer: deleteTransferMutate,
+    setGroupPinned: (groupId: string, pinned: boolean) => setPinnedMutate({ groupId, pinned }),
   };
 }

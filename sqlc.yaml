@@ -44,6 +44,10 @@ sql:
             go_type:
               import: "pennywise/db/overrides"
               type: "TextTime"
+          - column: "user_expense_groups.pinned_at"
+            go_type:
+              import: "pennywise/db/overrides"
+              type: "NullTextTime"
           # Timestamp columns - expenses table
           - column: "expenses.created_at"
             go_type:

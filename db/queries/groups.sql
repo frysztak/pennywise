@@ -47,11 +47,28 @@ SET weight = @weight
 WHERE user_id = @user_id AND group_id = @group_id;
 
 -- name: GetGroupsByUserId :many
-SELECT *
-FROM
-  expense_groups g
-  LEFT JOIN user_expense_groups u ON u.group_id = g.id
-WHERE u.user_id = @user_id;
+SELECT
+  g.id,
+  g.created_at,
+  g.created_by,
+  g.name,
+  g.default_currency,
+  g.description,
+  g.image_updated_at,
+  u.user_id,
+  u.weight,
+  u.pinned_at,
+  MAX(
+    g.created_at,
+    COALESCE((SELECT MAX(e.created_at) FROM expenses e   WHERE e.group_id = g.id), g.created_at),
+    COALESCE((SELECT MAX(t.created_at) FROM transfers t WHERE t.group_id = g.id), g.created_at)
+  ) AS last_activity_at
+FROM expense_groups g
+JOIN user_expense_groups u ON u.group_id = g.id
+WHERE u.user_id = @user_id
+ORDER BY
+  (u.pinned_at IS NOT NULL) DESC,
+  last_activity_at DESC;
 
 -- name: GetGroupMembers :many
 SELECT
@@ -94,3 +111,8 @@ SELECT currency
 FROM group_currencies
 WHERE group_id = @group_id
 ORDER BY currency;
+
+-- name: SetGroupPinned :exec
+UPDATE user_expense_groups
+SET pinned_at = @pinned_at
+WHERE user_id = @user_id AND group_id = @group_id;

@@ -2,7 +2,7 @@
 
 import { useSuspenseQuery } from "@connectrpc/connect-query";
 import { Link } from "@tanstack/react-router";
-import { MoreHorizontal, Plus, Trash2 } from "lucide-react";
+import { MoreHorizontal, Plus, Star, StarOff, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import {
@@ -25,6 +25,7 @@ import {
 import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
 import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
 import { useDeleteGroupModal } from "@/hooks/use-delete-group-modal";
+import { useGroupMutations } from "@/hooks/use-group-mutations";
 
 import { AmountWithCurrency } from "../amount-with-currency";
 import { DeleteGroupDialog } from "../group/delete-group-dialog";
@@ -38,6 +39,7 @@ export function NavGroups() {
   const { data: currentUser } = useSuspenseQuery(userInfo);
 
   const deleteGroupModal = useDeleteGroupModal();
+  const groupMutations = useGroupMutations("");
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -58,7 +60,10 @@ export function NavGroups() {
                   render={
                     <Link to="/group/$groupId" params={{ groupId: item.groupId }}>
                       <div className="flex flex-col">
-                        <strong>{item.groupName}</strong>
+                        <strong className="flex items-center gap-1.5">
+                          {item.pinned && <Star className="size-3.5 fill-current text-money shrink-0" />}
+                          {item.groupName}
+                        </strong>
                         <AmountWithCurrency
                           balance={item.memberBalances.find((balance) => balance.userId === currentUser.id)!.balance}
                         />
@@ -80,6 +85,10 @@ export function NavGroups() {
                     side={isMobile ? "bottom" : "right"}
                     align={isMobile ? "end" : "start"}
                   >
+                    <DropdownMenuItem onClick={() => groupMutations.setGroupPinned(item.groupId, !item.pinned)}>
+                      {item.pinned ? <StarOff /> : <Star />}
+                      <span>{item.pinned ? "Unpin Group" : "Pin Group"}</span>
+                    </DropdownMenuItem>
                     <DropdownMenuItem
                       variant="destructive"
                       onClick={() =>

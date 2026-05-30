@@ -28,6 +28,7 @@ import { useDeleteTransferModal } from "@/hooks/use-delete-transfer-modal";
 import { useEditGroupImageModal } from "@/hooks/use-edit-group-image-modal";
 import { useEditGroupModal } from "@/hooks/use-edit-group-modal";
 import { useExpenseModal } from "@/hooks/use-expense-modal";
+import { useGroupMutations } from "@/hooks/use-group-mutations";
 import { useRecurringExpenseModal } from "@/hooks/use-recurring-expense-modal";
 import { useTransferModal } from "@/hooks/use-transfer-modal";
 import { transport } from "@/transport";
@@ -69,6 +70,7 @@ function RouteComponent() {
   });
   const { data: currentUser } = useSuspenseQuery(userInfo);
 
+  const groupMutations = useGroupMutations(groupId);
   const expenseModal = useExpenseModal();
   const transferModal = useTransferModal();
   const recurringExpenseModal = useRecurringExpenseModal();
@@ -89,6 +91,7 @@ function RouteComponent() {
         groupDescription={groupInfo.groupDescription}
         imageUpdatedAt={groupInfo.imageUpdatedAt}
         members={groupInfo.memberBalances.map((m) => ({ userId: m.userId, userName: m.userName }))}
+        isPinned={groupInfo.pinned}
         onCreateExpense={expenseModal.openCreate}
         onCreateTransfer={transferModal.openCreate}
         onCreateRecurring={recurringExpenseModal.openCreate}
@@ -109,6 +112,7 @@ function RouteComponent() {
             groupName: groupInfo.groupName,
           })
         }
+        onTogglePin={() => groupMutations.setGroupPinned(groupId, !groupInfo.pinned)}
       />
 
       {/* Balances + Settle Up + Recurring Reminders + Activity (with merged empty states) */}

@@ -58,6 +58,9 @@ const (
 	// GroupServiceUpdateUserWeightProcedure is the fully-qualified name of the GroupService's
 	// UpdateUserWeight RPC.
 	GroupServiceUpdateUserWeightProcedure = "/api.v1.GroupService/UpdateUserWeight"
+	// GroupServiceSetGroupPinnedProcedure is the fully-qualified name of the GroupService's
+	// SetGroupPinned RPC.
+	GroupServiceSetGroupPinnedProcedure = "/api.v1.GroupService/SetGroupPinned"
 	// GroupServiceGetUserGroupsProcedure is the fully-qualified name of the GroupService's
 	// GetUserGroups RPC.
 	GroupServiceGetUserGroupsProcedure = "/api.v1.GroupService/GetUserGroups"
@@ -79,6 +82,7 @@ type GroupServiceClient interface {
 	AddUserToGroup(context.Context, *v1.AddUserToGroupRequest) (*emptypb.Empty, error)
 	RemoveUserFromGroup(context.Context, *v1.RemoveUserFromGroupRequest) (*emptypb.Empty, error)
 	UpdateUserWeight(context.Context, *v1.UpdateUserWeightRequest) (*emptypb.Empty, error)
+	SetGroupPinned(context.Context, *v1.SetGroupPinnedRequest) (*emptypb.Empty, error)
 	GetUserGroups(context.Context, *v1.GetUserGroupsRequest) (*v1.GetUserGroupsResponse, error)
 	GetGroupActivity(context.Context, *v1.GetGroupActivityRequest) (*v1.GetGroupActivityResponse, error)
 	GetSettlementSuggestions(context.Context, *v1.GetSettlementSuggestionsRequest) (*v1.GetSettlementSuggestionsResponse, error)
@@ -143,6 +147,12 @@ func NewGroupServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(groupServiceMethods.ByName("UpdateUserWeight")),
 			connect.WithClientOptions(opts...),
 		),
+		setGroupPinned: connect.NewClient[v1.SetGroupPinnedRequest, emptypb.Empty](
+			httpClient,
+			baseURL+GroupServiceSetGroupPinnedProcedure,
+			connect.WithSchema(groupServiceMethods.ByName("SetGroupPinned")),
+			connect.WithClientOptions(opts...),
+		),
 		getUserGroups: connect.NewClient[v1.GetUserGroupsRequest, v1.GetUserGroupsResponse](
 			httpClient,
 			baseURL+GroupServiceGetUserGroupsProcedure,
@@ -174,6 +184,7 @@ type groupServiceClient struct {
 	addUserToGroup           *connect.Client[v1.AddUserToGroupRequest, emptypb.Empty]
 	removeUserFromGroup      *connect.Client[v1.RemoveUserFromGroupRequest, emptypb.Empty]
 	updateUserWeight         *connect.Client[v1.UpdateUserWeightRequest, emptypb.Empty]
+	setGroupPinned           *connect.Client[v1.SetGroupPinnedRequest, emptypb.Empty]
 	getUserGroups            *connect.Client[v1.GetUserGroupsRequest, v1.GetUserGroupsResponse]
 	getGroupActivity         *connect.Client[v1.GetGroupActivityRequest, v1.GetGroupActivityResponse]
 	getSettlementSuggestions *connect.Client[v1.GetSettlementSuggestionsRequest, v1.GetSettlementSuggestionsResponse]
@@ -251,6 +262,15 @@ func (c *groupServiceClient) UpdateUserWeight(ctx context.Context, req *v1.Updat
 	return nil, err
 }
 
+// SetGroupPinned calls api.v1.GroupService.SetGroupPinned.
+func (c *groupServiceClient) SetGroupPinned(ctx context.Context, req *v1.SetGroupPinnedRequest) (*emptypb.Empty, error) {
+	response, err := c.setGroupPinned.CallUnary(ctx, connect.NewRequest(req))
+	if response != nil {
+		return response.Msg, err
+	}
+	return nil, err
+}
+
 // GetUserGroups calls api.v1.GroupService.GetUserGroups.
 func (c *groupServiceClient) GetUserGroups(ctx context.Context, req *v1.GetUserGroupsRequest) (*v1.GetUserGroupsResponse, error) {
 	response, err := c.getUserGroups.CallUnary(ctx, connect.NewRequest(req))
@@ -288,6 +308,7 @@ type GroupServiceHandler interface {
 	AddUserToGroup(context.Context, *v1.AddUserToGroupRequest) (*emptypb.Empty, error)
 	RemoveUserFromGroup(context.Context, *v1.RemoveUserFromGroupRequest) (*emptypb.Empty, error)
 	UpdateUserWeight(context.Context, *v1.UpdateUserWeightRequest) (*emptypb.Empty, error)
+	SetGroupPinned(context.Context, *v1.SetGroupPinnedRequest) (*emptypb.Empty, error)
 	GetUserGroups(context.Context, *v1.GetUserGroupsRequest) (*v1.GetUserGroupsResponse, error)
 	GetGroupActivity(context.Context, *v1.GetGroupActivityRequest) (*v1.GetGroupActivityResponse, error)
 	GetSettlementSuggestions(context.Context, *v1.GetSettlementSuggestionsRequest) (*v1.GetSettlementSuggestionsResponse, error)
@@ -348,6 +369,12 @@ func NewGroupServiceHandler(svc GroupServiceHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(groupServiceMethods.ByName("UpdateUserWeight")),
 		connect.WithHandlerOptions(opts...),
 	)
+	groupServiceSetGroupPinnedHandler := connect.NewUnaryHandlerSimple(
+		GroupServiceSetGroupPinnedProcedure,
+		svc.SetGroupPinned,
+		connect.WithSchema(groupServiceMethods.ByName("SetGroupPinned")),
+		connect.WithHandlerOptions(opts...),
+	)
 	groupServiceGetUserGroupsHandler := connect.NewUnaryHandlerSimple(
 		GroupServiceGetUserGroupsProcedure,
 		svc.GetUserGroups,
@@ -384,6 +411,8 @@ func NewGroupServiceHandler(svc GroupServiceHandler, opts ...connect.HandlerOpti
 			groupServiceRemoveUserFromGroupHandler.ServeHTTP(w, r)
 		case GroupServiceUpdateUserWeightProcedure:
 			groupServiceUpdateUserWeightHandler.ServeHTTP(w, r)
+		case GroupServiceSetGroupPinnedProcedure:
+			groupServiceSetGroupPinnedHandler.ServeHTTP(w, r)
 		case GroupServiceGetUserGroupsProcedure:
 			groupServiceGetUserGroupsHandler.ServeHTTP(w, r)
 		case GroupServiceGetGroupActivityProcedure:
@@ -429,6 +458,10 @@ func (UnimplementedGroupServiceHandler) RemoveUserFromGroup(context.Context, *v1
 
 func (UnimplementedGroupServiceHandler) UpdateUserWeight(context.Context, *v1.UpdateUserWeightRequest) (*emptypb.Empty, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.GroupService.UpdateUserWeight is not implemented"))
+}
+
+func (UnimplementedGroupServiceHandler) SetGroupPinned(context.Context, *v1.SetGroupPinnedRequest) (*emptypb.Empty, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.GroupService.SetGroupPinned is not implemented"))
 }
 
 func (UnimplementedGroupServiceHandler) GetUserGroups(context.Context, *v1.GetUserGroupsRequest) (*v1.GetUserGroupsResponse, error) {

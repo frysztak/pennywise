@@ -318,21 +318,21 @@ func (s *GroupService) GetUserGroups(ctx context.Context, r *apiv1.GetUserGroups
 	pbGroups := make([]*apiv1.UserGroup, len(groups))
 	for i, v := range groups {
 		// Calculate balance for this group
-		members, err := db.ReadQueries.GetGroupMembers(ctx, *v.GroupID)
+		members, err := db.ReadQueries.GetGroupMembers(ctx, v.ID)
 		if err != nil {
-			logger.Error("failed to get group members", "error", err, "group_id", *v.GroupID)
+			logger.Error("failed to get group members", "error", err, "group_id", v.ID)
 			return nil, connect.NewError(connect.CodeInternal, err)
 		}
 
-		expenses, err := db.ReadQueries.GetGroupExpenses(ctx, *v.GroupID)
+		expenses, err := db.ReadQueries.GetGroupExpenses(ctx, v.ID)
 		if err != nil {
-			logger.Error("failed to get group expenses", "error", err, "group_id", *v.GroupID)
+			logger.Error("failed to get group expenses", "error", err, "group_id", v.ID)
 			return nil, connect.NewError(connect.CodeInternal, err)
 		}
 
-		transfers, err := db.ReadQueries.GetGroupTransfersForBalance(ctx, *v.GroupID)
+		transfers, err := db.ReadQueries.GetGroupTransfersForBalance(ctx, v.ID)
 		if err != nil {
-			logger.Error("failed to get group transfers", "error", err, "group_id", *v.GroupID)
+			logger.Error("failed to get group transfers", "error", err, "group_id", v.ID)
 			return nil, connect.NewError(connect.CodeInternal, err)
 		}
 
@@ -350,9 +350,9 @@ func (s *GroupService) GetUserGroups(ctx context.Context, r *apiv1.GetUserGroups
 		}
 
 		// Get total spending for this group
-		totalSpendingRows, err := db.ReadQueries.GetGroupTotalSpending(ctx, *v.GroupID)
+		totalSpendingRows, err := db.ReadQueries.GetGroupTotalSpending(ctx, v.ID)
 		if err != nil {
-			logger.Error("failed to get group total spending", "error", err, "group_id", *v.GroupID)
+			logger.Error("failed to get group total spending", "error", err, "group_id", v.ID)
 			return nil, connect.NewError(connect.CodeInternal, err)
 		}
 
@@ -361,9 +361,9 @@ func (s *GroupService) GetUserGroups(ctx context.Context, r *apiv1.GetUserGroups
 			totalSpending[row.Currency] = row.TotalAmount
 		}
 
-		groupCurrencies, err := db.ReadQueries.GetGroupCurrencies(ctx, *v.GroupID)
+		groupCurrencies, err := db.ReadQueries.GetGroupCurrencies(ctx, v.ID)
 		if err != nil {
-			logger.Error("failed to get group currencies", "error", err, "group_id", *v.GroupID)
+			logger.Error("failed to get group currencies", "error", err, "group_id", v.ID)
 			return nil, connect.NewError(connect.CodeInternal, err)
 		}
 		currencies := make([]string, 0, len(groupCurrencies))
@@ -375,14 +375,15 @@ func (s *GroupService) GetUserGroups(ctx context.Context, r *apiv1.GetUserGroups
 		}
 
 		pbGroups[i] = &apiv1.UserGroup{
-			UserId:               *v.UserID,
-			GroupId:              *v.GroupID,
+			UserId:               v.UserID,
+			GroupId:              v.ID,
 			GroupName:            v.Name,
-			GroupDescription:     *v.Description,
+			GroupDescription:     derefStr(v.Description),
 			GroupDefaultCurrency: v.DefaultCurrency,
 			MemberBalances:       memberBalances,
 			TotalSpending:        totalSpending,
 			Currencies:           currencies,
+			Pinned:               v.PinnedAt.Valid,
 		}
 		if v.ImageUpdatedAt.Valid {
 			pbGroups[i].ImageUpdatedAt = timestamppb.New(v.ImageUpdatedAt.Time)
@@ -493,6 +494,26 @@ func (s *GroupService) GetSettlementSuggestions(ctx context.Context, r *apiv1.Ge
 	logger.Info("settlement suggestions retrieved", "group_id", r.GroupId, "count", len(settlements))
 
 	return resp, nil
+}
+
+func (s *GroupService) SetGroupPinned(ctx context.Context, r *apiv1.SetGroupPinnedRequest) (*emptypb.Empty, error) {
+	logger := log.FromContext(ctx)
+	session := helpers.GetSessionInfo(ctx)
+
+	pinnedAt := overrides.NullTextTime{Valid: false}
+	if r.Pinned {
+		pinnedAt = overrides.NullTextTime{Time: time.Now(), Valid: true}
+	}
+
+	if err := db.WriteQueries.SetGroupPinned(ctx, database.SetGroupPinnedParams{
+		UserID:   session.UserID,
+		GroupID:  r.GroupId,
+		PinnedAt: pinnedAt,
+	}); err != nil {
+		logger.Error("failed to set group pinned", "error", err, "group_id", r.GroupId)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	return &emptypb.Empty{}, nil
 }
 
 func (s *GroupService) GetGroupActivity(ctx context.Context, r *apiv1.GetGroupActivityRequest) (*apiv1.GetGroupActivityResponse, error) {

@@ -6,6 +6,8 @@ import {
   Plus,
   Redo2Icon,
   RepeatIcon,
+  Star,
+  StarOff,
   TrashIcon,
   UserRoundSearchIcon,
 } from "lucide-react";
@@ -29,6 +31,7 @@ interface GroupHeaderProps {
   groupDescription?: string;
   imageUpdatedAt?: Timestamp;
   members: Array<{ userId: string; userName: string }>;
+  isPinned: boolean;
   onCreateExpense: () => void;
   onCreateTransfer: () => void;
   onCreateRecurring: () => void;
@@ -36,6 +39,7 @@ interface GroupHeaderProps {
   onEditGroup: () => void;
   onEditImage: () => void;
   onDeleteGroup: () => void;
+  onTogglePin: () => void;
 }
 
 export function GroupHeader({
@@ -43,6 +47,7 @@ export function GroupHeader({
   groupName,
   imageUpdatedAt,
   members,
+  isPinned,
   onCreateExpense,
   onCreateTransfer,
   onCreateRecurring,
@@ -50,6 +55,7 @@ export function GroupHeader({
   onEditGroup,
   onEditImage,
   onDeleteGroup,
+  onTogglePin,
 }: GroupHeaderProps) {
   return (
     <div className="absolute top-0 left-0 right-0 h-80">
@@ -108,6 +114,11 @@ export function GroupHeader({
                   <DropdownMenuItem onClick={onInviteMembers}>
                     <UserRoundSearchIcon />
                     Invite Members
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem onClick={onTogglePin}>
+                    {isPinned ? <StarOff /> : <Star />}
+                    {isPinned ? "Unpin Group" : "Pin Group"}
                   </DropdownMenuItem>
 
                   <DropdownMenuItem variant="destructive" onClick={onDeleteGroup}>

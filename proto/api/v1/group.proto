@@ -75,6 +75,12 @@ message UserGroup {
   map<string, int64> total_spending = 7;
   repeated string currencies = 8;
   optional google.protobuf.Timestamp image_updated_at = 9;
+  bool pinned = 10;
+}
+
+message SetGroupPinnedRequest {
+  string group_id = 1 [(buf.validate.field).string.uuid = true];
+  bool pinned = 2;
 }
 
 message GetUserGroupsRequest {}
@@ -192,6 +198,7 @@ service GroupService {
   rpc AddUserToGroup(AddUserToGroupRequest) returns (google.protobuf.Empty) {}
   rpc RemoveUserFromGroup(RemoveUserFromGroupRequest) returns (google.protobuf.Empty) {}
   rpc UpdateUserWeight(UpdateUserWeightRequest) returns (google.protobuf.Empty) {}
+  rpc SetGroupPinned(SetGroupPinnedRequest) returns (google.protobuf.Empty) {}
 
   rpc GetUserGroups(GetUserGroupsRequest) returns (GetUserGroupsResponse) {}
   rpc GetGroupActivity(GetGroupActivityRequest) returns (GetGroupActivityResponse) {}

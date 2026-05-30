@@ -92,8 +92,9 @@ type User struct {
 }
 
 type UserExpenseGroup struct {
-	UserID  string
-	GroupID string
-	AddedAt overrides.TextTime
-	Weight  float64
+	UserID   string
+	GroupID  string
+	AddedAt  overrides.TextTime
+	Weight   float64
+	PinnedAt overrides.NullTextTime
 }
