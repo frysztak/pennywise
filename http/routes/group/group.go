@@ -555,15 +555,22 @@ func (s *GroupService) SetGroupArchived(ctx context.Context, r *apiv1.SetGroupAr
 	logger := log.FromContext(ctx)
 	session := helpers.GetSessionInfo(ctx)
 
-	// Only the group creator may archive or unarchive a group.
+	// The group creator or an admin may archive or unarchive a group.
 	group, err := db.ReadQueries.GetGroupById(ctx, r.GroupId)
 	if err != nil {
 		logger.Error("failed to get group for archiving", "error", err, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeNotFound, err)
 	}
 	if group.CreatedBy != session.UserID {
-		logger.Warn("unauthorized group archive attempt", "group_id", r.GroupId, "created_by", group.CreatedBy)
-		return nil, connect.NewError(connect.CodePermissionDenied, nil)
+		isAdmin, err := helpers.IsAdmin(ctx, session.UserID)
+		if err != nil {
+			logger.Error("failed to check admin status", "error", err, "user_id", session.UserID)
+			return nil, connect.NewError(connect.CodeInternal, err)
+		}
+		if !isAdmin {
+			logger.Warn("unauthorized group archive attempt", "group_id", r.GroupId, "created_by", group.CreatedBy)
+			return nil, connect.NewError(connect.CodePermissionDenied, nil)
+		}
 	}
 
 	archivedAt := overrides.NullTextTime{Valid: false}
