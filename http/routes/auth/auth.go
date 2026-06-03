@@ -113,7 +113,7 @@ func (s *AuthService) LoginWithPassword(ctx context.Context, r *apiv1.LoginWithP
 		UserID:    user.ID,
 		CreatedAt: overrides.TextTime{Time: time.Now()},
 		UpdatedAt: overrides.TextTime{Time: time.Now()},
-		ExpiredAt: overrides.TextTime{Time: time.Now().Add(24 * time.Hour)},
+		ExpiredAt: overrides.TextTime{Time: time.Now().Add(config.Config.SessionDuration)},
 	})
 	if err != nil {
 		logger.Error("failed to create session", "error", err, "user_id", user.ID)
@@ -286,7 +286,7 @@ func HandlerOIDCCallback(w http.ResponseWriter, r *http.Request) {
 		UserID:    user.ID,
 		CreatedAt: overrides.TextTime{Time: time.Now()},
 		UpdatedAt: overrides.TextTime{Time: time.Now()},
-		ExpiredAt: overrides.TextTime{Time: time.Now().Add(24 * time.Hour)},
+		ExpiredAt: overrides.TextTime{Time: time.Now().Add(config.Config.SessionDuration)},
 	})
 	if err != nil {
 		logger.Error("failed to create session for OIDC user", "error", err, "user_id", user.ID)

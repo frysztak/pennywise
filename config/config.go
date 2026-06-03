@@ -1,27 +1,30 @@
 package config
 
 import (
+	"time"
+
 	"github.com/caarlos0/env/v11"
 	_ "github.com/joho/godotenv/autoload"
 )
 
 type config struct {
-	DBPath               string `env:"DB_PATH,notEmpty"`
-	AuthSecret           string `env:"AUTH_SECRET,notEmpty"`
-	Port                 string `env:"PORT" envDefault:"3333"`
-	OIDCIssuer           string `env:"OIDC_ISSUER"`
-	OIDCClientId         string `env:"OIDC_CLIENT_ID"`
-	OIDCClientSecret     string `env:"OIDC_CLIENT_SECRET"`
-	OIDCRedirectUrl      string `env:"OIDC_REDIRECT_URL"`
-	OIDCProviderName     string `env:"OIDC_PROVIDER_NAME"`
-	RegistrationEnabled  bool   `env:"REGISTRATION_ENABLED" envDefault:"true"`
-	PasswordLoginEnabled bool   `env:"PASSWORD_LOGIN_ENABLED" envDefault:"true"`
-	OpenAIBaseUrl        string `env:"OPENAI_BASE_URL"`
-	OpenAIAPIKey         string `env:"OPENAI_API_KEY"`
-	OpenAIOCRModel       string `env:"OPENAI_OCR_MODEL"`
-	LogLevel             string `env:"LOG_LEVEL" envDefault:"info"`
-	LogFormat            string `env:"LOG_FORMAT" envDefault:"text"`
-	StoragePath          string `env:"STORAGE_PATH" envDefault:"/data"`
+	DBPath               string        `env:"DB_PATH,notEmpty"`
+	AuthSecret           string        `env:"AUTH_SECRET,notEmpty"`
+	SessionDuration      time.Duration `env:"SESSION_DURATION" envDefault:"24h"`
+	Port                 string        `env:"PORT" envDefault:"3333"`
+	OIDCIssuer           string        `env:"OIDC_ISSUER"`
+	OIDCClientId         string        `env:"OIDC_CLIENT_ID"`
+	OIDCClientSecret     string        `env:"OIDC_CLIENT_SECRET"`
+	OIDCRedirectUrl      string        `env:"OIDC_REDIRECT_URL"`
+	OIDCProviderName     string        `env:"OIDC_PROVIDER_NAME"`
+	RegistrationEnabled  bool          `env:"REGISTRATION_ENABLED" envDefault:"true"`
+	PasswordLoginEnabled bool          `env:"PASSWORD_LOGIN_ENABLED" envDefault:"true"`
+	OpenAIBaseUrl        string        `env:"OPENAI_BASE_URL"`
+	OpenAIAPIKey         string        `env:"OPENAI_API_KEY"`
+	OpenAIOCRModel       string        `env:"OPENAI_OCR_MODEL"`
+	LogLevel             string        `env:"LOG_LEVEL" envDefault:"info"`
+	LogFormat            string        `env:"LOG_FORMAT" envDefault:"text"`
+	StoragePath          string        `env:"STORAGE_PATH" envDefault:"/data"`
 }
 
 // Global variables to hold the config

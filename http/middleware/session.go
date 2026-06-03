@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"pennywise/config"
 	"pennywise/db"
 	"pennywise/db/database"
 	"pennywise/db/overrides"
@@ -62,11 +63,11 @@ func SessionMiddleware() *authn.Middleware {
 			return nil, authn.Errorf("session expired")
 		}
 
-		// Renew session if it's expiring within the next 12 hours
-		renewalThreshold := 12 * time.Hour
+		// Renew session if it's expiring within the next half of the session duration
+		renewalThreshold := config.Config.SessionDuration / 2
 		timeUntilExpiry := session.ExpiredAt.Time.Sub(now)
 		if timeUntilExpiry < renewalThreshold {
-			newExpiredAt := now.Add(24 * time.Hour)
+			newExpiredAt := now.Add(config.Config.SessionDuration)
 			err = db.WriteQueries.UpdateSession(ctx, database.UpdateSessionParams{
 				ID:        session.ID,
 				Token:     session.Token,
