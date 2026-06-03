@@ -52,7 +52,7 @@ export function GroupSections({
 
   const activitySection = (
     <div>
-      <h2 className="text-xl font-bold mb-4">Recent Activity</h2>
+      <h2 className="text-xl font-bold my-4">Recent Activity</h2>
       <ActivitySection
         groupId={groupId}
         currencies={currencies}
