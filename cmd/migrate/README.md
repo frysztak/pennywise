@@ -7,17 +7,15 @@ group (members, expenses, transfers) inside a single transaction.
 
 Supported sources:
 
-| Source | Status | Backend identifier |
-|---|---|---|
-| [ihatemoney](https://github.com/spiral-project/ihatemoney) | ✅ stable | `ihatemoney` |
-| [Splitwise](https://www.splitwise.com/) | ✅ stable | `splitwise` |
+| Source | Backend identifier |
+|---|---|
+| [ihatemoney](https://github.com/spiral-project/ihatemoney) | `ihatemoney` |
+| [Splitwise](https://www.splitwise.com/) | `splitwise` |
 
 ## Prerequisites
 
 - The Pennywise Docker image. The migrator binary is built into the same
   image as the server, so you don't need a Go toolchain — `docker` is enough.
-  (If you do have Go 1.25+ installed, you can also run `go run ./cmd/migrate
-  ...` from a checkout; see [From source](#from-source).)
 - The Pennywise SQLite database, already migrated by a previous server run.
 - The source data (e.g. a copy of `budget.db` for ihatemoney, or a Splitwise CSV export).
 - One Pennywise user account per source-side person. No placeholder users
@@ -37,133 +35,58 @@ migrate help
 its own flags (e.g. `--ihatemoney-db PATH`); see [Source-specific flags](#source-specific-flags)
 below.
 
-## Running (Docker Compose)
+## Running
 
-The recipes below assume a `compose.yml` with a service named `pennywise`
+The recipes below assume a service named `pennywise`
 that mounts a volume at `/data` for the SQLite file (the default `DB_PATH`
 inside the image). Adjust the service name and volume path if yours differ.
 The example uses the `ihatemoney` backend; swap `ihatemoney` for another
 registered source name as new backends land.
 
+You don't need to stop the server. The migrator opens the same database with
+the same WAL journal mode and busy-timeout as the server, so SQLite serializes
+it against the live server safely (see [Caveats](#caveats)). The flow is: copy
+the source data into the running container, then run the migrator from a shell
+inside it.
+
 ```bash
-# 1. Stop the server — SQLite only allows one writer at a time.
-docker compose stop pennywise
+# On the HOST: copy the source DB into the running container (ephemeral /tmp).
+docker cp /path/to/budget.db pennywise:/tmp/budget.db
 
-# 2. List projects in the source.
-docker compose run --rm --no-deps \
-    -v /path/to/budget.db:/data/budget.db:ro \
-    --entrypoint migrate \
-    pennywise ihatemoney inspect --ihatemoney-db /data/budget.db
+# Open an interactive shell in the container.
+docker exec -it pennywise sh
+```
 
-# 3. Emit a mapping skeleton for one project. The redirect happens on the
-#    host, so `mapping.json` lands in your current working directory.
-docker compose run --rm --no-deps -T \
-    -v /path/to/budget.db:/data/budget.db:ro \
-    --entrypoint migrate \
-    pennywise ihatemoney inspect \
-      --ihatemoney-db /data/budget.db \
-      --project roommates > mapping.json
+Then, inside the container shell — `migrate` is on PATH, and `DB_PATH` /
+`AUTH_SECRET` are already in the environment:
 
-# 4. Edit mapping.json on the host: set the creator and, per person,
+```sh
+cd /tmp
+
+# 1. List projects in the source.
+migrate ihatemoney inspect --ihatemoney-db budget.db
+
+# 2. Emit a mapping skeleton for one project.
+migrate ihatemoney inspect --ihatemoney-db budget.db --project roommates > mapping.json
+
+# 3. Edit the mapping in place (busybox vi): set the creator and, per person,
 #    either user_email or user_id (both checked against the live DB).
+vi mapping.json
 
-# 5. Dry-run — validates the mapping and prints per-currency totals
-#    and warnings. Zero writes.
-docker compose run --rm --no-deps \
-    -v /path/to/budget.db:/data/budget.db:ro \
-    -v "$PWD/mapping.json:/data/mapping.json:ro" \
-    --entrypoint migrate \
-    pennywise ihatemoney plan \
-      --ihatemoney-db /data/budget.db \
-      --project roommates \
-      --mapping /data/mapping.json
+# 4. Dry-run — validates the mapping and prints per-currency totals and
+#    warnings. Zero writes.
+migrate ihatemoney plan  --ihatemoney-db budget.db --project roommates --mapping mapping.json
 
-# 6. Apply. The Pennywise volume is already mounted by the compose service,
-#    so the migrator writes to the same `pennywise.db` the server uses.
-docker compose run --rm --no-deps \
-    -v /path/to/budget.db:/data/budget.db:ro \
-    -v "$PWD/mapping.json:/data/mapping.json:ro" \
-    --entrypoint migrate \
-    pennywise ihatemoney apply \
-      --ihatemoney-db /data/budget.db \
-      --project roommates \
-      --mapping /data/mapping.json
+# 5. Apply — writes the new group to the same live database.
+migrate ihatemoney apply --ihatemoney-db budget.db --project roommates --mapping mapping.json
 
-# 7. Restart the server.
-docker compose start pennywise
+# 6. Clean up the temp files and leave.
+rm -f budget.db mapping.json
+exit
 ```
 
 `apply` prints the new group ID on success. On failure the entire transaction
 rolls back — nothing is written.
-
-Notes:
-
-- `--no-deps` skips starting linked services (e.g. a reverse proxy) for the
-  one-off run.
-- `-T` on step 3 disables TTY allocation so the redirect to `mapping.json`
-  captures clean stdout.
-- The `pennywise` service must already have its data volume defined in
-  `compose.yml` — `docker compose run` inherits the same mounts and env
-  (so `DB_PATH` and `AUTH_SECRET` are already wired up).
-
-## Running (plain `docker run`)
-
-If you're not using Compose, mount the same data volume the server uses and
-pass `DB_PATH` / `AUTH_SECRET` explicitly. Substitute `pennywise-data` for
-your volume name (or use a bind mount).
-
-```bash
-# Stop the running container first.
-docker stop pennywise
-
-# Inspect.
-docker run --rm \
-    -v pennywise-data:/data \
-    -v /path/to/budget.db:/data/budget.db:ro \
-    -e DB_PATH=/data/pennywise.db \
-    -e AUTH_SECRET=... \
-    --entrypoint migrate \
-    ghcr.io/frysztak/pennywise:latest \
-    ihatemoney inspect --ihatemoney-db /data/budget.db --project roommates > mapping.json
-
-# Plan / apply follow the same pattern; add
-#     -v "$PWD/mapping.json:/data/mapping.json:ro"
-# and pass --mapping /data/mapping.json.
-
-docker start pennywise
-```
-
-Use the **same image tag** as the running server. The migrator and the
-server share `db/schema`, so a version mismatch can write rows the running
-server doesn't understand.
-
-## From source
-
-If you have a Go toolchain and a checkout, you can skip Docker:
-
-```bash
-# .env must define DB_PATH and AUTH_SECRET — same file the server uses.
-
-# ihatemoney
-go run ./cmd/migrate ihatemoney inspect --ihatemoney-db /path/to/budget.db
-go run ./cmd/migrate ihatemoney inspect --ihatemoney-db /path/to/budget.db \
-    --project roommates > mapping.json
-# edit mapping.json
-go run ./cmd/migrate ihatemoney plan  --ihatemoney-db /path/to/budget.db \
-    --project roommates --mapping mapping.json
-# stop the server, then:
-go run ./cmd/migrate ihatemoney apply --ihatemoney-db /path/to/budget.db \
-    --project roommates --mapping mapping.json
-
-# Splitwise
-go run ./cmd/migrate splitwise inspect --splitwise-csv "My Group.csv"
-go run ./cmd/migrate splitwise inspect --splitwise-csv "My Group.csv" \
-    --project "My Group" > mapping.json
-# edit mapping.json
-go run ./cmd/migrate splitwise plan  --splitwise-csv "My Group.csv" --mapping mapping.json
-# stop the server, then:
-go run ./cmd/migrate splitwise apply --splitwise-csv "My Group.csv" --mapping mapping.json
-```
 
 ## Mapping file
 
@@ -245,8 +168,12 @@ member with a warning.
 
 - Re-running `apply` against the same source produces a duplicate group.
   Delete the dupe manually if needed.
-- The Pennywise server must be stopped during `apply` — SQLite allows only
-  one writer.
+- You can run `apply` while the server is live. The migrator opens the database
+  with the same WAL journal mode and 5s busy-timeout as the server, so SQLite
+  serializes the two writers safely — no corruption. `apply` runs in a single,
+  short transaction; only a very large import could hold the write lock long
+  enough for a concurrent user write to hit a transient `SQLITE_BUSY`. If your
+  import is huge, run it at a quiet moment.
 - Amounts are converted float → cents with rounding; warnings are printed
   for any amount that doesn't round cleanly to two decimals.
 
