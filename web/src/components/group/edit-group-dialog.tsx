@@ -14,13 +14,6 @@ import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
-import {
-  MultiSelect,
-  MultiSelectContent,
-  MultiSelectItem,
-  MultiSelectTrigger,
-  MultiSelectValue,
-} from "../ui/multi-select";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Spinner } from "../ui/spinner";
 
@@ -217,31 +210,35 @@ export function EditGroupDialog({
                   render={({ field, fieldState }) => (
                     <Field>
                       <FieldLabel htmlFor="groupCurrencies">Currencies</FieldLabel>
-                      <MultiSelect
-                        values={field.value}
-                        onValuesChange={(values) => {
+                      <Select
+                        multiple
+                        items={currencyOptions.map((c) => ({ value: c, label: c }))}
+                        value={field.value}
+                        onValueChange={(values) => {
                           field.onChange(values);
                           if (!values.includes(form.getValues("defaultCurrency")) && values.length > 0) {
                             form.setValue("defaultCurrency", values[0], { shouldValidate: true });
                           }
                         }}
                       >
-                        <MultiSelectTrigger
+                        <SelectTrigger
                           id="groupCurrencies"
                           aria-invalid={fieldState.invalid}
                           disabled={isPending}
                           className="w-full"
                         >
-                          <MultiSelectValue placeholder="Select currencies" />
-                        </MultiSelectTrigger>
-                        <MultiSelectContent>
+                          <SelectValue placeholder="Select currencies">
+                            {(value: string[]) => (value.length === 0 ? "Select currencies" : value.join(", "))}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
                           {currencyOptions.map((c) => (
-                            <MultiSelectItem key={c} value={c}>
+                            <SelectItem key={c} value={c}>
                               {c}
-                            </MultiSelectItem>
+                            </SelectItem>
                           ))}
-                        </MultiSelectContent>
-                      </MultiSelect>
+                        </SelectContent>
+                      </Select>
                       {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                     </Field>
                   )}
