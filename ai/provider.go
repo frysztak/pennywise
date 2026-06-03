@@ -10,7 +10,7 @@ import (
 	"github.com/openai/openai-go/v3/responses"
 )
 
-func AnalyzeReceipt(ctx context.Context, image *ProcessedImage) (*Receipt, error) {
+func AnalyzeReceipt(ctx context.Context, image *ProcessedImage, prompt string) (*Receipt, error) {
 	client := openai.NewClient()
 
 	file, err := client.Files.New(ctx, openai.FileNewParams{
@@ -34,7 +34,7 @@ func AnalyzeReceipt(ctx context.Context, image *ProcessedImage) (*Receipt, error
 					},
 					responses.ResponseInputContentUnionParam{
 						OfInputText: &responses.ResponseInputTextParam{
-							Text: ReceiptOCRPrompt,
+							Text: prompt,
 							Type: "input_text",
 						},
 					},

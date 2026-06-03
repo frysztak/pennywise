@@ -11,6 +11,17 @@ import (
 	"pennywise/db/overrides"
 )
 
+const countAdmins = `-- name: CountAdmins :one
+SELECT COUNT(*) FROM users WHERE role = 1
+`
+
+func (q *Queries) CountAdmins(ctx context.Context) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countAdmins)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users
 (
@@ -103,13 +114,14 @@ func (q *Queries) GetUserById(ctx context.Context, id string) (GetUserByIdRow, e
 }
 
 const getUsers = `-- name: GetUsers :many
-SELECT id, username, email FROM users
+SELECT id, username, email, role FROM users
 `
 
 type GetUsersRow struct {
 	ID       string
 	Username string
 	Email    string
+	Role     int64
 }
 
 func (q *Queries) GetUsers(ctx context.Context) ([]GetUsersRow, error) {
@@ -121,7 +133,12 @@ func (q *Queries) GetUsers(ctx context.Context) ([]GetUsersRow, error) {
 	var items []GetUsersRow
 	for rows.Next() {
 		var i GetUsersRow
-		if err := rows.Scan(&i.ID, &i.Username, &i.Email); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Username,
+			&i.Email,
+			&i.Role,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -160,6 +177,37 @@ type UpdateUserAvatarParams struct {
 func (q *Queries) UpdateUserAvatar(ctx context.Context, arg UpdateUserAvatarParams) error {
 	_, err := q.db.ExecContext(ctx, updateUserAvatar, arg.AvatarUpdatedAt, arg.ID)
 	return err
+}
+
+const updateUserRole = `-- name: UpdateUserRole :one
+UPDATE users
+SET role = ?1
+WHERE id = ?2
+RETURNING id, email, username, role
+`
+
+type UpdateUserRoleParams struct {
+	Role int64
+	ID   string
+}
+
+type UpdateUserRoleRow struct {
+	ID       string
+	Email    string
+	Username string
+	Role     int64
+}
+
+func (q *Queries) UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) (UpdateUserRoleRow, error) {
+	row := q.db.QueryRowContext(ctx, updateUserRole, arg.Role, arg.ID)
+	var i UpdateUserRoleRow
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Username,
+		&i.Role,
+	)
+	return i, err
 }
 
 const updateUserUsername = `-- name: UpdateUserUsername :one

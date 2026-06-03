@@ -7,6 +7,7 @@ import (
 	"pennywise/config"
 	apiv1 "pennywise/gen/api/v1"
 	"pennywise/log"
+	"pennywise/settings"
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -37,7 +38,7 @@ func (s *ReceiptService) ScanReceipt(ctx context.Context, r *apiv1.ScanReceiptRe
 		"width", processed.Width,
 		"height", processed.Height)
 
-	scanResult, err := ai.AnalyzeReceipt(ctx, processed)
+	scanResult, err := ai.AnalyzeReceipt(ctx, processed, settings.GetReceiptPrompt(ctx))
 	if err != nil {
 		logger.Error("failed to scan receipt", "error", err)
 		return nil, connect.NewError(connect.CodeInternal, err)

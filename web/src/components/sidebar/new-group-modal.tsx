@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import * as z from "zod";
 
 import { createExpenseGroup, getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
-import { COMMON_CURRENCIES } from "@/lib/currencies";
+import { useCurrencies } from "@/hooks/use-currencies";
 import { handleError } from "@/lib/utils";
 
 import { Button } from "../ui/button";
@@ -46,6 +46,7 @@ interface NewGroupModalProps {
 }
 
 export const NewGroupModal = ({ open, onOpenChange }: NewGroupModalProps) => {
+  const currencyOptions = useCurrencies();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -141,7 +142,7 @@ export const NewGroupModal = ({ open, onOpenChange }: NewGroupModalProps) => {
                       <MultiSelectValue placeholder="Select currencies" />
                     </MultiSelectTrigger>
                     <MultiSelectContent>
-                      {COMMON_CURRENCIES.map((c) => (
+                      {currencyOptions.map((c) => (
                         <MultiSelectItem key={c} value={c}>
                           {c}
                         </MultiSelectItem>

@@ -2,19 +2,262 @@
 // @generated from file api/v1/admin.proto (package api.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenFile, GenService } from "@bufbuild/protobuf/codegenv2";
-import { fileDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
+import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { UserRole } from "./user_pb";
+import { file_api_v1_user } from "./user_pb";
+import { file_buf_validate_validate } from "../../buf/validate/validate_pb";
+import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file api/v1/admin.proto.
  */
 export const file_api_v1_admin: GenFile = /*@__PURE__*/
-  fileDesc("ChJhcGkvdjEvYWRtaW4ucHJvdG8SBmFwaS52MTIOCgxBZG1pblNlcnZpY2ViBnByb3RvMw");
+  fileDesc("ChJhcGkvdjEvYWRtaW4ucHJvdG8SBmFwaS52MSJTCgRVc2VyEgoKAmlkGAEgASgJEhAKCHVzZXJuYW1lGAIgASgJEg0KBWVtYWlsGAMgASgJEh4KBHJvbGUYBCABKA4yEC5hcGkudjEuVXNlclJvbGUiEgoQTGlzdFVzZXJzUmVxdWVzdCIwChFMaXN0VXNlcnNSZXNwb25zZRIbCgV1c2VycxgBIAMoCzIMLmFwaS52MS5Vc2VyIlIKFVVwZGF0ZVVzZXJSb2xlUmVxdWVzdBIZCgd1c2VyX2lkGAEgASgJQgi6SAVyA7ABARIeCgRyb2xlGAIgASgOMhAuYXBpLnYxLlVzZXJSb2xlIjQKFlVwZGF0ZVVzZXJSb2xlUmVzcG9uc2USGgoEdXNlchgBIAEoCzIMLmFwaS52MS5Vc2VyIjoKFFNldEN1cnJlbmNpZXNSZXF1ZXN0EiIKCmN1cnJlbmNpZXMYASADKAlCDrpIC5IBCAgBIgRyAhACIisKFVNldEN1cnJlbmNpZXNSZXNwb25zZRISCgpjdXJyZW5jaWVzGAEgAygJIhkKF0dldFJlY2VpcHRQcm9tcHRSZXF1ZXN0IioKGEdldFJlY2VpcHRQcm9tcHRSZXNwb25zZRIOCgZwcm9tcHQYASABKAkiMgoXU2V0UmVjZWlwdFByb21wdFJlcXVlc3QSFwoGcHJvbXB0GAEgASgJQge6SARyAhABIioKGFNldFJlY2VpcHRQcm9tcHRSZXNwb25zZRIOCgZwcm9tcHQYASABKAkypwMKDEFkbWluU2VydmljZRJCCglMaXN0VXNlcnMSGC5hcGkudjEuTGlzdFVzZXJzUmVxdWVzdBoZLmFwaS52MS5MaXN0VXNlcnNSZXNwb25zZSIAElEKDlVwZGF0ZVVzZXJSb2xlEh0uYXBpLnYxLlVwZGF0ZVVzZXJSb2xlUmVxdWVzdBoeLmFwaS52MS5VcGRhdGVVc2VyUm9sZVJlc3BvbnNlIgASTgoNU2V0Q3VycmVuY2llcxIcLmFwaS52MS5TZXRDdXJyZW5jaWVzUmVxdWVzdBodLmFwaS52MS5TZXRDdXJyZW5jaWVzUmVzcG9uc2UiABJXChBHZXRSZWNlaXB0UHJvbXB0Eh8uYXBpLnYxLkdldFJlY2VpcHRQcm9tcHRSZXF1ZXN0GiAuYXBpLnYxLkdldFJlY2VpcHRQcm9tcHRSZXNwb25zZSIAElcKEFNldFJlY2VpcHRQcm9tcHQSHy5hcGkudjEuU2V0UmVjZWlwdFByb21wdFJlcXVlc3QaIC5hcGkudjEuU2V0UmVjZWlwdFByb21wdFJlc3BvbnNlIgBiBnByb3RvMw", [file_api_v1_user, file_buf_validate_validate]);
+
+/**
+ * @generated from message api.v1.User
+ */
+export type User = Message<"api.v1.User"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string username = 2;
+   */
+  username: string;
+
+  /**
+   * @generated from field: string email = 3;
+   */
+  email: string;
+
+  /**
+   * @generated from field: api.v1.UserRole role = 4;
+   */
+  role: UserRole;
+};
+
+/**
+ * Describes the message api.v1.User.
+ * Use `create(UserSchema)` to create a new message.
+ */
+export const UserSchema: GenMessage<User> = /*@__PURE__*/
+  messageDesc(file_api_v1_admin, 0);
+
+/**
+ * @generated from message api.v1.ListUsersRequest
+ */
+export type ListUsersRequest = Message<"api.v1.ListUsersRequest"> & {
+};
+
+/**
+ * Describes the message api.v1.ListUsersRequest.
+ * Use `create(ListUsersRequestSchema)` to create a new message.
+ */
+export const ListUsersRequestSchema: GenMessage<ListUsersRequest> = /*@__PURE__*/
+  messageDesc(file_api_v1_admin, 1);
+
+/**
+ * @generated from message api.v1.ListUsersResponse
+ */
+export type ListUsersResponse = Message<"api.v1.ListUsersResponse"> & {
+  /**
+   * @generated from field: repeated api.v1.User users = 1;
+   */
+  users: User[];
+};
+
+/**
+ * Describes the message api.v1.ListUsersResponse.
+ * Use `create(ListUsersResponseSchema)` to create a new message.
+ */
+export const ListUsersResponseSchema: GenMessage<ListUsersResponse> = /*@__PURE__*/
+  messageDesc(file_api_v1_admin, 2);
+
+/**
+ * @generated from message api.v1.UpdateUserRoleRequest
+ */
+export type UpdateUserRoleRequest = Message<"api.v1.UpdateUserRoleRequest"> & {
+  /**
+   * @generated from field: string user_id = 1;
+   */
+  userId: string;
+
+  /**
+   * @generated from field: api.v1.UserRole role = 2;
+   */
+  role: UserRole;
+};
+
+/**
+ * Describes the message api.v1.UpdateUserRoleRequest.
+ * Use `create(UpdateUserRoleRequestSchema)` to create a new message.
+ */
+export const UpdateUserRoleRequestSchema: GenMessage<UpdateUserRoleRequest> = /*@__PURE__*/
+  messageDesc(file_api_v1_admin, 3);
+
+/**
+ * @generated from message api.v1.UpdateUserRoleResponse
+ */
+export type UpdateUserRoleResponse = Message<"api.v1.UpdateUserRoleResponse"> & {
+  /**
+   * @generated from field: api.v1.User user = 1;
+   */
+  user?: User | undefined;
+};
+
+/**
+ * Describes the message api.v1.UpdateUserRoleResponse.
+ * Use `create(UpdateUserRoleResponseSchema)` to create a new message.
+ */
+export const UpdateUserRoleResponseSchema: GenMessage<UpdateUserRoleResponse> = /*@__PURE__*/
+  messageDesc(file_api_v1_admin, 4);
+
+/**
+ * @generated from message api.v1.SetCurrenciesRequest
+ */
+export type SetCurrenciesRequest = Message<"api.v1.SetCurrenciesRequest"> & {
+  /**
+   * @generated from field: repeated string currencies = 1;
+   */
+  currencies: string[];
+};
+
+/**
+ * Describes the message api.v1.SetCurrenciesRequest.
+ * Use `create(SetCurrenciesRequestSchema)` to create a new message.
+ */
+export const SetCurrenciesRequestSchema: GenMessage<SetCurrenciesRequest> = /*@__PURE__*/
+  messageDesc(file_api_v1_admin, 5);
+
+/**
+ * @generated from message api.v1.SetCurrenciesResponse
+ */
+export type SetCurrenciesResponse = Message<"api.v1.SetCurrenciesResponse"> & {
+  /**
+   * @generated from field: repeated string currencies = 1;
+   */
+  currencies: string[];
+};
+
+/**
+ * Describes the message api.v1.SetCurrenciesResponse.
+ * Use `create(SetCurrenciesResponseSchema)` to create a new message.
+ */
+export const SetCurrenciesResponseSchema: GenMessage<SetCurrenciesResponse> = /*@__PURE__*/
+  messageDesc(file_api_v1_admin, 6);
+
+/**
+ * @generated from message api.v1.GetReceiptPromptRequest
+ */
+export type GetReceiptPromptRequest = Message<"api.v1.GetReceiptPromptRequest"> & {
+};
+
+/**
+ * Describes the message api.v1.GetReceiptPromptRequest.
+ * Use `create(GetReceiptPromptRequestSchema)` to create a new message.
+ */
+export const GetReceiptPromptRequestSchema: GenMessage<GetReceiptPromptRequest> = /*@__PURE__*/
+  messageDesc(file_api_v1_admin, 7);
+
+/**
+ * @generated from message api.v1.GetReceiptPromptResponse
+ */
+export type GetReceiptPromptResponse = Message<"api.v1.GetReceiptPromptResponse"> & {
+  /**
+   * @generated from field: string prompt = 1;
+   */
+  prompt: string;
+};
+
+/**
+ * Describes the message api.v1.GetReceiptPromptResponse.
+ * Use `create(GetReceiptPromptResponseSchema)` to create a new message.
+ */
+export const GetReceiptPromptResponseSchema: GenMessage<GetReceiptPromptResponse> = /*@__PURE__*/
+  messageDesc(file_api_v1_admin, 8);
+
+/**
+ * @generated from message api.v1.SetReceiptPromptRequest
+ */
+export type SetReceiptPromptRequest = Message<"api.v1.SetReceiptPromptRequest"> & {
+  /**
+   * @generated from field: string prompt = 1;
+   */
+  prompt: string;
+};
+
+/**
+ * Describes the message api.v1.SetReceiptPromptRequest.
+ * Use `create(SetReceiptPromptRequestSchema)` to create a new message.
+ */
+export const SetReceiptPromptRequestSchema: GenMessage<SetReceiptPromptRequest> = /*@__PURE__*/
+  messageDesc(file_api_v1_admin, 9);
+
+/**
+ * @generated from message api.v1.SetReceiptPromptResponse
+ */
+export type SetReceiptPromptResponse = Message<"api.v1.SetReceiptPromptResponse"> & {
+  /**
+   * @generated from field: string prompt = 1;
+   */
+  prompt: string;
+};
+
+/**
+ * Describes the message api.v1.SetReceiptPromptResponse.
+ * Use `create(SetReceiptPromptResponseSchema)` to create a new message.
+ */
+export const SetReceiptPromptResponseSchema: GenMessage<SetReceiptPromptResponse> = /*@__PURE__*/
+  messageDesc(file_api_v1_admin, 10);
 
 /**
  * @generated from service api.v1.AdminService
  */
 export const AdminService: GenService<{
+  /**
+   * @generated from rpc api.v1.AdminService.ListUsers
+   */
+  listUsers: {
+    methodKind: "unary";
+    input: typeof ListUsersRequestSchema;
+    output: typeof ListUsersResponseSchema;
+  },
+  /**
+   * @generated from rpc api.v1.AdminService.UpdateUserRole
+   */
+  updateUserRole: {
+    methodKind: "unary";
+    input: typeof UpdateUserRoleRequestSchema;
+    output: typeof UpdateUserRoleResponseSchema;
+  },
+  /**
+   * @generated from rpc api.v1.AdminService.SetCurrencies
+   */
+  setCurrencies: {
+    methodKind: "unary";
+    input: typeof SetCurrenciesRequestSchema;
+    output: typeof SetCurrenciesResponseSchema;
+  },
+  /**
+   * @generated from rpc api.v1.AdminService.GetReceiptPrompt
+   */
+  getReceiptPrompt: {
+    methodKind: "unary";
+    input: typeof GetReceiptPromptRequestSchema;
+    output: typeof GetReceiptPromptResponseSchema;
+  },
+  /**
+   * @generated from rpc api.v1.AdminService.SetReceiptPrompt
+   */
+  setReceiptPrompt: {
+    methodKind: "unary";
+    input: typeof SetReceiptPromptRequestSchema;
+    output: typeof SetReceiptPromptResponseSchema;
+  },
 }> = /*@__PURE__*/
   serviceDesc(file_api_v1_admin, 0);
 

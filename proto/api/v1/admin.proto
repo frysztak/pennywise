@@ -2,4 +2,60 @@ syntax = "proto3";
 
 package api.v1;
 
-service AdminService {}
+import "api/v1/user.proto";
+import "buf/validate/validate.proto";
+
+message User {
+  string id = 1;
+  string username = 2;
+  string email = 3;
+  UserRole role = 4;
+}
+
+message ListUsersRequest {}
+
+message ListUsersResponse {
+  repeated User users = 1;
+}
+
+message UpdateUserRoleRequest {
+  string user_id = 1 [(buf.validate.field).string.uuid = true];
+  UserRole role = 2;
+}
+
+message UpdateUserRoleResponse {
+  User user = 1;
+}
+
+message SetCurrenciesRequest {
+  repeated string currencies = 1 [
+    (buf.validate.field).repeated.min_items = 1,
+    (buf.validate.field).repeated.items.string.min_len = 2
+  ];
+}
+
+message SetCurrenciesResponse {
+  repeated string currencies = 1;
+}
+
+message GetReceiptPromptRequest {}
+
+message GetReceiptPromptResponse {
+  string prompt = 1;
+}
+
+message SetReceiptPromptRequest {
+  string prompt = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message SetReceiptPromptResponse {
+  string prompt = 1;
+}
+
+service AdminService {
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {}
+  rpc UpdateUserRole(UpdateUserRoleRequest) returns (UpdateUserRoleResponse) {}
+  rpc SetCurrencies(SetCurrenciesRequest) returns (SetCurrenciesResponse) {}
+  rpc GetReceiptPrompt(GetReceiptPromptRequest) returns (GetReceiptPromptResponse) {}
+  rpc SetReceiptPrompt(SetReceiptPromptRequest) returns (SetReceiptPromptResponse) {}
+}

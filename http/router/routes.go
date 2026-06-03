@@ -6,6 +6,7 @@ import (
 	"pennywise/config"
 	"pennywise/http/middleware"
 	"pennywise/http/routes/admin"
+	"pennywise/http/routes/app"
 	"pennywise/http/routes/auth"
 	"pennywise/http/routes/avatar"
 	"pennywise/http/routes/expense"
@@ -47,6 +48,7 @@ func InitRouter(mux *http.ServeMux) {
 	reflector := grpcreflect.NewStaticReflector(
 		apiv1connect.AuthServiceName,
 		apiv1connect.UserServiceName,
+		apiv1connect.AppServiceName,
 		apiv1connect.AdminServiceName,
 		apiv1connect.GroupServiceName,
 		apiv1connect.ExpenseServiceName,
@@ -69,9 +71,21 @@ func InitRouter(mux *http.ServeMux) {
 	)
 	mux.Handle(path, session.Wrap(handler))
 
+	path, handler = apiv1connect.NewAppServiceHandler(
+		app.NewAppService(),
+		interceptors,
+	)
+	mux.Handle(path, session.Wrap(handler))
+
+	// AdminService gets an additional admin-only interceptor that gates the
+	// whole service to users with USER_ROLE_ADMIN.
 	path, handler = apiv1connect.NewAdminServiceHandler(
 		admin.NewAdminService(),
-		interceptors,
+		connect.WithInterceptors(
+			log.LoggingInterceptor(),
+			validate.NewInterceptor(),
+			admin.AdminInterceptor(),
+		),
 	)
 	mux.Handle(path, session.Wrap(handler))
 

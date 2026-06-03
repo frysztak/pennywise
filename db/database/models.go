@@ -8,6 +8,11 @@ import (
 	"pennywise/db/overrides"
 )
 
+type AppSetting struct {
+	Key   string
+	Value string
+}
+
 type Expense struct {
 	ID          string
 	CreatedAt   overrides.TextTime

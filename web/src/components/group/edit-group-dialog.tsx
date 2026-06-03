@@ -6,8 +6,8 @@ import * as z from "zod";
 
 import { MemberAvatar } from "@/components/member-avatar";
 import type { MemberBalance } from "@/gen/api/v1/group_pb";
+import { useCurrencies } from "@/hooks/use-currencies";
 import type { EditingGroup } from "@/hooks/use-edit-group-modal";
-import { COMMON_CURRENCIES } from "@/lib/currencies";
 import { cn } from "@/lib/utils";
 
 import { Button } from "../ui/button";
@@ -115,6 +115,7 @@ export function EditGroupDialog({
   onUpdateGroup,
   onUpdateWeight,
 }: EditGroupDialogProps) {
+  const currencyOptions = useCurrencies();
   const [editingWeights, setEditingWeights] = useState(() => {
     const weights: Record<string, number> = {};
     memberBalances.forEach((member) => {
@@ -234,7 +235,7 @@ export function EditGroupDialog({
                           <MultiSelectValue placeholder="Select currencies" />
                         </MultiSelectTrigger>
                         <MultiSelectContent>
-                          {COMMON_CURRENCIES.map((c) => (
+                          {currencyOptions.map((c) => (
                             <MultiSelectItem key={c} value={c}>
                               {c}
                             </MultiSelectItem>

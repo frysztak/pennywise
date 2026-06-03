@@ -18,7 +18,12 @@ import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as PathlessLayoutSettingsRouteImport } from './routes/_pathlessLayout/settings'
 import { Route as PathlessLayoutScanReceiptRouteImport } from './routes/_pathlessLayout/scan-receipt'
 import { Route as PathlessLayoutDashboardRouteImport } from './routes/_pathlessLayout/dashboard'
+import { Route as PathlessLayoutAdminRouteRouteImport } from './routes/_pathlessLayout/admin/route'
+import { Route as PathlessLayoutAdminIndexRouteImport } from './routes/_pathlessLayout/admin/index'
 import { Route as PathlessLayoutGroupGroupIdRouteImport } from './routes/_pathlessLayout/group/$groupId'
+import { Route as PathlessLayoutAdminMembersRouteImport } from './routes/_pathlessLayout/admin/members'
+import { Route as PathlessLayoutAdminCurrenciesRouteImport } from './routes/_pathlessLayout/admin/currencies'
+import { Route as PathlessLayoutAdminAiRouteImport } from './routes/_pathlessLayout/admin/ai'
 
 const DebugErrorRoute = DebugErrorRouteImport.update({
   id: '/debug-error',
@@ -65,23 +70,57 @@ const PathlessLayoutDashboardRoute = PathlessLayoutDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => PathlessLayoutRouteRoute,
 } as any)
+const PathlessLayoutAdminRouteRoute =
+  PathlessLayoutAdminRouteRouteImport.update({
+    id: '/admin',
+    path: '/admin',
+    getParentRoute: () => PathlessLayoutRouteRoute,
+  } as any)
+const PathlessLayoutAdminIndexRoute =
+  PathlessLayoutAdminIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => PathlessLayoutAdminRouteRoute,
+  } as any)
 const PathlessLayoutGroupGroupIdRoute =
   PathlessLayoutGroupGroupIdRouteImport.update({
     id: '/group/$groupId',
     path: '/group/$groupId',
     getParentRoute: () => PathlessLayoutRouteRoute,
   } as any)
+const PathlessLayoutAdminMembersRoute =
+  PathlessLayoutAdminMembersRouteImport.update({
+    id: '/members',
+    path: '/members',
+    getParentRoute: () => PathlessLayoutAdminRouteRoute,
+  } as any)
+const PathlessLayoutAdminCurrenciesRoute =
+  PathlessLayoutAdminCurrenciesRouteImport.update({
+    id: '/currencies',
+    path: '/currencies',
+    getParentRoute: () => PathlessLayoutAdminRouteRoute,
+  } as any)
+const PathlessLayoutAdminAiRoute = PathlessLayoutAdminAiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
+  getParentRoute: () => PathlessLayoutAdminRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/debug-error': typeof DebugErrorRoute
+  '/admin': typeof PathlessLayoutAdminRouteRouteWithChildren
   '/dashboard': typeof PathlessLayoutDashboardRoute
   '/scan-receipt': typeof PathlessLayoutScanReceiptRoute
   '/settings': typeof PathlessLayoutSettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/admin/ai': typeof PathlessLayoutAdminAiRoute
+  '/admin/currencies': typeof PathlessLayoutAdminCurrenciesRoute
+  '/admin/members': typeof PathlessLayoutAdminMembersRoute
   '/group/$groupId': typeof PathlessLayoutGroupGroupIdRoute
+  '/admin/': typeof PathlessLayoutAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -92,7 +131,11 @@ export interface FileRoutesByTo {
   '/settings': typeof PathlessLayoutSettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/admin/ai': typeof PathlessLayoutAdminAiRoute
+  '/admin/currencies': typeof PathlessLayoutAdminCurrenciesRoute
+  '/admin/members': typeof PathlessLayoutAdminMembersRoute
   '/group/$groupId': typeof PathlessLayoutGroupGroupIdRoute
+  '/admin': typeof PathlessLayoutAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -100,12 +143,17 @@ export interface FileRoutesById {
   '/_pathlessLayout': typeof PathlessLayoutRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/debug-error': typeof DebugErrorRoute
+  '/_pathlessLayout/admin': typeof PathlessLayoutAdminRouteRouteWithChildren
   '/_pathlessLayout/dashboard': typeof PathlessLayoutDashboardRoute
   '/_pathlessLayout/scan-receipt': typeof PathlessLayoutScanReceiptRoute
   '/_pathlessLayout/settings': typeof PathlessLayoutSettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/_pathlessLayout/admin/ai': typeof PathlessLayoutAdminAiRoute
+  '/_pathlessLayout/admin/currencies': typeof PathlessLayoutAdminCurrenciesRoute
+  '/_pathlessLayout/admin/members': typeof PathlessLayoutAdminMembersRoute
   '/_pathlessLayout/group/$groupId': typeof PathlessLayoutGroupGroupIdRoute
+  '/_pathlessLayout/admin/': typeof PathlessLayoutAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -113,12 +161,17 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/debug-error'
+    | '/admin'
     | '/dashboard'
     | '/scan-receipt'
     | '/settings'
     | '/auth/login'
     | '/auth/register'
+    | '/admin/ai'
+    | '/admin/currencies'
+    | '/admin/members'
     | '/group/$groupId'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -129,19 +182,28 @@ export interface FileRouteTypes {
     | '/settings'
     | '/auth/login'
     | '/auth/register'
+    | '/admin/ai'
+    | '/admin/currencies'
+    | '/admin/members'
     | '/group/$groupId'
+    | '/admin'
   id:
     | '__root__'
     | '/'
     | '/_pathlessLayout'
     | '/about'
     | '/debug-error'
+    | '/_pathlessLayout/admin'
     | '/_pathlessLayout/dashboard'
     | '/_pathlessLayout/scan-receipt'
     | '/_pathlessLayout/settings'
     | '/auth/login'
     | '/auth/register'
+    | '/_pathlessLayout/admin/ai'
+    | '/_pathlessLayout/admin/currencies'
+    | '/_pathlessLayout/admin/members'
     | '/_pathlessLayout/group/$groupId'
+    | '/_pathlessLayout/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -218,6 +280,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PathlessLayoutDashboardRouteImport
       parentRoute: typeof PathlessLayoutRouteRoute
     }
+    '/_pathlessLayout/admin': {
+      id: '/_pathlessLayout/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof PathlessLayoutAdminRouteRouteImport
+      parentRoute: typeof PathlessLayoutRouteRoute
+    }
+    '/_pathlessLayout/admin/': {
+      id: '/_pathlessLayout/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof PathlessLayoutAdminIndexRouteImport
+      parentRoute: typeof PathlessLayoutAdminRouteRoute
+    }
     '/_pathlessLayout/group/$groupId': {
       id: '/_pathlessLayout/group/$groupId'
       path: '/group/$groupId'
@@ -225,10 +301,52 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PathlessLayoutGroupGroupIdRouteImport
       parentRoute: typeof PathlessLayoutRouteRoute
     }
+    '/_pathlessLayout/admin/members': {
+      id: '/_pathlessLayout/admin/members'
+      path: '/members'
+      fullPath: '/admin/members'
+      preLoaderRoute: typeof PathlessLayoutAdminMembersRouteImport
+      parentRoute: typeof PathlessLayoutAdminRouteRoute
+    }
+    '/_pathlessLayout/admin/currencies': {
+      id: '/_pathlessLayout/admin/currencies'
+      path: '/currencies'
+      fullPath: '/admin/currencies'
+      preLoaderRoute: typeof PathlessLayoutAdminCurrenciesRouteImport
+      parentRoute: typeof PathlessLayoutAdminRouteRoute
+    }
+    '/_pathlessLayout/admin/ai': {
+      id: '/_pathlessLayout/admin/ai'
+      path: '/ai'
+      fullPath: '/admin/ai'
+      preLoaderRoute: typeof PathlessLayoutAdminAiRouteImport
+      parentRoute: typeof PathlessLayoutAdminRouteRoute
+    }
   }
 }
 
+interface PathlessLayoutAdminRouteRouteChildren {
+  PathlessLayoutAdminAiRoute: typeof PathlessLayoutAdminAiRoute
+  PathlessLayoutAdminCurrenciesRoute: typeof PathlessLayoutAdminCurrenciesRoute
+  PathlessLayoutAdminMembersRoute: typeof PathlessLayoutAdminMembersRoute
+  PathlessLayoutAdminIndexRoute: typeof PathlessLayoutAdminIndexRoute
+}
+
+const PathlessLayoutAdminRouteRouteChildren: PathlessLayoutAdminRouteRouteChildren =
+  {
+    PathlessLayoutAdminAiRoute: PathlessLayoutAdminAiRoute,
+    PathlessLayoutAdminCurrenciesRoute: PathlessLayoutAdminCurrenciesRoute,
+    PathlessLayoutAdminMembersRoute: PathlessLayoutAdminMembersRoute,
+    PathlessLayoutAdminIndexRoute: PathlessLayoutAdminIndexRoute,
+  }
+
+const PathlessLayoutAdminRouteRouteWithChildren =
+  PathlessLayoutAdminRouteRoute._addFileChildren(
+    PathlessLayoutAdminRouteRouteChildren,
+  )
+
 interface PathlessLayoutRouteRouteChildren {
+  PathlessLayoutAdminRouteRoute: typeof PathlessLayoutAdminRouteRouteWithChildren
   PathlessLayoutDashboardRoute: typeof PathlessLayoutDashboardRoute
   PathlessLayoutScanReceiptRoute: typeof PathlessLayoutScanReceiptRoute
   PathlessLayoutSettingsRoute: typeof PathlessLayoutSettingsRoute
@@ -236,6 +354,7 @@ interface PathlessLayoutRouteRouteChildren {
 }
 
 const PathlessLayoutRouteRouteChildren: PathlessLayoutRouteRouteChildren = {
+  PathlessLayoutAdminRouteRoute: PathlessLayoutAdminRouteRouteWithChildren,
   PathlessLayoutDashboardRoute: PathlessLayoutDashboardRoute,
   PathlessLayoutScanReceiptRoute: PathlessLayoutScanReceiptRoute,
   PathlessLayoutSettingsRoute: PathlessLayoutSettingsRoute,

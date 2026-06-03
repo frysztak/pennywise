@@ -6,8 +6,11 @@ package apiv1connect
 
 import (
 	connect "connectrpc.com/connect"
+	context "context"
+	errors "errors"
 	http "net/http"
-	_ "pennywise/gen/api/v1"
+	v1 "pennywise/gen/api/v1"
+	strings "strings"
 )
 
 // This is a compile-time assertion to ensure that this generated file and the connect package are
@@ -22,8 +25,37 @@ const (
 	AdminServiceName = "api.v1.AdminService"
 )
 
+// These constants are the fully-qualified names of the RPCs defined in this package. They're
+// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+//
+// Note that these are different from the fully-qualified method names used by
+// google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
+// reflection-formatted method names, remove the leading slash and convert the remaining slash to a
+// period.
+const (
+	// AdminServiceListUsersProcedure is the fully-qualified name of the AdminService's ListUsers RPC.
+	AdminServiceListUsersProcedure = "/api.v1.AdminService/ListUsers"
+	// AdminServiceUpdateUserRoleProcedure is the fully-qualified name of the AdminService's
+	// UpdateUserRole RPC.
+	AdminServiceUpdateUserRoleProcedure = "/api.v1.AdminService/UpdateUserRole"
+	// AdminServiceSetCurrenciesProcedure is the fully-qualified name of the AdminService's
+	// SetCurrencies RPC.
+	AdminServiceSetCurrenciesProcedure = "/api.v1.AdminService/SetCurrencies"
+	// AdminServiceGetReceiptPromptProcedure is the fully-qualified name of the AdminService's
+	// GetReceiptPrompt RPC.
+	AdminServiceGetReceiptPromptProcedure = "/api.v1.AdminService/GetReceiptPrompt"
+	// AdminServiceSetReceiptPromptProcedure is the fully-qualified name of the AdminService's
+	// SetReceiptPrompt RPC.
+	AdminServiceSetReceiptPromptProcedure = "/api.v1.AdminService/SetReceiptPrompt"
+)
+
 // AdminServiceClient is a client for the api.v1.AdminService service.
 type AdminServiceClient interface {
+	ListUsers(context.Context, *v1.ListUsersRequest) (*v1.ListUsersResponse, error)
+	UpdateUserRole(context.Context, *v1.UpdateUserRoleRequest) (*v1.UpdateUserRoleResponse, error)
+	SetCurrencies(context.Context, *v1.SetCurrenciesRequest) (*v1.SetCurrenciesResponse, error)
+	GetReceiptPrompt(context.Context, *v1.GetReceiptPromptRequest) (*v1.GetReceiptPromptResponse, error)
+	SetReceiptPrompt(context.Context, *v1.SetReceiptPromptRequest) (*v1.SetReceiptPromptResponse, error)
 }
 
 // NewAdminServiceClient constructs a client for the api.v1.AdminService service. By default, it
@@ -34,15 +66,103 @@ type AdminServiceClient interface {
 // The URL supplied here should be the base URL for the Connect or gRPC server (for example,
 // http://api.acme.com or https://acme.com/grpc).
 func NewAdminServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) AdminServiceClient {
-	return &adminServiceClient{}
+	baseURL = strings.TrimRight(baseURL, "/")
+	adminServiceMethods := v1.File_api_v1_admin_proto.Services().ByName("AdminService").Methods()
+	return &adminServiceClient{
+		listUsers: connect.NewClient[v1.ListUsersRequest, v1.ListUsersResponse](
+			httpClient,
+			baseURL+AdminServiceListUsersProcedure,
+			connect.WithSchema(adminServiceMethods.ByName("ListUsers")),
+			connect.WithClientOptions(opts...),
+		),
+		updateUserRole: connect.NewClient[v1.UpdateUserRoleRequest, v1.UpdateUserRoleResponse](
+			httpClient,
+			baseURL+AdminServiceUpdateUserRoleProcedure,
+			connect.WithSchema(adminServiceMethods.ByName("UpdateUserRole")),
+			connect.WithClientOptions(opts...),
+		),
+		setCurrencies: connect.NewClient[v1.SetCurrenciesRequest, v1.SetCurrenciesResponse](
+			httpClient,
+			baseURL+AdminServiceSetCurrenciesProcedure,
+			connect.WithSchema(adminServiceMethods.ByName("SetCurrencies")),
+			connect.WithClientOptions(opts...),
+		),
+		getReceiptPrompt: connect.NewClient[v1.GetReceiptPromptRequest, v1.GetReceiptPromptResponse](
+			httpClient,
+			baseURL+AdminServiceGetReceiptPromptProcedure,
+			connect.WithSchema(adminServiceMethods.ByName("GetReceiptPrompt")),
+			connect.WithClientOptions(opts...),
+		),
+		setReceiptPrompt: connect.NewClient[v1.SetReceiptPromptRequest, v1.SetReceiptPromptResponse](
+			httpClient,
+			baseURL+AdminServiceSetReceiptPromptProcedure,
+			connect.WithSchema(adminServiceMethods.ByName("SetReceiptPrompt")),
+			connect.WithClientOptions(opts...),
+		),
+	}
 }
 
 // adminServiceClient implements AdminServiceClient.
 type adminServiceClient struct {
+	listUsers        *connect.Client[v1.ListUsersRequest, v1.ListUsersResponse]
+	updateUserRole   *connect.Client[v1.UpdateUserRoleRequest, v1.UpdateUserRoleResponse]
+	setCurrencies    *connect.Client[v1.SetCurrenciesRequest, v1.SetCurrenciesResponse]
+	getReceiptPrompt *connect.Client[v1.GetReceiptPromptRequest, v1.GetReceiptPromptResponse]
+	setReceiptPrompt *connect.Client[v1.SetReceiptPromptRequest, v1.SetReceiptPromptResponse]
+}
+
+// ListUsers calls api.v1.AdminService.ListUsers.
+func (c *adminServiceClient) ListUsers(ctx context.Context, req *v1.ListUsersRequest) (*v1.ListUsersResponse, error) {
+	response, err := c.listUsers.CallUnary(ctx, connect.NewRequest(req))
+	if response != nil {
+		return response.Msg, err
+	}
+	return nil, err
+}
+
+// UpdateUserRole calls api.v1.AdminService.UpdateUserRole.
+func (c *adminServiceClient) UpdateUserRole(ctx context.Context, req *v1.UpdateUserRoleRequest) (*v1.UpdateUserRoleResponse, error) {
+	response, err := c.updateUserRole.CallUnary(ctx, connect.NewRequest(req))
+	if response != nil {
+		return response.Msg, err
+	}
+	return nil, err
+}
+
+// SetCurrencies calls api.v1.AdminService.SetCurrencies.
+func (c *adminServiceClient) SetCurrencies(ctx context.Context, req *v1.SetCurrenciesRequest) (*v1.SetCurrenciesResponse, error) {
+	response, err := c.setCurrencies.CallUnary(ctx, connect.NewRequest(req))
+	if response != nil {
+		return response.Msg, err
+	}
+	return nil, err
+}
+
+// GetReceiptPrompt calls api.v1.AdminService.GetReceiptPrompt.
+func (c *adminServiceClient) GetReceiptPrompt(ctx context.Context, req *v1.GetReceiptPromptRequest) (*v1.GetReceiptPromptResponse, error) {
+	response, err := c.getReceiptPrompt.CallUnary(ctx, connect.NewRequest(req))
+	if response != nil {
+		return response.Msg, err
+	}
+	return nil, err
+}
+
+// SetReceiptPrompt calls api.v1.AdminService.SetReceiptPrompt.
+func (c *adminServiceClient) SetReceiptPrompt(ctx context.Context, req *v1.SetReceiptPromptRequest) (*v1.SetReceiptPromptResponse, error) {
+	response, err := c.setReceiptPrompt.CallUnary(ctx, connect.NewRequest(req))
+	if response != nil {
+		return response.Msg, err
+	}
+	return nil, err
 }
 
 // AdminServiceHandler is an implementation of the api.v1.AdminService service.
 type AdminServiceHandler interface {
+	ListUsers(context.Context, *v1.ListUsersRequest) (*v1.ListUsersResponse, error)
+	UpdateUserRole(context.Context, *v1.UpdateUserRoleRequest) (*v1.UpdateUserRoleResponse, error)
+	SetCurrencies(context.Context, *v1.SetCurrenciesRequest) (*v1.SetCurrenciesResponse, error)
+	GetReceiptPrompt(context.Context, *v1.GetReceiptPromptRequest) (*v1.GetReceiptPromptResponse, error)
+	SetReceiptPrompt(context.Context, *v1.SetReceiptPromptRequest) (*v1.SetReceiptPromptResponse, error)
 }
 
 // NewAdminServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -51,8 +171,49 @@ type AdminServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewAdminServiceHandler(svc AdminServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	adminServiceMethods := v1.File_api_v1_admin_proto.Services().ByName("AdminService").Methods()
+	adminServiceListUsersHandler := connect.NewUnaryHandlerSimple(
+		AdminServiceListUsersProcedure,
+		svc.ListUsers,
+		connect.WithSchema(adminServiceMethods.ByName("ListUsers")),
+		connect.WithHandlerOptions(opts...),
+	)
+	adminServiceUpdateUserRoleHandler := connect.NewUnaryHandlerSimple(
+		AdminServiceUpdateUserRoleProcedure,
+		svc.UpdateUserRole,
+		connect.WithSchema(adminServiceMethods.ByName("UpdateUserRole")),
+		connect.WithHandlerOptions(opts...),
+	)
+	adminServiceSetCurrenciesHandler := connect.NewUnaryHandlerSimple(
+		AdminServiceSetCurrenciesProcedure,
+		svc.SetCurrencies,
+		connect.WithSchema(adminServiceMethods.ByName("SetCurrencies")),
+		connect.WithHandlerOptions(opts...),
+	)
+	adminServiceGetReceiptPromptHandler := connect.NewUnaryHandlerSimple(
+		AdminServiceGetReceiptPromptProcedure,
+		svc.GetReceiptPrompt,
+		connect.WithSchema(adminServiceMethods.ByName("GetReceiptPrompt")),
+		connect.WithHandlerOptions(opts...),
+	)
+	adminServiceSetReceiptPromptHandler := connect.NewUnaryHandlerSimple(
+		AdminServiceSetReceiptPromptProcedure,
+		svc.SetReceiptPrompt,
+		connect.WithSchema(adminServiceMethods.ByName("SetReceiptPrompt")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/api.v1.AdminService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case AdminServiceListUsersProcedure:
+			adminServiceListUsersHandler.ServeHTTP(w, r)
+		case AdminServiceUpdateUserRoleProcedure:
+			adminServiceUpdateUserRoleHandler.ServeHTTP(w, r)
+		case AdminServiceSetCurrenciesProcedure:
+			adminServiceSetCurrenciesHandler.ServeHTTP(w, r)
+		case AdminServiceGetReceiptPromptProcedure:
+			adminServiceGetReceiptPromptHandler.ServeHTTP(w, r)
+		case AdminServiceSetReceiptPromptProcedure:
+			adminServiceSetReceiptPromptHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -61,3 +222,23 @@ func NewAdminServiceHandler(svc AdminServiceHandler, opts ...connect.HandlerOpti
 
 // UnimplementedAdminServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedAdminServiceHandler struct{}
+
+func (UnimplementedAdminServiceHandler) ListUsers(context.Context, *v1.ListUsersRequest) (*v1.ListUsersResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.AdminService.ListUsers is not implemented"))
+}
+
+func (UnimplementedAdminServiceHandler) UpdateUserRole(context.Context, *v1.UpdateUserRoleRequest) (*v1.UpdateUserRoleResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.AdminService.UpdateUserRole is not implemented"))
+}
+
+func (UnimplementedAdminServiceHandler) SetCurrencies(context.Context, *v1.SetCurrenciesRequest) (*v1.SetCurrenciesResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.AdminService.SetCurrencies is not implemented"))
+}
+
+func (UnimplementedAdminServiceHandler) GetReceiptPrompt(context.Context, *v1.GetReceiptPromptRequest) (*v1.GetReceiptPromptResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.AdminService.GetReceiptPrompt is not implemented"))
+}
+
+func (UnimplementedAdminServiceHandler) SetReceiptPrompt(context.Context, *v1.SetReceiptPromptRequest) (*v1.SetReceiptPromptResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.AdminService.SetReceiptPrompt is not implemented"))
+}

@@ -1,6 +1,6 @@
 import { useMutation, useSuspenseQuery } from "@connectrpc/connect-query";
 import { Link, useRouter } from "@tanstack/react-router";
-import { ChevronsUpDown, LogOut, Settings } from "lucide-react";
+import { ChevronsUpDown, LogOut, Settings, ShieldUser } from "lucide-react";
 
 import {
   DropdownMenu,
@@ -14,6 +14,7 @@ import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/c
 import { UserAvatar } from "@/components/user-avatar";
 import { logout } from "@/gen/api/v1/auth-AuthService_connectquery";
 import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
+import { UserRole } from "@/gen/api/v1/user_pb";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
@@ -68,6 +69,16 @@ export function NavUser() {
                   </Link>
                 }
               />
+              {data.role === UserRole.ADMIN && (
+                <DropdownMenuItem
+                  render={
+                    <Link to="/admin">
+                      <ShieldUser />
+                      Admin
+                    </Link>
+                  }
+                />
+              )}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={onLogoutClicked}>

@@ -18,7 +18,16 @@ SELECT id, email, username, role, avatar_updated_at FROM users WHERE id = @id LI
 SELECT * FROM users WHERE email = @email LIMIT 1;
 
 -- name: GetUsers :many
-SELECT id, username, email FROM users;
+SELECT id, username, email, role FROM users;
+
+-- name: UpdateUserRole :one
+UPDATE users
+SET role = @role
+WHERE id = @id
+RETURNING id, email, username, role;
+
+-- name: CountAdmins :one
+SELECT COUNT(*) FROM users WHERE role = 1;
 
 -- name: IsUsersEmpty :one
 SELECT EXISTS(SELECT 1 FROM users LIMIT 1);

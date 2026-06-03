@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package api.v1;
+
+message GetCurrenciesRequest {}
+
+message GetCurrenciesResponse {
+  repeated string currencies = 1;
+}
+
+service AppService {
+  rpc GetCurrencies(GetCurrenciesRequest) returns (GetCurrenciesResponse) {}
+}
