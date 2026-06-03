@@ -29,7 +29,7 @@ require (
 	github.com/lucasb-eyer/go-colorful v1.4.0
 	github.com/mattn/go-sqlite3 v1.14.44
 	github.com/olivere/vite v0.1.0
-	github.com/openai/openai-go/v3 v3.37.0
+	github.com/openai/openai-go/v3 v3.38.0
 	github.com/spf13/afero v1.15.0
 	github.com/vearutop/statigz v1.5.0
 	golang.org/x/image v0.41.0
