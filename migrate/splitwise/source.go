@@ -25,7 +25,7 @@ type expenseRow struct {
 	Description string
 	Amount      float64
 	Currency    string
-	// Shares holds the per-member net balance change (negative = paid, positive = owes).
+	// Shares holds the per-member net balance change (positive = paid, negative = owes).
 	// Index corresponds to Source.members.
 	Shares []float64
 }

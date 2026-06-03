@@ -66,17 +66,17 @@ func build(
 	for _, row := range expenses {
 		currencySet[row.Currency] = struct{}{}
 
-		// Payer: the member whose share is most negative (they paid more than their split).
+		// Payer: the member whose share is most positive (they paid more than their split).
 		payerIdx := -1
-		minShare := 0.0
+		maxShare := 0.0
 		extraPayers := 0
 		for i, s := range row.Shares {
-			if s < -1e-6 {
-				if s < minShare {
+			if s > 1e-6 {
+				if s > maxShare {
 					if payerIdx != -1 {
 						extraPayers++
 					}
-					minShare = s
+					maxShare = s
 					payerIdx = i
 				} else {
 					extraPayers++
@@ -85,13 +85,13 @@ func build(
 		}
 		if payerIdx == -1 {
 			plan.Warnings = append(plan.Warnings,
-				fmt.Sprintf("expense %q (%s): no payer found (no negative share); skipping",
+				fmt.Sprintf("expense %q (%s): no payer found (no positive share); skipping",
 					row.Description, row.Date.Format("2006-01-02")))
 			continue
 		}
 		if extraPayers > 0 {
 			plan.Warnings = append(plan.Warnings,
-				fmt.Sprintf("expense %q (%s): %d additional negative shares detected; treating %q as sole payer",
+				fmt.Sprintf("expense %q (%s): %d additional positive shares detected; treating %q as sole payer",
 					row.Description, row.Date.Format("2006-01-02"), extraPayers, members[payerIdx]))
 		}
 
@@ -108,15 +108,15 @@ func build(
 		}
 
 		// Beneficiaries: members whose effective share of the cost is positive.
-		// For the payer:   effective_share = row.Amount + net  (net is negative)
-		// For others:      effective_share = net               (net is positive when they owe)
+		// For the payer:   effective_share = row.Amount - net  (net is positive)
+		// For others:      effective_share = -net              (net is negative when they owe)
 		var beneficiaries []string
 		for i, net := range row.Shares {
 			var share float64
 			if i == payerIdx {
-				share = row.Amount + net
+				share = row.Amount - net
 			} else {
-				share = net
+				share = -net
 			}
 			if share > 1e-6 {
 				u, ok := resolved.UsersBySource[strconv.Itoa(i)]

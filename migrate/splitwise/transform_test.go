@@ -29,7 +29,7 @@ func TestBuild_EqualSplit_AlicePays(t *testing.T) {
 		Description: "Dinner",
 		Amount:      100.00,
 		Currency:    "EUR",
-		Shares:      []float64{-50.00, 50.00}, // Alice paid 100, owed back 50; Bob owes 50
+		Shares:      []float64{50.00, -50.00}, // Alice paid 100, owed back 50; Bob owes 50
 	}}
 
 	plan, err := build("trip", "EUR", members, rows, resolved, opts)
@@ -58,7 +58,7 @@ func TestBuild_EqualSplit_BobPays(t *testing.T) {
 		Description: "Taxi",
 		Amount:      40.00,
 		Currency:    "PLN",
-		Shares:      []float64{20.00, -20.00}, // Bob paid 40; Alice owes 20
+		Shares:      []float64{-20.00, 20.00}, // Bob paid 40; Alice owes 20
 	}}
 
 	plan, err := build("trip", "EUR", members, rows, resolved, opts)
@@ -76,14 +76,14 @@ func TestBuild_EqualSplit_BobPays(t *testing.T) {
 
 func TestBuild_PayerNotBeneficiary(t *testing.T) {
 	// Alice pays 100 entirely for Bob (her share = 0).
-	// Alice net = 0 - 100 = -100; Bob net = +100.
+	// Alice net = 100 - 0 = +100; Bob net = -100.
 	members, resolved, opts := twoPersonFixture()
 	rows := []expenseRow{{
 		Date:        time.Date(2025, 3, 3, 0, 0, 0, 0, time.UTC),
 		Description: "Gift for Bob",
 		Amount:      100.00,
 		Currency:    "EUR",
-		Shares:      []float64{-100.00, 100.00},
+		Shares:      []float64{100.00, -100.00},
 	}}
 
 	plan, err := build("trip", "EUR", members, rows, resolved, opts)
@@ -94,7 +94,7 @@ func TestBuild_PayerNotBeneficiary(t *testing.T) {
 	if pe.Payer.UserID != "uid-alice" {
 		t.Errorf("payer = %q, want uid-alice", pe.Payer.UserID)
 	}
-	// Alice's effective share = 100 + (-100) = 0 → not a beneficiary.
+	// Alice's effective share = 100 - 100 = 0 → not a beneficiary.
 	if len(pe.Beneficiaries) != 1 || pe.Beneficiaries[0] != "uid-bob" {
 		t.Errorf("beneficiaries = %v, want [uid-bob]", pe.Beneficiaries)
 	}
@@ -125,9 +125,9 @@ func TestBuild_NoPayer_Skipped(t *testing.T) {
 func TestBuild_MultiCurrency(t *testing.T) {
 	members, resolved, opts := twoPersonFixture()
 	rows := []expenseRow{
-		{Date: time.Now(), Description: "a", Amount: 10, Currency: "EUR", Shares: []float64{-5, 5}},
-		{Date: time.Now(), Description: "b", Amount: 20, Currency: "ISK", Shares: []float64{10, -10}},
-		{Date: time.Now(), Description: "c", Amount: 30, Currency: "PLN", Shares: []float64{-15, 15}},
+		{Date: time.Now(), Description: "a", Amount: 10, Currency: "EUR", Shares: []float64{5, -5}},
+		{Date: time.Now(), Description: "b", Amount: 20, Currency: "ISK", Shares: []float64{-10, 10}},
+		{Date: time.Now(), Description: "c", Amount: 30, Currency: "PLN", Shares: []float64{15, -15}},
 	}
 
 	plan, err := build("trip", "ISK", members, rows, resolved, opts)
@@ -150,7 +150,7 @@ func TestBuild_ProjectNameOverride(t *testing.T) {
 	resolved.Mapping.ProjectName = "My Override"
 	rows := []expenseRow{{
 		Date: time.Now(), Description: "x", Amount: 10, Currency: "EUR",
-		Shares: []float64{-5, 5},
+		Shares: []float64{5, -5},
 	}}
 
 	plan, err := build("original", "EUR", members, rows, resolved, opts)
@@ -237,17 +237,17 @@ func TestSource_ParseCSV(t *testing.T) {
 			t.Errorf("balance summary row was not filtered: %+v", e)
 		}
 	}
-	// All expenses must have a valid payer (at least one negative share).
+	// All expenses must have a valid payer (at least one positive share).
 	for _, e := range src.expenses {
-		hasNeg := false
+		hasPos := false
 		for _, s := range e.Shares {
-			if s < -1e-6 {
-				hasNeg = true
+			if s > 1e-6 {
+				hasPos = true
 				break
 			}
 		}
-		if !hasNeg {
-			t.Errorf("expense %q has no negative share: %v", e.Description, e.Shares)
+		if !hasPos {
+			t.Errorf("expense %q has no positive share: %v", e.Description, e.Shares)
 		}
 	}
 	// Verify SourceIDs are stringified indices.
