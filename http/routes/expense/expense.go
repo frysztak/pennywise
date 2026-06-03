@@ -7,6 +7,7 @@ import (
 	"pennywise/db/database"
 	"pennywise/db/overrides"
 	apiv1 "pennywise/gen/api/v1"
+	"pennywise/http/helpers"
 	"pennywise/log"
 	"pennywise/utils"
 	"time"
@@ -24,6 +25,10 @@ func NewExpenseService() *ExpenseService {
 
 func (s *ExpenseService) CreateExpense(ctx context.Context, r *apiv1.CreateExpenseRequest) (*apiv1.CreateExpenseResponse, error) {
 	logger := log.FromContext(ctx)
+	if err := helpers.AssertGroupNotArchived(ctx, r.GroupId); err != nil {
+		return nil, err
+	}
+
 	tx, err := db.WriteDB.BeginTx(ctx, nil)
 	if err != nil {
 		logger.Error("failed to begin transaction", "error", err)
@@ -46,6 +51,18 @@ func (s *ExpenseService) CreateExpense(ctx context.Context, r *apiv1.CreateExpen
 
 func (s *ExpenseService) BulkCreateExpenses(ctx context.Context, r *apiv1.BulkCreateExpensesRequest) (*apiv1.BulkCreateExpensesResponse, error) {
 	logger := log.FromContext(ctx)
+
+	checkedGroups := make(map[string]struct{})
+	for _, req := range r.Expenses {
+		if _, ok := checkedGroups[req.GroupId]; ok {
+			continue
+		}
+		if err := helpers.AssertGroupNotArchived(ctx, req.GroupId); err != nil {
+			return nil, err
+		}
+		checkedGroups[req.GroupId] = struct{}{}
+	}
+
 	tx, err := db.WriteDB.BeginTx(ctx, nil)
 	if err != nil {
 		logger.Error("failed to begin transaction", "error", err)
@@ -152,6 +169,10 @@ func (s *ExpenseService) GetGroupExpenses(ctx context.Context, r *apiv1.GetGroup
 
 func (s *ExpenseService) UpdateExpense(ctx context.Context, r *apiv1.UpdateExpenseRequest) (*apiv1.UpdateExpenseResponse, error) {
 	logger := log.FromContext(ctx)
+	if err := helpers.AssertGroupNotArchived(ctx, r.GroupId); err != nil {
+		return nil, err
+	}
+
 	tx, err := db.WriteDB.BeginTx(ctx, nil)
 	if err != nil {
 		logger.Error("failed to begin transaction", "error", err)
@@ -214,6 +235,10 @@ func (s *ExpenseService) UpdateExpense(ctx context.Context, r *apiv1.UpdateExpen
 
 func (s *ExpenseService) DeleteExpense(ctx context.Context, r *apiv1.DeleteExpenseRequest) (*apiv1.DeleteExpenseResponse, error) {
 	logger := log.FromContext(ctx)
+	if err := helpers.AssertGroupNotArchived(ctx, r.GroupId); err != nil {
+		return nil, err
+	}
+
 	err := db.WriteQueries.DeleteExpense(ctx, r.Id)
 	if err != nil {
 		logger.Error("failed to delete expense", "error", err, "expense_id", r.Id)

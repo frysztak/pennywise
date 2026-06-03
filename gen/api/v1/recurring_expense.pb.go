@@ -243,6 +243,7 @@ type UpdateRecurringExpenseRequest struct {
 	PayerId       *string                `protobuf:"bytes,5,opt,name=payer_id,json=payerId,proto3,oneof" json:"payer_id,omitempty"`
 	Amount        *float64               `protobuf:"fixed64,6,opt,name=amount,proto3,oneof" json:"amount,omitempty"`
 	Currency      *string                `protobuf:"bytes,7,opt,name=currency,proto3,oneof" json:"currency,omitempty"`
+	GroupId       string                 `protobuf:"bytes,8,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -326,6 +327,13 @@ func (x *UpdateRecurringExpenseRequest) GetCurrency() string {
 	return ""
 }
 
+func (x *UpdateRecurringExpenseRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
 type UpdateRecurringExpenseResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -382,6 +390,7 @@ func (x *UpdateRecurringExpenseResponse) GetName() string {
 type DeleteRecurringExpenseRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	GroupId       string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -419,6 +428,13 @@ func (*DeleteRecurringExpenseRequest) Descriptor() ([]byte, []int) {
 func (x *DeleteRecurringExpenseRequest) GetId() string {
 	if x != nil {
 		return x.Id
+	}
+	return ""
+}
+
+func (x *DeleteRecurringExpenseRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
 	}
 	return ""
 }
@@ -912,7 +928,7 @@ const file_api_v1_recurring_expense_proto_rawDesc = "" +
 	"\t_currency\"D\n" +
 	"\x1eCreateRecurringExpenseResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"\xbf\x02\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\xe4\x02\n" +
 	"\x1dUpdateRecurringExpenseRequest\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\x1b\n" +
 	"\x04name\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\x04name\x12 \n" +
@@ -920,15 +936,17 @@ const file_api_v1_recurring_expense_proto_rawDesc = "" +
 	"\tfrequency\x18\x04 \x01(\x0e2\x1a.api.v1.RecurringFrequencyB\b\xbaH\x05\x82\x01\x02\x10\x01R\tfrequency\x12\x1e\n" +
 	"\bpayer_id\x18\x05 \x01(\tH\x00R\apayerId\x88\x01\x01\x12\x1b\n" +
 	"\x06amount\x18\x06 \x01(\x01H\x01R\x06amount\x88\x01\x01\x12\x1f\n" +
-	"\bcurrency\x18\a \x01(\tH\x02R\bcurrency\x88\x01\x01B\v\n" +
+	"\bcurrency\x18\a \x01(\tH\x02R\bcurrency\x88\x01\x01\x12#\n" +
+	"\bgroup_id\x18\b \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupIdB\v\n" +
 	"\t_payer_idB\t\n" +
 	"\a_amountB\v\n" +
 	"\t_currency\"D\n" +
 	"\x1eUpdateRecurringExpenseResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"9\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"^\n" +
 	"\x1dDeleteRecurringExpenseRequest\x12\x18\n" +
-	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\" \n" +
+	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12#\n" +
+	"\bgroup_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\" \n" +
 	"\x1eDeleteRecurringExpenseResponse\"G\n" +
 	" GetGroupRecurringExpensesRequest\x12#\n" +
 	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\xc4\x05\n" +

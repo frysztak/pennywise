@@ -24,6 +24,7 @@ interface ActivitySectionProps {
   onDeleteExpense: ReturnType<typeof useDeleteExpenseModal>["confirmDelete"];
   onEditTransfer: ReturnType<typeof useTransferModal>["openEdit"];
   onDeleteTransfer: ReturnType<typeof useDeleteTransferModal>["confirmDelete"];
+  isArchived?: boolean;
 }
 
 export function ActivitySection({
@@ -34,6 +35,7 @@ export function ActivitySection({
   onDeleteExpense,
   onEditTransfer,
   onDeleteTransfer,
+  isArchived,
 }: ActivitySectionProps) {
   const [filters, setFilters] = useState<ActivityFiltersState>({});
   // Cursor stack: [undefined] means first page; each push adds a next cursor.
@@ -92,10 +94,10 @@ export function ActivitySection({
           </div>
         )}
         <div className="hidden md:block">
-          <ActivityTable recentActivity={recentActivity} {...callbacks} />
+          <ActivityTable recentActivity={recentActivity} {...callbacks} isArchived={isArchived} />
         </div>
         <div className="md:hidden">
-          <ActivityCards recentActivity={recentActivity} {...callbacks} />
+          <ActivityCards recentActivity={recentActivity} {...callbacks} isArchived={isArchived} />
         </div>
       </div>
 

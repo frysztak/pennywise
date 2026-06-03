@@ -27,6 +27,7 @@ interface GroupSectionsProps {
   onDeleteExpense: ReturnType<typeof useDeleteExpenseModal>["confirmDelete"];
   onEditTransfer: ReturnType<typeof useTransferModal>["openEdit"];
   onDeleteTransfer: ReturnType<typeof useDeleteTransferModal>["confirmDelete"];
+  isArchived?: boolean;
 }
 
 export function GroupSections({
@@ -41,6 +42,7 @@ export function GroupSections({
   onDeleteExpense,
   onEditTransfer,
   onDeleteTransfer,
+  isArchived,
 }: GroupSectionsProps) {
   const { data: settlementData } = useSuspenseQuery(getSettlementSuggestions, { groupId });
 
@@ -61,6 +63,7 @@ export function GroupSections({
         onDeleteExpense={onDeleteExpense}
         onEditTransfer={onEditTransfer}
         onDeleteTransfer={onDeleteTransfer}
+        isArchived={isArchived}
       />
     </div>
   );
@@ -89,7 +92,12 @@ export function GroupSections({
             </TooltipContent>
           </Tooltip>
         </h2>
-        <SettlementSuggestions groupId={groupId} currentUserId={currentUserId} onSettle={onSettle} />
+        <SettlementSuggestions
+          groupId={groupId}
+          currentUserId={currentUserId}
+          onSettle={onSettle}
+          isArchived={isArchived}
+        />
       </div>
     </div>
   );

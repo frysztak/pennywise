@@ -1,5 +1,7 @@
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import {
+  ArchiveIcon,
+  ArchiveRestoreIcon,
   ChevronDownIcon,
   EditIcon,
   ImageIcon,
@@ -14,6 +16,7 @@ import {
 
 import { GroupImage } from "@/features/group/components/group-image";
 import { GroupMemberStack } from "@/features/group/components/group-member-stack";
+import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
 import {
@@ -32,6 +35,7 @@ interface GroupHeaderProps {
   imageUpdatedAt?: Timestamp;
   members: Array<{ userId: string; userName: string }>;
   isPinned: boolean;
+  isArchived: boolean;
   onCreateExpense: () => void;
   onCreateTransfer: () => void;
   onCreateRecurring: () => void;
@@ -40,6 +44,7 @@ interface GroupHeaderProps {
   onEditImage: () => void;
   onDeleteGroup: () => void;
   onTogglePin: () => void;
+  onToggleArchive: () => void;
 }
 
 export function GroupHeader({
@@ -48,6 +53,7 @@ export function GroupHeader({
   imageUpdatedAt,
   members,
   isPinned,
+  isArchived,
   onCreateExpense,
   onCreateTransfer,
   onCreateRecurring,
@@ -56,6 +62,7 @@ export function GroupHeader({
   onEditImage,
   onDeleteGroup,
   onTogglePin,
+  onToggleArchive,
 }: GroupHeaderProps) {
   return (
     <div className="absolute top-0 left-0 right-0 h-80">
@@ -72,11 +79,14 @@ export function GroupHeader({
         </div>
       )}
       <div className="absolute top-50 left-6 right-6 flex flex-wrap flex-col gap-4 items-stretch justify-between">
-        <h1 className="text-5xl font-bold font-serif tracking-tight text-(--cream-50)">{groupName}</h1>
+        <div className="flex flex-row flex-wrap items-center gap-3">
+          <h1 className="text-5xl font-bold font-serif tracking-tight text-(--cream-50)">{groupName}</h1>
+          {isArchived && <Badge variant="secondary">Archived</Badge>}
+        </div>
         <div className="flex flex-row justify-between gap-2">
           <GroupMemberStack members={members} className="" avatarClassName="size-9" />
           <ButtonGroup>
-            <Button onClick={onCreateExpense} size="lg" className="h-10">
+            <Button onClick={onCreateExpense} size="lg" className="h-10" disabled={isArchived}>
               <Plus />
               Add Expense
             </Button>
@@ -89,36 +99,49 @@ export function GroupHeader({
                 }
               />
               <DropdownMenuContent align="end" className="w-40 [--radius:1rem]">
+                {!isArchived && (
+                  <>
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem onClick={onCreateTransfer}>
+                        <Redo2Icon />
+                        Add Transfer
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={onCreateRecurring}>
+                        <RepeatIcon />
+                        Add Recurring
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem onClick={onEditGroup}>
+                        <EditIcon />
+                        Edit Group
+                      </DropdownMenuItem>
+
+                      <DropdownMenuItem onClick={onEditImage}>
+                        <ImageIcon />
+                        {imageUpdatedAt ? "Change photo" : "Add photo"}
+                      </DropdownMenuItem>
+
+                      <DropdownMenuItem onClick={onInviteMembers}>
+                        <UserRoundSearchIcon />
+                        Invite Members
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
                 <DropdownMenuGroup>
-                  <DropdownMenuItem onClick={onCreateTransfer}>
-                    <Redo2Icon />
-                    Add Transfer
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={onCreateRecurring}>
-                    <RepeatIcon />
-                    Add Recurring
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem onClick={onEditGroup}>
-                    <EditIcon />
-                    Edit Group
-                  </DropdownMenuItem>
+                  {!isArchived && (
+                    <DropdownMenuItem onClick={onTogglePin}>
+                      {isPinned ? <StarOff /> : <Star />}
+                      {isPinned ? "Unpin Group" : "Pin Group"}
+                    </DropdownMenuItem>
+                  )}
 
-                  <DropdownMenuItem onClick={onEditImage}>
-                    <ImageIcon />
-                    {imageUpdatedAt ? "Change photo" : "Add photo"}
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem onClick={onInviteMembers}>
-                    <UserRoundSearchIcon />
-                    Invite Members
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem onClick={onTogglePin}>
-                    {isPinned ? <StarOff /> : <Star />}
-                    {isPinned ? "Unpin Group" : "Pin Group"}
+                  <DropdownMenuItem onClick={onToggleArchive}>
+                    {isArchived ? <ArchiveRestoreIcon /> : <ArchiveIcon />}
+                    {isArchived ? "Unarchive Group" : "Archive Group"}
                   </DropdownMenuItem>
 
                   <DropdownMenuItem variant="destructive" onClick={onDeleteGroup}>

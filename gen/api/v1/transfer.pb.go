@@ -159,6 +159,7 @@ type UpdateTransferRequest struct {
 	Amount        float64                `protobuf:"fixed64,4,opt,name=amount,proto3" json:"amount,omitempty"`
 	Currency      string                 `protobuf:"bytes,5,opt,name=currency,proto3" json:"currency,omitempty"`
 	Date          *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=date,proto3" json:"date,omitempty"`
+	GroupId       string                 `protobuf:"bytes,7,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -235,6 +236,13 @@ func (x *UpdateTransferRequest) GetDate() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *UpdateTransferRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
 type UpdateTransferResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -282,6 +290,7 @@ func (x *UpdateTransferResponse) GetId() string {
 type DeleteTransferRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	GroupId       string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -319,6 +328,13 @@ func (*DeleteTransferRequest) Descriptor() ([]byte, []int) {
 func (x *DeleteTransferRequest) GetId() string {
 	if x != nil {
 		return x.Id
+	}
+	return ""
+}
+
+func (x *DeleteTransferRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
 	}
 	return ""
 }
@@ -569,7 +585,7 @@ const file_api_v1_transfer_proto_rawDesc = "" +
 	"\bcurrency\x18\x05 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\bcurrency\x12.\n" +
 	"\x04date\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x04date\"(\n" +
 	"\x16CreateTransferResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x80\x02\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\xa5\x02\n" +
 	"\x15UpdateTransferRequest\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12%\n" +
 	"\tsender_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\bsenderId\x12)\n" +
@@ -577,11 +593,13 @@ const file_api_v1_transfer_proto_rawDesc = "" +
 	"receiverId\x12&\n" +
 	"\x06amount\x18\x04 \x01(\x01B\x0e\xbaH\v\x12\t!\x00\x00\x00\x00\x00\x00\x00\x00R\x06amount\x12#\n" +
 	"\bcurrency\x18\x05 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\bcurrency\x12.\n" +
-	"\x04date\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x04date\"(\n" +
+	"\x04date\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x04date\x12#\n" +
+	"\bgroup_id\x18\a \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"(\n" +
 	"\x16UpdateTransferResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"1\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"V\n" +
 	"\x15DeleteTransferRequest\x12\x18\n" +
-	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\x18\n" +
+	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12#\n" +
+	"\bgroup_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\x18\n" +
 	"\x16DeleteTransferResponse\"?\n" +
 	"\x18GetGroupTransfersRequest\x12#\n" +
 	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\xa5\x03\n" +

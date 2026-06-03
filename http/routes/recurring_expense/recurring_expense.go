@@ -57,6 +57,10 @@ func StringToFrequency(s string) apiv1.RecurringFrequency {
 func (s *RecurringExpenseService) CreateRecurringExpense(ctx context.Context, req *apiv1.CreateRecurringExpenseRequest) (*apiv1.CreateRecurringExpenseResponse, error) {
 	logger := log.FromContext(ctx)
 
+	if err := helpers.AssertGroupNotArchived(ctx, req.GroupId); err != nil {
+		return nil, err
+	}
+
 	var amount *int64
 	if req.Amount != nil {
 		cents := int64(*req.Amount * 100)
@@ -138,6 +142,10 @@ func (s *RecurringExpenseService) GetGroupRecurringExpenses(ctx context.Context,
 func (s *RecurringExpenseService) UpdateRecurringExpense(ctx context.Context, req *apiv1.UpdateRecurringExpenseRequest) (*apiv1.UpdateRecurringExpenseResponse, error) {
 	logger := log.FromContext(ctx)
 
+	if err := helpers.AssertGroupNotArchived(ctx, req.GroupId); err != nil {
+		return nil, err
+	}
+
 	var amount *int64
 	if req.Amount != nil {
 		cents := int64(*req.Amount * 100)
@@ -169,6 +177,10 @@ func (s *RecurringExpenseService) UpdateRecurringExpense(ctx context.Context, re
 func (s *RecurringExpenseService) DeleteRecurringExpense(ctx context.Context, req *apiv1.DeleteRecurringExpenseRequest) (*apiv1.DeleteRecurringExpenseResponse, error) {
 	logger := log.FromContext(ctx)
 
+	if err := helpers.AssertGroupNotArchived(ctx, req.GroupId); err != nil {
+		return nil, err
+	}
+
 	err := db.WriteQueries.DeleteRecurringExpense(ctx, req.Id)
 	if err != nil {
 		logger.Error("failed to delete recurring expense", "error", err)
@@ -189,6 +201,10 @@ func (s *RecurringExpenseService) PayRecurringExpense(ctx context.Context, req *
 	if err != nil {
 		logger.Error("failed to get recurring expense", "error", err)
 		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	if err := helpers.AssertGroupNotArchived(ctx, template.GroupID); err != nil {
+		return nil, err
 	}
 
 	// Determine values (use overrides or template defaults)
@@ -305,6 +321,10 @@ func (s *RecurringExpenseService) SkipRecurringExpense(ctx context.Context, req 
 	if err != nil {
 		logger.Error("failed to get recurring expense", "error", err)
 		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	if err := helpers.AssertGroupNotArchived(ctx, template.GroupID); err != nil {
+		return nil, err
 	}
 
 	// Calculate next occurrence

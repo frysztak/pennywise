@@ -50,6 +50,11 @@ export const updateUserWeight = GroupService.method.updateUserWeight;
 export const setGroupPinned = GroupService.method.setGroupPinned;
 
 /**
+ * @generated from rpc api.v1.GroupService.SetGroupArchived
+ */
+export const setGroupArchived = GroupService.method.setGroupArchived;
+
+/**
  * @generated from rpc api.v1.GroupService.GetUserGroups
  */
 export const getUserGroups = GroupService.method.getUserGroups;

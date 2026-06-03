@@ -20,6 +20,7 @@ interface ActivityCardsProps {
   onDeleteExpense: (expense: GetGroupActivityResponse_ActivityItem_Expense) => void;
   onEditTransfer: (transfer: GetGroupActivityResponse_ActivityItem_Transfer) => void;
   onDeleteTransfer: (transfer: GetGroupActivityResponse_ActivityItem_Transfer) => void;
+  isArchived?: boolean;
 }
 
 export function ActivityCards({
@@ -28,6 +29,7 @@ export function ActivityCards({
   onDeleteExpense,
   onEditTransfer,
   onDeleteTransfer,
+  isArchived,
 }: ActivityCardsProps) {
   if (recentActivity.length === 0) {
     return <p className="py-6 text-center text-sm text-muted-foreground">No activity yet in this group.</p>;
@@ -50,7 +52,9 @@ export function ActivityCards({
               <CardContent className="flex flex-col gap-2 ">
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">{formattedDate}</span>
-                  <ActivityItemMenu onEdit={() => onEditExpense(expense)} onDelete={() => onDeleteExpense(expense)} />
+                  {!isArchived && (
+                    <ActivityItemMenu onEdit={() => onEditExpense(expense)} onDelete={() => onDeleteExpense(expense)} />
+                  )}
                 </div>
                 <div className="flex flex-col items-start justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
@@ -77,7 +81,12 @@ export function ActivityCards({
             <CardContent className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">{formattedDate}</span>
-                <ActivityItemMenu onEdit={() => onEditTransfer(transfer)} onDelete={() => onDeleteTransfer(transfer)} />
+                {!isArchived && (
+                  <ActivityItemMenu
+                    onEdit={() => onEditTransfer(transfer)}
+                    onDelete={() => onDeleteTransfer(transfer)}
+                  />
+                )}
               </div>
               <div className="flex flex-col items-start justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">

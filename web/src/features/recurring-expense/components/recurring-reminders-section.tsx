@@ -11,6 +11,7 @@ interface RecurringRemindersSectionProps {
   onPayReminder: (reminder: GetGroupRecurringExpensesResponse_RecurringExpense) => void;
   onEditReminder: (reminder: GetGroupRecurringExpensesResponse_RecurringExpense) => void;
   onDeleteReminder: (reminderId: string) => void;
+  isArchived?: boolean;
 }
 
 export function RecurringRemindersSection({
@@ -18,6 +19,7 @@ export function RecurringRemindersSection({
   onPayReminder,
   onEditReminder,
   onDeleteReminder,
+  isArchived,
 }: RecurringRemindersSectionProps) {
   const { data: recurringExpensesData } = useSuspenseQuery(getGroupRecurringExpenses, { groupId });
 
@@ -49,6 +51,7 @@ export function RecurringRemindersSection({
                 onPay={onPayReminder}
                 onEdit={onEditReminder}
                 onDelete={onDeleteReminder}
+                isArchived={isArchived}
               />
             ))}
           </TableBody>
@@ -63,6 +66,7 @@ export function RecurringRemindersSection({
             onPay={onPayReminder}
             onEdit={onEditReminder}
             onDelete={onDeleteReminder}
+            isArchived={isArchived}
           />
         ))}
       </div>

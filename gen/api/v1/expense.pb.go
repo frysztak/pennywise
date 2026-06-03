@@ -185,6 +185,7 @@ type UpdateExpenseRequest struct {
 	Currency         string                 `protobuf:"bytes,6,opt,name=currency,proto3" json:"currency,omitempty"`
 	BeneficiariesIds []string               `protobuf:"bytes,7,rep,name=beneficiaries_ids,json=beneficiariesIds,proto3" json:"beneficiaries_ids,omitempty"`
 	Date             *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=date,proto3" json:"date,omitempty"`
+	GroupId          string                 `protobuf:"bytes,9,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -275,6 +276,13 @@ func (x *UpdateExpenseRequest) GetDate() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *UpdateExpenseRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
 type UpdateExpenseResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -330,6 +338,7 @@ func (x *UpdateExpenseResponse) GetName() string {
 type DeleteExpenseRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	GroupId       string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -367,6 +376,13 @@ func (*DeleteExpenseRequest) Descriptor() ([]byte, []int) {
 func (x *DeleteExpenseRequest) GetId() string {
 	if x != nil {
 		return x.Id
+	}
+	return ""
+}
+
+func (x *DeleteExpenseRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
 	}
 	return ""
 }
@@ -715,7 +731,7 @@ const file_api_v1_expense_proto_rawDesc = "" +
 	"\x04date\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\x04date\";\n" +
 	"\x15CreateExpenseResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"\xbe\x02\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\xe3\x02\n" +
 	"\x14UpdateExpenseRequest\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12#\n" +
 	"\bpayer_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\apayerId\x12\x1b\n" +
@@ -724,12 +740,14 @@ const file_api_v1_expense_proto_rawDesc = "" +
 	"\x06amount\x18\x05 \x01(\x01B\x0e\xbaH\v\x12\t!\x00\x00\x00\x00\x00\x00\x00\x00R\x06amount\x12#\n" +
 	"\bcurrency\x18\x06 \x01(\tB\a\xbaH\x04r\x02\x10\x02R\bcurrency\x12+\n" +
 	"\x11beneficiaries_ids\x18\a \x03(\tR\x10beneficiariesIds\x12.\n" +
-	"\x04date\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\x04date\";\n" +
+	"\x04date\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\x04date\x12#\n" +
+	"\bgroup_id\x18\t \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\";\n" +
 	"\x15UpdateExpenseResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"0\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"U\n" +
 	"\x14DeleteExpenseRequest\x12\x18\n" +
-	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\x17\n" +
+	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12#\n" +
+	"\bgroup_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\x17\n" +
 	"\x15DeleteExpenseResponse\">\n" +
 	"\x17GetGroupExpensesRequest\x12#\n" +
 	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\xcd\x03\n" +

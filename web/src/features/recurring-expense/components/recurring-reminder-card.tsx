@@ -29,9 +29,17 @@ interface RecurringReminderCardProps {
   onPay?: (reminder: GetGroupRecurringExpensesResponse_RecurringExpense) => void;
   onEdit?: (reminder: GetGroupRecurringExpensesResponse_RecurringExpense) => void;
   onDelete?: (reminderId: string) => void;
+  isArchived?: boolean;
 }
 
-export function RecurringReminderCard({ reminder, groupId, onPay, onEdit, onDelete }: RecurringReminderCardProps) {
+export function RecurringReminderCard({
+  reminder,
+  groupId,
+  onPay,
+  onEdit,
+  onDelete,
+  isArchived,
+}: RecurringReminderCardProps) {
   const { mutate: skipMutate, isPending } = useSkipRecurringExpense(groupId);
 
   const handlePay = () => {
@@ -56,30 +64,32 @@ export function RecurringReminderCard({ reminder, groupId, onPay, onEdit, onDele
           <span className="text-xs text-muted-foreground">
             {formattedDate} · {frequencyToString(reminder.frequency)}
           </span>
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" disabled={isPending}>
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              }
-            />
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit?.(reminder)} disabled={isPending}>
-                <EditIcon />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => onDelete?.(reminder.id)}
-                disabled={isPending}
-                className="text-destructive focus:text-destructive"
-                variant="destructive"
-              >
-                <TrashIcon />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {!isArchived && (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0" disabled={isPending}>
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                }
+              />
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onEdit?.(reminder)} disabled={isPending}>
+                  <EditIcon />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => onDelete?.(reminder.id)}
+                  disabled={isPending}
+                  className="text-destructive focus:text-destructive"
+                  variant="destructive"
+                >
+                  <TrashIcon />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
         <div className="flex flex-col items-start justify-between gap-2">
@@ -116,16 +126,18 @@ export function RecurringReminderCard({ reminder, groupId, onPay, onEdit, onDele
           </div>
         )}
 
-        <div className="flex gap-2">
-          <Button className="flex-1" onClick={handlePay} disabled={isPending}>
-            <BanknoteArrowUp />
-            Pay
-          </Button>
-          <Button className="flex-1" variant="outline" onClick={handleSkip} disabled={isPending}>
-            <CircleOff />
-            Skip
-          </Button>
-        </div>
+        {!isArchived && (
+          <div className="flex gap-2">
+            <Button className="flex-1" onClick={handlePay} disabled={isPending}>
+              <BanknoteArrowUp />
+              Pay
+            </Button>
+            <Button className="flex-1" variant="outline" onClick={handleSkip} disabled={isPending}>
+              <CircleOff />
+              Skip
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

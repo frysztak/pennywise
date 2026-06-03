@@ -207,6 +207,7 @@ export const ExpenseModal = ({
     if (isEditMode && expense) {
       updateMutate({
         id: expense.id,
+        groupId,
         payerId: data.payerId,
         name: data.name,
         description: data.description,

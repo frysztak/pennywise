@@ -100,7 +100,7 @@ INSERT INTO expense_groups
     name
 ) VALUES (
     ?1, ?2, ?3, ?4, ?5, ?6
-) RETURNING id, created_at, created_by, name, default_currency, description, image_updated_at
+) RETURNING id, created_at, created_by, name, default_currency, description, image_updated_at, archived_at
 `
 
 type CreateGroupParams struct {
@@ -130,6 +130,7 @@ func (q *Queries) CreateGroup(ctx context.Context, arg CreateGroupParams) (Expen
 		&i.DefaultCurrency,
 		&i.Description,
 		&i.ImageUpdatedAt,
+		&i.ArchivedAt,
 	)
 	return i, err
 }
@@ -145,7 +146,7 @@ func (q *Queries) DeleteGroup(ctx context.Context, groupID string) error {
 }
 
 const getGroupById = `-- name: GetGroupById :one
-SELECT id, created_at, created_by, name, default_currency, description, image_updated_at
+SELECT id, created_at, created_by, name, default_currency, description, image_updated_at, archived_at
 FROM expense_groups
 WHERE id = ?1
 `
@@ -161,6 +162,7 @@ func (q *Queries) GetGroupById(ctx context.Context, groupID string) (ExpenseGrou
 		&i.DefaultCurrency,
 		&i.Description,
 		&i.ImageUpdatedAt,
+		&i.ArchivedAt,
 	)
 	return i, err
 }
@@ -243,6 +245,7 @@ SELECT
   g.default_currency,
   g.description,
   g.image_updated_at,
+  g.archived_at,
   u.user_id,
   u.weight,
   u.pinned_at,
@@ -254,10 +257,20 @@ SELECT
 FROM expense_groups g
 JOIN user_expense_groups u ON u.group_id = g.id
 WHERE u.user_id = ?1
+  AND (
+    ?2 = ''
+    OR (?2 = 'active' AND g.archived_at IS NULL)
+    OR (?2 = 'archived' AND g.archived_at IS NOT NULL)
+  )
 ORDER BY
   (u.pinned_at IS NOT NULL) DESC,
   last_activity_at DESC
 `
+
+type GetGroupsByUserIdParams struct {
+	UserID string
+	Filter interface{}
+}
 
 type GetGroupsByUserIdRow struct {
 	ID              string
@@ -267,14 +280,15 @@ type GetGroupsByUserIdRow struct {
 	DefaultCurrency string
 	Description     *string
 	ImageUpdatedAt  overrides.NullTextTime
+	ArchivedAt      overrides.NullTextTime
 	UserID          string
 	Weight          float64
 	PinnedAt        overrides.NullTextTime
 	LastActivityAt  interface{}
 }
 
-func (q *Queries) GetGroupsByUserId(ctx context.Context, userID string) ([]GetGroupsByUserIdRow, error) {
-	rows, err := q.db.QueryContext(ctx, getGroupsByUserId, userID)
+func (q *Queries) GetGroupsByUserId(ctx context.Context, arg GetGroupsByUserIdParams) ([]GetGroupsByUserIdRow, error) {
+	rows, err := q.db.QueryContext(ctx, getGroupsByUserId, arg.UserID, arg.Filter)
 	if err != nil {
 		return nil, err
 	}
@@ -290,6 +304,7 @@ func (q *Queries) GetGroupsByUserId(ctx context.Context, userID string) ([]GetGr
 			&i.DefaultCurrency,
 			&i.Description,
 			&i.ImageUpdatedAt,
+			&i.ArchivedAt,
 			&i.UserID,
 			&i.Weight,
 			&i.PinnedAt,
@@ -306,6 +321,20 @@ func (q *Queries) GetGroupsByUserId(ctx context.Context, userID string) ([]GetGr
 		return nil, err
 	}
 	return items, nil
+}
+
+const isGroupArchivedByGroupId = `-- name: IsGroupArchivedByGroupId :one
+SELECT EXISTS(
+    SELECT 1 FROM expense_groups
+    WHERE id = ?1 AND archived_at IS NOT NULL
+) as is_archived
+`
+
+func (q *Queries) IsGroupArchivedByGroupId(ctx context.Context, groupID string) (bool, error) {
+	row := q.db.QueryRowContext(ctx, isGroupArchivedByGroupId, groupID)
+	var is_archived bool
+	err := row.Scan(&is_archived)
+	return is_archived, err
 }
 
 const isUserInGroup = `-- name: IsUserInGroup :one
@@ -359,6 +388,22 @@ func (q *Queries) RemoveUserFromGroup(ctx context.Context, arg RemoveUserFromGro
 	return err
 }
 
+const setGroupArchived = `-- name: SetGroupArchived :exec
+UPDATE expense_groups
+SET archived_at = ?1
+WHERE id = ?2
+`
+
+type SetGroupArchivedParams struct {
+	ArchivedAt overrides.NullTextTime
+	ID         string
+}
+
+func (q *Queries) SetGroupArchived(ctx context.Context, arg SetGroupArchivedParams) error {
+	_, err := q.db.ExecContext(ctx, setGroupArchived, arg.ArchivedAt, arg.ID)
+	return err
+}
+
 const setGroupPinned = `-- name: SetGroupPinned :exec
 UPDATE user_expense_groups
 SET pinned_at = ?1
@@ -381,7 +426,7 @@ const updateGroup = `-- name: UpdateGroup :one
 
 UPDATE expense_groups SET name = ?1, description = ?2, default_currency = ?3
 WHERE id = ?4
-RETURNING id, created_at, created_by, name, default_currency, description, image_updated_at
+RETURNING id, created_at, created_by, name, default_currency, description, image_updated_at, archived_at
 `
 
 type UpdateGroupParams struct {
@@ -407,6 +452,7 @@ func (q *Queries) UpdateGroup(ctx context.Context, arg UpdateGroupParams) (Expen
 		&i.DefaultCurrency,
 		&i.Description,
 		&i.ImageUpdatedAt,
+		&i.ArchivedAt,
 	)
 	return i, err
 }

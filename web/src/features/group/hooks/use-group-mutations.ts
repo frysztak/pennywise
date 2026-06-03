@@ -3,7 +3,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { deleteExpense } from "@/gen/api/v1/expense-ExpenseService_connectquery";
-import { getGroupActivity, getUserGroups, setGroupPinned } from "@/gen/api/v1/group-GroupService_connectquery";
+import {
+  getGroupActivity,
+  getUserGroups,
+  setGroupArchived,
+  setGroupPinned,
+} from "@/gen/api/v1/group-GroupService_connectquery";
 import { deleteTransfer } from "@/gen/api/v1/transfer-TransferService_connectquery";
 import { handleError } from "@/shared/lib/utils";
 
@@ -46,9 +51,18 @@ export function useGroupMutations(groupId: string) {
     onError: handleError,
   });
 
+  const { mutate: setArchivedMutate } = useMutation(setGroupArchived, {
+    onSuccess: (_data, variables) => {
+      toast.success(variables.archived ? "Group archived!" : "Group unarchived!");
+      queryClient.invalidateQueries({ queryKey: userGroupsKey });
+    },
+    onError: handleError,
+  });
+
   return {
     deleteExpense: deleteExpenseMutate,
     deleteTransfer: deleteTransferMutate,
     setGroupPinned: (groupId: string, pinned: boolean) => setPinnedMutate({ groupId, pinned }),
+    setGroupArchived: (groupId: string, archived: boolean) => setArchivedMutate({ groupId, archived }),
   };
 }

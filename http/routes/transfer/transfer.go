@@ -7,6 +7,7 @@ import (
 	"pennywise/db/database"
 	"pennywise/db/overrides"
 	apiv1 "pennywise/gen/api/v1"
+	"pennywise/http/helpers"
 	"pennywise/log"
 	"time"
 
@@ -23,6 +24,10 @@ func NewTransferService() *TransferService {
 
 func (s *TransferService) CreateTransfer(ctx context.Context, r *apiv1.CreateTransferRequest) (*apiv1.CreateTransferResponse, error) {
 	logger := log.FromContext(ctx)
+	if err := helpers.AssertGroupNotArchived(ctx, r.GroupId); err != nil {
+		return nil, err
+	}
+
 	// Validate sender is in group
 	senderInGroup, err := db.ReadQueries.IsUserInGroup(ctx, database.IsUserInGroupParams{
 		UserID:  r.SenderId,
@@ -110,6 +115,10 @@ func (s *TransferService) GetGroupTransfers(ctx context.Context, r *apiv1.GetGro
 
 func (s *TransferService) UpdateTransfer(ctx context.Context, r *apiv1.UpdateTransferRequest) (*apiv1.UpdateTransferResponse, error) {
 	logger := log.FromContext(ctx)
+	if err := helpers.AssertGroupNotArchived(ctx, r.GroupId); err != nil {
+		return nil, err
+	}
+
 	// Get existing transfer to find group_id for validation
 	existing, err := db.ReadQueries.GetTransferById(ctx, r.Id)
 	if err != nil {
@@ -174,6 +183,10 @@ func (s *TransferService) UpdateTransfer(ctx context.Context, r *apiv1.UpdateTra
 
 func (s *TransferService) DeleteTransfer(ctx context.Context, r *apiv1.DeleteTransferRequest) (*apiv1.DeleteTransferResponse, error) {
 	logger := log.FromContext(ctx)
+	if err := helpers.AssertGroupNotArchived(ctx, r.GroupId); err != nil {
+		return nil, err
+	}
+
 	err := db.WriteQueries.DeleteTransfer(ctx, r.Id)
 	if err != nil {
 		logger.Error("failed to delete transfer", "error", err, "transfer_id", r.Id)

@@ -21,9 +21,17 @@ interface RecurringReminderRowProps {
   onPay?: (reminder: GetGroupRecurringExpensesResponse_RecurringExpense) => void;
   onEdit?: (reminder: GetGroupRecurringExpensesResponse_RecurringExpense) => void;
   onDelete?: (reminderId: string) => void;
+  isArchived?: boolean;
 }
 
-export function RecurringReminderRow({ reminder, groupId, onPay, onEdit, onDelete }: RecurringReminderRowProps) {
+export function RecurringReminderRow({
+  reminder,
+  groupId,
+  onPay,
+  onEdit,
+  onDelete,
+  isArchived,
+}: RecurringReminderRowProps) {
   const { mutate: skipMutate, isPending } = useSkipRecurringExpense(groupId);
 
   const handlePay = () => {
@@ -81,40 +89,42 @@ export function RecurringReminderRow({ reminder, groupId, onPay, onEdit, onDelet
       </TableCell>
 
       <TableCell>
-        <div className="flex items-center gap-2">
-          <Button size="sm" onClick={handlePay} disabled={isPending}>
-            <BanknoteArrowUp />
-            Pay
-          </Button>
-          <Button size="sm" variant="outline" onClick={handleSkip} disabled={isPending}>
-            <CircleOff />
-            Skip
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" disabled={isPending}>
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              }
-            />
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit?.(reminder)} disabled={isPending}>
-                <EditIcon />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => onDelete?.(reminder.id)}
-                disabled={isPending}
-                className="text-destructive focus:text-destructive"
-                variant="destructive"
-              >
-                <TrashIcon />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        {!isArchived && (
+          <div className="flex items-center gap-2">
+            <Button size="sm" onClick={handlePay} disabled={isPending}>
+              <BanknoteArrowUp />
+              Pay
+            </Button>
+            <Button size="sm" variant="outline" onClick={handleSkip} disabled={isPending}>
+              <CircleOff />
+              Skip
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0" disabled={isPending}>
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                }
+              />
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onEdit?.(reminder)} disabled={isPending}>
+                  <EditIcon />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => onDelete?.(reminder.id)}
+                  disabled={isPending}
+                  className="text-destructive focus:text-destructive"
+                  variant="destructive"
+                >
+                  <TrashIcon />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
       </TableCell>
     </TableRow>
   );

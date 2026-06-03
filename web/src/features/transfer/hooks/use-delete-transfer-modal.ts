@@ -52,7 +52,7 @@ export function useDeleteTransferModal(groupId: string) {
 
   const handleConfirm = () => {
     if (deletingTransfer) {
-      deleteTransferMutate({ id: deletingTransfer.transfer.id });
+      deleteTransferMutate({ id: deletingTransfer.transfer.id, groupId: deletingTransfer.groupId });
       setDeletingTransfer(null);
     }
   };

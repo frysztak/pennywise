@@ -11,6 +11,7 @@ interface ActivityTableProps {
   onDeleteExpense: (expense: GetGroupActivityResponse_ActivityItem_Expense) => void;
   onEditTransfer: (transfer: GetGroupActivityResponse_ActivityItem_Transfer) => void;
   onDeleteTransfer: (transfer: GetGroupActivityResponse_ActivityItem_Transfer) => void;
+  isArchived?: boolean;
 }
 
 export function ActivityTable({
@@ -19,8 +20,9 @@ export function ActivityTable({
   onDeleteExpense,
   onEditTransfer,
   onDeleteTransfer,
+  isArchived,
 }: ActivityTableProps) {
-  const columns = makeActivityColumns({ onEditExpense, onDeleteExpense, onEditTransfer, onDeleteTransfer });
+  const columns = makeActivityColumns({ onEditExpense, onDeleteExpense, onEditTransfer, onDeleteTransfer }, isArchived);
 
   return <DataTable columns={columns} data={recentActivity} emptyMessage="No activity yet in this group." />;
 }

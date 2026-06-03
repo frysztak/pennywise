@@ -77,6 +77,10 @@ func (s *GroupService) UploadGroupImage(ctx context.Context, r *apiv1.UploadGrou
 		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("not a group member"))
 	}
 
+	if err := helpers.AssertGroupNotArchived(ctx, r.GroupId); err != nil {
+		return nil, err
+	}
+
 	// Remove any existing images (including old SVG default) before writing new ones.
 	if err := storage.Blobs.DeleteGroupImages(r.GroupId); err != nil {
 		logger.Warn("failed to delete old group images", "error", err, "group_id", r.GroupId)
@@ -127,6 +131,10 @@ func (s *GroupService) DeleteGroupImage(ctx context.Context, r *apiv1.DeleteGrou
 	}
 	if !member {
 		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("not a group member"))
+	}
+
+	if err := helpers.AssertGroupNotArchived(ctx, r.GroupId); err != nil {
+		return nil, err
 	}
 
 	if err := storage.Blobs.DeleteGroupImages(r.GroupId); err != nil {

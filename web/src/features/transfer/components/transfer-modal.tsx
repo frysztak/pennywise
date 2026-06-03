@@ -176,6 +176,7 @@ export const TransferModal = ({
     if (isEditMode && transfer) {
       updateMutate({
         id: transfer.id,
+        groupId,
         senderId: data.senderId,
         receiverId: data.receiverId,
         amount: data.amountWithCurrency.amount,

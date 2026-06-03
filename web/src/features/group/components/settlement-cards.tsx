@@ -13,9 +13,10 @@ interface SettlementCardsProps {
   suggestions: SettlementSuggestion[];
   currentUserId: string;
   onSettle: (templateDefaults: TransferTemplateDefaults) => void;
+  isArchived?: boolean;
 }
 
-export function SettlementCards({ suggestions, currentUserId, onSettle }: SettlementCardsProps) {
+export function SettlementCards({ suggestions, currentUserId, onSettle, isArchived }: SettlementCardsProps) {
   return (
     <Card>
       <CardContent className="flex flex-col gap-2">
@@ -65,7 +66,7 @@ export function SettlementCards({ suggestions, currentUserId, onSettle }: Settle
                     {formatCurrency(suggestion.amount, suggestion.currency)}
                   </span>
                 </div>
-                {isCurrentUserInvolved && (
+                {isCurrentUserInvolved && !isArchived && (
                   <Button size="sm" onClick={handleSettle}>
                     <BanknoteArrowUp />
                     Settle

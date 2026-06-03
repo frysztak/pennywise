@@ -42,6 +42,7 @@ message UpdateRecurringExpenseRequest {
   optional string payer_id = 5;
   optional double amount = 6;
   optional string currency = 7;
+  string group_id = 8 [(buf.validate.field).string.uuid = true];
 }
 
 message UpdateRecurringExpenseResponse {
@@ -52,6 +53,7 @@ message UpdateRecurringExpenseResponse {
 // Delete recurring expense template
 message DeleteRecurringExpenseRequest {
   string id = 1 [(buf.validate.field).string.uuid = true];
+  string group_id = 2 [(buf.validate.field).string.uuid = true];
 }
 
 message DeleteRecurringExpenseResponse {}

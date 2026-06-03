@@ -28,7 +28,7 @@ import { TransferModal } from "@/features/transfer/components/transfer-modal";
 import { useDeleteTransferModal } from "@/features/transfer/hooks/use-delete-transfer-modal";
 import { useTransferModal } from "@/features/transfer/hooks/use-transfer-modal";
 import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
-import type { UserGroup } from "@/gen/api/v1/group_pb";
+import { GroupArchiveFilter, type UserGroup } from "@/gen/api/v1/group_pb";
 import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { transport } from "@/transport";
@@ -37,7 +37,7 @@ export const Route = createFileRoute("/_pathlessLayout/group/$groupId")({
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
     const userGroups = await context.queryClient.ensureQueryData(
-      createQueryOptions(getUserGroups, undefined, { transport }),
+      createQueryOptions(getUserGroups, { filter: GroupArchiveFilter.ALL }, { transport }),
     );
 
     const group = userGroups.groups.find((g) => g.groupId === params.groupId);
@@ -49,7 +49,7 @@ export const Route = createFileRoute("/_pathlessLayout/group/$groupId")({
   },
   loader: async ({ params, context }) => {
     const userGroups = await context.queryClient.ensureQueryData(
-      createQueryOptions(getUserGroups, undefined, { transport }),
+      createQueryOptions(getUserGroups, { filter: GroupArchiveFilter.ALL }, { transport }),
     );
 
     const group = userGroups.groups.find((g) => g.groupId === params.groupId);
@@ -64,10 +64,14 @@ export const Route = createFileRoute("/_pathlessLayout/group/$groupId")({
 
 function RouteComponent() {
   const { groupId } = Route.useParams();
-  const { data: groupInfo } = useSuspenseQuery(getUserGroups, undefined, {
-    // Group is guaranteed to be found. We're checking if that group exists in `beforeLoad`
-    select: (data) => data.groups.find((g) => g.groupId === groupId)!,
-  });
+  const { data: groupInfo } = useSuspenseQuery(
+    getUserGroups,
+    { filter: GroupArchiveFilter.ALL },
+    {
+      // Group is guaranteed to be found. We're checking if that group exists in `beforeLoad`
+      select: (data) => data.groups.find((g) => g.groupId === groupId)!,
+    },
+  );
   const { data: currentUser } = useSuspenseQuery(userInfo);
 
   const groupMutations = useGroupMutations(groupId);
@@ -92,6 +96,7 @@ function RouteComponent() {
         imageUpdatedAt={groupInfo.imageUpdatedAt}
         members={groupInfo.memberBalances.map((m) => ({ userId: m.userId, userName: m.userName }))}
         isPinned={groupInfo.pinned}
+        isArchived={groupInfo.archived}
         onCreateExpense={expenseModal.openCreate}
         onCreateTransfer={transferModal.openCreate}
         onCreateRecurring={recurringExpenseModal.openCreate}
@@ -113,6 +118,7 @@ function RouteComponent() {
           })
         }
         onTogglePin={() => groupMutations.setGroupPinned(groupId, !groupInfo.pinned)}
+        onToggleArchive={() => groupMutations.setGroupArchived(groupId, !groupInfo.archived)}
       />
 
       {/* Balances + Settle Up + Recurring Reminders + Activity (with merged empty states) */}
@@ -135,6 +141,7 @@ function RouteComponent() {
             onDeleteExpense={deleteExpenseModal.confirmDelete}
             onEditTransfer={transferModal.openEdit}
             onDeleteTransfer={deleteTransferModal.confirmDelete}
+            isArchived={groupInfo.archived}
             remindersSlot={
               <Suspense
                 fallback={
@@ -159,6 +166,7 @@ function RouteComponent() {
                   }
                   onEditReminder={(reminder) => recurringExpenseModal.openEdit(reminder)}
                   onDeleteReminder={(reminderId) => deleteRecurringExpenseModal.confirmDelete(reminderId)}
+                  isArchived={groupInfo.archived}
                 />
               </Suspense>
             }

@@ -30,6 +30,7 @@ message UpdateExpenseRequest {
   string currency = 6 [(buf.validate.field).string.min_len = 2];
   repeated string beneficiaries_ids = 7;
   google.protobuf.Timestamp date = 8;
+  string group_id = 9 [(buf.validate.field).string.uuid = true];
 }
 
 message UpdateExpenseResponse {
@@ -39,6 +40,7 @@ message UpdateExpenseResponse {
 
 message DeleteExpenseRequest {
   string id = 1 [(buf.validate.field).string.uuid = true];
+  string group_id = 2 [(buf.validate.field).string.uuid = true];
 }
 
 message DeleteExpenseResponse {}

@@ -57,6 +57,17 @@ func activityTypeFilterToString(f apiv1.ActivityTypeFilter) string {
 	}
 }
 
+func archiveFilterToString(f apiv1.GroupArchiveFilter) string {
+	switch f {
+	case apiv1.GroupArchiveFilter_GROUP_ARCHIVE_FILTER_ARCHIVED:
+		return "archived"
+	case apiv1.GroupArchiveFilter_GROUP_ARCHIVE_FILTER_ALL:
+		return ""
+	default:
+		return "active"
+	}
+}
+
 func derefStr(s *string) string {
 	if s == nil {
 		return ""
@@ -138,6 +149,10 @@ func (s *GroupService) CreateExpenseGroup(ctx context.Context, r *apiv1.CreateEx
 func (s *GroupService) UpdateGroup(ctx context.Context, r *apiv1.UpdateGroupRequest) (*apiv1.UpdateGroupResponse, error) {
 	logger := log.FromContext(ctx)
 	// TODO: check if user is admin
+
+	if err := helpers.AssertGroupNotArchived(ctx, r.Id); err != nil {
+		return nil, err
+	}
 
 	if !slices.Contains(r.Currencies, r.DefaultCurrency) {
 		return nil, connect.NewError(connect.CodeInvalidArgument,
@@ -237,6 +252,10 @@ func (s *GroupService) AddUserToGroup(ctx context.Context, r *apiv1.AddUserToGro
 			errors.New("user is already a member of this group"))
 	}
 
+	if err := helpers.AssertGroupNotArchived(ctx, r.GroupId); err != nil {
+		return nil, err
+	}
+
 	_, err = db.WriteQueries.AddUserToGroup(ctx, database.AddUserToGroupParams{
 		UserID:  r.UserId,
 		GroupID: r.GroupId,
@@ -256,6 +275,10 @@ func (s *GroupService) AddUserToGroup(ctx context.Context, r *apiv1.AddUserToGro
 
 func (s *GroupService) RemoveUserFromGroup(ctx context.Context, r *apiv1.RemoveUserFromGroupRequest) (*emptypb.Empty, error) {
 	logger := log.FromContext(ctx)
+	if err := helpers.AssertGroupNotArchived(ctx, r.GroupId); err != nil {
+		return nil, err
+	}
+
 	err := db.WriteQueries.RemoveUserFromGroup(ctx, database.RemoveUserFromGroupParams{
 		UserID:  r.UserId,
 		GroupID: r.GroupId,
@@ -273,6 +296,10 @@ func (s *GroupService) RemoveUserFromGroup(ctx context.Context, r *apiv1.RemoveU
 
 func (s *GroupService) UpdateUserWeight(ctx context.Context, r *apiv1.UpdateUserWeightRequest) (*emptypb.Empty, error) {
 	logger := log.FromContext(ctx)
+	if err := helpers.AssertGroupNotArchived(ctx, r.GroupId); err != nil {
+		return nil, err
+	}
+
 	// Verify the user is in the group
 	userInGroup, err := db.ReadQueries.IsUserInGroup(ctx, database.IsUserInGroupParams{
 		UserID:  r.UserId,
@@ -309,7 +336,10 @@ func (s *GroupService) GetUserGroups(ctx context.Context, r *apiv1.GetUserGroups
 	logger := log.FromContext(ctx)
 	session := helpers.GetSessionInfo(ctx)
 
-	groups, err := db.ReadQueries.GetGroupsByUserId(ctx, session.UserID)
+	groups, err := db.ReadQueries.GetGroupsByUserId(ctx, database.GetGroupsByUserIdParams{
+		UserID: session.UserID,
+		Filter: archiveFilterToString(r.Filter),
+	})
 	if err != nil {
 		logger.Error("failed to get user groups", "error", err)
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -384,6 +414,7 @@ func (s *GroupService) GetUserGroups(ctx context.Context, r *apiv1.GetUserGroups
 			TotalSpending:        totalSpending,
 			Currencies:           currencies,
 			Pinned:               v.PinnedAt.Valid,
+			Archived:             v.ArchivedAt.Valid,
 		}
 		if v.ImageUpdatedAt.Valid {
 			pbGroups[i].ImageUpdatedAt = timestamppb.New(v.ImageUpdatedAt.Time)
@@ -500,6 +531,10 @@ func (s *GroupService) SetGroupPinned(ctx context.Context, r *apiv1.SetGroupPinn
 	logger := log.FromContext(ctx)
 	session := helpers.GetSessionInfo(ctx)
 
+	if err := helpers.AssertGroupNotArchived(ctx, r.GroupId); err != nil {
+		return nil, err
+	}
+
 	pinnedAt := overrides.NullTextTime{Valid: false}
 	if r.Pinned {
 		pinnedAt = overrides.NullTextTime{Time: time.Now(), Valid: true}
@@ -513,6 +548,38 @@ func (s *GroupService) SetGroupPinned(ctx context.Context, r *apiv1.SetGroupPinn
 		logger.Error("failed to set group pinned", "error", err, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *GroupService) SetGroupArchived(ctx context.Context, r *apiv1.SetGroupArchivedRequest) (*emptypb.Empty, error) {
+	logger := log.FromContext(ctx)
+	session := helpers.GetSessionInfo(ctx)
+
+	// Only the group creator may archive or unarchive a group.
+	group, err := db.ReadQueries.GetGroupById(ctx, r.GroupId)
+	if err != nil {
+		logger.Error("failed to get group for archiving", "error", err, "group_id", r.GroupId)
+		return nil, connect.NewError(connect.CodeNotFound, err)
+	}
+	if group.CreatedBy != session.UserID {
+		logger.Warn("unauthorized group archive attempt", "group_id", r.GroupId, "created_by", group.CreatedBy)
+		return nil, connect.NewError(connect.CodePermissionDenied, nil)
+	}
+
+	archivedAt := overrides.NullTextTime{Valid: false}
+	if r.Archived {
+		archivedAt = overrides.NullTextTime{Time: time.Now(), Valid: true}
+	}
+
+	if err := db.WriteQueries.SetGroupArchived(ctx, database.SetGroupArchivedParams{
+		ID:         r.GroupId,
+		ArchivedAt: archivedAt,
+	}); err != nil {
+		logger.Error("failed to set group archived", "error", err, "group_id", r.GroupId)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	logger.Info("group archive state updated", "group_id", r.GroupId, "archived", r.Archived)
 	return &emptypb.Empty{}, nil
 }
 

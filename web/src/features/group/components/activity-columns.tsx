@@ -21,8 +21,8 @@ interface ActivityCallbacks {
   onDeleteTransfer: (transfer: GetGroupActivityResponse_ActivityItem_Transfer) => void;
 }
 
-export function makeActivityColumns(callbacks: ActivityCallbacks): ColumnDef<ActivityItem>[] {
-  return [
+export function makeActivityColumns(callbacks: ActivityCallbacks, isArchived = false): ColumnDef<ActivityItem>[] {
+  const columns: ColumnDef<ActivityItem>[] = [
     {
       id: "date",
       header: "Date",
@@ -82,7 +82,10 @@ export function makeActivityColumns(callbacks: ActivityCallbacks): ColumnDef<Act
         );
       },
     },
-    {
+  ];
+
+  if (!isArchived) {
+    columns.push({
       id: "actions",
       header: () => <span className="block">Actions</span>,
       cell: ({ row }) => {
@@ -102,6 +105,8 @@ export function makeActivityColumns(callbacks: ActivityCallbacks): ColumnDef<Act
           />
         );
       },
-    },
-  ];
+    });
+  }
+
+  return columns;
 }

@@ -76,6 +76,7 @@ message UserGroup {
   repeated string currencies = 8;
   optional google.protobuf.Timestamp image_updated_at = 9;
   bool pinned = 10;
+  bool archived = 11;
 }
 
 message SetGroupPinnedRequest {
@@ -83,7 +84,23 @@ message SetGroupPinnedRequest {
   bool pinned = 2;
 }
 
-message GetUserGroupsRequest {}
+message SetGroupArchivedRequest {
+  string group_id = 1 [(buf.validate.field).string.uuid = true];
+  bool archived = 2;
+}
+
+// Filter for which groups to return based on archived state.
+// UNSPECIFIED is treated as ACTIVE so the default (omitted) request hides archived groups.
+enum GroupArchiveFilter {
+  GROUP_ARCHIVE_FILTER_UNSPECIFIED = 0;
+  GROUP_ARCHIVE_FILTER_ACTIVE = 1;
+  GROUP_ARCHIVE_FILTER_ARCHIVED = 2;
+  GROUP_ARCHIVE_FILTER_ALL = 3;
+}
+
+message GetUserGroupsRequest {
+  GroupArchiveFilter filter = 1;
+}
 
 message GetUserGroupsResponse {
   repeated UserGroup groups = 1;
@@ -199,6 +216,7 @@ service GroupService {
   rpc RemoveUserFromGroup(RemoveUserFromGroupRequest) returns (google.protobuf.Empty) {}
   rpc UpdateUserWeight(UpdateUserWeightRequest) returns (google.protobuf.Empty) {}
   rpc SetGroupPinned(SetGroupPinnedRequest) returns (google.protobuf.Empty) {}
+  rpc SetGroupArchived(SetGroupArchivedRequest) returns (google.protobuf.Empty) {}
 
   rpc GetUserGroups(GetUserGroupsRequest) returns (GetUserGroupsResponse) {}
   rpc GetGroupActivity(GetGroupActivityRequest) returns (GetGroupActivityResponse) {}

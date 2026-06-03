@@ -9,9 +9,10 @@ interface SettlementSuggestionsProps {
   groupId: string;
   currentUserId: string;
   onSettle: (templateDefaults: TransferTemplateDefaults) => void;
+  isArchived?: boolean;
 }
 
-export function SettlementSuggestions({ groupId, currentUserId, onSettle }: SettlementSuggestionsProps) {
+export function SettlementSuggestions({ groupId, currentUserId, onSettle, isArchived }: SettlementSuggestionsProps) {
   const { data } = useSuspenseQuery(getSettlementSuggestions, { groupId });
 
   if (data.suggestions.length === 0) {
@@ -30,7 +31,14 @@ export function SettlementSuggestions({ groupId, currentUserId, onSettle }: Sett
   );
   const sortedSuggestions = [...mySettlements, ...otherSettlements];
 
-  return <SettlementCards suggestions={sortedSuggestions} currentUserId={currentUserId} onSettle={onSettle} />;
+  return (
+    <SettlementCards
+      suggestions={sortedSuggestions}
+      currentUserId={currentUserId}
+      onSettle={onSettle}
+      isArchived={isArchived}
+    />
+  );
 }
 
 // interface SettlementRowProps {

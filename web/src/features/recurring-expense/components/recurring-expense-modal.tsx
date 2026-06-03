@@ -149,6 +149,7 @@ export const RecurringExpenseModal = ({
     if (isEditMode && recurringExpense) {
       updateMutate({
         id: recurringExpense.id,
+        groupId,
         name: data.name,
         description: data.description,
         frequency: data.frequency,

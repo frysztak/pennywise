@@ -43,7 +43,7 @@ export function useDeleteExpenseModal(groupId: string) {
 
   const handleConfirm = () => {
     if (deletingExpense) {
-      deleteExpenseMutate({ id: deletingExpense.expense.id });
+      deleteExpenseMutate({ id: deletingExpense.expense.id, groupId: deletingExpense.groupId });
       setDeletingExpense(null);
     }
   };

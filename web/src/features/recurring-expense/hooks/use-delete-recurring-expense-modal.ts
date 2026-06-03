@@ -33,7 +33,7 @@ export function useDeleteRecurringExpenseModal(groupId: string) {
 
   const handleConfirm = () => {
     if (deletingId) {
-      deleteRecurringExpenseMutate({ id: deletingId });
+      deleteRecurringExpenseMutate({ id: deletingId, groupId });
       setDeletingId(null);
     }
   };

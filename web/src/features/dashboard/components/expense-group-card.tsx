@@ -3,6 +3,7 @@ import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { GroupImage } from "@/features/group/components/group-image";
 import { GroupMemberStack } from "@/features/group/components/group-member-stack";
 import { AmountWithCurrency } from "@/shared/components/amount-with-currency";
+import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 
 interface ExpenseGroupCardProps {
@@ -13,6 +14,7 @@ interface ExpenseGroupCardProps {
   imageUpdatedAt?: Timestamp;
   members: Array<{ userId: string; userName: string }>;
   recentExpenses?: Array<{ name: string; amount: number; currency: string }>;
+  archived?: boolean;
 }
 
 export function ExpenseGroupCard({
@@ -23,12 +25,18 @@ export function ExpenseGroupCard({
   imageUpdatedAt,
   members,
   recentExpenses,
+  archived,
 }: ExpenseGroupCardProps) {
   return (
     <Card className="transition-all hover:shadow-md hover:border-primary/50 h-full overflow-hidden gap-0 pt-0 pb-4">
       <div className="bg-muted aspect-2/1 w-full overflow-hidden relative">
         <GroupImage groupId={groupId} groupName={groupName} imageUpdatedAt={imageUpdatedAt} className="size-full" />
         <GroupMemberStack members={members} className="absolute left-3 bottom-3" avatarClassName="size-7" />
+        {archived && (
+          <Badge variant="secondary" className="absolute right-3 top-3">
+            Archived
+          </Badge>
+        )}
       </div>
       <CardHeader className="p-4 pb-0">
         <CardTitle className="text-3xl font-serif tracking-tight">{groupName}</CardTitle>

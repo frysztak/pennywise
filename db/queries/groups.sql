@@ -55,6 +55,7 @@ SELECT
   g.default_currency,
   g.description,
   g.image_updated_at,
+  g.archived_at,
   u.user_id,
   u.weight,
   u.pinned_at,
@@ -66,6 +67,11 @@ SELECT
 FROM expense_groups g
 JOIN user_expense_groups u ON u.group_id = g.id
 WHERE u.user_id = @user_id
+  AND (
+    @filter = ''
+    OR (@filter = 'active' AND g.archived_at IS NULL)
+    OR (@filter = 'archived' AND g.archived_at IS NOT NULL)
+  )
 ORDER BY
   (u.pinned_at IS NOT NULL) DESC,
   last_activity_at DESC;
@@ -116,3 +122,14 @@ ORDER BY currency;
 UPDATE user_expense_groups
 SET pinned_at = @pinned_at
 WHERE user_id = @user_id AND group_id = @group_id;
+
+-- name: SetGroupArchived :exec
+UPDATE expense_groups
+SET archived_at = @archived_at
+WHERE id = @id;
+
+-- name: IsGroupArchivedByGroupId :one
+SELECT EXISTS(
+    SELECT 1 FROM expense_groups
+    WHERE id = @group_id AND archived_at IS NOT NULL
+) as is_archived;
