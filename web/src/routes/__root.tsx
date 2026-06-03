@@ -1,7 +1,7 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { HeadContent, Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 
-import type { AuthState } from "@/auth";
+import type { AuthState } from "@/features/auth/auth";
 
 interface MyRouterContext {
   auth: AuthState;

@@ -1,7 +1,7 @@
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 
-import { AppSidebar } from "@/components/sidebar/app-sidebar";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/features/sidebar/components/app-sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/shared/components/ui/sidebar";
 
 export const Route = createFileRoute("/_pathlessLayout")({
   beforeLoad: ({ context }) => {

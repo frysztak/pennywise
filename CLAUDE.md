@@ -133,27 +133,36 @@ Located in `web/`:
 - Shadcn/ui components built on Radix UI primitives
 - Tailwind CSS v4 for styling
 
-**Key Frontend Directories:**
-- `src/components/group/` - Group management UI (activity table, balance cards, modals)
-- `src/components/transfer/` - Transfer creation and editing modal
-- `src/components/ui/` - Shadcn/ui reusable components
-- `src/hooks/` - Custom React hooks for state management and modal control
-- `src/lib/` - Utilities (currencies list, cn() helper)
-- `src/routes/` - TanStack Router file-based routes
-- `src/gen/` - Generated Connect Query clients and types
+**Architecture:** Feature-based. Code is organized by domain feature under `src/features/`, with cross-cutting reusable code under `src/shared/`. The guiding rule: **things that change together live together** — a feature's components, hooks, and feature-local helpers are colocated in one folder.
+
+**Top-level layout (`src/`):**
+- `features/` - One folder per domain feature, each with `components/`, `hooks/`, and feature-local helpers/types as needed:
+  - `auth/` - AuthProvider (`auth.tsx`), login/signup forms, `oidc-providers.tsx`
+  - `dashboard/` - Group overview cards
+  - `group/` - Group detail UI: activity feed, balances, settlement, header/image, group dialogs + group hooks
+  - `expense/` - Expense modal, people selector, delete dialog + expense hooks
+  - `transfer/` - Transfer modal/flow, delete dialog + transfer hooks
+  - `recurring-expense/` - Recurring modal, reminder cards/rows, delete dialog + hooks + `recurring-expense.ts`
+  - `scan-receipt/` - Receipt scanning flow + `types.ts`
+  - `admin/` - Admin panel cards
+  - `settings/` - Avatar upload, username edit
+  - `sidebar/` - App navigation shell (app-sidebar, nav-*, new-group modal)
+- `shared/` - Only genuinely reusable, cross-feature code:
+  - `components/ui/` - Shadcn/ui primitives
+  - `components/` - Shared presentational components (member/user avatars, amount-input family, error-screen, theme-provider)
+  - `hooks/` - Generic hooks (`use-mobile`, `use-object-url`, `use-currencies`)
+  - `lib/` - Utilities (`currencies`, `utils` with cn() helper, `config`, `calc-expression`)
+- `routes/` - TanStack Router file-based routes. **Do not reorganize** — `routeTree.gen.ts` is generated from this tree and the dev server regenerates it. Routes import from `features/` and `shared/`.
+- `gen/` - Generated Connect Query clients and types (do not edit)
+
+**Path aliases:** `@/*` maps to `src/*`. shadcn aliases in `components.json` point at `@/shared/...`.
+
+**Where to put new code:** add components/hooks inside the owning `features/<name>/` folder. Promote something to `shared/` only once it's genuinely used by two or more features — don't pre-emptively generalize.
 
 **Authentication:**
-- `src/auth.tsx` - AuthProvider with React context
+- `src/features/auth/auth.tsx` - AuthProvider with React context
 - Automatic auth state restoration via userInfo query
 - Protected routes using TanStack Router's beforeLoad
-
-**Custom Hooks:**
-- `use-expense-modal.ts`, `use-transfer-modal.ts` - Modal state management
-- `use-delete-expense-modal.ts`, `use-delete-transfer-modal.ts`, `use-delete-group-modal.ts`
-- `use-add-member-modal.ts`, `use-edit-group-modal.ts`
-- `use-group-mutations.ts` - Group CRUD operations with optimistic updates
-- `use-mobile.ts` - Responsive design breakpoint detection
-- `use-delete-confirmation.ts` - Generic confirmation dialog hook
 
 **Key Pages:**
 - `routes/_pathlessLayout/dashboard.tsx` - Group overview cards
@@ -315,9 +324,9 @@ return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid cu
 - `utils.SliceToJSONString()` - Serialize slices to JSON for database storage
 
 **Frontend:**
-- `src/lib/currencies.ts` - List of 30 common currencies with labels
-- `src/lib/utils.ts` - cn() helper for conditional Tailwind classes
-- Custom hooks for modal state management and API mutations
+- `src/shared/lib/currencies.ts` - List of 30 common currencies with labels
+- `src/shared/lib/utils.ts` - cn() helper for conditional Tailwind classes
+- Modal-state and mutation hooks are colocated within each `src/features/<name>/hooks/`
 
 ### Validation
 All API requests validated via buf.validate in protobuf definitions. Validation interceptor automatically returns proper error codes for invalid requests.
@@ -354,5 +363,5 @@ All API requests validated via buf.validate in protobuf definitions. Validation 
 
 - Use TanStack Query for server state (expenses, transfers, groups)
 - Use custom hooks for UI state (modals, dialogs)
-- Optimistic updates for mutations (see `use-group-mutations.ts`)
-- React Context for authentication state (`src/auth.tsx`)
+- Optimistic updates for mutations (see `features/group/hooks/use-group-mutations.ts`)
+- React Context for authentication state (`src/features/auth/auth.tsx`)

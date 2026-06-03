@@ -5,15 +5,15 @@ import { StrictMode } from "react";
 import { type Root, createRoot } from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
 
-import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider, useAuth } from "@/features/auth/auth";
+import { routeTree } from "@/routeTree.gen";
+import { ErrorScreen } from "@/shared/components/error-screen";
+import { ThemeProvider } from "@/shared/components/theme-provider";
+import { Toaster } from "@/shared/components/ui/sonner";
+import { TooltipProvider } from "@/shared/components/ui/tooltip";
+import { transport } from "@/transport";
 
-import { AuthProvider, useAuth } from "./auth";
-import { ErrorScreen } from "./components/error-screen";
-import { ThemeProvider } from "./components/theme-provider";
 import "./index.css";
-import { routeTree } from "./routeTree.gen";
-import { transport } from "./transport";
 
 // Register service worker for PWA
 registerSW({ immediate: true });

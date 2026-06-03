@@ -2,10 +2,10 @@ import { useMutation } from "@connectrpc/connect-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { toast } from "sonner";
 
-import { SignupForm } from "@/components/signup-form";
-import { getConfig } from "@/lib/config";
+import { SignupForm } from "@/features/auth/components/signup-form";
 import { userRegister } from "@/gen/api/v1/user-UserService_connectquery";
-import { handleError } from "@/lib/utils";
+import { getConfig } from "@/shared/lib/config";
+import { handleError } from "@/shared/lib/utils";
 
 export const Route = createFileRoute("/auth/register")({
   beforeLoad: () => {

@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 
-import { CurrenciesCard } from "@/components/admin/currencies-card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { CurrenciesCard } from "@/features/admin/components/currencies-card";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 
 export const Route = createFileRoute("/_pathlessLayout/admin/currencies")({
   component: RouteComponent,

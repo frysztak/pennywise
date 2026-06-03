@@ -6,21 +6,21 @@ import { parseISO } from "date-fns";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
-import { useAuth } from "@/auth";
-import { type ConfirmState, ScanConfirm, ScanConfirmFooter } from "@/components/scan-receipt/scan-confirm";
-import { MobileProgress, ScanHeader } from "@/components/scan-receipt/scan-header";
-import { ScanProcessing, ScanProcessingFooter } from "@/components/scan-receipt/scan-processing";
-import { ScanReview, ScanReviewFooter } from "@/components/scan-receipt/scan-review";
-import { ScanUpload, ScanUploadFooter } from "@/components/scan-receipt/scan-upload";
-import { type ItemDraft, type ReceiptDraft, STEP_INDEX, type Step } from "@/components/scan-receipt/types";
-import { Card } from "@/components/ui/card";
+import { useAuth } from "@/features/auth/auth";
+import { type ConfirmState, ScanConfirm, ScanConfirmFooter } from "@/features/scan-receipt/components/scan-confirm";
+import { MobileProgress, ScanHeader } from "@/features/scan-receipt/components/scan-header";
+import { ScanProcessing, ScanProcessingFooter } from "@/features/scan-receipt/components/scan-processing";
+import { ScanReview, ScanReviewFooter } from "@/features/scan-receipt/components/scan-review";
+import { ScanUpload, ScanUploadFooter } from "@/features/scan-receipt/components/scan-upload";
+import { type ItemDraft, type ReceiptDraft, STEP_INDEX, type Step } from "@/features/scan-receipt/types";
 import { bulkCreateExpenses } from "@/gen/api/v1/expense-ExpenseService_connectquery";
 import { getGroupActivity, getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
 import { scanReceipt } from "@/gen/api/v1/receipt-ReceiptService_connectquery";
 import type { ReceiptData } from "@/gen/api/v1/receipt_pb";
-import { useObjectUrl } from "@/hooks/use-object-url";
-import { getConfig } from "@/lib/config";
-import { handleError } from "@/lib/utils";
+import { Card } from "@/shared/components/ui/card";
+import { useObjectUrl } from "@/shared/hooks/use-object-url";
+import { getConfig } from "@/shared/lib/config";
+import { handleError } from "@/shared/lib/utils";
 import { transport } from "@/transport";
 
 export const Route = createFileRoute("/_pathlessLayout/scan-receipt")({

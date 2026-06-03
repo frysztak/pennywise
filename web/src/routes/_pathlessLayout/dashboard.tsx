@@ -3,10 +3,10 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
-import { ExpenseGroupCard } from "@/components/expense-group-card";
-import { NewGroupModal } from "@/components/sidebar/new-group-modal";
-import { Button } from "@/components/ui/button";
+import { ExpenseGroupCard } from "@/features/dashboard/components/expense-group-card";
+import { NewGroupModal } from "@/features/sidebar/components/new-group-modal";
 import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
+import { Button } from "@/shared/components/ui/button";
 
 export const Route = createFileRoute("/_pathlessLayout/dashboard")({
   component: RouteComponent,

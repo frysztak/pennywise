@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Monitor, Moon, Sun } from "lucide-react";
 
-import { AvatarUpload } from "@/components/avatar-upload";
-import { useTheme } from "@/components/theme-provider";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { UsernameEdit } from "@/components/username-edit";
+import { AvatarUpload } from "@/features/settings/components/avatar-upload";
+import { UsernameEdit } from "@/features/settings/components/username-edit";
+import { useTheme } from "@/shared/components/theme-provider";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 
 export const Route = createFileRoute("/_pathlessLayout/settings")({
   component: RouteComponent,

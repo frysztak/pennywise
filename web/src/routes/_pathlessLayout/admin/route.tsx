@@ -1,6 +1,6 @@
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 
-import { AdminNav } from "@/components/admin/admin-nav";
+import { AdminNav } from "@/features/admin/components/admin-nav";
 import { UserRole } from "@/gen/api/v1/user_pb";
 
 export const Route = createFileRoute("/_pathlessLayout/admin")({

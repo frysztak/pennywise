@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 
-import { ReceiptPromptCard } from "@/components/admin/receipt-prompt-card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ReceiptPromptCard } from "@/features/admin/components/receipt-prompt-card";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 
 export const Route = createFileRoute("/_pathlessLayout/admin/ai")({
   component: RouteComponent,
