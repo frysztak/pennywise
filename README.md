@@ -149,7 +149,7 @@ Pennywise can extract expense details from receipt photos using any vision model
 ```yaml
 environment:
   - OPENAI_API_KEY=<...your api key...>
-  - OPENAI_OCR_MODEL=gpt-5.4-mini
+  - OPENAI_OCR_MODEL=gpt-5-mini
 ```
 
 ### Ollama Example
@@ -165,19 +165,7 @@ environment:
 
 ## Migrating from other apps
 
-A CLI tool ships with the repo for importing projects from [ihatemoney](https://github.com/spiral-project/ihatemoney) or [Splitwise](https://www.splitwise.com/). Inspect a source, generate a person → user mapping, dry-run with `plan`, then `apply` to write the new group inside a single transaction.
-
-**ihatemoney** (SQLite database):
-```bash
-go run ./cmd/migrate ihatemoney inspect --ihatemoney-db budget.db
-```
-
-**Splitwise** (CSV export — download via *Export as CSV* in the group settings):
-```bash
-go run ./cmd/migrate splitwise inspect --splitwise-csv "My Group.csv"
-```
-
-See [`cmd/migrate/README.md`](cmd/migrate/README.md) for the full workflow, mapping file format, and flags.
+A CLI tool ships with the repo for importing projects from [ihatemoney](https://github.com/spiral-project/ihatemoney) or [Splitwise](https://www.splitwise.com/). See [`cmd/migrate/README.md`](cmd/migrate/README.md) for the full workflow, mapping file format, and flags.
 
 ## License
 
