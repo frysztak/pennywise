@@ -73,6 +73,9 @@ const (
 	// GroupServiceGetSettlementSuggestionsProcedure is the fully-qualified name of the GroupService's
 	// GetSettlementSuggestions RPC.
 	GroupServiceGetSettlementSuggestionsProcedure = "/api.v1.GroupService/GetSettlementSuggestions"
+	// GroupServiceGetGroupStatsProcedure is the fully-qualified name of the GroupService's
+	// GetGroupStats RPC.
+	GroupServiceGetGroupStatsProcedure = "/api.v1.GroupService/GetGroupStats"
 )
 
 // GroupServiceClient is a client for the api.v1.GroupService service.
@@ -90,6 +93,7 @@ type GroupServiceClient interface {
 	GetUserGroups(context.Context, *v1.GetUserGroupsRequest) (*v1.GetUserGroupsResponse, error)
 	GetGroupActivity(context.Context, *v1.GetGroupActivityRequest) (*v1.GetGroupActivityResponse, error)
 	GetSettlementSuggestions(context.Context, *v1.GetSettlementSuggestionsRequest) (*v1.GetSettlementSuggestionsResponse, error)
+	GetGroupStats(context.Context, *v1.GetGroupStatsRequest) (*v1.GetGroupStatsResponse, error)
 }
 
 // NewGroupServiceClient constructs a client for the api.v1.GroupService service. By default, it
@@ -181,6 +185,12 @@ func NewGroupServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(groupServiceMethods.ByName("GetSettlementSuggestions")),
 			connect.WithClientOptions(opts...),
 		),
+		getGroupStats: connect.NewClient[v1.GetGroupStatsRequest, v1.GetGroupStatsResponse](
+			httpClient,
+			baseURL+GroupServiceGetGroupStatsProcedure,
+			connect.WithSchema(groupServiceMethods.ByName("GetGroupStats")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -199,6 +209,7 @@ type groupServiceClient struct {
 	getUserGroups            *connect.Client[v1.GetUserGroupsRequest, v1.GetUserGroupsResponse]
 	getGroupActivity         *connect.Client[v1.GetGroupActivityRequest, v1.GetGroupActivityResponse]
 	getSettlementSuggestions *connect.Client[v1.GetSettlementSuggestionsRequest, v1.GetSettlementSuggestionsResponse]
+	getGroupStats            *connect.Client[v1.GetGroupStatsRequest, v1.GetGroupStatsResponse]
 }
 
 // CreateExpenseGroup calls api.v1.GroupService.CreateExpenseGroup.
@@ -318,6 +329,15 @@ func (c *groupServiceClient) GetSettlementSuggestions(ctx context.Context, req *
 	return nil, err
 }
 
+// GetGroupStats calls api.v1.GroupService.GetGroupStats.
+func (c *groupServiceClient) GetGroupStats(ctx context.Context, req *v1.GetGroupStatsRequest) (*v1.GetGroupStatsResponse, error) {
+	response, err := c.getGroupStats.CallUnary(ctx, connect.NewRequest(req))
+	if response != nil {
+		return response.Msg, err
+	}
+	return nil, err
+}
+
 // GroupServiceHandler is an implementation of the api.v1.GroupService service.
 type GroupServiceHandler interface {
 	CreateExpenseGroup(context.Context, *v1.CreateExpenseGroupRequest) (*v1.CreateExpenseGroupResponse, error)
@@ -333,6 +353,7 @@ type GroupServiceHandler interface {
 	GetUserGroups(context.Context, *v1.GetUserGroupsRequest) (*v1.GetUserGroupsResponse, error)
 	GetGroupActivity(context.Context, *v1.GetGroupActivityRequest) (*v1.GetGroupActivityResponse, error)
 	GetSettlementSuggestions(context.Context, *v1.GetSettlementSuggestionsRequest) (*v1.GetSettlementSuggestionsResponse, error)
+	GetGroupStats(context.Context, *v1.GetGroupStatsRequest) (*v1.GetGroupStatsResponse, error)
 }
 
 // NewGroupServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -420,6 +441,12 @@ func NewGroupServiceHandler(svc GroupServiceHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(groupServiceMethods.ByName("GetSettlementSuggestions")),
 		connect.WithHandlerOptions(opts...),
 	)
+	groupServiceGetGroupStatsHandler := connect.NewUnaryHandlerSimple(
+		GroupServiceGetGroupStatsProcedure,
+		svc.GetGroupStats,
+		connect.WithSchema(groupServiceMethods.ByName("GetGroupStats")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/api.v1.GroupService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case GroupServiceCreateExpenseGroupProcedure:
@@ -448,6 +475,8 @@ func NewGroupServiceHandler(svc GroupServiceHandler, opts ...connect.HandlerOpti
 			groupServiceGetGroupActivityHandler.ServeHTTP(w, r)
 		case GroupServiceGetSettlementSuggestionsProcedure:
 			groupServiceGetSettlementSuggestionsHandler.ServeHTTP(w, r)
+		case GroupServiceGetGroupStatsProcedure:
+			groupServiceGetGroupStatsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -507,4 +536,8 @@ func (UnimplementedGroupServiceHandler) GetGroupActivity(context.Context, *v1.Ge
 
 func (UnimplementedGroupServiceHandler) GetSettlementSuggestions(context.Context, *v1.GetSettlementSuggestionsRequest) (*v1.GetSettlementSuggestionsResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.GroupService.GetSettlementSuggestions is not implemented"))
+}
+
+func (UnimplementedGroupServiceHandler) GetGroupStats(context.Context, *v1.GetGroupStatsRequest) (*v1.GetGroupStatsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.GroupService.GetGroupStats is not implemented"))
 }

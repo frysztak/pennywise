@@ -1132,6 +1132,143 @@ func (x *GetGroupActivityResponse) GetPage() *PageResponse {
 	return nil
 }
 
+type GetGroupStatsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	GroupId       string                 `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetGroupStatsRequest) Reset() {
+	*x = GetGroupStatsRequest{}
+	mi := &file_api_v1_group_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetGroupStatsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetGroupStatsRequest) ProtoMessage() {}
+
+func (x *GetGroupStatsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_group_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetGroupStatsRequest.ProtoReflect.Descriptor instead.
+func (*GetGroupStatsRequest) Descriptor() ([]byte, []int) {
+	return file_api_v1_group_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *GetGroupStatsRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
+type GetGroupStatsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Total amount paid (expenses only), per currency, in cents.
+	TotalSpending      map[string]int64                        `protobuf:"bytes,1,rep,name=total_spending,json=totalSpending,proto3" json:"total_spending,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	MemberSpending     []*GetGroupStatsResponse_MemberSpending `protobuf:"bytes,2,rep,name=member_spending,json=memberSpending,proto3" json:"member_spending,omitempty"`
+	BalanceOverTime    []*GetGroupStatsResponse_BalanceSeries  `protobuf:"bytes,3,rep,name=balance_over_time,json=balanceOverTime,proto3" json:"balance_over_time,omitempty"`
+	ExpenseCount       int64                                   `protobuf:"varint,4,opt,name=expense_count,json=expenseCount,proto3" json:"expense_count,omitempty"`
+	TransferCount      int64                                   `protobuf:"varint,5,opt,name=transfer_count,json=transferCount,proto3" json:"transfer_count,omitempty"`
+	LargestExpense     map[string]int64                        `protobuf:"bytes,6,rep,name=largest_expense,json=largestExpense,proto3" json:"largest_expense,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"` // per currency, in cents
+	CumulativeSpending []*GetGroupStatsResponse_SpendSeries    `protobuf:"bytes,7,rep,name=cumulative_spending,json=cumulativeSpending,proto3" json:"cumulative_spending,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *GetGroupStatsResponse) Reset() {
+	*x = GetGroupStatsResponse{}
+	mi := &file_api_v1_group_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetGroupStatsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetGroupStatsResponse) ProtoMessage() {}
+
+func (x *GetGroupStatsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_group_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetGroupStatsResponse.ProtoReflect.Descriptor instead.
+func (*GetGroupStatsResponse) Descriptor() ([]byte, []int) {
+	return file_api_v1_group_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *GetGroupStatsResponse) GetTotalSpending() map[string]int64 {
+	if x != nil {
+		return x.TotalSpending
+	}
+	return nil
+}
+
+func (x *GetGroupStatsResponse) GetMemberSpending() []*GetGroupStatsResponse_MemberSpending {
+	if x != nil {
+		return x.MemberSpending
+	}
+	return nil
+}
+
+func (x *GetGroupStatsResponse) GetBalanceOverTime() []*GetGroupStatsResponse_BalanceSeries {
+	if x != nil {
+		return x.BalanceOverTime
+	}
+	return nil
+}
+
+func (x *GetGroupStatsResponse) GetExpenseCount() int64 {
+	if x != nil {
+		return x.ExpenseCount
+	}
+	return 0
+}
+
+func (x *GetGroupStatsResponse) GetTransferCount() int64 {
+	if x != nil {
+		return x.TransferCount
+	}
+	return 0
+}
+
+func (x *GetGroupStatsResponse) GetLargestExpense() map[string]int64 {
+	if x != nil {
+		return x.LargestExpense
+	}
+	return nil
+}
+
+func (x *GetGroupStatsResponse) GetCumulativeSpending() []*GetGroupStatsResponse_SpendSeries {
+	if x != nil {
+		return x.CumulativeSpending
+	}
+	return nil
+}
+
 type DeleteGroupRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	GroupId       string                 `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
@@ -1141,7 +1278,7 @@ type DeleteGroupRequest struct {
 
 func (x *DeleteGroupRequest) Reset() {
 	*x = DeleteGroupRequest{}
-	mi := &file_api_v1_group_proto_msgTypes[15]
+	mi := &file_api_v1_group_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1153,7 +1290,7 @@ func (x *DeleteGroupRequest) String() string {
 func (*DeleteGroupRequest) ProtoMessage() {}
 
 func (x *DeleteGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[15]
+	mi := &file_api_v1_group_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1166,7 +1303,7 @@ func (x *DeleteGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteGroupRequest.ProtoReflect.Descriptor instead.
 func (*DeleteGroupRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{15}
+	return file_api_v1_group_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *DeleteGroupRequest) GetGroupId() string {
@@ -1187,7 +1324,7 @@ type UploadGroupImageRequest struct {
 
 func (x *UploadGroupImageRequest) Reset() {
 	*x = UploadGroupImageRequest{}
-	mi := &file_api_v1_group_proto_msgTypes[16]
+	mi := &file_api_v1_group_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1199,7 +1336,7 @@ func (x *UploadGroupImageRequest) String() string {
 func (*UploadGroupImageRequest) ProtoMessage() {}
 
 func (x *UploadGroupImageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[16]
+	mi := &file_api_v1_group_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1212,7 +1349,7 @@ func (x *UploadGroupImageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadGroupImageRequest.ProtoReflect.Descriptor instead.
 func (*UploadGroupImageRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{16}
+	return file_api_v1_group_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *UploadGroupImageRequest) GetGroupId() string {
@@ -1245,7 +1382,7 @@ type UploadGroupImageResponse struct {
 
 func (x *UploadGroupImageResponse) Reset() {
 	*x = UploadGroupImageResponse{}
-	mi := &file_api_v1_group_proto_msgTypes[17]
+	mi := &file_api_v1_group_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1257,7 +1394,7 @@ func (x *UploadGroupImageResponse) String() string {
 func (*UploadGroupImageResponse) ProtoMessage() {}
 
 func (x *UploadGroupImageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[17]
+	mi := &file_api_v1_group_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1270,7 +1407,7 @@ func (x *UploadGroupImageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadGroupImageResponse.ProtoReflect.Descriptor instead.
 func (*UploadGroupImageResponse) Descriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{17}
+	return file_api_v1_group_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *UploadGroupImageResponse) GetImageUpdatedAt() *timestamppb.Timestamp {
@@ -1289,7 +1426,7 @@ type DeleteGroupImageRequest struct {
 
 func (x *DeleteGroupImageRequest) Reset() {
 	*x = DeleteGroupImageRequest{}
-	mi := &file_api_v1_group_proto_msgTypes[18]
+	mi := &file_api_v1_group_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1301,7 +1438,7 @@ func (x *DeleteGroupImageRequest) String() string {
 func (*DeleteGroupImageRequest) ProtoMessage() {}
 
 func (x *DeleteGroupImageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[18]
+	mi := &file_api_v1_group_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1314,7 +1451,7 @@ func (x *DeleteGroupImageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteGroupImageRequest.ProtoReflect.Descriptor instead.
 func (*DeleteGroupImageRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{18}
+	return file_api_v1_group_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *DeleteGroupImageRequest) GetGroupId() string {
@@ -1338,7 +1475,7 @@ type GetSettlementSuggestionsRequest struct {
 
 func (x *GetSettlementSuggestionsRequest) Reset() {
 	*x = GetSettlementSuggestionsRequest{}
-	mi := &file_api_v1_group_proto_msgTypes[19]
+	mi := &file_api_v1_group_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1350,7 +1487,7 @@ func (x *GetSettlementSuggestionsRequest) String() string {
 func (*GetSettlementSuggestionsRequest) ProtoMessage() {}
 
 func (x *GetSettlementSuggestionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[19]
+	mi := &file_api_v1_group_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1363,7 +1500,7 @@ func (x *GetSettlementSuggestionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSettlementSuggestionsRequest.ProtoReflect.Descriptor instead.
 func (*GetSettlementSuggestionsRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{19}
+	return file_api_v1_group_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GetSettlementSuggestionsRequest) GetGroupId() string {
@@ -1401,7 +1538,7 @@ type SettlementSuggestion struct {
 
 func (x *SettlementSuggestion) Reset() {
 	*x = SettlementSuggestion{}
-	mi := &file_api_v1_group_proto_msgTypes[20]
+	mi := &file_api_v1_group_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1413,7 +1550,7 @@ func (x *SettlementSuggestion) String() string {
 func (*SettlementSuggestion) ProtoMessage() {}
 
 func (x *SettlementSuggestion) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[20]
+	mi := &file_api_v1_group_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1426,7 +1563,7 @@ func (x *SettlementSuggestion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SettlementSuggestion.ProtoReflect.Descriptor instead.
 func (*SettlementSuggestion) Descriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{20}
+	return file_api_v1_group_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *SettlementSuggestion) GetFromUserId() string {
@@ -1482,7 +1619,7 @@ type GetSettlementSuggestionsResponse struct {
 
 func (x *GetSettlementSuggestionsResponse) Reset() {
 	*x = GetSettlementSuggestionsResponse{}
-	mi := &file_api_v1_group_proto_msgTypes[21]
+	mi := &file_api_v1_group_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1494,7 +1631,7 @@ func (x *GetSettlementSuggestionsResponse) String() string {
 func (*GetSettlementSuggestionsResponse) ProtoMessage() {}
 
 func (x *GetSettlementSuggestionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[21]
+	mi := &file_api_v1_group_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1507,7 +1644,7 @@ func (x *GetSettlementSuggestionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSettlementSuggestionsResponse.ProtoReflect.Descriptor instead.
 func (*GetSettlementSuggestionsResponse) Descriptor() ([]byte, []int) {
-	return file_api_v1_group_proto_rawDescGZIP(), []int{21}
+	return file_api_v1_group_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GetSettlementSuggestionsResponse) GetSuggestions() []*SettlementSuggestion {
@@ -1538,7 +1675,7 @@ type GetGroupActivityResponse_ActivityItem struct {
 
 func (x *GetGroupActivityResponse_ActivityItem) Reset() {
 	*x = GetGroupActivityResponse_ActivityItem{}
-	mi := &file_api_v1_group_proto_msgTypes[24]
+	mi := &file_api_v1_group_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1550,7 +1687,7 @@ func (x *GetGroupActivityResponse_ActivityItem) String() string {
 func (*GetGroupActivityResponse_ActivityItem) ProtoMessage() {}
 
 func (x *GetGroupActivityResponse_ActivityItem) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[24]
+	mi := &file_api_v1_group_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1635,7 +1772,7 @@ type GetGroupActivityResponse_ActivityItem_Expense struct {
 
 func (x *GetGroupActivityResponse_ActivityItem_Expense) Reset() {
 	*x = GetGroupActivityResponse_ActivityItem_Expense{}
-	mi := &file_api_v1_group_proto_msgTypes[25]
+	mi := &file_api_v1_group_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1647,7 +1784,7 @@ func (x *GetGroupActivityResponse_ActivityItem_Expense) String() string {
 func (*GetGroupActivityResponse_ActivityItem_Expense) ProtoMessage() {}
 
 func (x *GetGroupActivityResponse_ActivityItem_Expense) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[25]
+	mi := &file_api_v1_group_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1757,7 +1894,7 @@ type GetGroupActivityResponse_ActivityItem_Transfer struct {
 
 func (x *GetGroupActivityResponse_ActivityItem_Transfer) Reset() {
 	*x = GetGroupActivityResponse_ActivityItem_Transfer{}
-	mi := &file_api_v1_group_proto_msgTypes[26]
+	mi := &file_api_v1_group_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1769,7 +1906,7 @@ func (x *GetGroupActivityResponse_ActivityItem_Transfer) String() string {
 func (*GetGroupActivityResponse_ActivityItem_Transfer) ProtoMessage() {}
 
 func (x *GetGroupActivityResponse_ActivityItem_Transfer) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_group_proto_msgTypes[26]
+	mi := &file_api_v1_group_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1844,6 +1981,285 @@ func (x *GetGroupActivityResponse_ActivityItem_Transfer) GetCurrency() string {
 func (x *GetGroupActivityResponse_ActivityItem_Transfer) GetDate() *timestamppb.Timestamp {
 	if x != nil {
 		return x.Date
+	}
+	return nil
+}
+
+// Per-member spend, per currency.
+type GetGroupStatsResponse_MemberSpending struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserName      string                 `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`
+	Paid          map[string]int64       `protobuf:"bytes,3,rep,name=paid,proto3" json:"paid,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`   // sum of expenses this member paid for
+	Share         map[string]int64       `protobuf:"bytes,4,rep,name=share,proto3" json:"share,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"` // sum of this member's beneficiary shares
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetGroupStatsResponse_MemberSpending) Reset() {
+	*x = GetGroupStatsResponse_MemberSpending{}
+	mi := &file_api_v1_group_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetGroupStatsResponse_MemberSpending) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetGroupStatsResponse_MemberSpending) ProtoMessage() {}
+
+func (x *GetGroupStatsResponse_MemberSpending) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_group_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetGroupStatsResponse_MemberSpending.ProtoReflect.Descriptor instead.
+func (*GetGroupStatsResponse_MemberSpending) Descriptor() ([]byte, []int) {
+	return file_api_v1_group_proto_rawDescGZIP(), []int{16, 1}
+}
+
+func (x *GetGroupStatsResponse_MemberSpending) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *GetGroupStatsResponse_MemberSpending) GetUserName() string {
+	if x != nil {
+		return x.UserName
+	}
+	return ""
+}
+
+func (x *GetGroupStatsResponse_MemberSpending) GetPaid() map[string]int64 {
+	if x != nil {
+		return x.Paid
+	}
+	return nil
+}
+
+func (x *GetGroupStatsResponse_MemberSpending) GetShare() map[string]int64 {
+	if x != nil {
+		return x.Share
+	}
+	return nil
+}
+
+// Running per-member balance over time, grouped by currency.
+type GetGroupStatsResponse_BalancePoint struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Date          *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=date,proto3" json:"date,omitempty"`
+	Balances      map[string]int64       `protobuf:"bytes,2,rep,name=balances,proto3" json:"balances,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"` // user_id -> cents, at this date
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetGroupStatsResponse_BalancePoint) Reset() {
+	*x = GetGroupStatsResponse_BalancePoint{}
+	mi := &file_api_v1_group_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetGroupStatsResponse_BalancePoint) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetGroupStatsResponse_BalancePoint) ProtoMessage() {}
+
+func (x *GetGroupStatsResponse_BalancePoint) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_group_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetGroupStatsResponse_BalancePoint.ProtoReflect.Descriptor instead.
+func (*GetGroupStatsResponse_BalancePoint) Descriptor() ([]byte, []int) {
+	return file_api_v1_group_proto_rawDescGZIP(), []int{16, 2}
+}
+
+func (x *GetGroupStatsResponse_BalancePoint) GetDate() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Date
+	}
+	return nil
+}
+
+func (x *GetGroupStatsResponse_BalancePoint) GetBalances() map[string]int64 {
+	if x != nil {
+		return x.Balances
+	}
+	return nil
+}
+
+type GetGroupStatsResponse_BalanceSeries struct {
+	state         protoimpl.MessageState                `protogen:"open.v1"`
+	Currency      string                                `protobuf:"bytes,1,opt,name=currency,proto3" json:"currency,omitempty"`
+	Points        []*GetGroupStatsResponse_BalancePoint `protobuf:"bytes,2,rep,name=points,proto3" json:"points,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetGroupStatsResponse_BalanceSeries) Reset() {
+	*x = GetGroupStatsResponse_BalanceSeries{}
+	mi := &file_api_v1_group_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetGroupStatsResponse_BalanceSeries) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetGroupStatsResponse_BalanceSeries) ProtoMessage() {}
+
+func (x *GetGroupStatsResponse_BalanceSeries) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_group_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetGroupStatsResponse_BalanceSeries.ProtoReflect.Descriptor instead.
+func (*GetGroupStatsResponse_BalanceSeries) Descriptor() ([]byte, []int) {
+	return file_api_v1_group_proto_rawDescGZIP(), []int{16, 3}
+}
+
+func (x *GetGroupStatsResponse_BalanceSeries) GetCurrency() string {
+	if x != nil {
+		return x.Currency
+	}
+	return ""
+}
+
+func (x *GetGroupStatsResponse_BalanceSeries) GetPoints() []*GetGroupStatsResponse_BalancePoint {
+	if x != nil {
+		return x.Points
+	}
+	return nil
+}
+
+// Cumulative (running) total spend over time, grouped by currency.
+type GetGroupStatsResponse_SpendPoint struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Date          *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=date,proto3" json:"date,omitempty"`
+	Total         int64                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // cumulative cents up to and including this date
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetGroupStatsResponse_SpendPoint) Reset() {
+	*x = GetGroupStatsResponse_SpendPoint{}
+	mi := &file_api_v1_group_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetGroupStatsResponse_SpendPoint) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetGroupStatsResponse_SpendPoint) ProtoMessage() {}
+
+func (x *GetGroupStatsResponse_SpendPoint) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_group_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetGroupStatsResponse_SpendPoint.ProtoReflect.Descriptor instead.
+func (*GetGroupStatsResponse_SpendPoint) Descriptor() ([]byte, []int) {
+	return file_api_v1_group_proto_rawDescGZIP(), []int{16, 5}
+}
+
+func (x *GetGroupStatsResponse_SpendPoint) GetDate() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Date
+	}
+	return nil
+}
+
+func (x *GetGroupStatsResponse_SpendPoint) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+type GetGroupStatsResponse_SpendSeries struct {
+	state         protoimpl.MessageState              `protogen:"open.v1"`
+	Currency      string                              `protobuf:"bytes,1,opt,name=currency,proto3" json:"currency,omitempty"`
+	Points        []*GetGroupStatsResponse_SpendPoint `protobuf:"bytes,2,rep,name=points,proto3" json:"points,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetGroupStatsResponse_SpendSeries) Reset() {
+	*x = GetGroupStatsResponse_SpendSeries{}
+	mi := &file_api_v1_group_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetGroupStatsResponse_SpendSeries) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetGroupStatsResponse_SpendSeries) ProtoMessage() {}
+
+func (x *GetGroupStatsResponse_SpendSeries) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_group_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetGroupStatsResponse_SpendSeries.ProtoReflect.Descriptor instead.
+func (*GetGroupStatsResponse_SpendSeries) Descriptor() ([]byte, []int) {
+	return file_api_v1_group_proto_rawDescGZIP(), []int{16, 6}
+}
+
+func (x *GetGroupStatsResponse_SpendSeries) GetCurrency() string {
+	if x != nil {
+		return x.Currency
+	}
+	return ""
+}
+
+func (x *GetGroupStatsResponse_SpendSeries) GetPoints() []*GetGroupStatsResponse_SpendPoint {
+	if x != nil {
+		return x.Points
 	}
 	return nil
 }
@@ -1978,7 +2394,51 @@ const file_api_v1_group_proto_rawDesc = "" +
 	"\x10TYPE_UNSPECIFIED\x10\x00\x12\x10\n" +
 	"\fTYPE_EXPENSE\x10\x01\x12\x11\n" +
 	"\rTYPE_TRANSFER\x10\x02B\x06\n" +
-	"\x04data\"9\n" +
+	"\x04data\";\n" +
+	"\x14GetGroupStatsRequest\x12#\n" +
+	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\x86\f\n" +
+	"\x15GetGroupStatsResponse\x12W\n" +
+	"\x0etotal_spending\x18\x01 \x03(\v20.api.v1.GetGroupStatsResponse.TotalSpendingEntryR\rtotalSpending\x12U\n" +
+	"\x0fmember_spending\x18\x02 \x03(\v2,.api.v1.GetGroupStatsResponse.MemberSpendingR\x0ememberSpending\x12W\n" +
+	"\x11balance_over_time\x18\x03 \x03(\v2+.api.v1.GetGroupStatsResponse.BalanceSeriesR\x0fbalanceOverTime\x12#\n" +
+	"\rexpense_count\x18\x04 \x01(\x03R\fexpenseCount\x12%\n" +
+	"\x0etransfer_count\x18\x05 \x01(\x03R\rtransferCount\x12Z\n" +
+	"\x0flargest_expense\x18\x06 \x03(\v21.api.v1.GetGroupStatsResponse.LargestExpenseEntryR\x0elargestExpense\x12Z\n" +
+	"\x13cumulative_spending\x18\a \x03(\v2).api.v1.GetGroupStatsResponse.SpendSeriesR\x12cumulativeSpending\x1a@\n" +
+	"\x12TotalSpendingEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x01\x1a\xd4\x02\n" +
+	"\x0eMemberSpending\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1b\n" +
+	"\tuser_name\x18\x02 \x01(\tR\buserName\x12J\n" +
+	"\x04paid\x18\x03 \x03(\v26.api.v1.GetGroupStatsResponse.MemberSpending.PaidEntryR\x04paid\x12M\n" +
+	"\x05share\x18\x04 \x03(\v27.api.v1.GetGroupStatsResponse.MemberSpending.ShareEntryR\x05share\x1a7\n" +
+	"\tPaidEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x01\x1a8\n" +
+	"\n" +
+	"ShareEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x01\x1a\xd1\x01\n" +
+	"\fBalancePoint\x12.\n" +
+	"\x04date\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x04date\x12T\n" +
+	"\bbalances\x18\x02 \x03(\v28.api.v1.GetGroupStatsResponse.BalancePoint.BalancesEntryR\bbalances\x1a;\n" +
+	"\rBalancesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x01\x1ao\n" +
+	"\rBalanceSeries\x12\x1a\n" +
+	"\bcurrency\x18\x01 \x01(\tR\bcurrency\x12B\n" +
+	"\x06points\x18\x02 \x03(\v2*.api.v1.GetGroupStatsResponse.BalancePointR\x06points\x1aA\n" +
+	"\x13LargestExpenseEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x01\x1aR\n" +
+	"\n" +
+	"SpendPoint\x12.\n" +
+	"\x04date\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x04date\x12\x14\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\x1ak\n" +
+	"\vSpendSeries\x12\x1a\n" +
+	"\bcurrency\x18\x01 \x01(\tR\bcurrency\x12@\n" +
+	"\x06points\x18\x02 \x03(\v2(.api.v1.GetGroupStatsResponse.SpendPointR\x06points\"9\n" +
 	"\x12DeleteGroupRequest\x12#\n" +
 	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\x8c\x01\n" +
 	"\x17UploadGroupImageRequest\x12#\n" +
@@ -2019,7 +2479,7 @@ const file_api_v1_group_proto_rawDesc = "" +
 	" GROUP_ARCHIVE_FILTER_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bGROUP_ARCHIVE_FILTER_ACTIVE\x10\x01\x12!\n" +
 	"\x1dGROUP_ARCHIVE_FILTER_ARCHIVED\x10\x02\x12\x1c\n" +
-	"\x18GROUP_ARCHIVE_FILTER_ALL\x10\x032\xc7\b\n" +
+	"\x18GROUP_ARCHIVE_FILTER_ALL\x10\x032\x97\t\n" +
 	"\fGroupService\x12]\n" +
 	"\x12CreateExpenseGroup\x12!.api.v1.CreateExpenseGroupRequest\x1a\".api.v1.CreateExpenseGroupResponse\"\x00\x12H\n" +
 	"\vUpdateGroup\x12\x1a.api.v1.UpdateGroupRequest\x1a\x1b.api.v1.UpdateGroupResponse\"\x00\x12C\n" +
@@ -2033,7 +2493,8 @@ const file_api_v1_group_proto_rawDesc = "" +
 	"\x10SetGroupArchived\x12\x1f.api.v1.SetGroupArchivedRequest\x1a\x16.google.protobuf.Empty\"\x00\x12N\n" +
 	"\rGetUserGroups\x12\x1c.api.v1.GetUserGroupsRequest\x1a\x1d.api.v1.GetUserGroupsResponse\"\x00\x12W\n" +
 	"\x10GetGroupActivity\x12\x1f.api.v1.GetGroupActivityRequest\x1a .api.v1.GetGroupActivityResponse\"\x00\x12o\n" +
-	"\x18GetSettlementSuggestions\x12'.api.v1.GetSettlementSuggestionsRequest\x1a(.api.v1.GetSettlementSuggestionsResponse\"\x00Bm\n" +
+	"\x18GetSettlementSuggestions\x12'.api.v1.GetSettlementSuggestionsRequest\x1a(.api.v1.GetSettlementSuggestionsResponse\"\x00\x12N\n" +
+	"\rGetGroupStats\x12\x1c.api.v1.GetGroupStatsRequest\x1a\x1d.api.v1.GetGroupStatsResponse\"\x00Bm\n" +
 	"\n" +
 	"com.api.v1B\n" +
 	"GroupProtoP\x01Z\x1apennywise/gen/api/v1;apiv1\xa2\x02\x03AXX\xaa\x02\x06Api.V1\xca\x02\x06Api\\V1\xe2\x02\x12Api\\V1\\GPBMetadata\xea\x02\aApi::V1b\x06proto3"
@@ -2051,7 +2512,7 @@ func file_api_v1_group_proto_rawDescGZIP() []byte {
 }
 
 var file_api_v1_group_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_api_v1_group_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
+var file_api_v1_group_proto_msgTypes = make([]protoimpl.MessageInfo, 40)
 var file_api_v1_group_proto_goTypes = []any{
 	(ActivityTypeFilter)(0),                                // 0: api.v1.ActivityTypeFilter
 	(GroupArchiveFilter)(0),                                // 1: api.v1.GroupArchiveFilter
@@ -2071,76 +2532,102 @@ var file_api_v1_group_proto_goTypes = []any{
 	(*GetUserGroupsResponse)(nil),                          // 15: api.v1.GetUserGroupsResponse
 	(*GetGroupActivityRequest)(nil),                        // 16: api.v1.GetGroupActivityRequest
 	(*GetGroupActivityResponse)(nil),                       // 17: api.v1.GetGroupActivityResponse
-	(*DeleteGroupRequest)(nil),                             // 18: api.v1.DeleteGroupRequest
-	(*UploadGroupImageRequest)(nil),                        // 19: api.v1.UploadGroupImageRequest
-	(*UploadGroupImageResponse)(nil),                       // 20: api.v1.UploadGroupImageResponse
-	(*DeleteGroupImageRequest)(nil),                        // 21: api.v1.DeleteGroupImageRequest
-	(*GetSettlementSuggestionsRequest)(nil),                // 22: api.v1.GetSettlementSuggestionsRequest
-	(*SettlementSuggestion)(nil),                           // 23: api.v1.SettlementSuggestion
-	(*GetSettlementSuggestionsResponse)(nil),               // 24: api.v1.GetSettlementSuggestionsResponse
-	nil,                                                    // 25: api.v1.MemberBalance.BalanceEntry
-	nil,                                                    // 26: api.v1.UserGroup.TotalSpendingEntry
-	(*GetGroupActivityResponse_ActivityItem)(nil),          // 27: api.v1.GetGroupActivityResponse.ActivityItem
-	(*GetGroupActivityResponse_ActivityItem_Expense)(nil),  // 28: api.v1.GetGroupActivityResponse.ActivityItem.Expense
-	(*GetGroupActivityResponse_ActivityItem_Transfer)(nil), // 29: api.v1.GetGroupActivityResponse.ActivityItem.Transfer
-	nil,                           // 30: api.v1.GetSettlementSuggestionsRequest.ConversionRatesEntry
-	(*timestamppb.Timestamp)(nil), // 31: google.protobuf.Timestamp
-	(*PageRequest)(nil),           // 32: api.v1.PageRequest
-	(*PageResponse)(nil),          // 33: api.v1.PageResponse
-	(*emptypb.Empty)(nil),         // 34: google.protobuf.Empty
+	(*GetGroupStatsRequest)(nil),                           // 18: api.v1.GetGroupStatsRequest
+	(*GetGroupStatsResponse)(nil),                          // 19: api.v1.GetGroupStatsResponse
+	(*DeleteGroupRequest)(nil),                             // 20: api.v1.DeleteGroupRequest
+	(*UploadGroupImageRequest)(nil),                        // 21: api.v1.UploadGroupImageRequest
+	(*UploadGroupImageResponse)(nil),                       // 22: api.v1.UploadGroupImageResponse
+	(*DeleteGroupImageRequest)(nil),                        // 23: api.v1.DeleteGroupImageRequest
+	(*GetSettlementSuggestionsRequest)(nil),                // 24: api.v1.GetSettlementSuggestionsRequest
+	(*SettlementSuggestion)(nil),                           // 25: api.v1.SettlementSuggestion
+	(*GetSettlementSuggestionsResponse)(nil),               // 26: api.v1.GetSettlementSuggestionsResponse
+	nil,                                                    // 27: api.v1.MemberBalance.BalanceEntry
+	nil,                                                    // 28: api.v1.UserGroup.TotalSpendingEntry
+	(*GetGroupActivityResponse_ActivityItem)(nil),          // 29: api.v1.GetGroupActivityResponse.ActivityItem
+	(*GetGroupActivityResponse_ActivityItem_Expense)(nil),  // 30: api.v1.GetGroupActivityResponse.ActivityItem.Expense
+	(*GetGroupActivityResponse_ActivityItem_Transfer)(nil), // 31: api.v1.GetGroupActivityResponse.ActivityItem.Transfer
+	nil, // 32: api.v1.GetGroupStatsResponse.TotalSpendingEntry
+	(*GetGroupStatsResponse_MemberSpending)(nil), // 33: api.v1.GetGroupStatsResponse.MemberSpending
+	(*GetGroupStatsResponse_BalancePoint)(nil),   // 34: api.v1.GetGroupStatsResponse.BalancePoint
+	(*GetGroupStatsResponse_BalanceSeries)(nil),  // 35: api.v1.GetGroupStatsResponse.BalanceSeries
+	nil,                                      // 36: api.v1.GetGroupStatsResponse.LargestExpenseEntry
+	(*GetGroupStatsResponse_SpendPoint)(nil), // 37: api.v1.GetGroupStatsResponse.SpendPoint
+	(*GetGroupStatsResponse_SpendSeries)(nil), // 38: api.v1.GetGroupStatsResponse.SpendSeries
+	nil,                           // 39: api.v1.GetGroupStatsResponse.MemberSpending.PaidEntry
+	nil,                           // 40: api.v1.GetGroupStatsResponse.MemberSpending.ShareEntry
+	nil,                           // 41: api.v1.GetGroupStatsResponse.BalancePoint.BalancesEntry
+	nil,                           // 42: api.v1.GetSettlementSuggestionsRequest.ConversionRatesEntry
+	(*timestamppb.Timestamp)(nil), // 43: google.protobuf.Timestamp
+	(*PageRequest)(nil),           // 44: api.v1.PageRequest
+	(*PageResponse)(nil),          // 45: api.v1.PageResponse
+	(*emptypb.Empty)(nil),         // 46: google.protobuf.Empty
 }
 var file_api_v1_group_proto_depIdxs = []int32{
-	25, // 0: api.v1.MemberBalance.balance:type_name -> api.v1.MemberBalance.BalanceEntry
+	27, // 0: api.v1.MemberBalance.balance:type_name -> api.v1.MemberBalance.BalanceEntry
 	10, // 1: api.v1.UserGroup.member_balances:type_name -> api.v1.MemberBalance
-	26, // 2: api.v1.UserGroup.total_spending:type_name -> api.v1.UserGroup.TotalSpendingEntry
-	31, // 3: api.v1.UserGroup.image_updated_at:type_name -> google.protobuf.Timestamp
+	28, // 2: api.v1.UserGroup.total_spending:type_name -> api.v1.UserGroup.TotalSpendingEntry
+	43, // 3: api.v1.UserGroup.image_updated_at:type_name -> google.protobuf.Timestamp
 	1,  // 4: api.v1.GetUserGroupsRequest.filter:type_name -> api.v1.GroupArchiveFilter
 	11, // 5: api.v1.GetUserGroupsResponse.groups:type_name -> api.v1.UserGroup
-	32, // 6: api.v1.GetGroupActivityRequest.page:type_name -> api.v1.PageRequest
+	44, // 6: api.v1.GetGroupActivityRequest.page:type_name -> api.v1.PageRequest
 	0,  // 7: api.v1.GetGroupActivityRequest.type_filter:type_name -> api.v1.ActivityTypeFilter
-	27, // 8: api.v1.GetGroupActivityResponse.items:type_name -> api.v1.GetGroupActivityResponse.ActivityItem
-	33, // 9: api.v1.GetGroupActivityResponse.page:type_name -> api.v1.PageResponse
-	31, // 10: api.v1.UploadGroupImageResponse.image_updated_at:type_name -> google.protobuf.Timestamp
-	30, // 11: api.v1.GetSettlementSuggestionsRequest.conversion_rates:type_name -> api.v1.GetSettlementSuggestionsRequest.ConversionRatesEntry
-	23, // 12: api.v1.GetSettlementSuggestionsResponse.suggestions:type_name -> api.v1.SettlementSuggestion
-	2,  // 13: api.v1.GetGroupActivityResponse.ActivityItem.type:type_name -> api.v1.GetGroupActivityResponse.ActivityItem.Type
-	28, // 14: api.v1.GetGroupActivityResponse.ActivityItem.expense:type_name -> api.v1.GetGroupActivityResponse.ActivityItem.Expense
-	29, // 15: api.v1.GetGroupActivityResponse.ActivityItem.transfer:type_name -> api.v1.GetGroupActivityResponse.ActivityItem.Transfer
-	31, // 16: api.v1.GetGroupActivityResponse.ActivityItem.Expense.created_at:type_name -> google.protobuf.Timestamp
-	31, // 17: api.v1.GetGroupActivityResponse.ActivityItem.Expense.date:type_name -> google.protobuf.Timestamp
-	31, // 18: api.v1.GetGroupActivityResponse.ActivityItem.Transfer.created_at:type_name -> google.protobuf.Timestamp
-	31, // 19: api.v1.GetGroupActivityResponse.ActivityItem.Transfer.date:type_name -> google.protobuf.Timestamp
-	3,  // 20: api.v1.GroupService.CreateExpenseGroup:input_type -> api.v1.CreateExpenseGroupRequest
-	8,  // 21: api.v1.GroupService.UpdateGroup:input_type -> api.v1.UpdateGroupRequest
-	18, // 22: api.v1.GroupService.DeleteGroup:input_type -> api.v1.DeleteGroupRequest
-	19, // 23: api.v1.GroupService.UploadGroupImage:input_type -> api.v1.UploadGroupImageRequest
-	21, // 24: api.v1.GroupService.DeleteGroupImage:input_type -> api.v1.DeleteGroupImageRequest
-	5,  // 25: api.v1.GroupService.AddUserToGroup:input_type -> api.v1.AddUserToGroupRequest
-	6,  // 26: api.v1.GroupService.RemoveUserFromGroup:input_type -> api.v1.RemoveUserFromGroupRequest
-	7,  // 27: api.v1.GroupService.UpdateUserWeight:input_type -> api.v1.UpdateUserWeightRequest
-	12, // 28: api.v1.GroupService.SetGroupPinned:input_type -> api.v1.SetGroupPinnedRequest
-	13, // 29: api.v1.GroupService.SetGroupArchived:input_type -> api.v1.SetGroupArchivedRequest
-	14, // 30: api.v1.GroupService.GetUserGroups:input_type -> api.v1.GetUserGroupsRequest
-	16, // 31: api.v1.GroupService.GetGroupActivity:input_type -> api.v1.GetGroupActivityRequest
-	22, // 32: api.v1.GroupService.GetSettlementSuggestions:input_type -> api.v1.GetSettlementSuggestionsRequest
-	4,  // 33: api.v1.GroupService.CreateExpenseGroup:output_type -> api.v1.CreateExpenseGroupResponse
-	9,  // 34: api.v1.GroupService.UpdateGroup:output_type -> api.v1.UpdateGroupResponse
-	34, // 35: api.v1.GroupService.DeleteGroup:output_type -> google.protobuf.Empty
-	20, // 36: api.v1.GroupService.UploadGroupImage:output_type -> api.v1.UploadGroupImageResponse
-	34, // 37: api.v1.GroupService.DeleteGroupImage:output_type -> google.protobuf.Empty
-	34, // 38: api.v1.GroupService.AddUserToGroup:output_type -> google.protobuf.Empty
-	34, // 39: api.v1.GroupService.RemoveUserFromGroup:output_type -> google.protobuf.Empty
-	34, // 40: api.v1.GroupService.UpdateUserWeight:output_type -> google.protobuf.Empty
-	34, // 41: api.v1.GroupService.SetGroupPinned:output_type -> google.protobuf.Empty
-	34, // 42: api.v1.GroupService.SetGroupArchived:output_type -> google.protobuf.Empty
-	15, // 43: api.v1.GroupService.GetUserGroups:output_type -> api.v1.GetUserGroupsResponse
-	17, // 44: api.v1.GroupService.GetGroupActivity:output_type -> api.v1.GetGroupActivityResponse
-	24, // 45: api.v1.GroupService.GetSettlementSuggestions:output_type -> api.v1.GetSettlementSuggestionsResponse
-	33, // [33:46] is the sub-list for method output_type
-	20, // [20:33] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	29, // 8: api.v1.GetGroupActivityResponse.items:type_name -> api.v1.GetGroupActivityResponse.ActivityItem
+	45, // 9: api.v1.GetGroupActivityResponse.page:type_name -> api.v1.PageResponse
+	32, // 10: api.v1.GetGroupStatsResponse.total_spending:type_name -> api.v1.GetGroupStatsResponse.TotalSpendingEntry
+	33, // 11: api.v1.GetGroupStatsResponse.member_spending:type_name -> api.v1.GetGroupStatsResponse.MemberSpending
+	35, // 12: api.v1.GetGroupStatsResponse.balance_over_time:type_name -> api.v1.GetGroupStatsResponse.BalanceSeries
+	36, // 13: api.v1.GetGroupStatsResponse.largest_expense:type_name -> api.v1.GetGroupStatsResponse.LargestExpenseEntry
+	38, // 14: api.v1.GetGroupStatsResponse.cumulative_spending:type_name -> api.v1.GetGroupStatsResponse.SpendSeries
+	43, // 15: api.v1.UploadGroupImageResponse.image_updated_at:type_name -> google.protobuf.Timestamp
+	42, // 16: api.v1.GetSettlementSuggestionsRequest.conversion_rates:type_name -> api.v1.GetSettlementSuggestionsRequest.ConversionRatesEntry
+	25, // 17: api.v1.GetSettlementSuggestionsResponse.suggestions:type_name -> api.v1.SettlementSuggestion
+	2,  // 18: api.v1.GetGroupActivityResponse.ActivityItem.type:type_name -> api.v1.GetGroupActivityResponse.ActivityItem.Type
+	30, // 19: api.v1.GetGroupActivityResponse.ActivityItem.expense:type_name -> api.v1.GetGroupActivityResponse.ActivityItem.Expense
+	31, // 20: api.v1.GetGroupActivityResponse.ActivityItem.transfer:type_name -> api.v1.GetGroupActivityResponse.ActivityItem.Transfer
+	43, // 21: api.v1.GetGroupActivityResponse.ActivityItem.Expense.created_at:type_name -> google.protobuf.Timestamp
+	43, // 22: api.v1.GetGroupActivityResponse.ActivityItem.Expense.date:type_name -> google.protobuf.Timestamp
+	43, // 23: api.v1.GetGroupActivityResponse.ActivityItem.Transfer.created_at:type_name -> google.protobuf.Timestamp
+	43, // 24: api.v1.GetGroupActivityResponse.ActivityItem.Transfer.date:type_name -> google.protobuf.Timestamp
+	39, // 25: api.v1.GetGroupStatsResponse.MemberSpending.paid:type_name -> api.v1.GetGroupStatsResponse.MemberSpending.PaidEntry
+	40, // 26: api.v1.GetGroupStatsResponse.MemberSpending.share:type_name -> api.v1.GetGroupStatsResponse.MemberSpending.ShareEntry
+	43, // 27: api.v1.GetGroupStatsResponse.BalancePoint.date:type_name -> google.protobuf.Timestamp
+	41, // 28: api.v1.GetGroupStatsResponse.BalancePoint.balances:type_name -> api.v1.GetGroupStatsResponse.BalancePoint.BalancesEntry
+	34, // 29: api.v1.GetGroupStatsResponse.BalanceSeries.points:type_name -> api.v1.GetGroupStatsResponse.BalancePoint
+	43, // 30: api.v1.GetGroupStatsResponse.SpendPoint.date:type_name -> google.protobuf.Timestamp
+	37, // 31: api.v1.GetGroupStatsResponse.SpendSeries.points:type_name -> api.v1.GetGroupStatsResponse.SpendPoint
+	3,  // 32: api.v1.GroupService.CreateExpenseGroup:input_type -> api.v1.CreateExpenseGroupRequest
+	8,  // 33: api.v1.GroupService.UpdateGroup:input_type -> api.v1.UpdateGroupRequest
+	20, // 34: api.v1.GroupService.DeleteGroup:input_type -> api.v1.DeleteGroupRequest
+	21, // 35: api.v1.GroupService.UploadGroupImage:input_type -> api.v1.UploadGroupImageRequest
+	23, // 36: api.v1.GroupService.DeleteGroupImage:input_type -> api.v1.DeleteGroupImageRequest
+	5,  // 37: api.v1.GroupService.AddUserToGroup:input_type -> api.v1.AddUserToGroupRequest
+	6,  // 38: api.v1.GroupService.RemoveUserFromGroup:input_type -> api.v1.RemoveUserFromGroupRequest
+	7,  // 39: api.v1.GroupService.UpdateUserWeight:input_type -> api.v1.UpdateUserWeightRequest
+	12, // 40: api.v1.GroupService.SetGroupPinned:input_type -> api.v1.SetGroupPinnedRequest
+	13, // 41: api.v1.GroupService.SetGroupArchived:input_type -> api.v1.SetGroupArchivedRequest
+	14, // 42: api.v1.GroupService.GetUserGroups:input_type -> api.v1.GetUserGroupsRequest
+	16, // 43: api.v1.GroupService.GetGroupActivity:input_type -> api.v1.GetGroupActivityRequest
+	24, // 44: api.v1.GroupService.GetSettlementSuggestions:input_type -> api.v1.GetSettlementSuggestionsRequest
+	18, // 45: api.v1.GroupService.GetGroupStats:input_type -> api.v1.GetGroupStatsRequest
+	4,  // 46: api.v1.GroupService.CreateExpenseGroup:output_type -> api.v1.CreateExpenseGroupResponse
+	9,  // 47: api.v1.GroupService.UpdateGroup:output_type -> api.v1.UpdateGroupResponse
+	46, // 48: api.v1.GroupService.DeleteGroup:output_type -> google.protobuf.Empty
+	22, // 49: api.v1.GroupService.UploadGroupImage:output_type -> api.v1.UploadGroupImageResponse
+	46, // 50: api.v1.GroupService.DeleteGroupImage:output_type -> google.protobuf.Empty
+	46, // 51: api.v1.GroupService.AddUserToGroup:output_type -> google.protobuf.Empty
+	46, // 52: api.v1.GroupService.RemoveUserFromGroup:output_type -> google.protobuf.Empty
+	46, // 53: api.v1.GroupService.UpdateUserWeight:output_type -> google.protobuf.Empty
+	46, // 54: api.v1.GroupService.SetGroupPinned:output_type -> google.protobuf.Empty
+	46, // 55: api.v1.GroupService.SetGroupArchived:output_type -> google.protobuf.Empty
+	15, // 56: api.v1.GroupService.GetUserGroups:output_type -> api.v1.GetUserGroupsResponse
+	17, // 57: api.v1.GroupService.GetGroupActivity:output_type -> api.v1.GetGroupActivityResponse
+	26, // 58: api.v1.GroupService.GetSettlementSuggestions:output_type -> api.v1.GetSettlementSuggestionsResponse
+	19, // 59: api.v1.GroupService.GetGroupStats:output_type -> api.v1.GetGroupStatsResponse
+	46, // [46:60] is the sub-list for method output_type
+	32, // [32:46] is the sub-list for method input_type
+	32, // [32:32] is the sub-list for extension type_name
+	32, // [32:32] is the sub-list for extension extendee
+	0,  // [0:32] is the sub-list for field type_name
 }
 
 func init() { file_api_v1_group_proto_init() }
@@ -2151,19 +2638,19 @@ func file_api_v1_group_proto_init() {
 	file_api_v1_pagination_proto_init()
 	file_api_v1_group_proto_msgTypes[8].OneofWrappers = []any{}
 	file_api_v1_group_proto_msgTypes[13].OneofWrappers = []any{}
-	file_api_v1_group_proto_msgTypes[19].OneofWrappers = []any{}
-	file_api_v1_group_proto_msgTypes[24].OneofWrappers = []any{
+	file_api_v1_group_proto_msgTypes[21].OneofWrappers = []any{}
+	file_api_v1_group_proto_msgTypes[26].OneofWrappers = []any{
 		(*GetGroupActivityResponse_ActivityItem_Expense_)(nil),
 		(*GetGroupActivityResponse_ActivityItem_Transfer_)(nil),
 	}
-	file_api_v1_group_proto_msgTypes[25].OneofWrappers = []any{}
+	file_api_v1_group_proto_msgTypes[27].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_v1_group_proto_rawDesc), len(file_api_v1_group_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   28,
+			NumMessages:   40,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

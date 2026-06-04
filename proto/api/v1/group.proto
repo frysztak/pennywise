@@ -160,6 +160,50 @@ message GetGroupActivityResponse {
   PageResponse page = 2;
 }
 
+message GetGroupStatsRequest {
+  string group_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message GetGroupStatsResponse {
+  // Total amount paid (expenses only), per currency, in cents.
+  map<string, int64> total_spending = 1;
+
+  // Per-member spend, per currency.
+  message MemberSpending {
+    string user_id = 1;
+    string user_name = 2;
+    map<string, int64> paid = 3; // sum of expenses this member paid for
+    map<string, int64> share = 4; // sum of this member's beneficiary shares
+  }
+  repeated MemberSpending member_spending = 2;
+
+  // Running per-member balance over time, grouped by currency.
+  message BalancePoint {
+    google.protobuf.Timestamp date = 1;
+    map<string, int64> balances = 2; // user_id -> cents, at this date
+  }
+  message BalanceSeries {
+    string currency = 1;
+    repeated BalancePoint points = 2;
+  }
+  repeated BalanceSeries balance_over_time = 3;
+
+  int64 expense_count = 4;
+  int64 transfer_count = 5;
+  map<string, int64> largest_expense = 6; // per currency, in cents
+
+  // Cumulative (running) total spend over time, grouped by currency.
+  message SpendPoint {
+    google.protobuf.Timestamp date = 1;
+    int64 total = 2; // cumulative cents up to and including this date
+  }
+  message SpendSeries {
+    string currency = 1;
+    repeated SpendPoint points = 2;
+  }
+  repeated SpendSeries cumulative_spending = 7;
+}
+
 message DeleteGroupRequest {
   string group_id = 1 [(buf.validate.field).string.uuid = true];
 }
@@ -221,4 +265,5 @@ service GroupService {
   rpc GetUserGroups(GetUserGroupsRequest) returns (GetUserGroupsResponse) {}
   rpc GetGroupActivity(GetGroupActivityRequest) returns (GetGroupActivityResponse) {}
   rpc GetSettlementSuggestions(GetSettlementSuggestionsRequest) returns (GetSettlementSuggestionsResponse) {}
+  rpc GetGroupStats(GetGroupStatsRequest) returns (GetGroupStatsResponse) {}
 }

@@ -1,6 +1,5 @@
 import { createQueryOptions, useSuspenseQuery } from "@connectrpc/connect-query";
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { Suspense } from "react";
+import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 import { DeleteExpenseDialog } from "@/features/expense/components/delete-expense-dialog";
@@ -12,15 +11,15 @@ import { DeleteGroupDialog } from "@/features/group/components/delete-group-dial
 import { EditGroupDialog } from "@/features/group/components/edit-group-dialog";
 import { EditGroupImageDialog } from "@/features/group/components/edit-group-image-dialog";
 import { GroupHeader } from "@/features/group/components/group-header";
-import { GroupSections } from "@/features/group/components/group-sections";
+import { GroupTabs } from "@/features/group/components/group-tabs";
 import { useAddMemberModal } from "@/features/group/hooks/use-add-member-modal";
 import { useDeleteGroupModal } from "@/features/group/hooks/use-delete-group-modal";
 import { useEditGroupImageModal } from "@/features/group/hooks/use-edit-group-image-modal";
 import { useEditGroupModal } from "@/features/group/hooks/use-edit-group-modal";
 import { useGroupMutations } from "@/features/group/hooks/use-group-mutations";
+import { GroupPageProvider } from "@/features/group/hooks/use-group-page-context";
 import { DeleteRecurringExpenseDialog } from "@/features/recurring-expense/components/delete-recurring-expense-dialog";
 import { RecurringExpenseModal } from "@/features/recurring-expense/components/recurring-expense-modal";
-import { RecurringRemindersSection } from "@/features/recurring-expense/components/recurring-reminders-section";
 import { useDeleteRecurringExpenseModal } from "@/features/recurring-expense/hooks/use-delete-recurring-expense-modal";
 import { useRecurringExpenseModal } from "@/features/recurring-expense/hooks/use-recurring-expense-modal";
 import { DeleteTransferDialog } from "@/features/transfer/components/delete-transfer-dialog";
@@ -30,7 +29,6 @@ import { useTransferModal } from "@/features/transfer/hooks/use-transfer-modal";
 import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
 import { GroupArchiveFilter, type UserGroup } from "@/gen/api/v1/group_pb";
 import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
-import { Spinner } from "@/shared/components/ui/spinner";
 import { transport } from "@/transport";
 
 export const Route = createFileRoute("/_pathlessLayout/group/$groupId")({
@@ -121,58 +119,25 @@ function RouteComponent() {
         onToggleArchive={() => groupMutations.setGroupArchived(groupId, !groupInfo.archived)}
       />
 
-      {/* Balances + Settle Up + Recurring Reminders + Activity (with merged empty states) */}
-      <Suspense
-        fallback={
-          <div className="flex items-center justify-center h-64">
-            <Spinner className="size-8" />
-          </div>
-        }
-      >
-        <div className="mt-68 md:mt-64">
-          <GroupSections
-            groupId={groupId}
-            memberBalances={groupInfo.memberBalances}
-            currencies={groupInfo.currencies}
-            currentUserId={currentUser.id}
-            defaultCurrency={groupInfo.groupDefaultCurrency}
-            onSettle={transferModal.openCreate}
-            onEditExpense={expenseModal.openEdit}
-            onDeleteExpense={deleteExpenseModal.confirmDelete}
-            onEditTransfer={transferModal.openEdit}
-            onDeleteTransfer={deleteTransferModal.confirmDelete}
-            isArchived={groupInfo.archived}
-            remindersSlot={
-              <Suspense
-                fallback={
-                  <div className="flex items-center justify-center h-64">
-                    <Spinner className="size-8" />
-                  </div>
-                }
-              >
-                <RecurringRemindersSection
-                  groupId={groupId}
-                  onPayReminder={(reminder) =>
-                    expenseModal.openCreate(
-                      {
-                        name: reminder.name,
-                        description: reminder.description,
-                        amount: reminder.amount,
-                        currency: reminder.currency,
-                        payerId: reminder.payerId,
-                      },
-                      reminder.id,
-                    )
-                  }
-                  onEditReminder={(reminder) => recurringExpenseModal.openEdit(reminder)}
-                  onDeleteReminder={(reminderId) => deleteRecurringExpenseModal.confirmDelete(reminderId)}
-                  isArchived={groupInfo.archived}
-                />
-              </Suspense>
-            }
-          />
-        </div>
-      </Suspense>
+      <div className="mt-68 md:mt-64">
+        <GroupTabs groupId={groupId} />
+        <GroupPageProvider
+          value={{
+            groupId,
+            groupInfo,
+            currentUserId: currentUser.id,
+            expenseModal,
+            transferModal,
+            recurringExpenseModal,
+            deleteExpenseModal,
+            deleteTransferModal,
+            deleteRecurringExpenseModal,
+            deleteGroupModal,
+          }}
+        >
+          <Outlet />
+        </GroupPageProvider>
+      </div>
 
       {/* Expense Modal (Create/Edit) */}
       <ExpenseModal

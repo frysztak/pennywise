@@ -189,6 +189,7 @@ func setupVite(isDev bool, mux *http.ServeMux) {
 		"/auth/login",
 		"/dashboard",
 		"/group/{id}",
+		"/group/{id}/stats",
 		"/scan-receipt",
 		"/settings",
 		"/admin",
