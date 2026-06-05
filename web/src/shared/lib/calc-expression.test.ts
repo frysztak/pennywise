@@ -66,4 +66,31 @@ describe("evaluateAmount", () => {
     expect(r.kind).toBe("expression");
     if (r.kind === "expression") expect(r.value).toBe(5);
   });
+
+  it("comma decimal: 42,5 → number 42.5", () => {
+    expect(evaluateAmount("42,5")).toEqual({ kind: "number", value: 42.5 });
+    expect(evaluateAmount("0,99")).toEqual({ kind: "number", value: 0.99 });
+  });
+
+  it("comma decimal in expression: 1,5+2,25 → 3.75", () => {
+    const r = evaluateAmount("1,5+2,25");
+    expect(r.kind).toBe("expression");
+    if (r.kind === "expression") expect(r.value).toBeCloseTo(3.75);
+  });
+
+  it("mixed comma and dot separators: 1,5+2.25 → 3.75", () => {
+    const r = evaluateAmount("1,5+2.25");
+    expect(r.kind).toBe("expression");
+    if (r.kind === "expression") expect(r.value).toBeCloseTo(3.75);
+  });
+
+  it("comma decimal with parens: (1,5+0,5)*2 → 4", () => {
+    expect(evaluateAmount("(1,5+0,5)*2")).toEqual({ kind: "expression", value: 4 });
+  });
+
+  it("unary minus with comma decimal: -1,5+2 → 0.5", () => {
+    const r = evaluateAmount("-1,5+2");
+    expect(r.kind).toBe("expression");
+    if (r.kind === "expression") expect(r.value).toBeCloseTo(0.5);
+  });
 });
