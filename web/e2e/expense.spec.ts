@@ -1,5 +1,4 @@
-import { expect, test } from "@playwright/test";
-
+import { expect, test } from "./fixtures";
 import { createGroup, login, makeUser, register } from "./helpers";
 
 test("a user can create a group and add an expense to it", async ({ page }) => {

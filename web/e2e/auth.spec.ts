@@ -1,5 +1,4 @@
-import { expect, test } from "@playwright/test";
-
+import { expect, test } from "./fixtures";
 import { login, makeUser, register } from "./helpers";
 
 test("unauthenticated access to a protected route redirects to login", async ({ page }) => {

@@ -10,6 +10,8 @@ const APP_URL = `http://localhost:${PORT}`;
 
 export default defineConfig({
   testDir: "./e2e",
+  globalSetup: "./e2e/global-setup.ts",
+  globalTeardown: "./e2e/global-teardown.ts",
   fullyParallel: false,
   workers: 1,
   forbidOnly: !!process.env.CI,
@@ -21,14 +23,16 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    // Production mode: a single Go server serves the embedded web/dist build on
-    // its own port, so it runs alongside `just dev` without a Vite dependency.
-    // web/dist must be built first (`just e2e` does this).
-    command: "go run main.go",
+    // Runs the prebuilt production binary (embeds web/dist); `just e2e` builds
+    // it with `go build -cover` so the run also yields backend coverage.
+    command: "./pennywise-e2e",
     url: APP_URL,
     cwd: repoRoot,
     reuseExistingServer: false,
     timeout: 120_000,
+    // SIGTERM lets main() shut down gracefully so the -cover runtime flushes
+    // coverage (to GOCOVERDIR, set by the justfile) before exit.
+    gracefulShutdown: { signal: "SIGTERM", timeout: 10_000 },
     env: {
       PORT,
       DB_PATH: ":memory:",
