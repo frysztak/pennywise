@@ -13,3 +13,7 @@ coverage.out
 demo-users.txt
 mapping.json
 .claude
+.e2e-data
+web/test-results
+web/playwright-report
+web/.last-run.json

@@ -25,3 +25,6 @@ api-demo:
 
 screenshot-script:
     node web/scripts/screenshots.mjs
+
+e2e *args:
+    cd web && npm run build && npx playwright test {{args}}
