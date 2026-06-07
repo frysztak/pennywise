@@ -31,7 +31,7 @@ func TestAmountConversion(t *testing.T) {
 
 ---
 
-## Integration Tests (10-15 tests) - HIGHEST PRIORITY
+## Backend Integration Tests (10-15 tests) - HIGHEST PRIORITY
 
 Test against real SQLite (in-memory) with actual HTTP handlers. This is where most bugs are caught.
 
@@ -134,6 +134,56 @@ func TestMultiCurrencyBalances(t *testing.T) {
 
 ---
 
+## Frontend Component/Integration Tests (3-5 tests)
+
+Render real components against a **mocked Connect transport** in jsdom — no browser, no backend. This is the frontend analogue of the Go integration tier: it covers component logic that unit tests can't reach and that E2E covers too slowly to be worth the permutations.
+
+**Infra already in place** (don't re-add): Vitest is configured in `vite.config.ts` with a `component` project (`environment: "jsdom"`, matches `src/**/*.test.tsx`). `@testing-library/react`, `jsdom`, and `@vitest/coverage-v8` are installed; `npm test` runs them. The `unit` project already runs `calc-expression.test.ts`. What's missing is a render wrapper + mock transport and any `*.test.tsx` files.
+
+### Render wrapper + mock transport
+
+```tsx
+// src/test/render.tsx
+import { TransportProvider } from "@connectrpc/connect-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { render } from "@testing-library/react";
+import type { Transport } from "@connectrpc/connect";
+
+export function renderWithProviders(ui: React.ReactNode, transport: Transport) {
+  // Fresh client per test; no retries so error paths resolve immediately.
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+  return render(
+    <TransportProvider transport={transport}>
+      <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+    </TransportProvider>,
+  );
+}
+```
+
+Use `createRouterTransport` from `@connectrpc/connect` to stub service methods in-memory (success and error cases), instead of mocking `fetch`:
+
+```tsx
+import { createRouterTransport } from "@connectrpc/connect";
+import { ExpenseService } from "@/gen/api/v1/expense_pb";
+
+const transport = createRouterTransport(({ service }) => {
+  service(ExpenseService, {
+    createExpense: () => ({ /* ...response */ }),
+  });
+});
+```
+
+### What to test (3-5, not more)
+
+1. **Amount input + `calc-expression` wired into the form** — the `,`→`.` handling (commit `d656e78`) and expression evaluation as the user actually triggers it through `amount-input`, not just the pure evaluator (already unit-tested).
+2. **Expense modal validation + submit** — required fields and amount > 0 block submit; a valid submit calls the mocked `createExpense`; a mocked error surfaces via `handleError`/toast.
+3. **`use-group-mutations` cache behavior** — render with a mock transport, fire `deleteExpense`, assert the success toast fires and the `getGroupActivity`/`getUserGroups` query keys are invalidated. (Note: this hook invalidates-on-success; it is **not** optimistic, despite the CLAUDE.md description — don't write rollback assertions.)
+4. **Query-state rendering** (optional) — a component shows loading → empty/error → data screens driven by the mocked transport.
+
+---
+
 ## E2E Tests (3-5 tests)
 
 Use Playwright. Test critical user paths through the actual UI.
@@ -213,18 +263,20 @@ test('protected routes redirect to login', async ({ page }) => {
 | Layer | Tests | Focus |
 |-------|-------|-------|
 | Unit | 3-5 | Balance math, amount conversion |
-| Integration | 10-15 | All API endpoints with real DB |
+| Backend integration | 10-15 | All API endpoints with real DB |
+| Frontend component/integration | 3-5 | Forms, validation, mutation cache effects (mocked transport) |
 | E2E | 3-5 | Critical user journeys |
 
-**Total: ~20 tests**
+**Total: ~25 tests**
 
 ---
 
 ## Implementation Order
 
-1. **Integration tests first** - highest ROI, catches most bugs
+1. **Backend integration tests first** - highest ROI, catches most bugs
 2. **Keep existing unit tests** - `calc/balance_test.go` already covers core math
-3. **E2E tests last** - slowest to run, add after integration tests are stable
+3. **Frontend component/integration tests** - infra (Vitest/jsdom/RTL) already exists; add the render wrapper + mock transport, then the 3-5 tests
+4. **E2E tests last** - slowest to run, add after the others are stable
 
 ---
 
