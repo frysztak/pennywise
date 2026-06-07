@@ -34,11 +34,18 @@ import { transport } from "@/transport";
 export const Route = createFileRoute("/_pathlessLayout/group/$groupId")({
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
-    const userGroups = await context.queryClient.ensureQueryData(
-      createQueryOptions(getUserGroups, { filter: GroupArchiveFilter.ALL }, { transport }),
-    );
+    const opts = createQueryOptions(getUserGroups, { filter: GroupArchiveFilter.ALL }, { transport });
 
-    const group = userGroups.groups.find((g) => g.groupId === params.groupId);
+    let userGroups = await context.queryClient.ensureQueryData(opts);
+    let group = userGroups.groups.find((g) => g.groupId === params.groupId);
+
+    if (!group) {
+      // The cache can be stale right after creating a group: the {filter: ALL}
+      // query isn't mounted on the dashboard, so invalidation marks it stale
+      // without refetching. Confirm with the server before deciding it's missing.
+      userGroups = await context.queryClient.fetchQuery(opts);
+      group = userGroups.groups.find((g) => g.groupId === params.groupId);
+    }
 
     if (!group) {
       toast.error("Group not found");
