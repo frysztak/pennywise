@@ -80,6 +80,13 @@
 
 5. Open http://localhost:3333 in your browser.
 
+## Configuration
+
+Deployment-level settings are controlled by environment variables. The sections
+below cover the most common setups; see
+[`docs/configuration.md`](docs/configuration.md) for a complete reference of every
+supported variable.
+
 ## Docker Setup
 
 Add the following to your `compose.yaml`:
