@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { Coins, Sparkles, Users } from "lucide-react";
+import { Coins, FolderKanban, Sparkles, Users } from "lucide-react";
 
 const items = [
   { to: "/admin/members", label: "Members", icon: Users },
+  { to: "/admin/groups", label: "Groups", icon: FolderKanban },
   { to: "/admin/currencies", label: "Currencies", icon: Coins },
   { to: "/admin/ai", label: "AI", icon: Sparkles },
 ] as const;

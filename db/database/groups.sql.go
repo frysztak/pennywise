@@ -356,6 +356,61 @@ func (q *Queries) IsUserInGroup(ctx context.Context, arg IsUserInGroupParams) (b
 	return is_member, err
 }
 
+const listAllGroups = `-- name: ListAllGroups :many
+SELECT
+  g.id,
+  g.name,
+  g.description,
+  g.created_at,
+  g.created_by,
+  COALESCE(u.username, '') AS created_by_name,
+  (SELECT COUNT(*) FROM user_expense_groups m WHERE m.group_id = g.id) AS member_count
+FROM expense_groups g
+LEFT JOIN users u ON u.id = g.created_by
+ORDER BY g.created_at DESC
+`
+
+type ListAllGroupsRow struct {
+	ID            string
+	Name          string
+	Description   *string
+	CreatedAt     overrides.TextTime
+	CreatedBy     string
+	CreatedByName string
+	MemberCount   int64
+}
+
+func (q *Queries) ListAllGroups(ctx context.Context) ([]ListAllGroupsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listAllGroups)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListAllGroupsRow
+	for rows.Next() {
+		var i ListAllGroupsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.CreatedAt,
+			&i.CreatedBy,
+			&i.CreatedByName,
+			&i.MemberCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const removeGroupCurrency = `-- name: RemoveGroupCurrency :exec
 DELETE FROM group_currencies
 WHERE group_id = ?1 AND currency = ?2

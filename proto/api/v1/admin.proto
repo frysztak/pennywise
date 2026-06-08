@@ -4,6 +4,8 @@ package api.v1;
 
 import "api/v1/user.proto";
 import "buf/validate/validate.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
 message User {
   string id = 1;
@@ -52,9 +54,31 @@ message SetReceiptPromptResponse {
   string prompt = 1;
 }
 
+message Group {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  google.protobuf.Timestamp created_at = 4;
+  string created_by = 5;
+  string created_by_name = 6;
+  int64 member_count = 7;
+}
+
+message ListGroupsRequest {}
+
+message ListGroupsResponse {
+  repeated Group groups = 1;
+}
+
+message AdminServiceDeleteGroupRequest {
+  string group_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
 service AdminService {
   rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {}
   rpc UpdateUserRole(UpdateUserRoleRequest) returns (UpdateUserRoleResponse) {}
+  rpc ListGroups(ListGroupsRequest) returns (ListGroupsResponse) {}
+  rpc DeleteGroup(AdminServiceDeleteGroupRequest) returns (google.protobuf.Empty) {}
   rpc SetCurrencies(SetCurrenciesRequest) returns (SetCurrenciesResponse) {}
   rpc GetReceiptPrompt(GetReceiptPromptRequest) returns (GetReceiptPromptResponse) {}
   rpc SetReceiptPrompt(SetReceiptPromptRequest) returns (SetReceiptPromptResponse) {}

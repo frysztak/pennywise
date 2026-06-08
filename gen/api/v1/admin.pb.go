@@ -10,6 +10,8 @@ import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -522,11 +524,227 @@ func (x *SetReceiptPromptResponse) GetPrompt() string {
 	return ""
 }
 
+type Group struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	CreatedBy     string                 `protobuf:"bytes,5,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	CreatedByName string                 `protobuf:"bytes,6,opt,name=created_by_name,json=createdByName,proto3" json:"created_by_name,omitempty"`
+	MemberCount   int64                  `protobuf:"varint,7,opt,name=member_count,json=memberCount,proto3" json:"member_count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Group) Reset() {
+	*x = Group{}
+	mi := &file_api_v1_admin_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Group) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Group) ProtoMessage() {}
+
+func (x *Group) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_admin_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Group.ProtoReflect.Descriptor instead.
+func (*Group) Descriptor() ([]byte, []int) {
+	return file_api_v1_admin_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *Group) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Group) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Group) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *Group) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *Group) GetCreatedBy() string {
+	if x != nil {
+		return x.CreatedBy
+	}
+	return ""
+}
+
+func (x *Group) GetCreatedByName() string {
+	if x != nil {
+		return x.CreatedByName
+	}
+	return ""
+}
+
+func (x *Group) GetMemberCount() int64 {
+	if x != nil {
+		return x.MemberCount
+	}
+	return 0
+}
+
+type ListGroupsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListGroupsRequest) Reset() {
+	*x = ListGroupsRequest{}
+	mi := &file_api_v1_admin_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListGroupsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListGroupsRequest) ProtoMessage() {}
+
+func (x *ListGroupsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_admin_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListGroupsRequest.ProtoReflect.Descriptor instead.
+func (*ListGroupsRequest) Descriptor() ([]byte, []int) {
+	return file_api_v1_admin_proto_rawDescGZIP(), []int{12}
+}
+
+type ListGroupsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Groups        []*Group               `protobuf:"bytes,1,rep,name=groups,proto3" json:"groups,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListGroupsResponse) Reset() {
+	*x = ListGroupsResponse{}
+	mi := &file_api_v1_admin_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListGroupsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListGroupsResponse) ProtoMessage() {}
+
+func (x *ListGroupsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_admin_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListGroupsResponse.ProtoReflect.Descriptor instead.
+func (*ListGroupsResponse) Descriptor() ([]byte, []int) {
+	return file_api_v1_admin_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ListGroupsResponse) GetGroups() []*Group {
+	if x != nil {
+		return x.Groups
+	}
+	return nil
+}
+
+type AdminServiceDeleteGroupRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	GroupId       string                 `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminServiceDeleteGroupRequest) Reset() {
+	*x = AdminServiceDeleteGroupRequest{}
+	mi := &file_api_v1_admin_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminServiceDeleteGroupRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminServiceDeleteGroupRequest) ProtoMessage() {}
+
+func (x *AdminServiceDeleteGroupRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_admin_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminServiceDeleteGroupRequest.ProtoReflect.Descriptor instead.
+func (*AdminServiceDeleteGroupRequest) Descriptor() ([]byte, []int) {
+	return file_api_v1_admin_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *AdminServiceDeleteGroupRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
 var File_api_v1_admin_proto protoreflect.FileDescriptor
 
 const file_api_v1_admin_proto_rawDesc = "" +
 	"\n" +
-	"\x12api/v1/admin.proto\x12\x06api.v1\x1a\x11api/v1/user.proto\x1a\x1bbuf/validate/validate.proto\"n\n" +
+	"\x12api/v1/admin.proto\x12\x06api.v1\x1a\x11api/v1/user.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"n\n" +
 	"\x04User\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
@@ -554,10 +772,28 @@ const file_api_v1_admin_proto_rawDesc = "" +
 	"\x17SetReceiptPromptRequest\x12\x1f\n" +
 	"\x06prompt\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x06prompt\"2\n" +
 	"\x18SetReceiptPromptResponse\x12\x16\n" +
-	"\x06prompt\x18\x01 \x01(\tR\x06prompt2\xa7\x03\n" +
+	"\x06prompt\x18\x01 \x01(\tR\x06prompt\"\xf2\x01\n" +
+	"\x05Group\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x129\n" +
+	"\n" +
+	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x1d\n" +
+	"\n" +
+	"created_by\x18\x05 \x01(\tR\tcreatedBy\x12&\n" +
+	"\x0fcreated_by_name\x18\x06 \x01(\tR\rcreatedByName\x12!\n" +
+	"\fmember_count\x18\a \x01(\x03R\vmemberCount\"\x13\n" +
+	"\x11ListGroupsRequest\";\n" +
+	"\x12ListGroupsResponse\x12%\n" +
+	"\x06groups\x18\x01 \x03(\v2\r.api.v1.GroupR\x06groups\"E\n" +
+	"\x1eAdminServiceDeleteGroupRequest\x12#\n" +
+	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId2\xbf\x04\n" +
 	"\fAdminService\x12B\n" +
 	"\tListUsers\x12\x18.api.v1.ListUsersRequest\x1a\x19.api.v1.ListUsersResponse\"\x00\x12Q\n" +
-	"\x0eUpdateUserRole\x12\x1d.api.v1.UpdateUserRoleRequest\x1a\x1e.api.v1.UpdateUserRoleResponse\"\x00\x12N\n" +
+	"\x0eUpdateUserRole\x12\x1d.api.v1.UpdateUserRoleRequest\x1a\x1e.api.v1.UpdateUserRoleResponse\"\x00\x12E\n" +
+	"\n" +
+	"ListGroups\x12\x19.api.v1.ListGroupsRequest\x1a\x1a.api.v1.ListGroupsResponse\"\x00\x12O\n" +
+	"\vDeleteGroup\x12&.api.v1.AdminServiceDeleteGroupRequest\x1a\x16.google.protobuf.Empty\"\x00\x12N\n" +
 	"\rSetCurrencies\x12\x1c.api.v1.SetCurrenciesRequest\x1a\x1d.api.v1.SetCurrenciesResponse\"\x00\x12W\n" +
 	"\x10GetReceiptPrompt\x12\x1f.api.v1.GetReceiptPromptRequest\x1a .api.v1.GetReceiptPromptResponse\"\x00\x12W\n" +
 	"\x10SetReceiptPrompt\x12\x1f.api.v1.SetReceiptPromptRequest\x1a .api.v1.SetReceiptPromptResponse\"\x00Bm\n" +
@@ -577,41 +813,53 @@ func file_api_v1_admin_proto_rawDescGZIP() []byte {
 	return file_api_v1_admin_proto_rawDescData
 }
 
-var file_api_v1_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_api_v1_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_api_v1_admin_proto_goTypes = []any{
-	(*User)(nil),                     // 0: api.v1.User
-	(*ListUsersRequest)(nil),         // 1: api.v1.ListUsersRequest
-	(*ListUsersResponse)(nil),        // 2: api.v1.ListUsersResponse
-	(*UpdateUserRoleRequest)(nil),    // 3: api.v1.UpdateUserRoleRequest
-	(*UpdateUserRoleResponse)(nil),   // 4: api.v1.UpdateUserRoleResponse
-	(*SetCurrenciesRequest)(nil),     // 5: api.v1.SetCurrenciesRequest
-	(*SetCurrenciesResponse)(nil),    // 6: api.v1.SetCurrenciesResponse
-	(*GetReceiptPromptRequest)(nil),  // 7: api.v1.GetReceiptPromptRequest
-	(*GetReceiptPromptResponse)(nil), // 8: api.v1.GetReceiptPromptResponse
-	(*SetReceiptPromptRequest)(nil),  // 9: api.v1.SetReceiptPromptRequest
-	(*SetReceiptPromptResponse)(nil), // 10: api.v1.SetReceiptPromptResponse
-	(UserRole)(0),                    // 11: api.v1.UserRole
+	(*User)(nil),                           // 0: api.v1.User
+	(*ListUsersRequest)(nil),               // 1: api.v1.ListUsersRequest
+	(*ListUsersResponse)(nil),              // 2: api.v1.ListUsersResponse
+	(*UpdateUserRoleRequest)(nil),          // 3: api.v1.UpdateUserRoleRequest
+	(*UpdateUserRoleResponse)(nil),         // 4: api.v1.UpdateUserRoleResponse
+	(*SetCurrenciesRequest)(nil),           // 5: api.v1.SetCurrenciesRequest
+	(*SetCurrenciesResponse)(nil),          // 6: api.v1.SetCurrenciesResponse
+	(*GetReceiptPromptRequest)(nil),        // 7: api.v1.GetReceiptPromptRequest
+	(*GetReceiptPromptResponse)(nil),       // 8: api.v1.GetReceiptPromptResponse
+	(*SetReceiptPromptRequest)(nil),        // 9: api.v1.SetReceiptPromptRequest
+	(*SetReceiptPromptResponse)(nil),       // 10: api.v1.SetReceiptPromptResponse
+	(*Group)(nil),                          // 11: api.v1.Group
+	(*ListGroupsRequest)(nil),              // 12: api.v1.ListGroupsRequest
+	(*ListGroupsResponse)(nil),             // 13: api.v1.ListGroupsResponse
+	(*AdminServiceDeleteGroupRequest)(nil), // 14: api.v1.AdminServiceDeleteGroupRequest
+	(UserRole)(0),                          // 15: api.v1.UserRole
+	(*timestamppb.Timestamp)(nil),          // 16: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),                  // 17: google.protobuf.Empty
 }
 var file_api_v1_admin_proto_depIdxs = []int32{
-	11, // 0: api.v1.User.role:type_name -> api.v1.UserRole
+	15, // 0: api.v1.User.role:type_name -> api.v1.UserRole
 	0,  // 1: api.v1.ListUsersResponse.users:type_name -> api.v1.User
-	11, // 2: api.v1.UpdateUserRoleRequest.role:type_name -> api.v1.UserRole
+	15, // 2: api.v1.UpdateUserRoleRequest.role:type_name -> api.v1.UserRole
 	0,  // 3: api.v1.UpdateUserRoleResponse.user:type_name -> api.v1.User
-	1,  // 4: api.v1.AdminService.ListUsers:input_type -> api.v1.ListUsersRequest
-	3,  // 5: api.v1.AdminService.UpdateUserRole:input_type -> api.v1.UpdateUserRoleRequest
-	5,  // 6: api.v1.AdminService.SetCurrencies:input_type -> api.v1.SetCurrenciesRequest
-	7,  // 7: api.v1.AdminService.GetReceiptPrompt:input_type -> api.v1.GetReceiptPromptRequest
-	9,  // 8: api.v1.AdminService.SetReceiptPrompt:input_type -> api.v1.SetReceiptPromptRequest
-	2,  // 9: api.v1.AdminService.ListUsers:output_type -> api.v1.ListUsersResponse
-	4,  // 10: api.v1.AdminService.UpdateUserRole:output_type -> api.v1.UpdateUserRoleResponse
-	6,  // 11: api.v1.AdminService.SetCurrencies:output_type -> api.v1.SetCurrenciesResponse
-	8,  // 12: api.v1.AdminService.GetReceiptPrompt:output_type -> api.v1.GetReceiptPromptResponse
-	10, // 13: api.v1.AdminService.SetReceiptPrompt:output_type -> api.v1.SetReceiptPromptResponse
-	9,  // [9:14] is the sub-list for method output_type
-	4,  // [4:9] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	16, // 4: api.v1.Group.created_at:type_name -> google.protobuf.Timestamp
+	11, // 5: api.v1.ListGroupsResponse.groups:type_name -> api.v1.Group
+	1,  // 6: api.v1.AdminService.ListUsers:input_type -> api.v1.ListUsersRequest
+	3,  // 7: api.v1.AdminService.UpdateUserRole:input_type -> api.v1.UpdateUserRoleRequest
+	12, // 8: api.v1.AdminService.ListGroups:input_type -> api.v1.ListGroupsRequest
+	14, // 9: api.v1.AdminService.DeleteGroup:input_type -> api.v1.AdminServiceDeleteGroupRequest
+	5,  // 10: api.v1.AdminService.SetCurrencies:input_type -> api.v1.SetCurrenciesRequest
+	7,  // 11: api.v1.AdminService.GetReceiptPrompt:input_type -> api.v1.GetReceiptPromptRequest
+	9,  // 12: api.v1.AdminService.SetReceiptPrompt:input_type -> api.v1.SetReceiptPromptRequest
+	2,  // 13: api.v1.AdminService.ListUsers:output_type -> api.v1.ListUsersResponse
+	4,  // 14: api.v1.AdminService.UpdateUserRole:output_type -> api.v1.UpdateUserRoleResponse
+	13, // 15: api.v1.AdminService.ListGroups:output_type -> api.v1.ListGroupsResponse
+	17, // 16: api.v1.AdminService.DeleteGroup:output_type -> google.protobuf.Empty
+	6,  // 17: api.v1.AdminService.SetCurrencies:output_type -> api.v1.SetCurrenciesResponse
+	8,  // 18: api.v1.AdminService.GetReceiptPrompt:output_type -> api.v1.GetReceiptPromptResponse
+	10, // 19: api.v1.AdminService.SetReceiptPrompt:output_type -> api.v1.SetReceiptPromptResponse
+	13, // [13:20] is the sub-list for method output_type
+	6,  // [6:13] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_api_v1_admin_proto_init() }
@@ -626,7 +874,7 @@ func file_api_v1_admin_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_v1_admin_proto_rawDesc), len(file_api_v1_admin_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

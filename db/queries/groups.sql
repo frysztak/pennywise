@@ -76,6 +76,19 @@ ORDER BY
   (u.pinned_at IS NOT NULL) DESC,
   last_activity_at DESC;
 
+-- name: ListAllGroups :many
+SELECT
+  g.id,
+  g.name,
+  g.description,
+  g.created_at,
+  g.created_by,
+  COALESCE(u.username, '') AS created_by_name,
+  (SELECT COUNT(*) FROM user_expense_groups m WHERE m.group_id = g.id) AS member_count
+FROM expense_groups g
+LEFT JOIN users u ON u.id = g.created_by
+ORDER BY g.created_at DESC;
+
 -- name: GetGroupMembers :many
 SELECT
   ueg.user_id,
