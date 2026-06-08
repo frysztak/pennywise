@@ -1,10 +1,16 @@
-<p align="center">
+<div align="center">
   <img src="https://raw.githubusercontent.com/frysztak/pennywise/refs/heads/main/web/public/logo.svg" width="128px" height="128px" alt="logo">
-  <h1 align="center">Pennywise</h2>
-  <p align="center">
+  <h1>Pennywise</h1>
+  <p>
     A self-hosted expense tracking and splitting application for groups. Keep track of shared expenses, record money transfers between members, and see who owes what at a glance.
   </p>
-</p>
+  <p>
+    <a href="https://github.com/frysztak/pennywise/pkgs/container/pennywise"><img src="https://ghcr-badge.egpl.dev/frysztak/pennywise/latest_tag?color=%2344cc11&ignore=latest&label=version&trim=" alt="Version"></a>
+    <a href="https://github.com/frysztak/pennywise/pkgs/container/pennywise"><img src="https://ghcr-badge.egpl.dev/frysztak/pennywise/size?color=%2344cc11&tag=latest&label=image+size&trim=" alt="Image size"></a>
+    <a href="https://codecov.io/github/frysztak/pennywise"><img src="https://codecov.io/github/frysztak/pennywise/branch/main/graph/badge.svg?token=5CVM3THJ4Z" alt="Coverage"></a>
+    <a href="LICENSE"><img src="https://img.shields.io/github/license/frysztak/pennywise" alt="License"></a>
+  </p>
+</div>
 
 
 ## Features
