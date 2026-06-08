@@ -3,8 +3,7 @@
 //
 // Assumes the app is being started by the `just screenshots` recipe with
 // DB_PATH=.db-demo.sqlite3. This script just waits for the app to be ready,
-// logs in as a demo user, and captures the dashboard and group detail view
-// at desktop and mobile viewports.
+// logs in as a demo user, and captures the screenshots.
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
@@ -29,19 +28,19 @@ const targets = [
       colorScheme: "dark",
     },
   },
-  {
-    name: "mobile",
-    suffix: "-mobile",
-    contextOptions: {
-      viewport: { width: 390, height: 844 },
-      deviceScaleFactor: 3,
-      isMobile: true,
-      hasTouch: true,
-      colorScheme: "dark",
-      userAgent:
-        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
-    },
-  },
+  // {
+  //   name: "mobile",
+  //   suffix: "-mobile",
+  //   contextOptions: {
+  //     viewport: { width: 390, height: 844 },
+  //     deviceScaleFactor: 3,
+  //     isMobile: true,
+  //     hasTouch: true,
+  //     colorScheme: "dark",
+  //     userAgent:
+  //       "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+  //   },
+  // },
 ];
 
 async function waitForServer(url, { timeoutMs = 90_000 } = {}) {
@@ -112,6 +111,20 @@ async function captureForTarget(browser, target) {
   const groupPath = path.join(screenshotsDir, `group-view${target.suffix}.png`);
   await page.screenshot({ path: groupPath });
   console.log(`  ✓ ${path.relative(repoRoot, groupPath)}`);
+
+  // Type an arithmetic expression so the screenshot captures the live "= ..."
+  // total the amount input evaluates below the field.
+  await page.getByRole("button", { name: /add expense/i }).click();
+  await page.getByRole("dialog").waitFor({ state: "visible", timeout: 15_000 });
+  await page.locator("#expenseName").fill("Groceries");
+  await page.locator("#amountWithCurrency").fill("12.50 + 8.30 * 3");
+  await page.getByText(/^=\s/).waitFor({ state: "visible", timeout: 15_000 });
+  // Drop focus so the input's focus ring doesn't show in the screenshot.
+  await page.locator("#amountWithCurrency").blur();
+
+  const expensePath = path.join(screenshotsDir, `expense-modal${target.suffix}.png`);
+  await page.screenshot({ path: expensePath });
+  console.log(`  ✓ ${path.relative(repoRoot, expensePath)}`);
 
   await context.close();
 }

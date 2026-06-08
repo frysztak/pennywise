@@ -36,6 +36,14 @@
 
 </details>
 
+<details>
+
+<summary>Add Expense</summary>
+
+![Add Expense](screenshots/expense-modal.png)
+
+</details>
+
 
 ## Getting Started
 
