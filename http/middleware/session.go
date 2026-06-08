@@ -93,3 +93,31 @@ func SessionMiddleware() *authn.Middleware {
 
 	return authn.NewMiddleware(authenticate)
 }
+
+// RequireSession gates a plain HTTP handler behind a valid session cookie. The
+// Connect SessionMiddleware can't be reused here because it infers a procedure
+// from the URL, which only works for RPC endpoints. Used for the blob-serving
+// routes (avatars, group images).
+func RequireSession(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie(helpers.SessionCookie)
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		hashedToken := helpers.HashSessionToken(cookie.Value)
+		session, err := db.ReadQueries.GetSessionByHash(r.Context(), hashedToken)
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		if session.ExpiredAt.Time.Before(time.Now()) {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		next(w, r)
+	}
+}
