@@ -19,6 +19,8 @@ import (
 	"pennywise/storage"
 
 	"connectrpc.com/connect"
+	"golang.org/x/sync/errgroup"
+
 	"github.com/disintegration/imageorient"
 	_ "golang.org/x/image/webp"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -26,20 +28,23 @@ import (
 )
 
 const (
-	groupImageLargeW     = 1600
-	groupImageLargeH     = 1067
-	groupImageSmallW     = 800
-	groupImageSmallH     = 534
+	groupImageLargeW     = 2880
+	groupImageLargeH     = 1920
+	groupImageMediumW    = 1920
+	groupImageMediumH    = 1280
+	groupImageSmallW     = 1280
+	groupImageSmallH     = 854
 	groupImageQuality    = 75
 	groupImageMaxBytesIn = 16 * 1024 * 1024 // 16MB cap on raw upload
 )
 
 type processedImages struct {
-	large []byte
-	small []byte
+	large  []byte
+	medium []byte
+	small  []byte
 }
 
-// processGroupImage decodes a raster image, produces large and small WebP variants.
+// processGroupImage decodes a raster image, produces large, medium, and small WebP variants.
 func processGroupImage(data []byte) (*processedImages, error) {
 	if len(data) > groupImageMaxBytesIn {
 		return nil, fmt.Errorf("image too large: %d bytes (max %d)", len(data), groupImageMaxBytesIn)
@@ -50,15 +55,25 @@ func processGroupImage(data []byte) (*processedImages, error) {
 		return nil, fmt.Errorf("decode image: %w", err)
 	}
 
-	large, err := helpers.EncodeSize(src, groupImageLargeW, groupImageLargeH, groupImageQuality)
-	if err != nil {
+	// Encode the variants concurrently; they only read from the decoded source.
+	var out processedImages
+	var g errgroup.Group
+	g.Go(func() (err error) {
+		out.large, err = helpers.EncodeSize(src, groupImageLargeW, groupImageLargeH, groupImageQuality)
+		return err
+	})
+	g.Go(func() (err error) {
+		out.medium, err = helpers.EncodeSize(src, groupImageMediumW, groupImageMediumH, groupImageQuality)
+		return err
+	})
+	g.Go(func() (err error) {
+		out.small, err = helpers.EncodeSize(src, groupImageSmallW, groupImageSmallH, groupImageQuality)
+		return err
+	})
+	if err := g.Wait(); err != nil {
 		return nil, err
 	}
-	small, err := helpers.EncodeSize(src, groupImageSmallW, groupImageSmallH, groupImageQuality)
-	if err != nil {
-		return nil, err
-	}
-	return &processedImages{large: large, small: small}, nil
+	return &out, nil
 }
 
 func (s *GroupService) UploadGroupImage(ctx context.Context, r *apiv1.UploadGroupImageRequest) (*apiv1.UploadGroupImageResponse, error) {
@@ -96,6 +111,10 @@ func (s *GroupService) UploadGroupImage(ctx context.Context, r *apiv1.UploadGrou
 		logger.Error("failed to save large group image", "error", err, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
+	if err := storage.Blobs.SaveGroupImage(r.GroupId, storage.SizeMedium, processed.medium, false); err != nil {
+		logger.Error("failed to save medium group image", "error", err, "group_id", r.GroupId)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
 	if err := storage.Blobs.SaveGroupImage(r.GroupId, storage.SizeSmall, processed.small, false); err != nil {
 		logger.Error("failed to save small group image", "error", err, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -111,7 +130,7 @@ func (s *GroupService) UploadGroupImage(ctx context.Context, r *apiv1.UploadGrou
 	}
 
 	logger.Info("group image uploaded", "group_id", r.GroupId,
-		"large_bytes", len(processed.large), "small_bytes", len(processed.small))
+		"large_bytes", len(processed.large), "medium_bytes", len(processed.medium), "small_bytes", len(processed.small))
 
 	return &apiv1.UploadGroupImageResponse{
 		ImageUpdatedAt: timestamppb.New(now.Time),
@@ -165,8 +184,11 @@ func HandleGroupImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	size := storage.SizeLarge
-	if r.URL.Query().Get("size") == string(storage.SizeSmall) {
+	switch r.URL.Query().Get("size") {
+	case string(storage.SizeSmall):
 		size = storage.SizeSmall
+	case string(storage.SizeMedium):
+		size = storage.SizeMedium
 	}
 
 	img, err := storage.Blobs.LoadGroupImage(groupID, size)
