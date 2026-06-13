@@ -44,13 +44,15 @@ var indexTmpl string
 // Otherwise it falls back to VCS info embedded by the Go toolchain.
 var Version = "dev"
 
-var versionOnce sync.Once
+var (
+	buildOnce    sync.Once
+	buildVersion string
+	buildCommit  string
+)
 
-func appVersion() string {
-	versionOnce.Do(func() {
-		if Version != "dev" {
-			return
-		}
+func readBuildInfo() {
+	buildOnce.Do(func() {
+		buildVersion = Version
 		info, ok := debug.ReadBuildInfo()
 		if !ok {
 			return
@@ -70,12 +72,25 @@ func appVersion() string {
 		if len(revision) > 7 {
 			revision = revision[:7]
 		}
-		Version = revision
 		if modified == "true" {
-			Version += "-dirty"
+			revision += "-dirty"
+		}
+		buildCommit = revision
+		// When no version is set at build time, fall back to the commit hash.
+		if buildVersion == "dev" {
+			buildVersion = revision
 		}
 	})
-	return Version
+}
+
+func appVersion() string {
+	readBuildInfo()
+	return buildVersion
+}
+
+func appCommit() string {
+	readBuildInfo()
+	return buildCommit
 }
 
 func main() {
@@ -195,6 +210,7 @@ func setupVite(isDev bool, mux *http.ServeMux) {
 		"/settings/profile",
 		"/settings/appearance",
 		"/settings/language",
+		"/settings/app-info",
 		"/admin",
 		"/admin/members",
 		"/admin/currencies",
@@ -231,6 +247,7 @@ type FrontendConfig struct {
 	PasswordLoginEnabled   bool   `json:"passwordLoginEnabled"`
 	ReceiptScanningEnabled bool   `json:"receiptScanningEnabled"`
 	AppVersion             string `json:"appVersion"`
+	AppCommit              string `json:"appCommit,omitempty"`
 }
 
 func FrontendHandler(isDev bool, appFS, publicFS fs.FS, paths ...string) http.HandlerFunc {
@@ -251,6 +268,7 @@ func FrontendHandler(isDev bool, appFS, publicFS fs.FS, paths ...string) http.Ha
 		PasswordLoginEnabled:   config.Config.PasswordLoginEnabled,
 		ReceiptScanningEnabled: config.Config.ReceiptScanningEnabled(),
 		AppVersion:             appVersion(),
+		AppCommit:              appCommit(),
 	}
 	configJSON, err := json.Marshal(feConfig)
 	if err != nil {

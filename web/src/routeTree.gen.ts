@@ -23,6 +23,7 @@ import { Route as PathlessLayoutAdminIndexRouteImport } from './routes/_pathless
 import { Route as PathlessLayoutSettingsProfileRouteImport } from './routes/_pathlessLayout/settings/profile'
 import { Route as PathlessLayoutSettingsLanguageRouteImport } from './routes/_pathlessLayout/settings/language'
 import { Route as PathlessLayoutSettingsAppearanceRouteImport } from './routes/_pathlessLayout/settings/appearance'
+import { Route as PathlessLayoutSettingsAppInfoRouteImport } from './routes/_pathlessLayout/settings/app-info'
 import { Route as PathlessLayoutAdminMembersRouteImport } from './routes/_pathlessLayout/admin/members'
 import { Route as PathlessLayoutAdminGroupsRouteImport } from './routes/_pathlessLayout/admin/groups'
 import { Route as PathlessLayoutAdminCurrenciesRouteImport } from './routes/_pathlessLayout/admin/currencies'
@@ -108,6 +109,12 @@ const PathlessLayoutSettingsAppearanceRoute =
     path: '/appearance',
     getParentRoute: () => PathlessLayoutSettingsRouteRoute,
   } as any)
+const PathlessLayoutSettingsAppInfoRoute =
+  PathlessLayoutSettingsAppInfoRouteImport.update({
+    id: '/app-info',
+    path: '/app-info',
+    getParentRoute: () => PathlessLayoutSettingsRouteRoute,
+  } as any)
 const PathlessLayoutAdminMembersRoute =
   PathlessLayoutAdminMembersRouteImport.update({
     id: '/members',
@@ -164,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/admin/currencies': typeof PathlessLayoutAdminCurrenciesRoute
   '/admin/groups': typeof PathlessLayoutAdminGroupsRoute
   '/admin/members': typeof PathlessLayoutAdminMembersRoute
+  '/settings/app-info': typeof PathlessLayoutSettingsAppInfoRoute
   '/settings/appearance': typeof PathlessLayoutSettingsAppearanceRoute
   '/settings/language': typeof PathlessLayoutSettingsLanguageRoute
   '/settings/profile': typeof PathlessLayoutSettingsProfileRoute
@@ -183,6 +191,7 @@ export interface FileRoutesByTo {
   '/admin/currencies': typeof PathlessLayoutAdminCurrenciesRoute
   '/admin/groups': typeof PathlessLayoutAdminGroupsRoute
   '/admin/members': typeof PathlessLayoutAdminMembersRoute
+  '/settings/app-info': typeof PathlessLayoutSettingsAppInfoRoute
   '/settings/appearance': typeof PathlessLayoutSettingsAppearanceRoute
   '/settings/language': typeof PathlessLayoutSettingsLanguageRoute
   '/settings/profile': typeof PathlessLayoutSettingsProfileRoute
@@ -207,6 +216,7 @@ export interface FileRoutesById {
   '/_pathlessLayout/admin/currencies': typeof PathlessLayoutAdminCurrenciesRoute
   '/_pathlessLayout/admin/groups': typeof PathlessLayoutAdminGroupsRoute
   '/_pathlessLayout/admin/members': typeof PathlessLayoutAdminMembersRoute
+  '/_pathlessLayout/settings/app-info': typeof PathlessLayoutSettingsAppInfoRoute
   '/_pathlessLayout/settings/appearance': typeof PathlessLayoutSettingsAppearanceRoute
   '/_pathlessLayout/settings/language': typeof PathlessLayoutSettingsLanguageRoute
   '/_pathlessLayout/settings/profile': typeof PathlessLayoutSettingsProfileRoute
@@ -231,6 +241,7 @@ export interface FileRouteTypes {
     | '/admin/currencies'
     | '/admin/groups'
     | '/admin/members'
+    | '/settings/app-info'
     | '/settings/appearance'
     | '/settings/language'
     | '/settings/profile'
@@ -250,6 +261,7 @@ export interface FileRouteTypes {
     | '/admin/currencies'
     | '/admin/groups'
     | '/admin/members'
+    | '/settings/app-info'
     | '/settings/appearance'
     | '/settings/language'
     | '/settings/profile'
@@ -273,6 +285,7 @@ export interface FileRouteTypes {
     | '/_pathlessLayout/admin/currencies'
     | '/_pathlessLayout/admin/groups'
     | '/_pathlessLayout/admin/members'
+    | '/_pathlessLayout/settings/app-info'
     | '/_pathlessLayout/settings/appearance'
     | '/_pathlessLayout/settings/language'
     | '/_pathlessLayout/settings/profile'
@@ -390,6 +403,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PathlessLayoutSettingsAppearanceRouteImport
       parentRoute: typeof PathlessLayoutSettingsRouteRoute
     }
+    '/_pathlessLayout/settings/app-info': {
+      id: '/_pathlessLayout/settings/app-info'
+      path: '/app-info'
+      fullPath: '/settings/app-info'
+      preLoaderRoute: typeof PathlessLayoutSettingsAppInfoRouteImport
+      parentRoute: typeof PathlessLayoutSettingsRouteRoute
+    }
     '/_pathlessLayout/admin/members': {
       id: '/_pathlessLayout/admin/members'
       path: '/members'
@@ -465,6 +485,7 @@ const PathlessLayoutAdminRouteRouteWithChildren =
   )
 
 interface PathlessLayoutSettingsRouteRouteChildren {
+  PathlessLayoutSettingsAppInfoRoute: typeof PathlessLayoutSettingsAppInfoRoute
   PathlessLayoutSettingsAppearanceRoute: typeof PathlessLayoutSettingsAppearanceRoute
   PathlessLayoutSettingsLanguageRoute: typeof PathlessLayoutSettingsLanguageRoute
   PathlessLayoutSettingsProfileRoute: typeof PathlessLayoutSettingsProfileRoute
@@ -473,6 +494,7 @@ interface PathlessLayoutSettingsRouteRouteChildren {
 
 const PathlessLayoutSettingsRouteRouteChildren: PathlessLayoutSettingsRouteRouteChildren =
   {
+    PathlessLayoutSettingsAppInfoRoute: PathlessLayoutSettingsAppInfoRoute,
     PathlessLayoutSettingsAppearanceRoute:
       PathlessLayoutSettingsAppearanceRoute,
     PathlessLayoutSettingsLanguageRoute: PathlessLayoutSettingsLanguageRoute,

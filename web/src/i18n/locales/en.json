@@ -39,6 +39,7 @@
     "settingsProfile": "Settings | Profile",
     "settingsAppearance": "Settings | Appearance",
     "settingsLanguage": "Settings | Language",
+    "settingsAppInfo": "Settings | App info",
     "admin": "Admin",
     "adminGroups": "Admin | Groups",
     "adminCurrencies": "Admin | Currencies",
@@ -536,7 +537,8 @@
     "nav": {
       "profile": "Profile",
       "appearance": "Appearance",
-      "language": "Language"
+      "language": "Language",
+      "appInfo": "App info"
     },
     "profile": {
       "title": "Profile",
@@ -567,6 +569,14 @@
     "language": {
       "title": "Language",
       "description": "Choose the language used across the app"
+    },
+    "appInfo": {
+      "title": "App info",
+      "description": "Version and build details for this Pennywise instance",
+      "version": "Version",
+      "commit": "Commit",
+      "instanceUrl": "Instance URL",
+      "viewOnGithub": "GitHub"
     }
   }
 }

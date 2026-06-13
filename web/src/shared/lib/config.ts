@@ -6,6 +6,7 @@ interface PennywiseConfig {
   passwordLoginEnabled: boolean;
   receiptScanningEnabled: boolean;
   appVersion: string;
+  appCommit?: string;
 }
 
 declare global {

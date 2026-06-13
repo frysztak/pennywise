@@ -1,4 +1,4 @@
-import { Languages, Palette, User } from "lucide-react";
+import { Info, Languages, Palette, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { SectionNav } from "@/shared/components/section-nav";
@@ -7,6 +7,7 @@ const items = [
   { to: "/settings/profile", labelKey: "settings.nav.profile", icon: User },
   { to: "/settings/appearance", labelKey: "settings.nav.appearance", icon: Palette },
   { to: "/settings/language", labelKey: "settings.nav.language", icon: Languages },
+  { to: "/settings/app-info", labelKey: "settings.nav.appInfo", icon: Info },
 ] as const;
 
 export function SettingsNav() {

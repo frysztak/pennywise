@@ -39,6 +39,7 @@
     "settingsProfile": "Ustawienia | Profil",
     "settingsAppearance": "Ustawienia | Wygląd",
     "settingsLanguage": "Ustawienia | Język",
+    "settingsAppInfo": "Ustawienia | O aplikacji",
     "admin": "Administracja",
     "adminGroups": "Administracja | Grupy",
     "adminCurrencies": "Administracja | Waluty",
@@ -547,7 +548,8 @@
     "nav": {
       "profile": "Profil",
       "appearance": "Wygląd",
-      "language": "Język"
+      "language": "Język",
+      "appInfo": "O aplikacji"
     },
     "profile": {
       "title": "Profil",
@@ -578,6 +580,14 @@
     "language": {
       "title": "Język",
       "description": "Wybierz język używany w całej aplikacji"
+    },
+    "appInfo": {
+      "title": "O aplikacji",
+      "description": "Wersja i szczegóły kompilacji tej instancji Pennywise",
+      "version": "Wersja",
+      "commit": "Commit",
+      "instanceUrl": "Adres instancji",
+      "viewOnGithub": "GitHub"
     }
   }
 }
