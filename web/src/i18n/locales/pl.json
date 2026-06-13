@@ -36,6 +36,9 @@
     "dashboard": "Pulpit",
     "scanReceipt": "Skanuj paragon",
     "settings": "Ustawienia",
+    "settingsProfile": "Ustawienia | Profil",
+    "settingsAppearance": "Ustawienia | Wygląd",
+    "settingsLanguage": "Ustawienia | Język",
     "admin": "Administracja",
     "adminGroups": "Administracja | Grupy",
     "adminCurrencies": "Administracja | Waluty",
@@ -541,6 +544,11 @@
   },
   "settings": {
     "title": "Ustawienia",
+    "nav": {
+      "profile": "Profil",
+      "appearance": "Wygląd",
+      "language": "Język"
+    },
     "profile": {
       "title": "Profil",
       "description": "Zarządzaj ustawieniami profilu",

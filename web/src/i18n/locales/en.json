@@ -36,6 +36,9 @@
     "dashboard": "Dashboard",
     "scanReceipt": "Scan receipt",
     "settings": "Settings",
+    "settingsProfile": "Settings | Profile",
+    "settingsAppearance": "Settings | Appearance",
+    "settingsLanguage": "Settings | Language",
     "admin": "Admin",
     "adminGroups": "Admin | Groups",
     "adminCurrencies": "Admin | Currencies",
@@ -530,6 +533,11 @@
   },
   "settings": {
     "title": "Settings",
+    "nav": {
+      "profile": "Profile",
+      "appearance": "Appearance",
+      "language": "Language"
+    },
     "profile": {
       "title": "Profile",
       "description": "Manage your profile settings",
