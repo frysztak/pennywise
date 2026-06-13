@@ -8,6 +8,7 @@
     <a href="https://github.com/frysztak/pennywise/pkgs/container/pennywise"><img src="https://ghcr-badge.egpl.dev/frysztak/pennywise/latest_tag?color=%2344cc11&ignore=latest&label=version&trim=" alt="Version"></a>
     <a href="https://github.com/frysztak/pennywise/pkgs/container/pennywise"><img src="https://ghcr-badge.egpl.dev/frysztak/pennywise/size?color=%2344cc11&tag=latest&label=image+size&trim=" alt="Image size"></a>
     <a href="https://codecov.io/github/frysztak/pennywise"><img src="https://codecov.io/github/frysztak/pennywise/branch/main/graph/badge.svg?token=5CVM3THJ4Z" alt="Coverage"></a>
+    <a href="https://hosted.weblate.org/engage/pennywise/"><img src="https://hosted.weblate.org/widget/pennywise/svg-badge.svg" alt="Translation status"></a>
     <a href="LICENSE"><img src="https://img.shields.io/github/license/frysztak/pennywise" alt="License"></a>
   </p>
 </div>
@@ -187,6 +188,14 @@ environment:
 ## Migrating from other apps
 
 A CLI tool ships with the repo for importing projects from [ihatemoney](https://github.com/spiral-project/ihatemoney) or [Splitwise](https://www.splitwise.com/). See [`cmd/migrate/README.md`](cmd/migrate/README.md) for the full workflow, mapping file format, and flags.
+
+## Translations
+
+Pennywise is localized via [Weblate](https://weblate.org/). The project currently ships English and Polish, and contributions for new languages are welcome — no coding required.
+
+[![Translation status](https://hosted.weblate.org/widget/pennywise/multi-auto.svg)](https://hosted.weblate.org/engage/pennywise/)
+
+Head to the [Pennywise project on Hosted Weblate](https://hosted.weblate.org/projects/pennywise/) to start translating directly in the browser.
 
 ## License
 
