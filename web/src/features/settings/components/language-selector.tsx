@@ -1,3 +1,4 @@
+import { useRouter } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
 import { supportedLanguages } from "@/i18n";
@@ -5,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export function LanguageSelector() {
   const { i18n } = useTranslation();
+  const router = useRouter();
 
   const items = supportedLanguages.map((lang) => ({
     value: lang.code,
@@ -19,7 +21,9 @@ export function LanguageSelector() {
       items={items}
       value={current}
       onValueChange={(value) => {
-        if (value) i18n.changeLanguage(value);
+        // Re-run head()/loaders so route titles (resolved via i18n.t() outside
+        // React) reflect the new language once its catalog has loaded.
+        if (value) i18n.changeLanguage(value).then(() => router.invalidate());
       }}
     >
       <SelectTrigger className="max-w-xs">

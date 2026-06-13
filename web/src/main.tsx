@@ -6,7 +6,7 @@ import { type Root, createRoot } from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
 
 import { AuthProvider, useAuth } from "@/features/auth/auth";
-import i18n from "@/i18n";
+import "@/i18n";
 import { routeTree } from "@/routeTree.gen";
 import { ErrorScreen } from "@/shared/components/error-screen";
 import { ThemeProvider } from "@/shared/components/theme-provider";
@@ -19,23 +19,18 @@ import "./index.css";
 // Register service worker for PWA
 registerSW({ immediate: true });
 
+const queryClient = new QueryClient();
+
 const router = createRouter({
   routeTree,
   defaultPreload: "intent",
   scrollRestoration: true,
   defaultErrorComponent: ({ error }) => <ErrorScreen error={error} />,
   context: {
-    // auth will be passed down from App component
-    auth: undefined!,
-    queryClient: undefined!,
+    auth: { isAuthenticated: false, user: null, setUserData: () => {} },
+    queryClient,
   },
 });
-
-// Route head() titles are resolved via i18n.t() outside React, so they don't react
-// to language changes on their own. Re-run head/loaders on switch to refresh them.
-i18n.on("languageChanged", () => router.invalidate());
-
-const queryClient = new QueryClient();
 
 // Register things for typesafety
 declare module "@tanstack/react-router" {
@@ -60,6 +55,7 @@ const rootElement = document.getElementById("root")!;
 if (!window._reactRoot) {
   window._reactRoot = createRoot(rootElement);
 }
+
 window._reactRoot.render(
   <StrictMode>
     <TransportProvider transport={transport}>
