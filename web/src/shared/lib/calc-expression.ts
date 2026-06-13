@@ -34,10 +34,12 @@ function tokenize(input: string): Token[] | null {
       i++;
       continue;
     }
-    if ((ch >= "0" && ch <= "9") || ch === ".") {
+    if ((ch >= "0" && ch <= "9") || ch === "." || ch === ",") {
       let num = "";
-      while (i < input.length && ((input[i] >= "0" && input[i] <= "9") || input[i] === ".")) {
-        num += input[i++];
+      while (i < input.length && ((input[i] >= "0" && input[i] <= "9") || input[i] === "." || input[i] === ",")) {
+        // Treat "," as a decimal separator, equivalent to "."
+        num += input[i] === "," ? "." : input[i];
+        i++;
       }
       const v = parseFloat(num);
       if (isNaN(v)) return null;
@@ -128,7 +130,7 @@ class Parser {
   }
 }
 
-const BARE_NUMBER_RE = /^-?\d*\.?\d+$/;
+const BARE_NUMBER_RE = /^-?\d*[.,]?\d+$/;
 
 function isExpression(input: string): boolean {
   return !BARE_NUMBER_RE.test(input.trim());

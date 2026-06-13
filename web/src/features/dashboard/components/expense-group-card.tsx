@@ -32,7 +32,13 @@ export function ExpenseGroupCard({
   return (
     <Card className="transition-all hover:shadow-md hover:border-primary/50 h-full overflow-hidden gap-0 pt-0 pb-4">
       <div className="bg-muted aspect-2/1 w-full overflow-hidden relative">
-        <GroupImage groupId={groupId} groupName={groupName} imageUpdatedAt={imageUpdatedAt} className="size-full" />
+        <GroupImage
+          groupId={groupId}
+          groupName={groupName}
+          imageUpdatedAt={imageUpdatedAt}
+          className="size-full"
+          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+        />
         <GroupMemberStack members={members} className="absolute left-3 bottom-3" avatarClassName="size-7" />
         {archived && (
           <Badge variant="secondary" className="absolute right-3 top-3">

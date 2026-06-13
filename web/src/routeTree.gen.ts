@@ -21,6 +21,7 @@ import { Route as PathlessLayoutDashboardRouteImport } from './routes/_pathlessL
 import { Route as PathlessLayoutAdminRouteRouteImport } from './routes/_pathlessLayout/admin/route'
 import { Route as PathlessLayoutAdminIndexRouteImport } from './routes/_pathlessLayout/admin/index'
 import { Route as PathlessLayoutAdminMembersRouteImport } from './routes/_pathlessLayout/admin/members'
+import { Route as PathlessLayoutAdminGroupsRouteImport } from './routes/_pathlessLayout/admin/groups'
 import { Route as PathlessLayoutAdminCurrenciesRouteImport } from './routes/_pathlessLayout/admin/currencies'
 import { Route as PathlessLayoutAdminAiRouteImport } from './routes/_pathlessLayout/admin/ai'
 import { Route as PathlessLayoutGroupGroupIdRouteRouteImport } from './routes/_pathlessLayout/group/$groupId/route'
@@ -90,6 +91,12 @@ const PathlessLayoutAdminMembersRoute =
     path: '/members',
     getParentRoute: () => PathlessLayoutAdminRouteRoute,
   } as any)
+const PathlessLayoutAdminGroupsRoute =
+  PathlessLayoutAdminGroupsRouteImport.update({
+    id: '/groups',
+    path: '/groups',
+    getParentRoute: () => PathlessLayoutAdminRouteRoute,
+  } as any)
 const PathlessLayoutAdminCurrenciesRoute =
   PathlessLayoutAdminCurrenciesRouteImport.update({
     id: '/currencies',
@@ -133,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/group/$groupId': typeof PathlessLayoutGroupGroupIdRouteRouteWithChildren
   '/admin/ai': typeof PathlessLayoutAdminAiRoute
   '/admin/currencies': typeof PathlessLayoutAdminCurrenciesRoute
+  '/admin/groups': typeof PathlessLayoutAdminGroupsRoute
   '/admin/members': typeof PathlessLayoutAdminMembersRoute
   '/admin/': typeof PathlessLayoutAdminIndexRoute
   '/group/$groupId/stats': typeof PathlessLayoutGroupGroupIdStatsRoute
@@ -149,6 +157,7 @@ export interface FileRoutesByTo {
   '/auth/register': typeof AuthRegisterRoute
   '/admin/ai': typeof PathlessLayoutAdminAiRoute
   '/admin/currencies': typeof PathlessLayoutAdminCurrenciesRoute
+  '/admin/groups': typeof PathlessLayoutAdminGroupsRoute
   '/admin/members': typeof PathlessLayoutAdminMembersRoute
   '/admin': typeof PathlessLayoutAdminIndexRoute
   '/group/$groupId/stats': typeof PathlessLayoutGroupGroupIdStatsRoute
@@ -169,6 +178,7 @@ export interface FileRoutesById {
   '/_pathlessLayout/group/$groupId': typeof PathlessLayoutGroupGroupIdRouteRouteWithChildren
   '/_pathlessLayout/admin/ai': typeof PathlessLayoutAdminAiRoute
   '/_pathlessLayout/admin/currencies': typeof PathlessLayoutAdminCurrenciesRoute
+  '/_pathlessLayout/admin/groups': typeof PathlessLayoutAdminGroupsRoute
   '/_pathlessLayout/admin/members': typeof PathlessLayoutAdminMembersRoute
   '/_pathlessLayout/admin/': typeof PathlessLayoutAdminIndexRoute
   '/_pathlessLayout/group/$groupId/stats': typeof PathlessLayoutGroupGroupIdStatsRoute
@@ -189,6 +199,7 @@ export interface FileRouteTypes {
     | '/group/$groupId'
     | '/admin/ai'
     | '/admin/currencies'
+    | '/admin/groups'
     | '/admin/members'
     | '/admin/'
     | '/group/$groupId/stats'
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/admin/ai'
     | '/admin/currencies'
+    | '/admin/groups'
     | '/admin/members'
     | '/admin'
     | '/group/$groupId/stats'
@@ -224,6 +236,7 @@ export interface FileRouteTypes {
     | '/_pathlessLayout/group/$groupId'
     | '/_pathlessLayout/admin/ai'
     | '/_pathlessLayout/admin/currencies'
+    | '/_pathlessLayout/admin/groups'
     | '/_pathlessLayout/admin/members'
     | '/_pathlessLayout/admin/'
     | '/_pathlessLayout/group/$groupId/stats'
@@ -325,6 +338,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PathlessLayoutAdminMembersRouteImport
       parentRoute: typeof PathlessLayoutAdminRouteRoute
     }
+    '/_pathlessLayout/admin/groups': {
+      id: '/_pathlessLayout/admin/groups'
+      path: '/groups'
+      fullPath: '/admin/groups'
+      preLoaderRoute: typeof PathlessLayoutAdminGroupsRouteImport
+      parentRoute: typeof PathlessLayoutAdminRouteRoute
+    }
     '/_pathlessLayout/admin/currencies': {
       id: '/_pathlessLayout/admin/currencies'
       path: '/currencies'
@@ -366,6 +386,7 @@ declare module '@tanstack/react-router' {
 interface PathlessLayoutAdminRouteRouteChildren {
   PathlessLayoutAdminAiRoute: typeof PathlessLayoutAdminAiRoute
   PathlessLayoutAdminCurrenciesRoute: typeof PathlessLayoutAdminCurrenciesRoute
+  PathlessLayoutAdminGroupsRoute: typeof PathlessLayoutAdminGroupsRoute
   PathlessLayoutAdminMembersRoute: typeof PathlessLayoutAdminMembersRoute
   PathlessLayoutAdminIndexRoute: typeof PathlessLayoutAdminIndexRoute
 }
@@ -374,6 +395,7 @@ const PathlessLayoutAdminRouteRouteChildren: PathlessLayoutAdminRouteRouteChildr
   {
     PathlessLayoutAdminAiRoute: PathlessLayoutAdminAiRoute,
     PathlessLayoutAdminCurrenciesRoute: PathlessLayoutAdminCurrenciesRoute,
+    PathlessLayoutAdminGroupsRoute: PathlessLayoutAdminGroupsRoute,
     PathlessLayoutAdminMembersRoute: PathlessLayoutAdminMembersRoute,
     PathlessLayoutAdminIndexRoute: PathlessLayoutAdminIndexRoute,
   }

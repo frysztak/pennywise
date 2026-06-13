@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { GroupImage } from "@/features/group/components/group-image";
 import { deleteGroupImage, getUserGroups, uploadGroupImage } from "@/gen/api/v1/group-GroupService_connectquery";
 import { Button } from "@/shared/components/ui/button";
+import { Spinner } from "@/shared/components/ui/spinner";
 
 const userGroupsKey = createConnectQueryKey({
   schema: getUserGroups,
@@ -56,7 +57,7 @@ export function GroupImageUpload({ groupId, groupName, imageUpdatedAt }: GroupIm
       return;
     }
 
-    // Cap raw upload at 16MB — server re-encodes to JPEG ~1600×1067.
+    // Cap raw upload at 16MB — server re-encodes to WebP variants up to 2880×1920.
     if (file.size > 16 * 1024 * 1024) {
       toast.error(t("group.photo.tooLarge"));
       return;
@@ -86,13 +87,17 @@ export function GroupImageUpload({ groupId, groupName, imageUpdatedAt }: GroupIm
           className="hidden"
         />
         <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isPending}>
-          <Upload />
-          {imageUpdatedAt ? t("group.photo.replace") : t("group.photo.upload")}
+          {upload.isPending ? <Spinner /> : <Upload />}
+          {upload.isPending
+            ? t("group.photo.uploading")
+            : imageUpdatedAt
+              ? t("group.photo.replace")
+              : t("group.photo.upload")}
         </Button>
         {imageUpdatedAt && (
           <Button type="button" variant="ghost" onClick={() => remove.mutate({ groupId })} disabled={isPending}>
-            <Trash2 />
-            {t("group.photo.remove")}
+            {remove.isPending ? <Spinner /> : <Trash2 />}
+            {remove.isPending ? t("group.photo.removing") : t("group.photo.remove")}
           </Button>
         )}
       </div>

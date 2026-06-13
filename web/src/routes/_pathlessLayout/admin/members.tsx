@@ -7,6 +7,9 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 
 export const Route = createFileRoute("/_pathlessLayout/admin/members")({
   component: RouteComponent,
+  head: () => ({
+    meta: [{ title: "Admin | Members" }],
+  }),
 });
 
 function RouteComponent() {

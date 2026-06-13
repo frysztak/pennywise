@@ -11,6 +11,8 @@ import (
 	"pennywise/settings"
 
 	"connectrpc.com/connect"
+	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type AdminService struct{}
@@ -83,6 +85,49 @@ func (s *AdminService) UpdateUserRole(ctx context.Context, r *apiv1.UpdateUserRo
 			Role:     apiv1.UserRole(user.Role),
 		},
 	}, nil
+}
+
+func (s *AdminService) ListGroups(ctx context.Context, r *apiv1.ListGroupsRequest) (*apiv1.ListGroupsResponse, error) {
+	logger := log.FromContext(ctx)
+
+	groups, err := db.ReadQueries.ListAllGroups(ctx)
+	if err != nil {
+		logger.Error("failed to list groups", "error", err)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	responseGroups := make([]*apiv1.Group, 0, len(groups))
+	for _, group := range groups {
+		var description string
+		if group.Description != nil {
+			description = *group.Description
+		}
+		responseGroups = append(responseGroups, &apiv1.Group{
+			Id:            group.ID,
+			Name:          group.Name,
+			Description:   description,
+			CreatedAt:     timestamppb.New(group.CreatedAt.Time),
+			CreatedBy:     group.CreatedBy,
+			CreatedByName: group.CreatedByName,
+			MemberCount:   group.MemberCount,
+		})
+	}
+
+	return &apiv1.ListGroupsResponse{Groups: responseGroups}, nil
+}
+
+func (s *AdminService) DeleteGroup(ctx context.Context, r *apiv1.AdminServiceDeleteGroupRequest) (*emptypb.Empty, error) {
+	logger := log.FromContext(ctx)
+
+	// Admins may delete any group; CASCADE handles related records.
+	if err := db.WriteQueries.DeleteGroup(ctx, r.GroupId); err != nil {
+		logger.Error("failed to delete group", "error", err, "group_id", r.GroupId)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	logger.Info("group deleted by admin", "group_id", r.GroupId)
+
+	return &emptypb.Empty{}, nil
 }
 
 func (s *AdminService) SetCurrencies(ctx context.Context, r *apiv1.SetCurrenciesRequest) (*apiv1.SetCurrenciesResponse, error) {

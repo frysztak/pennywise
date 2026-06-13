@@ -60,6 +60,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"],
+        maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\/pennywise\.api\.v1\..*/i,
@@ -115,6 +116,7 @@ export default defineConfig({
           name: "component",
           environment: "jsdom",
           include: ["src/**/*.test.tsx"],
+          setupFiles: ["./src/test/setup.ts"],
         },
       },
     ],

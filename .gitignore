@@ -13,3 +13,13 @@ coverage.out
 demo-users.txt
 mapping.json
 .claude
+.e2e-data
+.e2e-coverage
+pennywise-e2e
+coverage.out
+e2e-coverage.out
+web/coverage
+web/coverage-e2e
+web/test-results
+web/playwright-report
+web/.last-run.json

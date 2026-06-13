@@ -13,8 +13,9 @@ import (
 type ImageSize string
 
 const (
-	SizeLarge ImageSize = "large"
-	SizeSmall ImageSize = "small"
+	SizeLarge  ImageSize = "large"
+	SizeMedium ImageSize = "medium"
+	SizeSmall  ImageSize = "small"
 )
 
 // Blobs is the global blob storage instance, initialized by Init.
@@ -101,6 +102,7 @@ func (s *BlobStorage) DeleteGroupImages(groupID string) error {
 	paths := []string{
 		s.groupSVGPath(groupID),
 		s.groupImagePath(groupID, SizeLarge),
+		s.groupImagePath(groupID, SizeMedium),
 		s.groupImagePath(groupID, SizeSmall),
 	}
 	for _, p := range paths {

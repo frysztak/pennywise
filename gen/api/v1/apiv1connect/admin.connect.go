@@ -8,6 +8,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	http "net/http"
 	v1 "pennywise/gen/api/v1"
 	strings "strings"
@@ -38,6 +39,11 @@ const (
 	// AdminServiceUpdateUserRoleProcedure is the fully-qualified name of the AdminService's
 	// UpdateUserRole RPC.
 	AdminServiceUpdateUserRoleProcedure = "/api.v1.AdminService/UpdateUserRole"
+	// AdminServiceListGroupsProcedure is the fully-qualified name of the AdminService's ListGroups RPC.
+	AdminServiceListGroupsProcedure = "/api.v1.AdminService/ListGroups"
+	// AdminServiceDeleteGroupProcedure is the fully-qualified name of the AdminService's DeleteGroup
+	// RPC.
+	AdminServiceDeleteGroupProcedure = "/api.v1.AdminService/DeleteGroup"
 	// AdminServiceSetCurrenciesProcedure is the fully-qualified name of the AdminService's
 	// SetCurrencies RPC.
 	AdminServiceSetCurrenciesProcedure = "/api.v1.AdminService/SetCurrencies"
@@ -53,6 +59,8 @@ const (
 type AdminServiceClient interface {
 	ListUsers(context.Context, *v1.ListUsersRequest) (*v1.ListUsersResponse, error)
 	UpdateUserRole(context.Context, *v1.UpdateUserRoleRequest) (*v1.UpdateUserRoleResponse, error)
+	ListGroups(context.Context, *v1.ListGroupsRequest) (*v1.ListGroupsResponse, error)
+	DeleteGroup(context.Context, *v1.AdminServiceDeleteGroupRequest) (*emptypb.Empty, error)
 	SetCurrencies(context.Context, *v1.SetCurrenciesRequest) (*v1.SetCurrenciesResponse, error)
 	GetReceiptPrompt(context.Context, *v1.GetReceiptPromptRequest) (*v1.GetReceiptPromptResponse, error)
 	SetReceiptPrompt(context.Context, *v1.SetReceiptPromptRequest) (*v1.SetReceiptPromptResponse, error)
@@ -81,6 +89,18 @@ func NewAdminServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(adminServiceMethods.ByName("UpdateUserRole")),
 			connect.WithClientOptions(opts...),
 		),
+		listGroups: connect.NewClient[v1.ListGroupsRequest, v1.ListGroupsResponse](
+			httpClient,
+			baseURL+AdminServiceListGroupsProcedure,
+			connect.WithSchema(adminServiceMethods.ByName("ListGroups")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteGroup: connect.NewClient[v1.AdminServiceDeleteGroupRequest, emptypb.Empty](
+			httpClient,
+			baseURL+AdminServiceDeleteGroupProcedure,
+			connect.WithSchema(adminServiceMethods.ByName("DeleteGroup")),
+			connect.WithClientOptions(opts...),
+		),
 		setCurrencies: connect.NewClient[v1.SetCurrenciesRequest, v1.SetCurrenciesResponse](
 			httpClient,
 			baseURL+AdminServiceSetCurrenciesProcedure,
@@ -106,6 +126,8 @@ func NewAdminServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 type adminServiceClient struct {
 	listUsers        *connect.Client[v1.ListUsersRequest, v1.ListUsersResponse]
 	updateUserRole   *connect.Client[v1.UpdateUserRoleRequest, v1.UpdateUserRoleResponse]
+	listGroups       *connect.Client[v1.ListGroupsRequest, v1.ListGroupsResponse]
+	deleteGroup      *connect.Client[v1.AdminServiceDeleteGroupRequest, emptypb.Empty]
 	setCurrencies    *connect.Client[v1.SetCurrenciesRequest, v1.SetCurrenciesResponse]
 	getReceiptPrompt *connect.Client[v1.GetReceiptPromptRequest, v1.GetReceiptPromptResponse]
 	setReceiptPrompt *connect.Client[v1.SetReceiptPromptRequest, v1.SetReceiptPromptResponse]
@@ -123,6 +145,24 @@ func (c *adminServiceClient) ListUsers(ctx context.Context, req *v1.ListUsersReq
 // UpdateUserRole calls api.v1.AdminService.UpdateUserRole.
 func (c *adminServiceClient) UpdateUserRole(ctx context.Context, req *v1.UpdateUserRoleRequest) (*v1.UpdateUserRoleResponse, error) {
 	response, err := c.updateUserRole.CallUnary(ctx, connect.NewRequest(req))
+	if response != nil {
+		return response.Msg, err
+	}
+	return nil, err
+}
+
+// ListGroups calls api.v1.AdminService.ListGroups.
+func (c *adminServiceClient) ListGroups(ctx context.Context, req *v1.ListGroupsRequest) (*v1.ListGroupsResponse, error) {
+	response, err := c.listGroups.CallUnary(ctx, connect.NewRequest(req))
+	if response != nil {
+		return response.Msg, err
+	}
+	return nil, err
+}
+
+// DeleteGroup calls api.v1.AdminService.DeleteGroup.
+func (c *adminServiceClient) DeleteGroup(ctx context.Context, req *v1.AdminServiceDeleteGroupRequest) (*emptypb.Empty, error) {
+	response, err := c.deleteGroup.CallUnary(ctx, connect.NewRequest(req))
 	if response != nil {
 		return response.Msg, err
 	}
@@ -160,6 +200,8 @@ func (c *adminServiceClient) SetReceiptPrompt(ctx context.Context, req *v1.SetRe
 type AdminServiceHandler interface {
 	ListUsers(context.Context, *v1.ListUsersRequest) (*v1.ListUsersResponse, error)
 	UpdateUserRole(context.Context, *v1.UpdateUserRoleRequest) (*v1.UpdateUserRoleResponse, error)
+	ListGroups(context.Context, *v1.ListGroupsRequest) (*v1.ListGroupsResponse, error)
+	DeleteGroup(context.Context, *v1.AdminServiceDeleteGroupRequest) (*emptypb.Empty, error)
 	SetCurrencies(context.Context, *v1.SetCurrenciesRequest) (*v1.SetCurrenciesResponse, error)
 	GetReceiptPrompt(context.Context, *v1.GetReceiptPromptRequest) (*v1.GetReceiptPromptResponse, error)
 	SetReceiptPrompt(context.Context, *v1.SetReceiptPromptRequest) (*v1.SetReceiptPromptResponse, error)
@@ -182,6 +224,18 @@ func NewAdminServiceHandler(svc AdminServiceHandler, opts ...connect.HandlerOpti
 		AdminServiceUpdateUserRoleProcedure,
 		svc.UpdateUserRole,
 		connect.WithSchema(adminServiceMethods.ByName("UpdateUserRole")),
+		connect.WithHandlerOptions(opts...),
+	)
+	adminServiceListGroupsHandler := connect.NewUnaryHandlerSimple(
+		AdminServiceListGroupsProcedure,
+		svc.ListGroups,
+		connect.WithSchema(adminServiceMethods.ByName("ListGroups")),
+		connect.WithHandlerOptions(opts...),
+	)
+	adminServiceDeleteGroupHandler := connect.NewUnaryHandlerSimple(
+		AdminServiceDeleteGroupProcedure,
+		svc.DeleteGroup,
+		connect.WithSchema(adminServiceMethods.ByName("DeleteGroup")),
 		connect.WithHandlerOptions(opts...),
 	)
 	adminServiceSetCurrenciesHandler := connect.NewUnaryHandlerSimple(
@@ -208,6 +262,10 @@ func NewAdminServiceHandler(svc AdminServiceHandler, opts ...connect.HandlerOpti
 			adminServiceListUsersHandler.ServeHTTP(w, r)
 		case AdminServiceUpdateUserRoleProcedure:
 			adminServiceUpdateUserRoleHandler.ServeHTTP(w, r)
+		case AdminServiceListGroupsProcedure:
+			adminServiceListGroupsHandler.ServeHTTP(w, r)
+		case AdminServiceDeleteGroupProcedure:
+			adminServiceDeleteGroupHandler.ServeHTTP(w, r)
 		case AdminServiceSetCurrenciesProcedure:
 			adminServiceSetCurrenciesHandler.ServeHTTP(w, r)
 		case AdminServiceGetReceiptPromptProcedure:
@@ -229,6 +287,14 @@ func (UnimplementedAdminServiceHandler) ListUsers(context.Context, *v1.ListUsers
 
 func (UnimplementedAdminServiceHandler) UpdateUserRole(context.Context, *v1.UpdateUserRoleRequest) (*v1.UpdateUserRoleResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.AdminService.UpdateUserRole is not implemented"))
+}
+
+func (UnimplementedAdminServiceHandler) ListGroups(context.Context, *v1.ListGroupsRequest) (*v1.ListGroupsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.AdminService.ListGroups is not implemented"))
+}
+
+func (UnimplementedAdminServiceHandler) DeleteGroup(context.Context, *v1.AdminServiceDeleteGroupRequest) (*emptypb.Empty, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.AdminService.DeleteGroup is not implemented"))
 }
 
 func (UnimplementedAdminServiceHandler) SetCurrencies(context.Context, *v1.SetCurrenciesRequest) (*v1.SetCurrenciesResponse, error) {

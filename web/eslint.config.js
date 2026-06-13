@@ -8,7 +8,7 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default defineConfig([
-  globalIgnores(["dist"]),
+  globalIgnores(["dist", "coverage", "coverage-e2e"]),
   {
     files: ["**/*.{ts,tsx}"],
     ignores: ["src/gen/**/*"],

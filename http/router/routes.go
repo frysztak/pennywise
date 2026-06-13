@@ -34,9 +34,10 @@ func InitRouter(mux *http.ServeMux) {
 
 	session := middleware.SessionMiddleware()
 
-	// Avatar endpoint (no auth required)
-	mux.HandleFunc("GET /avatar/{userId}", avatar.HandleAvatar)
-	mux.HandleFunc("GET /group-image/{groupId}", group.HandleGroupImage)
+	// Blob endpoints require a valid session, but can't use the Connect
+	// SessionMiddleware (it infers procedures from RPC URLs).
+	mux.HandleFunc("GET /avatar/{userId}", middleware.RequireSession(avatar.HandleAvatar))
+	mux.HandleFunc("GET /group-image/{groupId}", middleware.RequireSession(group.HandleGroupImage))
 
 	// Create interceptors once and reuse them across all services
 	// Order matters: Logging -> Validation

@@ -1,0 +1,41 @@
+coverage:
+  status:
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true
+
+comment:
+  layout: "reach, diff, flags, files"
+  require_changes: true
+
+# vitest and monocart emit SF paths relative to web/ (e.g. "src/..."); prefix
+# them so they match the repo layout.
+fixes:
+  - "src/::web/src/"
+
+flags:
+  api:
+    paths:
+      - "!web/"
+  web:
+    paths:
+      - "web/src/"
+  e2e:
+    paths:
+      - "!web/"
+  e2e-web:
+    paths:
+      - "web/src/"
+
+ignore:
+  - "gen/**"
+  - "db/database/**"
+  - "**/*_test.go"
+  - "tests/**"
+  - "web/node_modules/**"
+  - "web/src/gen/**"
+  - "web/src/routeTree.gen.ts"
+  - "**/*.gen.ts"

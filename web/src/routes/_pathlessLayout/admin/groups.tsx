@@ -1,0 +1,23 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { Suspense } from "react";
+
+import { GroupsCard } from "@/features/admin/components/groups-card";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+
+export const Route = createFileRoute("/_pathlessLayout/admin/groups")({
+  component: RouteComponent,
+  head: () => ({
+    meta: [{ title: "Admin | Groups" }],
+  }),
+});
+
+function RouteComponent() {
+  return (
+    <div className="flex flex-col gap-4">
+      <h1 className="text-3xl font-bold font-serif tracking-tight">Groups</h1>
+      <Suspense fallback={<Skeleton className="h-48 w-full rounded-xl" />}>
+        <GroupsCard />
+      </Suspense>
+    </div>
+  );
+}

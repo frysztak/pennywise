@@ -170,7 +170,9 @@
       "add": "Add photo",
       "replace": "Replace photo",
       "upload": "Upload photo",
+      "uploading": "Uploading…",
       "remove": "Remove",
+      "removing": "Removing…",
       "formatsHint": "JPG, PNG, or WebP. Stored at 1600×1067 and 800×534.",
       "updated": "Group photo updated",
       "removed": "Group photo removed",
@@ -350,6 +352,7 @@
     "title": "Admin",
     "nav": {
       "members": "Members",
+      "groups": "Groups",
       "currencies": "Currencies",
       "ai": "AI"
     },

@@ -216,7 +216,7 @@ func TestToCents(t *testing.T) {
 }
 
 func TestSource_ParseCSV(t *testing.T) {
-	src, err := Open("/home/sebastian/Nextcloud/Documents/splitwise/Islandia 2022.csv")
+	src, err := Open("testdata/splitwise.csv")
 	if err != nil {
 		t.Fatalf("Open: %v", err)
 	}

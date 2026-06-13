@@ -196,6 +196,7 @@ func setupVite(isDev bool, mux *http.ServeMux) {
 		"/admin/members",
 		"/admin/currencies",
 		"/admin/ai",
+		"/admin/groups",
 		"/debug-error",
 	}
 	feHandler := FrontendHandler(isDev, appFS, publicFS, fePaths...)

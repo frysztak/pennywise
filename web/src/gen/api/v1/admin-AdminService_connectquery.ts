@@ -15,6 +15,16 @@ export const listUsers = AdminService.method.listUsers;
 export const updateUserRole = AdminService.method.updateUserRole;
 
 /**
+ * @generated from rpc api.v1.AdminService.ListGroups
+ */
+export const listGroups = AdminService.method.listGroups;
+
+/**
+ * @generated from rpc api.v1.AdminService.DeleteGroup
+ */
+export const deleteGroup = AdminService.method.deleteGroup;
+
+/**
  * @generated from rpc api.v1.AdminService.SetCurrencies
  */
 export const setCurrencies = AdminService.method.setCurrencies;

@@ -39,7 +39,19 @@ func InitDB() error {
 	connectionUrlParams.Add("_cache_size", "-16384") // 16MB cache (negative value = KB)
 	connectionUrlParams.Add("_foreign_keys", "true")
 
-	connectionUrl := fmt.Sprintf("file:%s?%s", config.Config.DBPath, connectionUrlParams.Encode())
+	// A DB_PATH of ":memory:" selects an in-memory database, used by the e2e
+	// test harness. The read and write pools are separate connections, so a
+	// bare ":memory:" would give each connection its own private database and
+	// reads would never see the migrated schema or any writes. Using a named,
+	// shared-cache in-memory DSN makes all connections share one database.
+	var connectionUrl string
+	if config.Config.DBPath == ":memory:" {
+		connectionUrlParams.Set("mode", "memory")
+		connectionUrlParams.Set("cache", "shared")
+		connectionUrl = fmt.Sprintf("file:pennywise?%s", connectionUrlParams.Encode())
+	} else {
+		connectionUrl = fmt.Sprintf("file:%s?%s", config.Config.DBPath, connectionUrlParams.Encode())
+	}
 
 	// Create write connection pool
 	// SQLite only supports one concurrent writer, so limit to 1 connection
