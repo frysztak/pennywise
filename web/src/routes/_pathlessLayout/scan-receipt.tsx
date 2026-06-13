@@ -35,7 +35,7 @@ export const Route = createFileRoute("/_pathlessLayout/scan-receipt")({
   },
   component: RouteComponent,
   head: () => ({
-    meta: [{ title: "Scan receipt" }],
+    meta: [{ title: i18n.t("meta.scanReceipt") }],
   }),
 });
 

@@ -1,5 +1,6 @@
 import { ArrowBigRightDash, BanknoteArrowUp, BanknoteIcon } from "lucide-react";
 import { Fragment } from "react";
+import { useTranslation } from "react-i18next";
 
 import type { TransferTemplateDefaults } from "@/features/transfer/hooks/use-transfer-modal";
 import type { SettlementSuggestion } from "@/gen/api/v1/group_pb";
@@ -17,6 +18,8 @@ interface SettlementCardsProps {
 }
 
 export function SettlementCards({ suggestions, currentUserId, onSettle, isArchived }: SettlementCardsProps) {
+  const { t } = useTranslation();
+
   return (
     <Card>
       <CardContent className="flex flex-col gap-2">
@@ -69,7 +72,7 @@ export function SettlementCards({ suggestions, currentUserId, onSettle, isArchiv
                 {isCurrentUserInvolved && !isArchived && (
                   <Button size="sm" onClick={handleSettle}>
                     <BanknoteArrowUp />
-                    Settle
+                    {t("group.settle")}
                   </Button>
                 )}
               </div>

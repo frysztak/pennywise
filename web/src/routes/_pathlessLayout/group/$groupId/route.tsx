@@ -64,7 +64,7 @@ export const Route = createFileRoute("/_pathlessLayout/group/$groupId")({
   head: (ctx) => {
     const group = ctx.loaderData as UserGroup;
 
-    return { meta: [{ title: `${group.groupName} group` }] };
+    return { meta: [{ title: i18n.t("meta.group", { name: group.groupName }) }] };
   },
 });
 

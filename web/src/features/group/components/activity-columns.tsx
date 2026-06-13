@@ -10,6 +10,7 @@ import type {
 } from "@/gen/api/v1/group_pb";
 import { AmountWithCurrency } from "@/shared/components/amount-with-currency";
 import { MemberAvatar } from "@/shared/components/member-avatar";
+import { formatDate } from "@/shared/lib/format";
 
 export type ActivityItem =
   | { type: "expense"; data: GetGroupActivityResponse_ActivityItem_Expense }
@@ -33,11 +34,7 @@ export function makeActivityColumns(
       header: t("activity.date"),
       cell: ({ row }) => {
         const date = timestampDate(row.original.data.date!);
-        return (
-          <span className="text-sm">
-            {date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-          </span>
-        );
+        return <span className="text-sm">{formatDate(date)}</span>;
       },
     },
     {

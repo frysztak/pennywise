@@ -1,0 +1,575 @@
+{
+  "validation": {
+    "email": "Podaj prawidłowy adres e-mail",
+    "minLength": "{{field}} musi mieć co najmniej {{min}} znaków",
+    "maxLength": "{{field}} może mieć maksymalnie {{max}} znaków",
+    "uuid": "Nieprawidłowy format pola {{field}}",
+    "positiveNumber": "{{field}} musi być większe niż 0",
+    "required": "To pole jest wymagane",
+    "passwordMatch": "Hasła nie są takie same",
+    "invalidPassword": "Nieprawidłowy adres e-mail lub hasło",
+    "passwordLoginDisabled": "Logowanie hasłem jest wyłączone",
+    "registrationDisabled": "Rejestracja jest wyłączona",
+    "senderNotMember": "Nadawca nie jest członkiem tej grupy",
+    "receiverNotMember": "Odbiorca nie jest członkiem tej grupy",
+    "sameUser": "Nadawca i odbiorca muszą być różni",
+    "memberExists": "Użytkownik jest już członkiem tej grupy",
+    "notMember": "Użytkownik nie jest członkiem tej grupy",
+    "defaultCurrency": "Domyślna waluta musi być jedną z wybranych walut"
+  },
+  "fields": {
+    "email": "E-mail",
+    "password": "Hasło",
+    "username": "Nazwa użytkownika",
+    "amount": "Kwota",
+    "name": "Nazwa",
+    "currency": "Waluta",
+    "description": "Opis",
+    "sender_id": "Nadawca",
+    "receiver_id": "Odbiorca",
+    "user_id": "Użytkownik",
+    "default_currency": "Domyślna waluta"
+  },
+  "meta": {
+    "login": "Logowanie",
+    "register": "Rejestracja",
+    "dashboard": "Pulpit",
+    "scanReceipt": "Skanuj paragon",
+    "settings": "Ustawienia",
+    "admin": "Administracja",
+    "adminGroups": "Administracja | Grupy",
+    "adminCurrencies": "Administracja | Waluty",
+    "adminAi": "Administracja | AI",
+    "adminMembers": "Administracja | Członkowie",
+    "group": "{{name}} — grupa"
+  },
+  "common": {
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "delete": "Usuń",
+    "edit": "Edytuj",
+    "add": "Dodaj",
+    "submit": "Wyślij",
+    "close": "Zamknij",
+    "done": "Gotowe",
+    "create": "Utwórz",
+    "loading": "Ładowanie...",
+    "saving": "Zapisywanie...",
+    "settings": "Ustawienia",
+    "language": "Język",
+    "archived": "Zarchiwizowane"
+  },
+  "nav": {
+    "dashboard": "Pulpit",
+    "scanReceipt": "Skanuj paragon",
+    "settings": "Ustawienia",
+    "admin": "Administracja",
+    "logout": "Wyloguj się"
+  },
+  "auth": {
+    "showPassword": "Pokaż hasło",
+    "hidePassword": "Ukryj hasło",
+    "or": "lub",
+    "login": {
+      "title": "Witaj ponownie",
+      "description": "Zaloguj się, aby śledzić, ile jesteś winien — i ile są winni Tobie.",
+      "submit": "Zaloguj się",
+      "noAccount": "Nie masz konta?",
+      "signUp": "Zarejestruj się"
+    },
+    "register": {
+      "title": "Utwórz konto",
+      "description": "Skonfiguruj Pennywise, aby śledzić wspólne wydatki z rodziną i znajomymi.",
+      "submit": "Utwórz konto",
+      "hasAccount": "Masz już konto?",
+      "signIn": "Zaloguj się",
+      "confirmPassword": "Potwierdź hasło",
+      "passwordHint": "Co najmniej 6 znaków",
+      "usernameMin": "Nazwa użytkownika musi mieć co najmniej 3 znaki",
+      "emailInvalid": "Nieprawidłowy adres e-mail",
+      "passwordMin": "Hasło musi mieć co najmniej 6 znaków",
+      "success": "Konto zostało utworzone! Zaloguj się."
+    },
+    "oidc": {
+      "title": "Zaloguj się do Pennywise",
+      "description": "Ta instancja korzysta z logowania jednokrotnego (SSO). Zostaniesz przekierowany do {{provider}} w celu uwierzytelnienia.",
+      "disabledTitle": "Logowanie hasłem jest wyłączone",
+      "disabledBody": "w tej instancji. Administrator ustawił {{provider}} jako jedyną metodę logowania.",
+      "continueWith": "Kontynuuj z {{provider}}"
+    }
+  },
+  "dashboard": {
+    "title": "Pulpit",
+    "subtitle": "Przegląd grup wydatków i sald",
+    "newGroup": "Nowa grupa",
+    "filter": {
+      "active": "Aktywne",
+      "archived": "Zarchiwizowane",
+      "all": "Wszystkie"
+    },
+    "emptyActive": "Nie masz jeszcze żadnych grup wydatków.",
+    "emptyArchived": "Nie masz żadnych zarchiwizowanych grup.",
+    "createHint": "Utwórz grupę, aby zacząć śledzić wspólne wydatki.",
+    "yourBalance": "Twoje saldo:",
+    "recentExpenses": "Ostatnie wydatki"
+  },
+  "group": {
+    "new": {
+      "title": "Dodaj nową grupę",
+      "description": "Utwórz nową grupę wydatków."
+    },
+    "edit": {
+      "title": "Edytuj grupę",
+      "description": "Zaktualizuj szczegóły grupy i zarządzaj wagami członków"
+    },
+    "form": {
+      "name": "Nazwa grupy",
+      "namePlaceholder": "Moja grupa...",
+      "nameMin": "Nazwa musi mieć co najmniej 2 znaki",
+      "description": "Opis grupy",
+      "currencies": "Waluty",
+      "defaultCurrency": "Domyślna waluta",
+      "selectCurrencies": "Wybierz waluty",
+      "selectCurrency": "Wybierz walutę",
+      "currencyRequired": "Waluta jest wymagana",
+      "selectAtLeastOne": "Wybierz co najmniej jedną walutę",
+      "defaultMustBeSelected": "Domyślna waluta musi być jedną z wybranych walut"
+    },
+    "weights": {
+      "label": "Wagi członków",
+      "reset": "Resetuj",
+      "hint": "Jak wydatki dzielą się między członków. Waga 2.0 płaci dwa razy więcej niż 1.0.",
+      "decrease": "Zmniejsz wagę",
+      "increase": "Zwiększ wagę"
+    },
+    "saveChanges": "Zapisz zmiany",
+    "notFound": "Nie znaleziono grupy",
+    "tabs": {
+      "activity": "Aktywność",
+      "stats": "Statystyki"
+    },
+    "header": {
+      "addExpense": "Dodaj wydatek",
+      "addTransfer": "Dodaj przelew",
+      "addRecurring": "Dodaj cykliczny",
+      "inviteMembers": "Zaproś członków",
+      "archive": "Zarchiwizuj grupę",
+      "unarchive": "Przywróć grupę"
+    },
+    "recentActivity": "Ostatnia aktywność",
+    "balancesTitle": "Salda grupy",
+    "balancesEmpty": "Brak sald w tej grupie.",
+    "yourTotalBalance": "Twoje łączne saldo",
+    "totalGroupSpending": "Łączne wydatki grupy",
+    "settleUp": "Rozlicz się",
+    "settle": "Rozlicz",
+    "settleUpTooltip": "Te sugestie są zoptymalizowane tak, aby zminimalizować liczbę przelewów. Sugerowany płatnik może różnić się od osoby, która pierwotnie była dłużna.",
+    "settlementEmpty": "Brak nierozliczonych długów w tej grupie.",
+    "emptyAllSettled": {
+      "title": "Wszystko rozliczone",
+      "description": "Brak sald, brak długów. Dodaj członka grupy, aby zacząć."
+    },
+    "emptyEven": {
+      "title": "Wszyscy są na zero",
+      "description": "Brak sald. Pojawią się tutaj, gdy ktoś doda wydatek."
+    },
+    "deleteDialog": {
+      "title": "Usuń grupę",
+      "description": "Czy na pewno chcesz usunąć „{{name}}”? Spowoduje to trwałe usunięcie wszystkich wydatków, przelewów i sald powiązanych z tą grupą. Tej operacji nie można cofnąć."
+    },
+    "photo": {
+      "title": "Zdjęcie grupy",
+      "description": "Prześlij nowe zdjęcie dla {{name}}.",
+      "change": "Zmień zdjęcie",
+      "add": "Dodaj zdjęcie",
+      "replace": "Zastąp zdjęcie",
+      "upload": "Prześlij zdjęcie",
+      "uploading": "Przesyłanie…",
+      "remove": "Usuń",
+      "removing": "Usuwanie…",
+      "formatsHint": "JPG, PNG lub WebP. Przechowywane w rozmiarach 1600×1067 i 800×534.",
+      "updated": "Zaktualizowano zdjęcie grupy",
+      "removed": "Usunięto zdjęcie grupy",
+      "uploadFailed": "Nie udało się przesłać zdjęcia: {{error}}",
+      "removeFailed": "Nie udało się usunąć zdjęcia: {{error}}",
+      "invalidType": "Wybierz plik graficzny",
+      "tooLarge": "Obraz musi być mniejszy niż 16 MB"
+    },
+    "created": "Grupa utworzona!",
+    "updated": "Grupa zaktualizowana!",
+    "deleted": "Grupa usunięta!",
+    "archived": "Grupa zarchiwizowana!",
+    "unarchived": "Grupa przywrócona!",
+    "pin": "Przypnij grupę",
+    "unpin": "Odepnij grupę",
+    "delete": "Usuń grupę",
+    "more": "Więcej",
+    "list": {
+      "title": "Grupy",
+      "new": "Nowa grupa",
+      "empty": "Nie masz jeszcze żadnych grup."
+    }
+  },
+  "expense": {
+    "new": "Dodaj nowy wydatek",
+    "edit": "Edytuj wydatek",
+    "newDescription": "Utwórz nowy wydatek dla tej grupy.",
+    "editDescription": "Zaktualizuj szczegóły wydatku.",
+    "name": "Nazwa wydatku",
+    "namePlaceholder": "Kolacja, zakupy itp.",
+    "descriptionLabel": "Opis (opcjonalnie)",
+    "descriptionPlaceholder": "Dodatkowe szczegóły...",
+    "amount": "Kwota",
+    "date": "Data",
+    "submitNew": "Utwórz wydatek",
+    "submitEdit": "Zaktualizuj wydatek",
+    "created": "Wydatek utworzony!",
+    "updated": "Wydatek zaktualizowany!",
+    "recorded": "Wydatek zapisany!",
+    "deleted": "Wydatek usunięty!",
+    "people": {
+      "title": "Osoby",
+      "you": "Ty",
+      "owes": "ma do oddania {{amount}}",
+      "payer": "Płatnik",
+      "setPayer": "Ustaw płatnika",
+      "hint": "Dotknij wiersz, aby przełączyć, kto jest uwzględniony. Użyj <1>Ustaw płatnika</1>, aby wybrać, kto zapłacił."
+    },
+    "delete": {
+      "title": "Usuń wydatek",
+      "description": "Czy na pewno chcesz usunąć „{{name}}”? Tej operacji nie można cofnąć."
+    },
+    "validation": {
+      "nameMin": "Nazwa musi mieć co najmniej 2 znaki",
+      "amountNumber": "Kwota musi być liczbą",
+      "amountPositive": "Kwota musi być liczbą dodatnią",
+      "currencyRequired": "Waluta jest wymagana",
+      "payerRequired": "Płatnik jest wymagany",
+      "beneficiaryRequired": "Wymagany jest co najmniej jeden beneficjent",
+      "dateInvalid": "Nieprawidłowy format daty"
+    }
+  },
+  "transfer": {
+    "new": "Zapisz przelew",
+    "edit": "Edytuj przelew",
+    "newDescription": "Zapisz płatność między członkami grupy.",
+    "editDescription": "Zaktualizuj szczegóły przelewu.",
+    "label": "Przelew",
+    "amount": "Kwota",
+    "date": "Data",
+    "submitNew": "Zapisz przelew",
+    "submitEdit": "Zaktualizuj przelew",
+    "recorded": "Przelew zapisany!",
+    "updated": "Przelew zaktualizowany!",
+    "deleted": "Przelew usunięty!",
+    "flow": {
+      "from": "Od",
+      "to": "Do",
+      "choose": "Wybierz",
+      "you": "TY",
+      "swap": "Zamień nadawcę i odbiorcę"
+    },
+    "delete": {
+      "title": "Usuń przelew",
+      "description": "Czy na pewno chcesz usunąć ten przelew od {{sender}} do {{receiver}}? Tej operacji nie można cofnąć."
+    },
+    "validation": {
+      "senderRequired": "Nadawca jest wymagany",
+      "receiverRequired": "Odbiorca jest wymagany",
+      "amountNumber": "Kwota musi być liczbą",
+      "amountPositive": "Kwota musi być liczbą dodatnią",
+      "currencyRequired": "Waluta jest wymagana",
+      "dateInvalid": "Nieprawidłowy format daty",
+      "differentParties": "Nadawca i odbiorca muszą być różni"
+    }
+  },
+  "activity": {
+    "empty": "Brak aktywności w tej grupie.",
+    "transfer": "Przelew",
+    "date": "Data",
+    "description": "Opis",
+    "details": "Szczegóły",
+    "amount": "Kwota",
+    "actions": "Akcje",
+    "paidBy": "zapłacone przez {{name}}",
+    "openMenu": "Otwórz menu",
+    "filter": {
+      "allTypes": "Wszystkie typy",
+      "expenses": "Wydatki",
+      "transfers": "Przelewy",
+      "allCurrencies": "Wszystkie waluty",
+      "allMembers": "Wszyscy członkowie"
+    },
+    "pagination": {
+      "empty": "Brak elementów",
+      "range": "{{from}}–{{to}} z {{total}}",
+      "page": "Strona {{page}} z {{total}}"
+    }
+  },
+  "member": {
+    "addTitle": "Dodaj członków do grupy",
+    "addDescription": "Wyszukaj i wybierz użytkowników, aby dodać ich do grupy.",
+    "searchPlaceholder": "Szukaj użytkowników po nazwie lub adresie e-mail...",
+    "noUsers": "Nie znaleziono użytkowników",
+    "add": "Dodaj",
+    "added": "Dodano członka do grupy!"
+  },
+  "stats": {
+    "balanceOverTime": "Saldo w czasie",
+    "cumulativeSpending": "Skumulowane wydatki",
+    "paidPerMember": "Zapłacone na członka",
+    "totalSpent": "Łącznie wydano",
+    "largestExpense": "Największy wydatek",
+    "expenses": "Wydatki",
+    "transfers": "Przelewy",
+    "noExpenses": "Brak wydatków w walucie {{currency}}.",
+    "noActivity": "Brak aktywności w walucie {{currency}}.",
+    "emptyTitle": "Brak aktywności",
+    "emptyDescription": "Dodaj wydatek, aby zobaczyć statystyki tej grupy."
+  },
+  "recurringExpense": {
+    "new": "Utwórz wydatek cykliczny",
+    "edit": "Edytuj wydatek cykliczny",
+    "newDescription": "Utwórz szablon, który będzie przypominać o zapisaniu wydatków.",
+    "editDescription": "Zaktualizuj szablon wydatku cyklicznego.",
+    "deleted": "Wydatek cykliczny usunięty!",
+    "name": "Nazwa",
+    "namePlaceholder": "np. Miesięczny czynsz",
+    "descriptionLabel": "Opis (opcjonalnie)",
+    "descriptionPlaceholder": "Dodatkowe szczegóły...",
+    "frequency": "Częstotliwość",
+    "amount": "Kwota (opcjonalnie)",
+    "startDate": "Data rozpoczęcia",
+    "defaultPayer": "Domyślny płatnik (opcjonalnie)",
+    "selectPayer": "Wybierz płatnika",
+    "splitNote": "Wydatek zostanie podzielony równo między wszystkich członków grupy",
+    "submitNew": "Utwórz szablon",
+    "submitEdit": "Zaktualizuj szablon",
+    "pay": "Zapłać",
+    "skip": "Pomiń",
+    "created": "Wydatek cykliczny utworzony!",
+    "updated": "Wydatek cykliczny zaktualizowany!",
+    "reminders": {
+      "title": "Przypomnienia cykliczne",
+      "dueDate": "Termin",
+      "description": "Opis",
+      "frequency": "Częstotliwość",
+      "amount": "Kwota",
+      "details": "Szczegóły",
+      "actions": "Akcje"
+    },
+    "deleteDialog": {
+      "title": "Usuń wydatek cykliczny",
+      "description": "Czy na pewno chcesz usunąć ten szablon wydatku cyklicznego? Nie wpłynie to na wydatki, które już zostały zapisane."
+    },
+    "frequencies": {
+      "daily": "Codziennie",
+      "weekly": "Co tydzień",
+      "monthly": "Co miesiąc",
+      "yearly": "Co rok"
+    },
+    "validation": {
+      "nameMin": "Nazwa musi mieć co najmniej 2 znaki",
+      "dateInvalid": "Nieprawidłowy format daty",
+      "amountPositive": "Kwota musi być dodatnia"
+    }
+  },
+  "admin": {
+    "title": "Administracja",
+    "nav": {
+      "members": "Członkowie",
+      "groups": "Grupy",
+      "currencies": "Waluty",
+      "ai": "AI"
+    },
+    "groups": {
+      "title": "Grupy",
+      "description": "Usuwanie grup.",
+      "name": "Nazwa",
+      "owner": "Właściciel",
+      "members": "Członkowie",
+      "created": "Utworzono",
+      "deleteAria": "Usuń {{name}}",
+      "deleteTitle": "Usuń grupę",
+      "deleteDescription": "Czy na pewno chcesz usunąć „{{name}}”? Spowoduje to trwałe usunięcie wszystkich wydatków, przelewów i sald powiązanych z tą grupą. Tej operacji nie można cofnąć.",
+      "deleted": "Grupa usunięta"
+    },
+    "currencies": {
+      "title": "Waluty",
+      "description": "Lista walut dostępnych w całej aplikacji. Dodaj dowolny kod ISO; zmiany obowiązują wszędzie bez ponownego uruchamiania.",
+      "addPlaceholder": "Dodaj kod waluty (np. USD)",
+      "add": "Dodaj",
+      "empty": "Brak walut. Dodaj co najmniej jedną.",
+      "remove": "Usuń {{code}}",
+      "saved": "Zapisano waluty"
+    },
+    "receiptPrompt": {
+      "title": "Prompt OCR paragonu",
+      "description": "Instrukcje wysyłane do modelu podczas skanowania paragonu.",
+      "notConfigured": "Skanowanie paragonów nie jest skonfigurowane na tym serwerze, więc ten prompt jest obecnie nieużywany.",
+      "saved": "Zapisano prompt"
+    },
+    "users": {
+      "title": "Użytkownicy",
+      "description": "Zarządzaj rolami użytkowników.",
+      "username": "Nazwa użytkownika",
+      "email": "E-mail",
+      "role": "Rola",
+      "admin": "Administrator",
+      "regular": "Zwykły"
+    }
+  },
+  "scan": {
+    "steps": {
+      "upload": "Prześlij",
+      "scan": "Skanuj",
+      "review": "Sprawdź",
+      "save": "Zapisz"
+    },
+    "stepOf": "Krok {{current}} z {{total}}",
+    "continue": "Kontynuuj",
+    "back": "Wstecz",
+    "title": "Skanuj paragon",
+    "disabled": "Skanowanie paragonów jest wyłączone",
+    "noData": "Skanowanie nie zwróciło danych",
+    "expensesCreated_one": "Utworzono {{count}} wydatek!",
+    "expensesCreated_few": "Utworzono {{count}} wydatki!",
+    "expensesCreated_many": "Utworzono {{count}} wydatków!",
+    "defaultExpenseName": "Paragon",
+    "defaultItemName": "Pozycja",
+    "fromMerchant": "Od {{merchant}}",
+    "untitledShort": "Bez nazwy",
+    "titles": {
+      "upload": "Zeskanuj paragon",
+      "processing": "Skanowanie",
+      "review": "Sprawdź wyodrębnione dane",
+      "confirm": "Potwierdź i zapisz"
+    },
+    "subtitles": {
+      "upload": "Wrzuć zdjęcie, a wyodrębnimy pozycje",
+      "confirm": "Jak ten paragon ma trafić do Twojego rejestru?",
+      "review": "{{merchant}} · {{date}}"
+    },
+    "upload": {
+      "drop": "Upuść tutaj zdjęcie paragonu",
+      "or": "lub",
+      "browse": "przeglądaj pliki",
+      "formats": "JPG, PNG, WebP do 10 MB",
+      "replace": "Zastąp",
+      "remove": "Usuń",
+      "fileSize": "{{size}} MB",
+      "imageFallback": "obraz",
+      "pasteHint": "Wklej ze schowka lub przeciągnij i upuść z dowolnego miejsca.",
+      "whatWeDo": "Co zrobimy",
+      "step1Label": "Odczytamy Twój paragon",
+      "step1Body": "Sprzedawca, data, każda pozycja z ceną.",
+      "step2Label": "Ty sprawdzasz",
+      "step2Body": "Popraw, co wygląda źle, odznacz pozycje, których nie chcesz.",
+      "step3Label": "Podziel i zapisz",
+      "step3Body": "Jeden wydatek lub jeden na pozycję. Wybierz, kto zapłacił i kto się dzieli.",
+      "tipsTitle": "Wskazówki dla najlepszych efektów",
+      "tip1": "Połóż paragon płasko, w całości w kadrze",
+      "tip2": "Równomierne oświetlenie, bez cieni na pozycjach",
+      "tip3": "Przytnij ciasno — ale nie obetnij sumy",
+      "privacy": "Twój obraz jest przesyłany do przetworzenia i usuwany po wyodrębnieniu danych."
+    },
+    "processing": {
+      "title": "Odczytujemy Twój paragon…",
+      "subtitle": "Zwykle zajmuje to kilka sekund"
+    },
+    "review": {
+      "original": "Oryginał",
+      "noPreview": "Brak podglądu obrazu",
+      "editHint": "Kliknij dowolne pole poniżej, aby edytować.",
+      "items_one": "{{count}} pozycja",
+      "items_few": "{{count}} pozycje",
+      "items_many": "{{count}} pozycji",
+      "extractedSuffix": "wyodrębniono.",
+      "partialTitle": "Częściowe wyodrębnienie",
+      "partialBody_one": "{{count}} pozycja ma niską pewność. Sprawdź oznaczone wiersze przed zapisaniem.",
+      "partialBody_few": "{{count}} pozycje mają niską pewność. Sprawdź oznaczone wiersze przed zapisaniem.",
+      "partialBody_many": "{{count}} pozycji ma niską pewność. Sprawdź oznaczone wiersze przed zapisaniem.",
+      "merchant": "Sprzedawca",
+      "date": "Data",
+      "total": "Suma",
+      "lineItems": "Pozycje",
+      "selectAll": "Zaznacz wszystko",
+      "deselectAll": "Odznacz wszystko",
+      "item": "Pozycja",
+      "qty": "Ilość",
+      "unit": "Cena jedn.",
+      "low": "niska",
+      "addLineItem": "Dodaj pozycję",
+      "selectedItems": "Wybrane pozycje",
+      "selectedCount": "{{selected}} z {{total}}",
+      "selectedTotal": "Suma wybranych",
+      "receiptTotal": "Suma paragonu",
+      "selectedSummary_one": "Wybrano {{selected}} z {{total}} pozycji",
+      "selectedSummary_few": "Wybrano {{selected}} z {{total}} pozycji",
+      "selectedSummary_many": "Wybrano {{selected}} z {{total}} pozycji",
+      "selectedSummary_other": "Wybrano {{selected}} z {{total}} pozycji"
+    },
+    "confirm": {
+      "untitled": "Paragon bez nazwy",
+      "itemCount_one": "{{count}} pozycja",
+      "itemCount_few": "{{count}} pozycje",
+      "itemCount_many": "{{count}} pozycji",
+      "createAs": "Utwórz jako",
+      "oneExpense": "Jeden wydatek",
+      "oneExpenseBody": "Jeden wydatek {{merchant}} na {{total}}.",
+      "receipt": "paragon",
+      "separateExpenses_one": "{{count}} osobny wydatek",
+      "separateExpenses_few": "{{count}} osobne wydatki",
+      "separateExpenses_many": "{{count}} osobnych wydatków",
+      "separateExpensesBody": "Jeden wydatek na pozycję.",
+      "appliedToAll": "Zastosowane do wszystkich wydatków",
+      "expenseDetails": "Szczegóły wydatku",
+      "group": "Grupa",
+      "noGroups": "Brak dostępnych grup",
+      "selectGroup": "Wybierz grupę",
+      "date": "Data",
+      "youllCreate": "Utworzysz",
+      "unnamed": "(bez nazwy)",
+      "people": "Osoby",
+      "pickGroup": "Wybierz grupę, aby określić, kto płaci i kto dzieli ten wydatek.",
+      "backToReview": "Wróć do sprawdzania",
+      "saveExpense": "Zapisz wydatek · {{total}}",
+      "saveExpenses_one": "Zapisz {{count}} wydatek",
+      "saveExpenses_few": "Zapisz {{count}} wydatki",
+      "saveExpenses_many": "Zapisz {{count}} wydatków"
+    }
+  },
+  "settings": {
+    "title": "Ustawienia",
+    "profile": {
+      "title": "Profil",
+      "description": "Zarządzaj ustawieniami profilu",
+      "username": "Nazwa użytkownika",
+      "avatar": "Awatar",
+      "usernamePlaceholder": "Wpisz nazwę użytkownika",
+      "usernameUpdated": "Nazwa użytkownika zaktualizowana",
+      "usernameUpdateFailed": "Nie udało się zaktualizować nazwy użytkownika: {{error}}",
+      "usernameMin": "Nazwa użytkownika musi mieć co najmniej 3 znaki",
+      "avatarUpload": "Prześlij awatar",
+      "avatarUploading": "Przesyłanie...",
+      "avatarHint": "JPG, PNG lub GIF. Maks. 2 MB.",
+      "avatarUploaded": "Awatar przesłany",
+      "avatarUploadFailed": "Nie udało się przesłać awatara: {{error}}",
+      "avatarInvalidType": "Wybierz plik graficzny",
+      "avatarTooLarge": "Obraz musi być mniejszy niż 2 MB"
+    },
+    "appearance": {
+      "title": "Wygląd",
+      "description": "Dostosuj wygląd Pennywise na swoim urządzeniu",
+      "theme": "Motyw",
+      "light": "Jasny",
+      "dark": "Ciemny",
+      "auto": "Automatyczny",
+      "autoHint": "Automatyczny dopasowuje się do ustawień systemu"
+    },
+    "language": {
+      "title": "Język",
+      "description": "Wybierz język używany w całej aplikacji"
+    }
+  }
+}

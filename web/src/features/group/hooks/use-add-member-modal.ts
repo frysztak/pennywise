@@ -1,6 +1,7 @@
 import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { addUserToGroup, getGroupActivity, getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
@@ -16,12 +17,13 @@ interface AddingMember {
 }
 
 export function useAddMemberModal() {
+  const { t } = useTranslation();
   const [addingMember, setAddingMember] = useState<AddingMember | null>(null);
   const queryClient = useQueryClient();
 
   const { mutate: addMemberMutate } = useMutation(addUserToGroup, {
     onSuccess: (_, variables) => {
-      toast.success("Member added to group!");
+      toast.success(t("member.added"));
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
       queryClient.invalidateQueries({
         queryKey: createConnectQueryKey({

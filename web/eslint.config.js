@@ -1,5 +1,6 @@
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
 import js from "@eslint/js";
+import i18next from "eslint-plugin-i18next";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import storybook from "eslint-plugin-storybook";
@@ -28,4 +29,16 @@ export default defineConfig([
     },
   },
   ...storybook.configs["flat/recommended"],
+  {
+    // Catch hardcoded user-facing strings in app code; everything must go through t().
+    files: ["src/features/**/*.tsx", "src/routes/**/*.tsx"],
+    ignores: ["src/routes/routeTree.gen.ts", "**/*.test.tsx", "**/*.stories.tsx"],
+    plugins: { i18next },
+    rules: {
+      // jsx-text-only checks visible text content; attribute enums (variant/size/etc.)
+      // are too noisy to gate on. A handful of real attribute literals (placeholders,
+      // hardcoded locales) are handled separately.
+      "i18next/no-literal-string": ["warn", { mode: "jsx-text-only" }],
+    },
+  },
 ]);

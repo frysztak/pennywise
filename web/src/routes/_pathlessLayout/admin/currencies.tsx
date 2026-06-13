@@ -3,12 +3,13 @@ import { Suspense } from "react";
 import { useTranslation } from "react-i18next";
 
 import { CurrenciesCard } from "@/features/admin/components/currencies-card";
+import i18n from "@/i18n";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
 export const Route = createFileRoute("/_pathlessLayout/admin/currencies")({
   component: RouteComponent,
   head: () => ({
-    meta: [{ title: "Admin | Currencies" }],
+    meta: [{ title: i18n.t("meta.adminCurrencies") }],
   }),
 });
 

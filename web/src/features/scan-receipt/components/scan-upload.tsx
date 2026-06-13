@@ -63,7 +63,8 @@ export function ScanUpload({ file, onFileChange }: { file: File | null; onFileCh
               <div className="min-w-0">
                 <div className="truncate text-sm font-medium">{file.name}</div>
                 <div className="text-muted-foreground text-xs">
-                  {(file.size / 1024 / 1024).toFixed(2)} MB · {file.type || "image"}
+                  {t("scan.upload.fileSize", { size: (file.size / 1024 / 1024).toFixed(2) })} ·{" "}
+                  {file.type || t("scan.upload.imageFallback")}
                 </div>
               </div>
               <div className="flex gap-2">

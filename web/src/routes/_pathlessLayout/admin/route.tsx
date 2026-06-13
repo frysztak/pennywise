@@ -2,6 +2,7 @@ import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 
 import { AdminNav } from "@/features/admin/components/admin-nav";
 import { UserRole } from "@/gen/api/v1/user_pb";
+import i18n from "@/i18n";
 
 export const Route = createFileRoute("/_pathlessLayout/admin")({
   beforeLoad: ({ context }) => {
@@ -11,7 +12,7 @@ export const Route = createFileRoute("/_pathlessLayout/admin")({
   },
   component: RouteComponent,
   head: () => ({
-    meta: [{ title: "Admin" }],
+    meta: [{ title: i18n.t("meta.admin") }],
   }),
 });
 

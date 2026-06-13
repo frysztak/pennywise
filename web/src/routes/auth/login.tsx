@@ -4,12 +4,13 @@ import { Navigate, createFileRoute } from "@tanstack/react-router";
 import { useAuth } from "@/features/auth/auth";
 import { LoginForm } from "@/features/auth/components/login-form";
 import { loginWithPassword } from "@/gen/api/v1/auth-AuthService_connectquery";
+import i18n from "@/i18n";
 import { handleError } from "@/shared/lib/utils";
 
 export const Route = createFileRoute("/auth/login")({
   component: RouteComponent,
   head: () => ({
-    meta: [{ title: "Login" }],
+    meta: [{ title: i18n.t("meta.login") }],
   }),
 });
 

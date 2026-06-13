@@ -3,6 +3,7 @@ import { createConnectQueryKey, useMutation, useSuspenseQuery } from "@connectrp
 import { useQueryClient } from "@tanstack/react-query";
 import { Trash } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { deleteGroup, listGroups } from "@/gen/api/v1/admin-AdminService_connectquery";
@@ -25,6 +26,7 @@ import { handleError } from "@/shared/lib/utils";
 const listGroupsKey = createConnectQueryKey({ schema: listGroups, cardinality: "finite" });
 
 export function GroupsCard() {
+  const { t } = useTranslation();
   const { data } = useSuspenseQuery(listGroups);
   const queryClient = useQueryClient();
 
@@ -32,7 +34,7 @@ export function GroupsCard() {
 
   const { mutate, isPending } = useMutation(deleteGroup, {
     onSuccess: () => {
-      toast.success("Group deleted");
+      toast.success(t("admin.groups.deleted"));
       setTarget(null);
       queryClient.invalidateQueries({ queryKey: listGroupsKey });
     },
@@ -42,17 +44,17 @@ export function GroupsCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Groups</CardTitle>
-        <CardDescription>Delete groups.</CardDescription>
+        <CardTitle>{t("admin.groups.title")}</CardTitle>
+        <CardDescription>{t("admin.groups.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Owner</TableHead>
-              <TableHead className="text-right">Members</TableHead>
-              <TableHead>Created</TableHead>
+              <TableHead>{t("admin.groups.name")}</TableHead>
+              <TableHead>{t("admin.groups.owner")}</TableHead>
+              <TableHead className="text-right">{t("admin.groups.members")}</TableHead>
+              <TableHead>{t("admin.groups.created")}</TableHead>
               <TableHead className="w-12" />
             </TableRow>
           </TableHeader>
@@ -71,7 +73,7 @@ export function GroupsCard() {
                     size="icon"
                     className="text-muted-foreground hover:text-destructive"
                     onClick={() => setTarget(group)}
-                    aria-label={`Delete ${group.name}`}
+                    aria-label={t("admin.groups.deleteAria", { name: group.name })}
                   >
                     <Trash className="size-4" />
                   </Button>
@@ -85,14 +87,13 @@ export function GroupsCard() {
       <AlertDialog open={target !== null} onOpenChange={(open) => !open && setTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete group</AlertDialogTitle>
+            <AlertDialogTitle>{t("admin.groups.deleteTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{target?.name}"? This will permanently delete all expenses, transfers,
-              and balances associated with this group. This action cannot be undone.
+              {t("admin.groups.deleteDescription", { name: target?.name })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isPending}>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               disabled={isPending}
               onClick={(e) => {
@@ -101,7 +102,7 @@ export function GroupsCard() {
               }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              {t("common.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

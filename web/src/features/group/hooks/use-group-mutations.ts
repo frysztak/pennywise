@@ -1,5 +1,6 @@
 import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { deleteExpense } from "@/gen/api/v1/expense-ExpenseService_connectquery";
@@ -18,6 +19,7 @@ const userGroupsKey = createConnectQueryKey({
 });
 
 export function useGroupMutations(groupId: string) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const groupActivityKey = createConnectQueryKey({
@@ -28,7 +30,7 @@ export function useGroupMutations(groupId: string) {
 
   const { mutate: deleteExpenseMutate } = useMutation(deleteExpense, {
     onSuccess: () => {
-      toast.success("Expense deleted!");
+      toast.success(t("expense.deleted"));
       queryClient.invalidateQueries({ queryKey: groupActivityKey });
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
     },
@@ -37,7 +39,7 @@ export function useGroupMutations(groupId: string) {
 
   const { mutate: deleteTransferMutate } = useMutation(deleteTransfer, {
     onSuccess: () => {
-      toast.success("Transfer deleted!");
+      toast.success(t("transfer.deleted"));
       queryClient.invalidateQueries({ queryKey: groupActivityKey });
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
     },
@@ -53,7 +55,7 @@ export function useGroupMutations(groupId: string) {
 
   const { mutate: setArchivedMutate } = useMutation(setGroupArchived, {
     onSuccess: (_data, variables) => {
-      toast.success(variables.archived ? "Group archived!" : "Group unarchived!");
+      toast.success(variables.archived ? t("group.archived") : t("group.unarchived"));
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
     },
     onError: handleError,

@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as DebugErrorRouteImport } from './routes/debug-error'
-import { Route as AboutRouteImport } from './routes/about'
 import { Route as PathlessLayoutRouteRouteImport } from './routes/_pathlessLayout/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
@@ -31,11 +30,6 @@ import { Route as PathlessLayoutGroupGroupIdStatsRouteImport } from './routes/_p
 const DebugErrorRoute = DebugErrorRouteImport.update({
   id: '/debug-error',
   path: '/debug-error',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PathlessLayoutRouteRoute = PathlessLayoutRouteRouteImport.update({
@@ -129,7 +123,6 @@ const PathlessLayoutGroupGroupIdStatsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/debug-error': typeof DebugErrorRoute
   '/admin': typeof PathlessLayoutAdminRouteRouteWithChildren
   '/dashboard': typeof PathlessLayoutDashboardRoute
@@ -148,7 +141,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/debug-error': typeof DebugErrorRoute
   '/dashboard': typeof PathlessLayoutDashboardRoute
   '/scan-receipt': typeof PathlessLayoutScanReceiptRoute
@@ -167,7 +159,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_pathlessLayout': typeof PathlessLayoutRouteRouteWithChildren
-  '/about': typeof AboutRoute
   '/debug-error': typeof DebugErrorRoute
   '/_pathlessLayout/admin': typeof PathlessLayoutAdminRouteRouteWithChildren
   '/_pathlessLayout/dashboard': typeof PathlessLayoutDashboardRoute
@@ -188,7 +179,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/about'
     | '/debug-error'
     | '/admin'
     | '/dashboard'
@@ -207,7 +197,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/about'
     | '/debug-error'
     | '/dashboard'
     | '/scan-receipt'
@@ -225,7 +214,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_pathlessLayout'
-    | '/about'
     | '/debug-error'
     | '/_pathlessLayout/admin'
     | '/_pathlessLayout/dashboard'
@@ -246,7 +234,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PathlessLayoutRouteRoute: typeof PathlessLayoutRouteRouteWithChildren
-  AboutRoute: typeof AboutRoute
   DebugErrorRoute: typeof DebugErrorRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
@@ -259,13 +246,6 @@ declare module '@tanstack/react-router' {
       path: '/debug-error'
       fullPath: '/debug-error'
       preLoaderRoute: typeof DebugErrorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_pathlessLayout': {
@@ -444,7 +424,6 @@ const PathlessLayoutRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PathlessLayoutRouteRoute: PathlessLayoutRouteRouteWithChildren,
-  AboutRoute: AboutRoute,
   DebugErrorRoute: DebugErrorRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,

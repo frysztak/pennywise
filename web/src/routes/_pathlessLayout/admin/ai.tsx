@@ -3,12 +3,13 @@ import { Suspense } from "react";
 import { useTranslation } from "react-i18next";
 
 import { ReceiptPromptCard } from "@/features/admin/components/receipt-prompt-card";
+import i18n from "@/i18n";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
 export const Route = createFileRoute("/_pathlessLayout/admin/ai")({
   component: RouteComponent,
   head: () => ({
-    meta: [{ title: "Admin | AI" }],
+    meta: [{ title: i18n.t("meta.adminAi") }],
   }),
 });
 

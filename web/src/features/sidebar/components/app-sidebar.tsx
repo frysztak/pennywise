@@ -31,6 +31,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem className="flex gap-2 p-1 items-center">
             <img src={pennywiseSvg} alt="Pennywise" className="size-8" />
+            {/* eslint-disable-next-line i18next/no-literal-string -- brand name, not translated */}
             <span className="truncate font-semibold font-serif text-2xl">
               Pennywise
               <span className="text-money">.</span>

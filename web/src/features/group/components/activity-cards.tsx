@@ -10,6 +10,7 @@ import type {
 import { AmountWithCurrency } from "@/shared/components/amount-with-currency";
 import { MemberAvatar } from "@/shared/components/member-avatar";
 import { Card, CardContent } from "@/shared/components/ui/card";
+import { formatDate } from "@/shared/lib/format";
 
 type ActivityItem =
   | { type: "expense"; data: GetGroupActivityResponse_ActivityItem_Expense }
@@ -41,11 +42,7 @@ export function ActivityCards({
     <div className="flex flex-col gap-3">
       {recentActivity.map((item) => {
         const date = timestampDate(item.data.date!);
-        const formattedDate = date.toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        });
+        const formattedDate = formatDate(date);
 
         if (item.type === "expense") {
           const expense = item.data;
@@ -70,7 +67,7 @@ export function ActivityCards({
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <MemberAvatar userId={expense.payerId} username={expense.payerName} className="w-6 h-6" />
-                  <span className="line-clamp-1">paid by {expense.payerName}</span>
+                  <span className="line-clamp-1">{t("activity.paidBy", { name: expense.payerName })}</span>
                 </div>
               </CardContent>
             </Card>

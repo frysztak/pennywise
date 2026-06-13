@@ -1,6 +1,7 @@
 import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import {
@@ -10,6 +11,7 @@ import {
 import { handleError } from "@/shared/lib/utils";
 
 export function useDeleteRecurringExpenseModal(groupId: string) {
+  const { t } = useTranslation();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
@@ -21,7 +23,7 @@ export function useDeleteRecurringExpenseModal(groupId: string) {
 
   const { mutate: deleteRecurringExpenseMutate } = useMutation(deleteRecurringExpense, {
     onSuccess: () => {
-      toast.success("Recurring expense deleted!");
+      toast.success(t("recurringExpense.deleted"));
       queryClient.invalidateQueries({ queryKey: recurringExpensesKey });
     },
     onError: handleError,

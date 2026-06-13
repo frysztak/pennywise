@@ -2,6 +2,7 @@ import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMatch, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { deleteGroup, getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
@@ -18,6 +19,7 @@ interface DeletingGroup {
 }
 
 export function useDeleteGroupModal() {
+  const { t } = useTranslation();
   const [deletingGroup, setDeletingGroup] = useState<DeletingGroup | null>(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -28,7 +30,7 @@ export function useDeleteGroupModal() {
 
   const { mutate: deleteGroupMutate } = useMutation(deleteGroup, {
     onSuccess: (_, variables) => {
-      toast.success("Group deleted!");
+      toast.success(t("group.deleted"));
       // Only navigate to dashboard if we're currently on the deleted group's page
       if (currentGroupMatch && currentGroupMatch.params.groupId === variables.groupId) {
         navigate({ to: "/dashboard" });

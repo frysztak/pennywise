@@ -1,6 +1,7 @@
 import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import {
@@ -27,6 +28,7 @@ interface DeletingTransfer {
 }
 
 export function useDeleteTransferModal(groupId: string) {
+  const { t } = useTranslation();
   const [deletingTransfer, setDeletingTransfer] = useState<DeletingTransfer | null>(null);
   const queryClient = useQueryClient();
 
@@ -38,7 +40,7 @@ export function useDeleteTransferModal(groupId: string) {
 
   const { mutate: deleteTransferMutate } = useMutation(deleteTransfer, {
     onSuccess: () => {
-      toast.success("Transfer deleted!");
+      toast.success(t("transfer.deleted"));
       queryClient.invalidateQueries({ queryKey: groupActivityKey });
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
       queryClient.invalidateQueries({ queryKey: settlementSuggestionsKey });

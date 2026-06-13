@@ -1,6 +1,7 @@
 import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { deleteExpense } from "@/gen/api/v1/expense-ExpenseService_connectquery";
@@ -19,6 +20,7 @@ interface DeletingExpense {
 }
 
 export function useDeleteExpenseModal(groupId: string) {
+  const { t } = useTranslation();
   const [deletingExpense, setDeletingExpense] = useState<DeletingExpense | null>(null);
   const queryClient = useQueryClient();
 
@@ -30,7 +32,7 @@ export function useDeleteExpenseModal(groupId: string) {
 
   const { mutate: deleteExpenseMutate } = useMutation(deleteExpense, {
     onSuccess: () => {
-      toast.success("Expense deleted!");
+      toast.success(t("expense.deleted"));
       queryClient.invalidateQueries({ queryKey: groupActivityKey });
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
     },

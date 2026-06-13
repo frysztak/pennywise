@@ -2,6 +2,7 @@ import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import {
@@ -26,12 +27,13 @@ export interface EditingGroup {
 }
 
 export function useEditGroupModal() {
+  const { t } = useTranslation();
   const [editingGroup, setEditingGroup] = useState<EditingGroup | null>(null);
   const queryClient = useQueryClient();
 
   const { mutate: updateGroupMutate } = useMutation(updateGroup, {
     onSuccess: (_, variables) => {
-      toast.success("Group updated!");
+      toast.success(t("group.updated"));
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
       queryClient.invalidateQueries({
         queryKey: createConnectQueryKey({

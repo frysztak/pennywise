@@ -16,7 +16,7 @@ export const Route = createFileRoute("/auth/register")({
   },
   component: RouteComponent,
   head: () => ({
-    meta: [{ title: "Register" }],
+    meta: [{ title: i18n.t("meta.register") }],
   }),
 });
 

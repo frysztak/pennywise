@@ -31,6 +31,7 @@ function BrandBlock() {
     <div className="flex flex-col items-center gap-3.5 text-center">
       <img src={logoMark} alt="Pennywise" className="size-12 rounded-[14px]" />
       <div className="flex flex-col items-center gap-1">
+        {/* eslint-disable-next-line i18next/no-literal-string -- brand name, not translated */}
         <span className="text-5xl font-bold font-serif tracking-tight">
           Pennywise
           <span className="text-money">.</span>
@@ -69,6 +70,7 @@ function AuthFooter({ version }: { version: string }) {
         rel="noreferrer"
         className="hover:text-foreground inline-flex items-center gap-1.5 transition-all"
       >
+        {/* eslint-disable-next-line i18next/no-literal-string -- proper noun, not translated */}
         <SiGithub className="size-3" />
         github
       </a>

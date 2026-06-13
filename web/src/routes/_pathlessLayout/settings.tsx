@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { AvatarUpload } from "@/features/settings/components/avatar-upload";
 import { LanguageSelector } from "@/features/settings/components/language-selector";
 import { UsernameEdit } from "@/features/settings/components/username-edit";
+import i18n from "@/i18n";
 import { useTheme } from "@/shared/components/theme-provider";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -12,7 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/sha
 export const Route = createFileRoute("/_pathlessLayout/settings")({
   component: RouteComponent,
   head: () => ({
-    meta: [{ title: "Settings" }],
+    meta: [{ title: i18n.t("meta.settings") }],
   }),
 });
 

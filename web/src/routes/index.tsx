@@ -1,5 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
+// Entry route: always redirects based on auth state, so it renders no component.
 export const Route = createFileRoute("/")({
   beforeLoad: ({ context }) => {
     if (!context.auth.isAuthenticated) {
@@ -12,13 +13,4 @@ export const Route = createFileRoute("/")({
       });
     }
   },
-  component: HomeComponent,
 });
-
-function HomeComponent() {
-  return (
-    <div className="p-2">
-      <h3>Welcome Home!</h3>
-    </div>
-  );
-}

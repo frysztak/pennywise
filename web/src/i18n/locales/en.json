@@ -30,6 +30,19 @@
     "user_id": "User",
     "default_currency": "Default currency"
   },
+  "meta": {
+    "login": "Login",
+    "register": "Register",
+    "dashboard": "Dashboard",
+    "scanReceipt": "Scan receipt",
+    "settings": "Settings",
+    "admin": "Admin",
+    "adminGroups": "Admin | Groups",
+    "adminCurrencies": "Admin | Currencies",
+    "adminAi": "Admin | AI",
+    "adminMembers": "Admin | Members",
+    "group": "{{name}} group"
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",
@@ -149,6 +162,7 @@
     "yourTotalBalance": "Your total balance",
     "totalGroupSpending": "Total group spending",
     "settleUp": "Settle Up",
+    "settle": "Settle",
     "settleUpTooltip": "These suggestions are optimized to minimize the number of transfers. The suggested payer may differ from who originally owed the money.",
     "settlementEmpty": "No outstanding debts in this group.",
     "emptyAllSettled": {
@@ -182,6 +196,10 @@
       "tooLarge": "Image must be smaller than 16MB"
     },
     "created": "Group created!",
+    "updated": "Group updated!",
+    "deleted": "Group deleted!",
+    "archived": "Group archived!",
+    "unarchived": "Group unarchived!",
     "pin": "Pin Group",
     "unpin": "Unpin Group",
     "delete": "Delete Group",
@@ -208,6 +226,7 @@
     "created": "Expense created!",
     "updated": "Expense updated!",
     "recorded": "Expense recorded!",
+    "deleted": "Expense deleted!",
     "people": {
       "title": "People",
       "you": "You",
@@ -242,6 +261,7 @@
     "submitEdit": "Update Transfer",
     "recorded": "Transfer recorded!",
     "updated": "Transfer updated!",
+    "deleted": "Transfer deleted!",
     "flow": {
       "from": "From",
       "to": "To",
@@ -279,6 +299,11 @@
       "transfers": "Transfers",
       "allCurrencies": "All currencies",
       "allMembers": "All members"
+    },
+    "pagination": {
+      "empty": "No items",
+      "range": "{{from}}–{{to}} of {{total}} items",
+      "page": "Page {{page}} of {{total}}"
     }
   },
   "member": {
@@ -307,6 +332,7 @@
     "edit": "Edit Recurring Expense",
     "newDescription": "Create a template that will remind you to record expenses.",
     "editDescription": "Update the recurring expense template.",
+    "deleted": "Recurring expense deleted!",
     "name": "Name",
     "namePlaceholder": "e.g., Monthly Rent",
     "descriptionLabel": "Description (optional)",
@@ -355,6 +381,18 @@
       "groups": "Groups",
       "currencies": "Currencies",
       "ai": "AI"
+    },
+    "groups": {
+      "title": "Groups",
+      "description": "Delete groups.",
+      "name": "Name",
+      "owner": "Owner",
+      "members": "Members",
+      "created": "Created",
+      "deleteAria": "Delete {{name}}",
+      "deleteTitle": "Delete group",
+      "deleteDescription": "Are you sure you want to delete \"{{name}}\"? This will permanently delete all expenses, transfers, and balances associated with this group. This action cannot be undone.",
+      "deleted": "Group deleted"
     },
     "currencies": {
       "title": "Currencies",
@@ -417,6 +455,8 @@
       "formats": "JPG, PNG, WebP up to 10 MB",
       "replace": "Replace",
       "remove": "Remove",
+      "fileSize": "{{size}} MB",
+      "imageFallback": "image",
       "pasteHint": "Paste from clipboard, or drag & drop from anywhere.",
       "whatWeDo": "What we'll do",
       "step1Label": "Read your receipt",

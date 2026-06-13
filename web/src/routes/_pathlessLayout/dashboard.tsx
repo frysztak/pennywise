@@ -8,6 +8,7 @@ import { ExpenseGroupCard } from "@/features/dashboard/components/expense-group-
 import { NewGroupModal } from "@/features/sidebar/components/new-group-modal";
 import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
 import { GroupArchiveFilter } from "@/gen/api/v1/group_pb";
+import i18n from "@/i18n";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
 import { Spinner } from "@/shared/components/ui/spinner";
@@ -22,7 +23,7 @@ const FILTER_OPTIONS = [
 export const Route = createFileRoute("/_pathlessLayout/dashboard")({
   component: RouteComponent,
   head: () => ({
-    meta: [{ title: "Dashboard" }],
+    meta: [{ title: i18n.t("meta.dashboard") }],
   }),
 });
 
