@@ -1,8 +1,10 @@
 import { CheckIcon } from "lucide-react";
+import { Trans, useTranslation } from "react-i18next";
 
 import type { MemberBalance } from "@/gen/api/v1/group_pb";
 import { MemberAvatar } from "@/shared/components/member-avatar";
-import { cn, formatCurrency } from "@/shared/lib/utils";
+import { formatCurrency } from "@/shared/lib/format";
+import { cn } from "@/shared/lib/utils";
 
 export interface PeopleSelectorProps {
   members: MemberBalance[];
@@ -27,6 +29,7 @@ export function PeopleSelector({
   onPayerChange,
   onBeneficiariesChange,
 }: PeopleSelectorProps) {
+  const { t } = useTranslation();
   const includedSet = new Set(beneficiaryIds);
   const includedWeightSum = members.filter((m) => includedSet.has(m.userId)).reduce((sum, m) => sum + m.weight, 0) || 1;
 
@@ -51,7 +54,7 @@ export function PeopleSelector({
 
   return (
     <div>
-      <div className="text-sm font-semibold mb-2">People</div>
+      <div className="text-sm font-semibold mb-2">{t("expense.people.title")}</div>
       <div className="bg-muted/40 border border-border rounded-lg overflow-hidden">
         {members.map((member, i) => {
           const isIncluded = includedSet.has(member.userId);
@@ -90,13 +93,13 @@ export function PeopleSelector({
                   <span className="truncate">{member.userName}</span>
                   {isCurrentUser && (
                     <span className="text-[10.5px] font-semibold uppercase tracking-wider text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                      You
+                      {t("expense.people.you")}
                     </span>
                   )}
                 </div>
                 {isIncluded && (
                   <div className="text-xs text-muted-foreground font-mono tabular-nums mt-0.5">
-                    owes {formatCurrency(share, currency)}
+                    {t("expense.people.owes", { amount: formatCurrency(share, currency) })}
                   </div>
                 )}
               </div>
@@ -120,10 +123,10 @@ export function PeopleSelector({
                 {isPayer ? (
                   <span className="inline-flex items-center gap-1">
                     <CheckIcon className="size-3" />
-                    Payer
+                    {t("expense.people.payer")}
                   </span>
                 ) : (
-                  "Set payer"
+                  t("expense.people.setPayer")
                 )}
               </button>
 
@@ -141,8 +144,10 @@ export function PeopleSelector({
         })}
       </div>
       <p className="text-[11.5px] text-muted-foreground mt-2 leading-relaxed">
-        Tap a row to toggle who's included. Use <span className="text-foreground/80">Set payer</span> to choose who
-        paid.
+        <Trans i18nKey="expense.people.hint">
+          Tap a row to toggle who's included. Use <span className="text-foreground/80">Set payer</span> to choose who
+          paid.
+        </Trans>
       </p>
     </div>
   );

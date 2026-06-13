@@ -1,5 +1,6 @@
 import { useSuspenseQuery } from "@connectrpc/connect-query";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { EmptyState } from "@/features/group/components/empty-state";
 import { getGroupStats } from "@/gen/api/v1/group-GroupService_connectquery";
@@ -17,6 +18,7 @@ interface GroupStatsProps {
 }
 
 export function GroupStats({ groupId, defaultCurrency, members }: GroupStatsProps) {
+  const { t } = useTranslation();
   const { data: stats } = useSuspenseQuery(getGroupStats, { groupId });
 
   // Currencies that actually have activity, so the selector doesn't offer empty views.
@@ -37,7 +39,7 @@ export function GroupStats({ groupId, defaultCurrency, members }: GroupStatsProp
   );
 
   if (stats.expenseCount === 0n && stats.transferCount === 0n) {
-    return <EmptyState title="No activity yet" description="Add an expense to start seeing stats for this group." />;
+    return <EmptyState title={t("stats.emptyTitle")} description={t("stats.emptyDescription")} />;
   }
 
   const currencyOptions = currencies.map((c) => ({ value: c, label: c }));

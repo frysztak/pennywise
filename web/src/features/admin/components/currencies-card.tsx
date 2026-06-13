@@ -2,6 +2,7 @@ import { createConnectQueryKey, useMutation, useSuspenseQuery } from "@connectrp
 import { useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { type KeyboardEvent, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { setCurrencies } from "@/gen/api/v1/admin-AdminService_connectquery";
@@ -20,6 +21,7 @@ function sameList(a: string[], b: string[]): boolean {
 }
 
 export function CurrenciesCard() {
+  const { t } = useTranslation();
   const { data } = useSuspenseQuery(getCurrencies);
   const queryClient = useQueryClient();
 
@@ -28,7 +30,7 @@ export function CurrenciesCard() {
 
   const { mutate, isPending } = useMutation(setCurrencies, {
     onSuccess: (res) => {
-      toast.success("Currencies saved");
+      toast.success(t("admin.currencies.saved"));
       setCodes(res.currencies);
       queryClient.invalidateQueries({ queryKey: currenciesKey });
     },
@@ -56,16 +58,14 @@ export function CurrenciesCard() {
   return (
     <Card className="max-w-xl">
       <CardHeader>
-        <CardTitle>Currencies</CardTitle>
-        <CardDescription>
-          The list of currencies available across the app. Add any ISO code; changes apply everywhere without a restart.
-        </CardDescription>
+        <CardTitle>{t("admin.currencies.title")}</CardTitle>
+        <CardDescription>{t("admin.currencies.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <InputGroup>
             <InputGroupInput
-              placeholder="Add a currency code (e.g. USD)"
+              placeholder={t("admin.currencies.addPlaceholder")}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={onKeyDown}
@@ -73,13 +73,13 @@ export function CurrenciesCard() {
             />
             <InputGroupAddon align="inline-end">
               <InputGroupButton onClick={addCode} disabled={draft.trim().length < 2}>
-                Add
+                {t("admin.currencies.add")}
               </InputGroupButton>
             </InputGroupAddon>
           </InputGroup>
 
           {codes.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No currencies. Add at least one.</p>
+            <p className="text-muted-foreground text-sm">{t("admin.currencies.empty")}</p>
           ) : (
             <div className="flex flex-wrap gap-1.5">
               {codes.map((code) => (
@@ -87,7 +87,7 @@ export function CurrenciesCard() {
                   {code}
                   <button
                     type="button"
-                    aria-label={`Remove ${code}`}
+                    aria-label={t("admin.currencies.remove", { code })}
                     onClick={() => removeCode(code)}
                     className="hover:bg-foreground/10 -mr-0.5 flex size-4 items-center justify-center rounded-full transition-colors"
                   >
@@ -104,7 +104,7 @@ export function CurrenciesCard() {
               disabled={!isDirty || isPending || codes.length === 0}
             >
               {isPending && <Spinner />}
-              Save
+              {t("common.save")}
             </Button>
           </div>
         </div>

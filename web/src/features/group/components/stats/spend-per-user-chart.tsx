@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Bar, BarChart, Cell, XAxis, YAxis } from "recharts";
 
 import type { GetGroupStatsResponse } from "@/gen/api/v1/group_pb";
@@ -12,6 +13,7 @@ interface SpendPerUserChartProps {
 }
 
 export function SpendPerUserChart({ memberSpending, currency }: SpendPerUserChartProps) {
+  const { t } = useTranslation();
   const data = memberSpending
     .map((m) => ({
       name: m.userName,
@@ -27,11 +29,11 @@ export function SpendPerUserChart({ memberSpending, currency }: SpendPerUserChar
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Paid per member</CardTitle>
+        <CardTitle>{t("stats.paidPerMember")}</CardTitle>
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">No expenses in {currency} yet.</p>
+          <p className="py-8 text-center text-sm text-muted-foreground">{t("stats.noExpenses", { currency })}</p>
         ) : (
           <ChartContainer config={chartConfig} className="aspect-auto h-[280px] w-full">
             <BarChart accessibilityLayer data={data} layout="vertical" margin={{ left: 8, right: 16 }}>

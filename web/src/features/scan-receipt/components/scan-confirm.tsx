@@ -1,5 +1,6 @@
 import { Calendar, Layers, Receipt, Users } from "lucide-react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { PeopleSelector } from "@/features/expense/components/people-selector";
 import { fmtDate, fmtMoney } from "@/features/scan-receipt/components/scan-review";
@@ -32,6 +33,7 @@ export function ScanConfirm({
   state: ConfirmState;
   onChange: (next: ConfirmState) => void;
 }) {
+  const { t } = useTranslation();
   const selected = draft.items.filter((i) => i.selected);
   const total = selected.reduce((s, i) => s + i.price, 0);
 
@@ -60,9 +62,11 @@ export function ScanConfirm({
           </div>
           <div className="flex flex-wrap flex-col md:flex-row">
             <div>
-              <div className="wrap-anywhere text-base font-semibold">{draft.merchant || "Untitled receipt"}</div>
+              <div className="wrap-anywhere text-base font-semibold">
+                {draft.merchant || t("scan.confirm.untitled")}
+              </div>
               <div className="text-muted-foreground mt-0.5 text-xs">
-                {selected.length} {selected.length === 1 ? "item" : "items"} · {fmtDate(draft.date)}
+                {t("scan.confirm.itemCount", { count: selected.length })} · {fmtDate(draft.date)}
               </div>
             </div>
             <div className="font-mono text-lg font-semibold tabular-nums">{fmtMoney(total, draft.currency)}</div>
@@ -70,33 +74,38 @@ export function ScanConfirm({
         </div>
 
         <div>
-          <div className="text-muted-foreground mb-2 text-xs font-semibold tracking-wider uppercase">Create as</div>
+          <div className="text-muted-foreground mb-2 text-xs font-semibold tracking-wider uppercase">
+            {t("scan.confirm.createAs")}
+          </div>
           <div className="flex flex-col gap-2">
             <ModeOption
               active={state.mode === "single"}
               onClick={() => setMode("single")}
               icon={<Receipt className="size-4" />}
-              title="One expense"
-              body={`A single ${draft.merchant || "receipt"} expense for ${fmtMoney(total, draft.currency)}.`}
+              title={t("scan.confirm.oneExpense")}
+              body={t("scan.confirm.oneExpenseBody", {
+                merchant: draft.merchant || t("scan.confirm.receipt"),
+                total: fmtMoney(total, draft.currency),
+              })}
             />
             <ModeOption
               active={state.mode === "multiple"}
               onClick={() => setMode("multiple")}
               icon={<Layers className="size-4" />}
-              title={`${selected.length} separate expenses`}
-              body="One expense per line item."
+              title={t("scan.confirm.separateExpenses", { count: selected.length })}
+              body={t("scan.confirm.separateExpensesBody")}
             />
           </div>
         </div>
 
         <div>
           <div className="text-muted-foreground mb-2 text-xs font-semibold tracking-wider uppercase">
-            {state.mode === "multiple" ? "Applied to all expenses" : "Expense details"}
+            {state.mode === "multiple" ? t("scan.confirm.appliedToAll") : t("scan.confirm.expenseDetails")}
           </div>
           <div className="bg-card flex flex-col gap-px overflow-hidden rounded-lg border">
-            <MetaRow label="Group" icon={<Users className="text-muted-foreground size-4" />}>
+            <MetaRow label={t("scan.confirm.group")} icon={<Users className="text-muted-foreground size-4" />}>
               {groups.length === 0 ? (
-                <span className="text-muted-foreground text-sm">No groups available</span>
+                <span className="text-muted-foreground text-sm">{t("scan.confirm.noGroups")}</span>
               ) : (
                 <Select
                   items={groups.map((g) => ({ value: g.groupId, label: g.groupName }))}
@@ -104,7 +113,7 @@ export function ScanConfirm({
                   onValueChange={(v) => v && setGroupId(v)}
                 >
                   <SelectTrigger className="h-8 border-transparent bg-transparent px-2 -mr-3 text-sm font-medium shadow-none">
-                    <SelectValue placeholder="Select group" />
+                    <SelectValue placeholder={t("scan.confirm.selectGroup")} />
                   </SelectTrigger>
                   <SelectContent>
                     {groups.map((g) => (
@@ -116,7 +125,7 @@ export function ScanConfirm({
                 </Select>
               )}
             </MetaRow>
-            <MetaRow label="Date" icon={<Calendar className="text-muted-foreground size-4" />}>
+            <MetaRow label={t("scan.confirm.date")} icon={<Calendar className="text-muted-foreground size-4" />}>
               <span className="text-sm font-medium">{fmtDate(draft.date)}</span>
             </MetaRow>
           </div>
@@ -125,12 +134,12 @@ export function ScanConfirm({
         {state.mode === "multiple" && (
           <div>
             <div className="text-muted-foreground mb-2 text-xs font-semibold tracking-wider uppercase">
-              You'll create
+              {t("scan.confirm.youllCreate")}
             </div>
             <div className="bg-muted/30 max-h-44 overflow-y-auto rounded-lg border p-1.5">
               {selected.map((it) => (
                 <div key={it.id} className="flex items-center gap-3 px-2.5 py-2">
-                  <div className="flex-1 truncate text-sm font-medium">{it.name || "(unnamed)"}</div>
+                  <div className="flex-1 truncate text-sm font-medium">{it.name || t("scan.confirm.unnamed")}</div>
                   <div className="font-mono text-sm tabular-nums">{fmtMoney(it.price, draft.currency)}</div>
                 </div>
               ))}
@@ -143,9 +152,11 @@ export function ScanConfirm({
       <div className="flex flex-col gap-4 overflow-y-auto p-4 md:p-6">
         {members.length === 0 ? (
           <>
-            <div className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">People</div>
+            <div className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
+              {t("scan.confirm.people")}
+            </div>
             <div className="text-muted-foreground rounded-lg border p-6 text-center text-sm">
-              Pick a group to choose who pays and who shares this expense.
+              {t("scan.confirm.pickGroup")}
             </div>
           </>
         ) : (
@@ -231,21 +242,22 @@ export function ScanConfirmFooter({
   saving: boolean;
   canSave: boolean;
 }) {
+  const { t } = useTranslation();
   const selected = draft.items.filter((i) => i.selected);
   const total = selected.reduce((s, i) => s + i.price, 0);
   const label =
     state.mode === "single"
-      ? `Save expense · ${fmtMoney(total, draft.currency)}`
-      : `Save ${selected.length} expense${selected.length === 1 ? "" : "s"}`;
+      ? t("scan.confirm.saveExpense", { total: fmtMoney(total, draft.currency) })
+      : t("scan.confirm.saveExpenses", { count: selected.length });
 
   return (
     <div className="bg-card flex flex-col-reverse gap-3 border-t px-4 py-3 md:flex-row md:items-center md:justify-between md:px-6 md:py-3.5">
       <Button variant="outline" onClick={onBack} className="md:flex-initial">
-        Back to review
+        {t("scan.confirm.backToReview")}
       </Button>
       <div className="flex gap-2.5">
         <Button variant="ghost" onClick={onCancel} disabled={saving}>
-          Cancel
+          {t("common.cancel")}
         </Button>
         <Button onClick={onSave} disabled={!canSave || saving} className="min-w-52">
           {saving && <Spinner />}

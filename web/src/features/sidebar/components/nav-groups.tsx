@@ -4,6 +4,7 @@ import { useSuspenseQuery } from "@connectrpc/connect-query";
 import { Link } from "@tanstack/react-router";
 import { MoreHorizontal, Plus, Star, StarOff, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { DeleteGroupDialog } from "@/features/group/components/delete-group-dialog";
 import { useDeleteGroupModal } from "@/features/group/hooks/use-delete-group-modal";
@@ -32,6 +33,7 @@ import {
 
 export function NavGroups() {
   const { isMobile } = useSidebar();
+  const { t } = useTranslation();
   const [newGroupOpen, setNewGroupOpen] = useState(false);
 
   const { data } = useSuspenseQuery(getUserGroups);
@@ -42,14 +44,14 @@ export function NavGroups() {
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel className="text-base">Groups</SidebarGroupLabel>
+      <SidebarGroupLabel className="text-base">{t("group.list.title")}</SidebarGroupLabel>
       <SidebarGroupAction onClick={() => setNewGroupOpen(true)}>
         <Plus className="size-6" />
-        <span className="sr-only">New Group</span>
+        <span className="sr-only">{t("group.list.new")}</span>
       </SidebarGroupAction>
       <SidebarGroupContent>
         {data.groups.length === 0 ? (
-          <p className="px-2 py-1 text-sm text-muted-foreground">You don't have any groups yet.</p>
+          <p className="px-2 py-1 text-sm text-muted-foreground">{t("group.list.empty")}</p>
         ) : (
           <SidebarMenu>
             {data.groups.map((item) => (
@@ -75,7 +77,7 @@ export function NavGroups() {
                     render={
                       <SidebarMenuAction showOnHover>
                         <MoreHorizontal />
-                        <span className="sr-only">More</span>
+                        <span className="sr-only">{t("group.more")}</span>
                       </SidebarMenuAction>
                     }
                   />
@@ -86,7 +88,7 @@ export function NavGroups() {
                   >
                     <DropdownMenuItem onClick={() => groupMutations.setGroupPinned(item.groupId, !item.pinned)}>
                       {item.pinned ? <StarOff /> : <Star />}
-                      <span>{item.pinned ? "Unpin Group" : "Pin Group"}</span>
+                      <span>{item.pinned ? t("group.unpin") : t("group.pin")}</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       variant="destructive"
@@ -98,7 +100,7 @@ export function NavGroups() {
                       }
                     >
                       <Trash2 className="text-muted-foreground" />
-                      <span>Delete Group</span>
+                      <span>{t("group.delete")}</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

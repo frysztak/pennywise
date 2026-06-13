@@ -9,6 +9,7 @@ import (
 	"pennywise/db"
 	"pennywise/db/database"
 	"pennywise/db/overrides"
+	apperrors "pennywise/errors"
 	apiv1 "pennywise/gen/api/v1"
 	"pennywise/http/helpers"
 	"pennywise/log"
@@ -118,8 +119,8 @@ func (s *GroupService) CreateExpenseGroup(ctx context.Context, r *apiv1.CreateEx
 	}
 
 	if !slices.Contains(r.Currencies, r.DefaultCurrency) {
-		return nil, connect.NewError(connect.CodeInvalidArgument,
-			errors.New("default currency must be one of the selected currencies"))
+		return nil, apperrors.NewBusinessError(connect.CodeInvalidArgument,
+			apperrors.CodeDefaultCurrency, "default_currency", "default currency must be one of the selected currencies")
 	}
 
 	if err := qtx.BulkAddGroupCurrencies(ctx, database.BulkAddGroupCurrenciesParams{
@@ -155,8 +156,8 @@ func (s *GroupService) UpdateGroup(ctx context.Context, r *apiv1.UpdateGroupRequ
 	}
 
 	if !slices.Contains(r.Currencies, r.DefaultCurrency) {
-		return nil, connect.NewError(connect.CodeInvalidArgument,
-			errors.New("default currency must be one of the selected currencies"))
+		return nil, apperrors.NewBusinessError(connect.CodeInvalidArgument,
+			apperrors.CodeDefaultCurrency, "default_currency", "default currency must be one of the selected currencies")
 	}
 
 	currenciesJSON := utils.SliceToJSONString(r.Currencies...)
@@ -248,8 +249,8 @@ func (s *GroupService) AddUserToGroup(ctx context.Context, r *apiv1.AddUserToGro
 	}
 	if userInGroup {
 		logger.Warn("attempt to add user already in group", "target_user_id", r.UserId, "group_id", r.GroupId)
-		return nil, connect.NewError(connect.CodeInvalidArgument,
-			errors.New("user is already a member of this group"))
+		return nil, apperrors.NewBusinessError(connect.CodeInvalidArgument,
+			apperrors.CodeMemberExists, "user_id", "user is already a member of this group")
 	}
 
 	if err := helpers.AssertGroupNotArchived(ctx, r.GroupId); err != nil {
@@ -311,8 +312,8 @@ func (s *GroupService) UpdateUserWeight(ctx context.Context, r *apiv1.UpdateUser
 	}
 	if !userInGroup {
 		logger.Warn("attempt to update weight for user not in group", "target_user_id", r.UserId, "group_id", r.GroupId)
-		return nil, connect.NewError(connect.CodeNotFound,
-			errors.New("user is not a member of this group"))
+		return nil, apperrors.NewBusinessError(connect.CodeNotFound,
+			apperrors.CodeNotMember, "user_id", "user is not a member of this group")
 	}
 
 	// Update the user's weight

@@ -1,4 +1,5 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
+import { useTranslation } from "react-i18next";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import type { GetGroupStatsResponse } from "@/gen/api/v1/group_pb";
@@ -16,6 +17,7 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, { month: "short", day: 
 const tooltipDateFormatter = new Intl.DateTimeFormat(undefined, { year: "numeric", month: "short", day: "numeric" });
 
 export function CumulativeSpendChart({ series, currency }: CumulativeSpendChartProps) {
+  const { t } = useTranslation();
   const currencySeries = series.find((s) => s.currency === currency);
   const points = currencySeries?.points ?? [];
 
@@ -25,17 +27,17 @@ export function CumulativeSpendChart({ series, currency }: CumulativeSpendChartP
   }));
 
   const chartConfig = {
-    total: { label: "Total spent", color: "var(--chart-1)" },
+    total: { label: t("stats.totalSpent"), color: "var(--chart-1)" },
   } satisfies ChartConfig;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Cumulative spending</CardTitle>
+        <CardTitle>{t("stats.cumulativeSpending")}</CardTitle>
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">No expenses in {currency} yet.</p>
+          <p className="py-8 text-center text-sm text-muted-foreground">{t("stats.noExpenses", { currency })}</p>
         ) : (
           <ChartContainer config={chartConfig} className="aspect-auto h-[280px] w-full">
             <AreaChart accessibilityLayer data={data} margin={{ left: 8, right: 16, top: 8 }}>

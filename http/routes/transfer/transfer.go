@@ -2,10 +2,10 @@ package transfer
 
 import (
 	"context"
-	"errors"
 	"pennywise/db"
 	"pennywise/db/database"
 	"pennywise/db/overrides"
+	apperrors "pennywise/errors"
 	apiv1 "pennywise/gen/api/v1"
 	"pennywise/http/helpers"
 	"pennywise/log"
@@ -39,8 +39,8 @@ func (s *TransferService) CreateTransfer(ctx context.Context, r *apiv1.CreateTra
 	}
 	if !senderInGroup {
 		logger.Warn("transfer creation failed - sender not in group", "sender_id", r.SenderId, "group_id", r.GroupId)
-		return nil, connect.NewError(connect.CodeInvalidArgument,
-			errors.New("sender is not a member of this group"))
+		return nil, apperrors.NewBusinessError(connect.CodeInvalidArgument,
+			apperrors.CodeSenderNotMember, "sender_id", "sender is not a member of this group")
 	}
 
 	// Validate receiver is in group
@@ -54,15 +54,15 @@ func (s *TransferService) CreateTransfer(ctx context.Context, r *apiv1.CreateTra
 	}
 	if !receiverInGroup {
 		logger.Warn("transfer creation failed - receiver not in group", "receiver_id", r.ReceiverId, "group_id", r.GroupId)
-		return nil, connect.NewError(connect.CodeInvalidArgument,
-			errors.New("receiver is not a member of this group"))
+		return nil, apperrors.NewBusinessError(connect.CodeInvalidArgument,
+			apperrors.CodeReceiverNotMember, "receiver_id", "receiver is not a member of this group")
 	}
 
 	// Validate sender != receiver
 	if r.SenderId == r.ReceiverId {
 		logger.Warn("transfer creation failed - sender and receiver are the same", "sender_id", r.SenderId, "group_id", r.GroupId)
-		return nil, connect.NewError(connect.CodeInvalidArgument,
-			errors.New("sender and receiver must be different users"))
+		return nil, apperrors.NewBusinessError(connect.CodeInvalidArgument,
+			apperrors.CodeSameUser, "receiver_id", "sender and receiver must be different users")
 	}
 
 	transfer, err := db.WriteQueries.CreateTransfer(ctx, database.CreateTransferParams{
@@ -137,8 +137,8 @@ func (s *TransferService) UpdateTransfer(ctx context.Context, r *apiv1.UpdateTra
 	}
 	if !senderInGroup {
 		logger.Warn("transfer update failed - sender not in group", "sender_id", r.SenderId, "group_id", existing.GroupID, "transfer_id", r.Id)
-		return nil, connect.NewError(connect.CodeInvalidArgument,
-			errors.New("sender is not a member of this group"))
+		return nil, apperrors.NewBusinessError(connect.CodeInvalidArgument,
+			apperrors.CodeSenderNotMember, "sender_id", "sender is not a member of this group")
 	}
 
 	// Validate receiver is in group
@@ -152,15 +152,15 @@ func (s *TransferService) UpdateTransfer(ctx context.Context, r *apiv1.UpdateTra
 	}
 	if !receiverInGroup {
 		logger.Warn("transfer update failed - receiver not in group", "receiver_id", r.ReceiverId, "group_id", existing.GroupID, "transfer_id", r.Id)
-		return nil, connect.NewError(connect.CodeInvalidArgument,
-			errors.New("receiver is not a member of this group"))
+		return nil, apperrors.NewBusinessError(connect.CodeInvalidArgument,
+			apperrors.CodeReceiverNotMember, "receiver_id", "receiver is not a member of this group")
 	}
 
 	// Validate sender != receiver
 	if r.SenderId == r.ReceiverId {
 		logger.Warn("transfer update failed - sender and receiver are the same", "sender_id", r.SenderId, "group_id", existing.GroupID, "transfer_id", r.Id)
-		return nil, connect.NewError(connect.CodeInvalidArgument,
-			errors.New("sender and receiver must be different users"))
+		return nil, apperrors.NewBusinessError(connect.CodeInvalidArgument,
+			apperrors.CodeSameUser, "receiver_id", "sender and receiver must be different users")
 	}
 
 	transfer, err := db.WriteQueries.UpdateTransfer(ctx, database.UpdateTransferParams{

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,23 +26,23 @@ export function DeleteTransferDialog({
   onOpenChange,
   onConfirm,
 }: DeleteTransferDialogProps) {
+  const { t } = useTranslation();
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete transfer</AlertDialogTitle>
+          <AlertDialogTitle>{t("transfer.delete.title")}</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete this transfer from {senderName} to {receiverName}? This action cannot be
-            undone.
+            {t("transfer.delete.description", { sender: senderName, receiver: receiverName })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            Delete
+            {t("common.delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

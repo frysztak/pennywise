@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Monitor, Moon, Sun } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { AvatarUpload } from "@/features/settings/components/avatar-upload";
+import { LanguageSelector } from "@/features/settings/components/language-selector";
 import { UsernameEdit } from "@/features/settings/components/username-edit";
 import { useTheme } from "@/shared/components/theme-provider";
 import { Button } from "@/shared/components/ui/button";
@@ -16,26 +18,27 @@ export const Route = createFileRoute("/_pathlessLayout/settings")({
 
 function RouteComponent() {
   const { theme, setTheme } = useTheme();
+  const { t } = useTranslation();
 
   return (
     <div className="flex flex-1 flex-col gap-4">
-      <h1 className="text-5xl font-bold font-serif tracking-tight">Settings</h1>
+      <h1 className="text-5xl font-bold font-serif tracking-tight">{t("settings.title")}</h1>
 
       <Card className="max-w-xl">
         <CardHeader>
-          <CardTitle>Profile</CardTitle>
-          <CardDescription>Manage your profile settings</CardDescription>
+          <CardTitle>{t("settings.profile.title")}</CardTitle>
+          <CardDescription>{t("settings.profile.description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium">Username</label>
+              <label className="text-sm font-medium">{t("settings.profile.username")}</label>
               <div className="mt-2">
                 <UsernameEdit />
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium">Avatar</label>
+              <label className="text-sm font-medium">{t("settings.profile.avatar")}</label>
               <div className="mt-2">
                 <AvatarUpload />
               </div>
@@ -46,12 +49,12 @@ function RouteComponent() {
 
       <Card className="max-w-xl">
         <CardHeader>
-          <CardTitle>Appearance</CardTitle>
-          <CardDescription>Customize how Pennywise looks on your device</CardDescription>
+          <CardTitle>{t("settings.appearance.title")}</CardTitle>
+          <CardDescription>{t("settings.appearance.description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Theme</label>
+            <label className="text-sm font-medium">{t("settings.appearance.theme")}</label>
             <div className="flex flex-col md:flex-row gap-2">
               <Button
                 variant={theme === "light" ? "default" : "outline"}
@@ -60,7 +63,7 @@ function RouteComponent() {
                 className="md:flex-1"
               >
                 <Sun />
-                Light
+                {t("settings.appearance.light")}
               </Button>
               <Button
                 variant={theme === "dark" ? "default" : "outline"}
@@ -69,7 +72,7 @@ function RouteComponent() {
                 className="md:flex-1"
               >
                 <Moon />
-                Dark
+                {t("settings.appearance.dark")}
               </Button>
               <Button
                 variant={theme === "system" ? "default" : "outline"}
@@ -78,11 +81,21 @@ function RouteComponent() {
                 className="md:flex-1"
               >
                 <Monitor />
-                Auto
+                {t("settings.appearance.auto")}
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">Auto matches your system preference</p>
+            <p className="text-xs text-muted-foreground">{t("settings.appearance.autoHint")}</p>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card className="max-w-xl">
+        <CardHeader>
+          <CardTitle>{t("settings.language.title")}</CardTitle>
+          <CardDescription>{t("settings.language.description")}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <LanguageSelector />
         </CardContent>
       </Card>
     </div>

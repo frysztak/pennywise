@@ -1,17 +1,19 @@
 import { Link } from "@tanstack/react-router";
 import { Coins, Sparkles, Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const items = [
-  { to: "/admin/members", label: "Members", icon: Users },
-  { to: "/admin/currencies", label: "Currencies", icon: Coins },
-  { to: "/admin/ai", label: "AI", icon: Sparkles },
+  { to: "/admin/members", labelKey: "admin.nav.members", icon: Users },
+  { to: "/admin/currencies", labelKey: "admin.nav.currencies", icon: Coins },
+  { to: "/admin/ai", labelKey: "admin.nav.ai", icon: Sparkles },
 ] as const;
 
 export function AdminNav() {
+  const { t } = useTranslation();
   return (
     <nav className="flex flex-col gap-1">
-      <p className="px-3 py-2 text-xs font-medium text-muted-foreground">Admin</p>
-      {items.map(({ to, label, icon: Icon }) => (
+      <p className="px-3 py-2 text-xs font-medium text-muted-foreground">{t("admin.title")}</p>
+      {items.map(({ to, labelKey, icon: Icon }) => (
         <Link
           key={to}
           to={to}
@@ -20,7 +22,7 @@ export function AdminNav() {
           inactiveProps={{ className: "text-muted-foreground hover:bg-muted hover:text-foreground" }}
         >
           <Icon className="size-4" />
-          {label}
+          {t(labelKey)}
         </Link>
       ))}
     </nav>

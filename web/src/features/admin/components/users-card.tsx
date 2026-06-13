@@ -1,5 +1,6 @@
 import { createConnectQueryKey, useMutation, useSuspenseQuery } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 import { listUsers, updateUserRole } from "@/gen/api/v1/admin-AdminService_connectquery";
 import { UserRole } from "@/gen/api/v1/user_pb";
@@ -10,14 +11,15 @@ import { handleError } from "@/shared/lib/utils";
 
 const listUsersKey = createConnectQueryKey({ schema: listUsers, cardinality: "finite" });
 
-const ROLE_OPTIONS = [
-  { value: UserRole.ADMIN, label: "Admin" },
-  { value: UserRole.REGULAR, label: "Regular" },
-];
-
 export function UsersCard() {
+  const { t } = useTranslation();
   const { data } = useSuspenseQuery(listUsers);
   const queryClient = useQueryClient();
+
+  const roleOptions = [
+    { value: UserRole.ADMIN, label: t("admin.users.admin") },
+    { value: UserRole.REGULAR, label: t("admin.users.regular") },
+  ];
 
   const { mutate, isPending } = useMutation(updateUserRole, {
     onSuccess: () => {
@@ -29,16 +31,16 @@ export function UsersCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Users</CardTitle>
-        <CardDescription>Manage user roles.</CardDescription>
+        <CardTitle>{t("admin.users.title")}</CardTitle>
+        <CardDescription>{t("admin.users.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Username</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead className="w-40">Role</TableHead>
+              <TableHead>{t("admin.users.username")}</TableHead>
+              <TableHead>{t("admin.users.email")}</TableHead>
+              <TableHead className="w-40">{t("admin.users.role")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -48,7 +50,7 @@ export function UsersCard() {
                 <TableCell className="text-muted-foreground">{user.email}</TableCell>
                 <TableCell>
                   <Select
-                    items={ROLE_OPTIONS}
+                    items={roleOptions}
                     value={user.role}
                     onValueChange={(role) => {
                       if (role !== null && role !== user.role) mutate({ userId: user.id, role });
@@ -59,7 +61,7 @@ export function UsersCard() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {ROLE_OPTIONS.map((opt) => (
+                      {roleOptions.map((opt) => (
                         <SelectItem key={opt.value} value={opt.value}>
                           {opt.label}
                         </SelectItem>

@@ -2,8 +2,10 @@ import { timestampDate, timestampFromDate } from "@bufbuild/protobuf/wkt";
 import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
+import type { TFunction } from "i18next";
 import { useCallback, useEffect, useMemo } from "react";
 import { Controller, type DeepPartial, type FieldErrors, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import * as z from "zod";
 
@@ -37,17 +39,20 @@ import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { handleError } from "@/shared/lib/utils";
 
-const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  description: z.string(),
-  amountWithCurrency: z.object({
-    amount: z.number({ error: () => "Amount must be a number" }).positive("Amount must be a positive number"),
-    currency: z.string().min(2, "Currency is required"),
-  }),
-  payerId: z.string().min(1, "Payer is required"),
-  beneficiariesIds: z.array(z.string()).min(1, "At least one beneficiary is required"),
-  date: z.iso.date("Invalid date format"),
-});
+const makeFormSchema = (t: TFunction) =>
+  z.object({
+    name: z.string().min(2, t("expense.validation.nameMin")),
+    description: z.string(),
+    amountWithCurrency: z.object({
+      amount: z
+        .number({ error: () => t("expense.validation.amountNumber") })
+        .positive(t("expense.validation.amountPositive")),
+      currency: z.string().min(2, t("expense.validation.currencyRequired")),
+    }),
+    payerId: z.string().min(1, t("expense.validation.payerRequired")),
+    beneficiariesIds: z.array(z.string()).min(1, t("expense.validation.beneficiaryRequired")),
+    date: z.iso.date(t("expense.validation.dateInvalid")),
+  });
 
 // Helper functions for amount conversion
 const convertAmountToDisplay = (amount: bigint | number): number => {
@@ -64,7 +69,7 @@ const convertRFC3339ToDateString = (rfc3339: string | Date): string => {
   return new Date(rfc3339).toISOString().split("T")[0];
 };
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof makeFormSchema>>;
 
 interface ExpenseModalProps {
   // Modal control
@@ -98,6 +103,8 @@ export const ExpenseModal = ({
   defaultCurrency,
   currencies,
 }: ExpenseModalProps) => {
+  const { t } = useTranslation();
+  const formSchema = useMemo(() => makeFormSchema(t), [t]);
   const isEditMode = mode === "edit";
 
   // Memoize default beneficiary IDs to prevent unnecessary re-renders
@@ -169,7 +176,7 @@ export const ExpenseModal = ({
 
   const { isPending: isCreating, mutate: createMutate } = useMutation(createExpense, {
     onSuccess: () => {
-      toast.success("Expense created!");
+      toast.success(t("expense.created"));
       queryClient.invalidateQueries({ queryKey: groupActivityKey });
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
       queryClient.invalidateQueries({ queryKey: settlementSuggestionsKey });
@@ -180,7 +187,7 @@ export const ExpenseModal = ({
 
   const { isPending: isUpdating, mutate: updateMutate } = useMutation(updateExpense, {
     onSuccess: () => {
-      toast.success("Expense updated!");
+      toast.success(t("expense.updated"));
       queryClient.invalidateQueries({ queryKey: groupActivityKey });
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
       queryClient.invalidateQueries({ queryKey: settlementSuggestionsKey });
@@ -191,7 +198,7 @@ export const ExpenseModal = ({
 
   const { isPending: isPaying, mutate: payMutate } = useMutation(payRecurringExpense, {
     onSuccess: () => {
-      toast.success("Expense recorded!");
+      toast.success(t("expense.recorded"));
       queryClient.invalidateQueries({ queryKey: groupActivityKey });
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
       queryClient.invalidateQueries({ queryKey: recurringExpensesKey });
@@ -256,9 +263,9 @@ export const ExpenseModal = ({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEditMode ? "Edit expense" : "Add new expense"}</DialogTitle>
+          <DialogTitle>{isEditMode ? t("expense.edit") : t("expense.new")}</DialogTitle>
           <DialogDescription>
-            {isEditMode ? "Update expense details." : "Create a new expense for this group."}
+            {isEditMode ? t("expense.editDescription") : t("expense.newDescription")}
           </DialogDescription>
         </DialogHeader>
         <form id="expense-form" onSubmit={form.handleSubmit(onSubmit)}>
@@ -269,11 +276,11 @@ export const ExpenseModal = ({
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel htmlFor="expenseName">Expense name</FieldLabel>
+                  <FieldLabel htmlFor="expenseName">{t("expense.name")}</FieldLabel>
                   <Input
                     {...field}
                     id="expenseName"
-                    placeholder="Dinner, groceries, etc."
+                    placeholder={t("expense.namePlaceholder")}
                     required
                     aria-invalid={fieldState.invalid}
                   />
@@ -307,7 +314,7 @@ export const ExpenseModal = ({
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel htmlFor="amountWithCurrency">
-                      Amount
+                      {t("expense.amount")}
                       <AmountInputTooltip />
                     </FieldLabel>
                     <AmountInput
@@ -337,7 +344,7 @@ export const ExpenseModal = ({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor="expenseDate">Date</FieldLabel>
+                    <FieldLabel htmlFor="expenseDate">{t("expense.date")}</FieldLabel>
                     <Input {...field} id="expenseDate" type="date" required aria-invalid={fieldState.invalid} />
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
@@ -366,7 +373,7 @@ export const ExpenseModal = ({
         <DialogFooter>
           <Button type="submit" form="expense-form" disabled={isPending} size="lg">
             {isPending && <Spinner />}
-            {isEditMode ? "Update Expense" : "Create Expense"}
+            {isEditMode ? t("expense.submitEdit") : t("expense.submitNew")}
           </Button>
         </DialogFooter>
       </DialogContent>

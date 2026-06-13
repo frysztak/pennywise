@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Fragment } from "react/jsx-runtime";
 
 import type { MemberBalance } from "@/gen/api/v1/group_pb";
@@ -13,11 +14,12 @@ interface GroupBalancesProps {
 }
 
 export function GroupBalances({ memberBalances, currentUserId, defaultCurrency }: GroupBalancesProps) {
+  const { t } = useTranslation();
   if (memberBalances.length === 0) {
     return (
       <Card>
         <CardContent className="p-4 text-center">
-          <p className="text-muted-foreground">No balances in this group.</p>
+          <p className="text-muted-foreground">{t("group.balancesEmpty")}</p>
         </CardContent>
       </Card>
     );

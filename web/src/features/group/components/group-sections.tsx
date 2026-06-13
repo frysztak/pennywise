@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@connectrpc/connect-query";
 import { Info } from "lucide-react";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 import type { useDeleteExpenseModal } from "@/features/expense/hooks/use-delete-expense-modal";
 import type { useExpenseModal } from "@/features/expense/hooks/use-expense-modal";
@@ -44,6 +45,7 @@ export function GroupSections({
   onDeleteTransfer,
   isArchived,
 }: GroupSectionsProps) {
+  const { t } = useTranslation();
   const { data: settlementData } = useSuspenseQuery(getSettlementSuggestions, { groupId });
 
   const otherMembers = memberBalances.filter((m) => m.userId !== currentUserId);
@@ -54,7 +56,7 @@ export function GroupSections({
 
   const activitySection = (
     <div>
-      <h2 className="text-xl font-bold my-4">Recent Activity</h2>
+      <h2 className="text-xl font-bold my-4">{t("group.recentActivity")}</h2>
       <ActivitySection
         groupId={groupId}
         currencies={currencies}
@@ -71,7 +73,7 @@ export function GroupSections({
   const balancesAndSettleSection = (
     <div className="grid gap-3 md:grid-cols-2 mb-3">
       <div>
-        <h2 className="text-xl font-bold mb-4">Group Balances</h2>
+        <h2 className="text-xl font-bold mb-4">{t("group.balancesTitle")}</h2>
         <GroupBalances
           memberBalances={memberBalances}
           currentUserId={currentUserId}
@@ -81,15 +83,12 @@ export function GroupSections({
 
       <div>
         <h2 className="text-xl font-bold mb-4">
-          Settle Up{" "}
+          {t("group.settleUp")}{" "}
           <Tooltip>
             <TooltipTrigger>
               <Info className="w-4 h-4 text-muted-foreground" />
             </TooltipTrigger>
-            <TooltipContent>
-              These suggestions are optimized to minimize the number of transfers. The suggested payer may differ from
-              who originally owed the money.
-            </TooltipContent>
+            <TooltipContent>{t("group.settleUpTooltip")}</TooltipContent>
           </Tooltip>
         </h2>
         <SettlementSuggestions
@@ -105,7 +104,7 @@ export function GroupSections({
   if (noBalances && noDebts) {
     return (
       <>
-        <EmptyState title="All settled" description="No balances, no debts. Add a group member to get started." />
+        <EmptyState title={t("group.emptyAllSettled.title")} description={t("group.emptyAllSettled.description")} />
         {remindersSlot}
         {activitySection}
       </>
@@ -113,10 +112,7 @@ export function GroupSections({
   } else if (noBalances) {
     return (
       <>
-        <EmptyState
-          title="Everyone's even"
-          description="No balances yet. They'll appear here once someone adds an expense."
-        />
+        <EmptyState title={t("group.emptyEven.title")} description={t("group.emptyEven.description")} />
         {remindersSlot}
         {activitySection}
       </>

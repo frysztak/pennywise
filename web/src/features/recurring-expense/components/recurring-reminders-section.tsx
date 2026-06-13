@@ -1,4 +1,5 @@
 import { useSuspenseQuery } from "@connectrpc/connect-query";
+import { useTranslation } from "react-i18next";
 
 import { RecurringReminderCard } from "@/features/recurring-expense/components/recurring-reminder-card";
 import { RecurringReminderRow } from "@/features/recurring-expense/components/recurring-reminder-row";
@@ -21,6 +22,7 @@ export function RecurringRemindersSection({
   onDeleteReminder,
   isArchived,
 }: RecurringRemindersSectionProps) {
+  const { t } = useTranslation();
   const { data: recurringExpensesData } = useSuspenseQuery(getGroupRecurringExpenses, { groupId });
 
   if (recurringExpensesData.recurringExpenses.length === 0) {
@@ -29,17 +31,17 @@ export function RecurringRemindersSection({
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">Recurring Reminders</h2>
+      <h2 className="text-xl font-bold mb-4">{t("recurringExpense.reminders.title")}</h2>
       <div className="hidden md:block">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Due Date</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Frequency</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
-              <TableHead>Details</TableHead>
-              <TableHead className="w-45">Actions</TableHead>
+              <TableHead>{t("recurringExpense.reminders.dueDate")}</TableHead>
+              <TableHead>{t("recurringExpense.reminders.description")}</TableHead>
+              <TableHead>{t("recurringExpense.reminders.frequency")}</TableHead>
+              <TableHead className="text-right">{t("recurringExpense.reminders.amount")}</TableHead>
+              <TableHead>{t("recurringExpense.reminders.details")}</TableHead>
+              <TableHead className="w-45">{t("recurringExpense.reminders.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

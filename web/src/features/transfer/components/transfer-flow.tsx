@@ -1,5 +1,6 @@
 import { ArrowBigRightDash, ArrowLeftRight, CheckIcon } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import type { MemberBalance } from "@/gen/api/v1/group_pb";
 import { MemberAvatar } from "@/shared/components/member-avatar";
@@ -27,6 +28,7 @@ export function TransferFlow({
   onSenderChange,
   onReceiverChange,
 }: TransferFlowProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState<"from" | "to" | null>(null);
   const sender = members.find((m) => m.userId === senderId);
   const receiver = members.find((m) => m.userId === receiverId);
@@ -56,7 +58,7 @@ export function TransferFlow({
     >
       <Popover open={open === "from"} onOpenChange={(o) => setOpen(o ? "from" : null)}>
         <PartyCard
-          label="From"
+          label={t("transfer.flow.from")}
           member={sender}
           isYou={senderId === currentUserId}
           isOpen={open === "from"}
@@ -79,7 +81,7 @@ export function TransferFlow({
           type="button"
           onClick={swap}
           disabled={disabled}
-          aria-label="Swap sender and receiver"
+          aria-label={t("transfer.flow.swap")}
           className={cn(
             "absolute left-1/2 -bottom-3 z-[2] flex size-6 -translate-x-1/2 items-center justify-center rounded-full border border-border bg-popover text-muted-foreground transition-all",
             "hover:bg-accent hover:text-foreground",
@@ -93,7 +95,7 @@ export function TransferFlow({
 
       <Popover open={open === "to"} onOpenChange={(o) => setOpen(o ? "to" : null)}>
         <PartyCard
-          label="To"
+          label={t("transfer.flow.to")}
           member={receiver}
           isYou={receiverId === currentUserId}
           isOpen={open === "to"}
@@ -122,6 +124,7 @@ interface PartyCardProps {
 }
 
 function PartyCard({ label, member, isOpen, disabled }: PartyCardProps) {
+  const { t } = useTranslation();
   return (
     <PopoverTrigger
       render={
@@ -151,7 +154,7 @@ function PartyCard({ label, member, isOpen, disabled }: PartyCardProps) {
               </div>
             </>
           ) : (
-            <div className="my-6 text-sm text-muted-foreground">Choose</div>
+            <div className="my-6 text-sm text-muted-foreground">{t("transfer.flow.choose")}</div>
           )}
         </button>
       }
@@ -160,9 +163,10 @@ function PartyCard({ label, member, isOpen, disabled }: PartyCardProps) {
 }
 
 function YouPill() {
+  const { t } = useTranslation();
   return (
     <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em] text-primary">
-      YOU
+      {t("transfer.flow.you")}
     </span>
   );
 }

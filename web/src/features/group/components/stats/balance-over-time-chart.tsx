@@ -1,4 +1,5 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
+import { useTranslation } from "react-i18next";
 import { CartesianGrid, Line, LineChart, ReferenceLine, XAxis, YAxis } from "recharts";
 
 import type { GetGroupStatsResponse } from "@/gen/api/v1/group_pb";
@@ -24,6 +25,7 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, { month: "short", day: 
 const tooltipDateFormatter = new Intl.DateTimeFormat(undefined, { year: "numeric", month: "short", day: "numeric" });
 
 export function BalanceOverTimeChart({ series, members, currency }: BalanceOverTimeChartProps) {
+  const { t } = useTranslation();
   const currencySeries = series.find((s) => s.currency === currency);
   const points = currencySeries?.points ?? [];
 
@@ -47,11 +49,11 @@ export function BalanceOverTimeChart({ series, members, currency }: BalanceOverT
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Balance over time</CardTitle>
+        <CardTitle>{t("stats.balanceOverTime")}</CardTitle>
       </CardHeader>
       <CardContent>
         {data.length === 0 || activeMembers.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">No activity in {currency} yet.</p>
+          <p className="py-8 text-center text-sm text-muted-foreground">{t("stats.noActivity", { currency })}</p>
         ) : (
           <ChartContainer config={chartConfig} className="aspect-auto h-[320px] w-full">
             <LineChart accessibilityLayer data={data} margin={{ left: 8, right: 16, top: 8 }}>

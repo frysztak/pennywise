@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { parseISO } from "date-fns";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { useAuth } from "@/features/auth/auth";
@@ -17,6 +18,7 @@ import { bulkCreateExpenses } from "@/gen/api/v1/expense-ExpenseService_connectq
 import { getGroupActivity, getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
 import { scanReceipt } from "@/gen/api/v1/receipt-ReceiptService_connectquery";
 import type { ReceiptData } from "@/gen/api/v1/receipt_pb";
+import i18n from "@/i18n";
 import { Card } from "@/shared/components/ui/card";
 import { useObjectUrl } from "@/shared/hooks/use-object-url";
 import { getConfig } from "@/shared/lib/config";
@@ -26,7 +28,7 @@ import { transport } from "@/transport";
 export const Route = createFileRoute("/_pathlessLayout/scan-receipt")({
   beforeLoad: async ({ context }) => {
     if (!getConfig().receiptScanningEnabled) {
-      toast.error("Receipt scanning is disabled");
+      toast.error(i18n.t("scan.disabled"));
       throw redirect({ to: "/dashboard" });
     }
     await context.queryClient.ensureQueryData(createQueryOptions(getUserGroups, undefined, { transport }));
@@ -40,6 +42,7 @@ export const Route = createFileRoute("/_pathlessLayout/scan-receipt")({
 const userGroupsKey = createConnectQueryKey({ schema: getUserGroups, cardinality: "finite" });
 
 function RouteComponent() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const auth = useAuth();
@@ -79,7 +82,7 @@ function RouteComponent() {
   const scanMutation = useMutation(scanReceipt, {
     onSuccess: (res) => {
       if (!res.receipt) {
-        toast.error("Scan returned no data");
+        toast.error(t("scan.noData"));
         setStep("upload");
         return;
       }
@@ -94,7 +97,9 @@ function RouteComponent() {
 
   const bulkCreateMutation = useMutation(bulkCreateExpenses, {
     onSuccess: (res) => {
-      toast.success(res.expenses.length === 1 ? "Expense created!" : `Created ${res.expenses.length} expenses!`);
+      toast.success(
+        res.expenses.length === 1 ? t("expense.created") : t("scan.expensesCreated", { count: res.expenses.length }),
+      );
       queryClient.invalidateQueries({ queryKey: groupActivityKey });
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
       navigate({ to: "/group/$groupId", params: { groupId: confirmState.groupId } });
@@ -123,7 +128,7 @@ function RouteComponent() {
             {
               groupId: confirmState.groupId,
               payerId: confirmState.payerId,
-              name: draft.merchant || "Receipt",
+              name: draft.merchant || t("scan.defaultExpenseName"),
               description: "",
               amount: selectedItems.reduce((s, i) => s + i.price, 0),
               currency: draft.currency,
@@ -134,8 +139,8 @@ function RouteComponent() {
         : selectedItems.map((item) => ({
             groupId: confirmState.groupId,
             payerId: confirmState.payerId,
-            name: item.name || "Item",
-            description: draft.merchant ? `From ${draft.merchant}` : "",
+            name: item.name || t("scan.defaultItemName"),
+            description: draft.merchant ? t("scan.fromMerchant", { merchant: draft.merchant }) : "",
             amount: item.price,
             currency: draft.currency,
             beneficiariesIds: beneficiaries,
@@ -149,25 +154,27 @@ function RouteComponent() {
   const subtitle = (() => {
     switch (step) {
       case "upload":
-        return "Drop a photo and we'll extract the line items";
+        return t("scan.subtitles.upload");
       case "processing":
         return undefined;
       case "review":
-        return draft ? `${draft.merchant || "Untitled"} · ${draft.date}` : undefined;
+        return draft
+          ? t("scan.subtitles.review", { merchant: draft.merchant || t("scan.untitledShort"), date: draft.date })
+          : undefined;
       case "confirm":
-        return "How should this receipt land in your ledger?";
+        return t("scan.subtitles.confirm");
     }
   })();
   const title = (() => {
     switch (step) {
       case "upload":
-        return "Scan a receipt";
+        return t("scan.titles.upload");
       case "processing":
-        return "Scanning";
+        return t("scan.titles.processing");
       case "review":
-        return "Review extracted data";
+        return t("scan.titles.review");
       case "confirm":
-        return "Confirm & save";
+        return t("scan.titles.confirm");
     }
   })();
 

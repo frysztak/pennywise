@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 import { ActivityTypeFilter } from "@/gen/api/v1/group_pb";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 
@@ -23,6 +25,7 @@ export function ActivityFilters({
   members,
   onChange,
 }: ActivityFiltersProps) {
+  const { t } = useTranslation();
   const typeValue =
     typeFilter === ActivityTypeFilter.EXPENSE
       ? "expense"
@@ -31,14 +34,20 @@ export function ActivityFilters({
         : ALL;
 
   const typeItems = [
-    { value: ALL, label: "All types" },
-    { value: "expense", label: "Expenses" },
-    { value: "transfer", label: "Transfers" },
+    { value: ALL, label: t("activity.filter.allTypes") },
+    { value: "expense", label: t("activity.filter.expenses") },
+    { value: "transfer", label: t("activity.filter.transfers") },
   ];
 
-  const currencyItems = [{ value: ALL, label: "All currencies" }, ...currencies.map((c) => ({ value: c, label: c }))];
+  const currencyItems = [
+    { value: ALL, label: t("activity.filter.allCurrencies") },
+    ...currencies.map((c) => ({ value: c, label: c })),
+  ];
 
-  const memberItems = [{ value: ALL, label: "All members" }, ...members.map((m) => ({ value: m.id, label: m.name }))];
+  const memberItems = [
+    { value: ALL, label: t("activity.filter.allMembers") },
+    ...members.map((m) => ({ value: m.id, label: m.name })),
+  ];
 
   return (
     <div className="flex flex-wrap gap-2">
@@ -57,12 +66,12 @@ export function ActivityFilters({
         }
       >
         <SelectTrigger size="sm">
-          <SelectValue placeholder="All types" />
+          <SelectValue placeholder={t("activity.filter.allTypes")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value={ALL}>All types</SelectItem>
-          <SelectItem value="expense">Expenses</SelectItem>
-          <SelectItem value="transfer">Transfers</SelectItem>
+          <SelectItem value={ALL}>{t("activity.filter.allTypes")}</SelectItem>
+          <SelectItem value="expense">{t("activity.filter.expenses")}</SelectItem>
+          <SelectItem value="transfer">{t("activity.filter.transfers")}</SelectItem>
         </SelectContent>
       </Select>
 
@@ -73,10 +82,10 @@ export function ActivityFilters({
           onValueChange={(v) => onChange({ currencyFilter: v == null || v === ALL ? undefined : v })}
         >
           <SelectTrigger size="sm">
-            <SelectValue placeholder="All currencies" />
+            <SelectValue placeholder={t("activity.filter.allCurrencies")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>All currencies</SelectItem>
+            <SelectItem value={ALL}>{t("activity.filter.allCurrencies")}</SelectItem>
             {currencies.map((c) => (
               <SelectItem key={c} value={c}>
                 {c}
@@ -93,10 +102,10 @@ export function ActivityFilters({
           onValueChange={(v) => onChange({ memberFilter: v == null || v === ALL ? undefined : v })}
         >
           <SelectTrigger size="sm">
-            <SelectValue placeholder="All members" />
+            <SelectValue placeholder={t("activity.filter.allMembers")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>All members</SelectItem>
+            <SelectItem value={ALL}>{t("activity.filter.allMembers")}</SelectItem>
             {members.map((m) => (
               <SelectItem key={m.id} value={m.id}>
                 {m.name}

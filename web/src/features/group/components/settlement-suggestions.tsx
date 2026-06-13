@@ -1,4 +1,5 @@
 import { useSuspenseQuery } from "@connectrpc/connect-query";
+import { useTranslation } from "react-i18next";
 
 import { SettlementCards } from "@/features/group/components/settlement-cards";
 import type { TransferTemplateDefaults } from "@/features/transfer/hooks/use-transfer-modal";
@@ -13,13 +14,14 @@ interface SettlementSuggestionsProps {
 }
 
 export function SettlementSuggestions({ groupId, currentUserId, onSettle, isArchived }: SettlementSuggestionsProps) {
+  const { t } = useTranslation();
   const { data } = useSuspenseQuery(getSettlementSuggestions, { groupId });
 
   if (data.suggestions.length === 0) {
     return (
       <Card>
         <CardContent className="p-4 text-center">
-          <p className="text-muted-foreground">No outstanding debts in this group.</p>
+          <p className="text-muted-foreground">{t("group.settlementEmpty")}</p>
         </CardContent>
       </Card>
     );

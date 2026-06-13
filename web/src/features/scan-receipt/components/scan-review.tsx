@@ -1,5 +1,6 @@
 import { format, parseISO } from "date-fns";
 import { ArrowRight, Plus, Sparkles, TriangleAlert } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import type { ItemDraft, ReceiptDraft } from "@/features/scan-receipt/types";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
@@ -22,6 +23,7 @@ export function ScanReview({
   setDraft: (d: ReceiptDraft) => void;
   imageUrl?: string;
 }) {
+  const { t } = useTranslation();
   const allSelected = draft.items.length > 0 && draft.items.every((i) => i.selected);
   const selectedItems = draft.items.filter((i) => i.selected);
   const lowConfidenceCount = draft.items.filter((i) => i.confidence < 0.92).length;
@@ -47,7 +49,9 @@ export function ScanReview({
     <div className="grid md:min-h-120 md:grid-cols-[0.85fr_1.15fr]">
       {/* Left: original photo */}
       <div className="bg-muted/30 flex flex-col gap-3 overflow-hidden border-b p-4 md:border-r md:border-b-0 md:p-6">
-        <div className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Original</div>
+        <div className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
+          {t("scan.review.original")}
+        </div>
         <div className="flex flex-1 items-center justify-center overflow-hidden">
           {imageUrl ? (
             <img
@@ -56,15 +60,16 @@ export function ScanReview({
               className="border-border max-h-105 max-w-full rounded-md border shadow-md"
             />
           ) : (
-            <div className="text-muted-foreground text-sm">No image preview</div>
+            <div className="text-muted-foreground text-sm">{t("scan.review.noPreview")}</div>
           )}
         </div>
         <div className="bg-background/60 text-muted-foreground flex items-start gap-2 rounded-md border px-3 py-2 text-xs">
           <Sparkles className="text-primary mt-0.5 size-3 shrink-0" />
           <div className="flex flex-col gap-0.5 md:flex-row md:gap-1">
-            <span>Click any field below to edit.</span>
+            <span>{t("scan.review.editHint")}</span>
             <span>
-              <span className="text-foreground/80">{draft.items.length} items</span> extracted.
+              <span className="text-foreground/80">{t("scan.review.items", { count: draft.items.length })}</span>{" "}
+              {t("scan.review.extractedSuffix")}
             </span>
           </div>
         </div>
@@ -75,23 +80,20 @@ export function ScanReview({
         {lowConfidenceCount > 0 && (
           <Alert>
             <TriangleAlert />
-            <AlertTitle>Partial extraction</AlertTitle>
-            <AlertDescription>
-              {lowConfidenceCount} {lowConfidenceCount === 1 ? "item has" : "items have"} low confidence. Review the
-              flagged rows before saving.
-            </AlertDescription>
+            <AlertTitle>{t("scan.review.partialTitle")}</AlertTitle>
+            <AlertDescription>{t("scan.review.partialBody", { count: lowConfidenceCount })}</AlertDescription>
           </Alert>
         )}
 
         {/* Header card: merchant, date, total */}
         <div className="bg-muted/30 grid gap-3 rounded-lg border p-4 sm:grid-cols-[1.6fr_1fr_1fr]">
-          <FieldGroup label="Merchant">
+          <FieldGroup label={t("scan.review.merchant")}>
             <Input value={draft.merchant} onChange={(e) => setDraft({ ...draft, merchant: e.target.value })} />
           </FieldGroup>
-          <FieldGroup label="Date">
+          <FieldGroup label={t("scan.review.date")}>
             <Input type="date" value={draft.date} onChange={(e) => setDraft({ ...draft, date: e.target.value })} />
           </FieldGroup>
-          <FieldGroup label="Total">
+          <FieldGroup label={t("scan.review.total")}>
             <div className="border-input bg-muted/40 text-foreground/80 flex h-9 items-center justify-end rounded-md border px-3 font-mono text-sm tabular-nums">
               {draft.total.toFixed(2)} {draft.currency}
             </div>
@@ -101,22 +103,24 @@ export function ScanReview({
         {/* Items */}
         <div>
           <div className="mb-2 flex items-center justify-between">
-            <div className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Line items</div>
+            <div className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
+              {t("scan.review.lineItems")}
+            </div>
             <button
               type="button"
               onClick={selectAll}
               className="text-primary cursor-pointer text-xs font-medium hover:underline"
             >
-              {allSelected ? "Deselect all" : "Select all"}
+              {allSelected ? t("scan.review.deselectAll") : t("scan.review.selectAll")}
             </button>
           </div>
           <div className="bg-card overflow-hidden rounded-lg border">
             <div className="bg-muted text-muted-foreground hidden grid-cols-[28px_1fr_56px_88px_88px] items-center gap-2 border-b px-3 py-2 text-[10.5px] font-semibold tracking-wider uppercase md:grid">
               <span />
-              <span>Item</span>
-              <span className="text-right">Qty</span>
-              <span className="text-right">Unit</span>
-              <span className="text-right">Total</span>
+              <span>{t("scan.review.item")}</span>
+              <span className="text-right">{t("scan.review.qty")}</span>
+              <span className="text-right">{t("scan.review.unit")}</span>
+              <span className="text-right">{t("scan.review.total")}</span>
             </div>
             {draft.items.map((it, i) => (
               <ItemRow
@@ -133,23 +137,26 @@ export function ScanReview({
               onClick={addItem}
               className="text-muted-foreground hover:bg-muted/50 hover:text-foreground flex w-full cursor-pointer items-center justify-center gap-1.5 border-t px-3 py-2.5 text-xs font-medium transition-colors"
             >
-              <Plus className="size-3.5" /> Add line item
+              <Plus className="size-3.5" /> {t("scan.review.addLineItem")}
             </button>
           </div>
         </div>
 
         {/* Totals */}
         <div className="bg-muted/30 flex flex-col gap-2 rounded-lg border p-4">
-          <Row label="Selected items" value={`${selectedItems.length} of ${draft.items.length}`} />
           <Row
-            label="Selected total"
+            label={t("scan.review.selectedItems")}
+            value={t("scan.review.selectedCount", { selected: selectedItems.length, total: draft.items.length })}
+          />
+          <Row
+            label={t("scan.review.selectedTotal")}
             value={fmtMoney(
               selectedItems.reduce((s, i) => s + i.price, 0),
               draft.currency,
             )}
           />
           <div className="bg-border my-1 h-px" />
-          <Row label="Receipt total" value={fmtMoney(draft.total, draft.currency)} bold />
+          <Row label={t("scan.review.receiptTotal")} value={fmtMoney(draft.total, draft.currency)} bold />
         </div>
       </div>
     </div>
@@ -207,6 +214,7 @@ function ItemRow({
   onToggle: () => void;
   onChange: (patch: Partial<ItemDraft>) => void;
 }) {
+  const { t } = useTranslation();
   const lowConf = item.confidence < 0.92;
   const qty = Math.max(item.qty, 1);
   const unit = item.price / qty;
@@ -237,7 +245,7 @@ function ItemRow({
           {lowConf && (
             <span className="bg-warning/15 text-warning inline-flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase">
               <TriangleAlert className="size-2.5" />
-              low
+              {t("scan.review.low")}
             </span>
           )}
         </div>
@@ -245,9 +253,9 @@ function ItemRow({
 
       {/* Mobile row 2: qty / unit / total with labels. Desktop: 3 separate cells, no labels. */}
       <div className="text-muted-foreground grid grid-cols-3 items-baseline gap-2 pl-7 text-[10px] font-semibold tracking-wider uppercase md:hidden">
-        <span>Qty</span>
-        <span className="text-right">Unit</span>
-        <span className="text-right">Total</span>
+        <span>{t("scan.review.qty")}</span>
+        <span className="text-right">{t("scan.review.unit")}</span>
+        <span className="text-right">{t("scan.review.total")}</span>
       </div>
       <div className="grid grid-cols-3 items-center gap-2 pl-7 md:contents md:pl-0">
         <div className="text-foreground/80 px-1.5 text-right font-mono text-sm tabular-nums">{item.qty}</div>
@@ -282,6 +290,7 @@ export function ScanReviewFooter({
   onBack: () => void;
   onContinue: () => void;
 }) {
+  const { t } = useTranslation();
   const selectedItems = draft.items.filter((i) => i.selected);
   const selectedSum = selectedItems.reduce((s, i) => s + i.price, 0);
 
@@ -289,16 +298,16 @@ export function ScanReviewFooter({
     <div className="bg-card flex flex-col-reverse gap-3 border-t px-4 py-3 md:flex-row md:items-center md:justify-between md:px-6 md:py-3.5">
       <div className="flex items-baseline gap-3">
         <span className="text-muted-foreground text-xs">
-          {selectedItems.length} of {draft.items.length} item{draft.items.length === 1 ? "" : "s"} selected
+          {t("scan.review.selectedSummary", { selected: selectedItems.length, total: draft.items.length })}
         </span>
         <span className="font-mono text-base font-semibold tabular-nums">{fmtMoney(selectedSum, draft.currency)}</span>
       </div>
       <div className="flex gap-2.5">
         <Button variant="outline" onClick={onBack} className="flex-1 md:flex-initial">
-          Back
+          {t("scan.back")}
         </Button>
         <Button disabled={selectedItems.length === 0} onClick={onContinue} className="flex-1 md:flex-initial">
-          Continue <ArrowRight />
+          {t("scan.continue")} <ArrowRight />
         </Button>
       </div>
     </div>

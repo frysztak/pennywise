@@ -1,8 +1,10 @@
 import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import type { TFunction } from "i18next";
+import { useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import * as z from "zod";
 
@@ -23,17 +25,20 @@ import { Spinner } from "@/shared/components/ui/spinner";
 import { useCurrencies } from "@/shared/hooks/use-currencies";
 import { handleError } from "@/shared/lib/utils";
 
-const formSchema = z
-  .object({
-    name: z.string().min(2),
-    description: z.string(),
-    defaultCurrency: z.string().min(2, "Currency is required"),
-    currencies: z.array(z.string()).min(1, "Select at least one currency"),
-  })
-  .refine((data) => data.currencies.includes(data.defaultCurrency), {
-    message: "Default currency must be one of the selected currencies",
-    path: ["defaultCurrency"],
-  });
+const makeFormSchema = (t: TFunction) =>
+  z
+    .object({
+      name: z.string().min(2),
+      description: z.string(),
+      defaultCurrency: z.string().min(2, t("group.form.currencyRequired")),
+      currencies: z.array(z.string()).min(1, t("group.form.selectAtLeastOne")),
+    })
+    .refine((data) => data.currencies.includes(data.defaultCurrency), {
+      message: t("group.form.defaultMustBeSelected"),
+      path: ["defaultCurrency"],
+    });
+
+type FormSchema = ReturnType<typeof makeFormSchema>;
 const userGroupsKey = createConnectQueryKey({
   schema: getUserGroups,
   cardinality: "finite",
@@ -45,8 +50,10 @@ interface NewGroupModalProps {
 }
 
 export const NewGroupModal = ({ open, onOpenChange }: NewGroupModalProps) => {
+  const { t } = useTranslation();
   const currencyOptions = useCurrencies();
-  const form = useForm<z.infer<typeof formSchema>>({
+  const formSchema = useMemo(() => makeFormSchema(t), [t]);
+  const form = useForm<z.infer<FormSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
@@ -61,7 +68,7 @@ export const NewGroupModal = ({ open, onOpenChange }: NewGroupModalProps) => {
 
   const { isPending, mutate } = useMutation(createExpenseGroup, {
     onSuccess: () => {
-      toast.success("Group created!");
+      toast.success(t("group.created"));
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
       onOpenChange(false);
     },
@@ -73,7 +80,7 @@ export const NewGroupModal = ({ open, onOpenChange }: NewGroupModalProps) => {
     if (open) form.reset();
   }, [open, form]);
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
+  const onSubmit = (data: z.infer<FormSchema>) => {
     mutate(data);
   };
 
@@ -81,8 +88,8 @@ export const NewGroupModal = ({ open, onOpenChange }: NewGroupModalProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add new group</DialogTitle>
-          <DialogDescription>Create new expense group.</DialogDescription>
+          <DialogTitle>{t("group.new.title")}</DialogTitle>
+          <DialogDescription>{t("group.new.description")}</DialogDescription>
         </DialogHeader>
         <form id="new-group-form" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
@@ -92,11 +99,11 @@ export const NewGroupModal = ({ open, onOpenChange }: NewGroupModalProps) => {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel htmlFor="groupName">Group name</FieldLabel>
+                  <FieldLabel htmlFor="groupName">{t("group.form.name")}</FieldLabel>
                   <Input
                     {...field}
                     id="groupName"
-                    placeholder="My group..."
+                    placeholder={t("group.form.namePlaceholder")}
                     required
                     aria-invalid={fieldState.invalid}
                   />
@@ -110,7 +117,7 @@ export const NewGroupModal = ({ open, onOpenChange }: NewGroupModalProps) => {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel htmlFor="groupDesc">Group description</FieldLabel>
+                  <FieldLabel htmlFor="groupDesc">{t("group.form.description")}</FieldLabel>
                   <Input {...field} id="groupDesc" aria-invalid={fieldState.invalid} />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
@@ -122,7 +129,7 @@ export const NewGroupModal = ({ open, onOpenChange }: NewGroupModalProps) => {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel htmlFor="groupCurrencies">Currencies</FieldLabel>
+                  <FieldLabel htmlFor="groupCurrencies">{t("group.form.currencies")}</FieldLabel>
                   <Select
                     multiple
                     items={currencyOptions.map((c) => ({ value: c, label: c }))}
@@ -140,8 +147,10 @@ export const NewGroupModal = ({ open, onOpenChange }: NewGroupModalProps) => {
                       disabled={isPending}
                       className="w-full"
                     >
-                      <SelectValue placeholder="Select currencies">
-                        {(value: string[]) => (value.length === 0 ? "Select currencies" : value.join(", "))}
+                      <SelectValue placeholder={t("group.form.selectCurrencies")}>
+                        {(value: string[]) =>
+                          value.length === 0 ? t("group.form.selectCurrencies") : value.join(", ")
+                        }
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
@@ -162,7 +171,7 @@ export const NewGroupModal = ({ open, onOpenChange }: NewGroupModalProps) => {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel htmlFor="defaultCurrency">Default currency</FieldLabel>
+                  <FieldLabel htmlFor="defaultCurrency">{t("group.form.defaultCurrency")}</FieldLabel>
                   <Select
                     items={defaultCurrencyItems}
                     value={field.value}
@@ -170,7 +179,7 @@ export const NewGroupModal = ({ open, onOpenChange }: NewGroupModalProps) => {
                     disabled={isPending || defaultCurrencyItems.length === 0}
                   >
                     <SelectTrigger id="defaultCurrency" aria-invalid={fieldState.invalid}>
-                      <SelectValue placeholder="Select currency" />
+                      <SelectValue placeholder={t("group.form.selectCurrency")} />
                     </SelectTrigger>
                     <SelectContent>
                       {defaultCurrencyItems.map((currency) => (
@@ -190,7 +199,7 @@ export const NewGroupModal = ({ open, onOpenChange }: NewGroupModalProps) => {
         <DialogFooter>
           <Button type="submit" form="new-group-form" disabled={isPending} size="lg">
             {isPending && <Spinner />}
-            Submit
+            {t("common.submit")}
           </Button>
         </DialogFooter>
       </DialogContent>

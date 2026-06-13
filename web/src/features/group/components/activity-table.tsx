@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 import { type ActivityItem, makeActivityColumns } from "@/features/group/components/activity-columns";
 import type {
   GetGroupActivityResponse_ActivityItem_Expense,
@@ -22,7 +24,12 @@ export function ActivityTable({
   onDeleteTransfer,
   isArchived,
 }: ActivityTableProps) {
-  const columns = makeActivityColumns({ onEditExpense, onDeleteExpense, onEditTransfer, onDeleteTransfer }, isArchived);
+  const { t } = useTranslation();
+  const columns = makeActivityColumns(
+    { onEditExpense, onDeleteExpense, onEditTransfer, onDeleteTransfer },
+    t,
+    isArchived,
+  );
 
-  return <DataTable columns={columns} data={recentActivity} emptyMessage="No activity yet in this group." />;
+  return <DataTable columns={columns} data={recentActivity} emptyMessage={t("activity.empty")} />;
 }

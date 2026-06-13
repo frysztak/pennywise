@@ -1,9 +1,11 @@
 import { Sparkles } from "lucide-react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 
 export function ScanProcessing() {
+  const { t } = useTranslation();
   // Indeterminate animated bar — capped at ~95% so the final jump happens when the RPC resolves.
   const [progress, setProgress] = React.useState(0);
   React.useEffect(() => {
@@ -39,8 +41,8 @@ export function ScanProcessing() {
       </div>
 
       <div className="flex flex-col items-center gap-2">
-        <div className="text-base font-semibold tracking-tight md:text-lg">Reading your receipt…</div>
-        <div className="text-muted-foreground text-sm">This usually takes a few seconds</div>
+        <div className="text-base font-semibold tracking-tight md:text-lg">{t("scan.processing.title")}</div>
+        <div className="text-muted-foreground text-sm">{t("scan.processing.subtitle")}</div>
       </div>
 
       <div className="bg-border h-0.75 w-80 max-w-full overflow-hidden rounded-full">
@@ -54,10 +56,11 @@ export function ScanProcessing() {
 }
 
 export function ScanProcessingFooter({ onCancel }: { onCancel: () => void }) {
+  const { t } = useTranslation();
   return (
     <div className="bg-card flex items-center justify-between gap-3 border-t px-4 py-3 md:px-6 md:py-3.5">
       <Button variant="ghost" onClick={onCancel}>
-        Cancel
+        {t("common.cancel")}
       </Button>
     </div>
   );

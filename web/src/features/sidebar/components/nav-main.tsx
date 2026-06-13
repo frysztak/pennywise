@@ -1,11 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { LayoutDashboard, ScanLine } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/shared/components/ui/sidebar";
 import { getConfig } from "@/shared/lib/config";
 
 export function NavMain() {
   const { receiptScanningEnabled } = getConfig();
+  const { t } = useTranslation();
 
   return (
     <SidebarGroup>
@@ -13,11 +15,11 @@ export function NavMain() {
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton
-            tooltip="Dashboard"
+            tooltip={t("nav.dashboard")}
             render={
               <Link to="/dashboard">
                 <LayoutDashboard />
-                <span className="font-bold text-base">Dashboard</span>
+                <span className="font-bold text-base">{t("nav.dashboard")}</span>
               </Link>
             }
           />
@@ -25,11 +27,11 @@ export function NavMain() {
         {receiptScanningEnabled && (
           <SidebarMenuItem>
             <SidebarMenuButton
-              tooltip="Scan receipt"
+              tooltip={t("nav.scanReceipt")}
               render={
                 <Link to="/scan-receipt">
                   <ScanLine />
-                  <span className="font-bold text-base">Scan receipt</span>
+                  <span className="font-bold text-base">{t("nav.scanReceipt")}</span>
                 </Link>
               }
             />

@@ -2,6 +2,7 @@ import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { Upload } from "lucide-react";
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { uploadAvatar, userInfo } from "@/gen/api/v1/user-UserService_connectquery";
@@ -14,17 +15,18 @@ const userInfoKey = createConnectQueryKey({
 });
 
 export function AvatarUpload() {
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation(uploadAvatar, {
     onSuccess: () => {
-      toast.success("Avatar uploaded successfully");
+      toast.success(t("settings.profile.avatarUploaded"));
       // Invalidate userInfo query to refetch with new avatar_updated_at
       queryClient.invalidateQueries({ queryKey: userInfoKey });
     },
     onError: (error) => {
-      toast.error(`Failed to upload avatar: ${error.message}`);
+      toast.error(t("settings.profile.avatarUploadFailed", { error: error.message }));
     },
   });
 
@@ -34,13 +36,13 @@ export function AvatarUpload() {
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
+      toast.error(t("settings.profile.avatarInvalidType"));
       return;
     }
 
     // Validate file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
-      toast.error("Image must be smaller than 2MB");
+      toast.error(t("settings.profile.avatarTooLarge"));
       return;
     }
 
@@ -65,9 +67,9 @@ export function AvatarUpload() {
         <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
         <Button variant="outline" onClick={handleButtonClick} disabled={isPending} size="lg">
           <Upload />
-          {isPending ? "Uploading..." : "Upload Avatar"}
+          {isPending ? t("settings.profile.avatarUploading") : t("settings.profile.avatarUpload")}
         </Button>
-        <p className="text-xs text-muted-foreground">JPG, PNG or GIF. Max 2MB.</p>
+        <p className="text-xs text-muted-foreground">{t("settings.profile.avatarHint")}</p>
       </div>
     </div>
   );

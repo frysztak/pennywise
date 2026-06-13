@@ -13,6 +13,7 @@ import {
   TrashIcon,
   UserRoundSearchIcon,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { GroupImage } from "@/features/group/components/group-image";
 import { GroupMemberStack } from "@/features/group/components/group-member-stack";
@@ -64,6 +65,7 @@ export function GroupHeader({
   onTogglePin,
   onToggleArchive,
 }: GroupHeaderProps) {
+  const { t } = useTranslation();
   return (
     <div className="absolute top-0 left-0 right-0 h-80">
       {imageUpdatedAt && (
@@ -81,14 +83,14 @@ export function GroupHeader({
       <div className="absolute top-50 left-6 right-6 flex flex-wrap flex-col gap-4 items-stretch justify-between">
         <div className="flex flex-row flex-wrap items-center gap-3">
           <h1 className="text-5xl font-bold font-serif tracking-tight text-(--cream-50)">{groupName}</h1>
-          {isArchived && <Badge variant="secondary">Archived</Badge>}
+          {isArchived && <Badge variant="secondary">{t("common.archived")}</Badge>}
         </div>
         <div className="flex flex-row justify-between gap-2">
           <GroupMemberStack members={members} className="" avatarClassName="size-9" />
           <ButtonGroup>
             <Button onClick={onCreateExpense} size="lg" className="h-10" disabled={isArchived}>
               <Plus />
-              Add Expense
+              {t("group.header.addExpense")}
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger
@@ -104,28 +106,28 @@ export function GroupHeader({
                     <DropdownMenuGroup>
                       <DropdownMenuItem onClick={onCreateTransfer}>
                         <Redo2Icon />
-                        Add Transfer
+                        {t("group.header.addTransfer")}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={onCreateRecurring}>
                         <RepeatIcon />
-                        Add Recurring
+                        {t("group.header.addRecurring")}
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
                       <DropdownMenuItem onClick={onEditGroup}>
                         <EditIcon />
-                        Edit Group
+                        {t("group.edit.title")}
                       </DropdownMenuItem>
 
                       <DropdownMenuItem onClick={onEditImage}>
                         <ImageIcon />
-                        {imageUpdatedAt ? "Change photo" : "Add photo"}
+                        {imageUpdatedAt ? t("group.photo.change") : t("group.photo.add")}
                       </DropdownMenuItem>
 
                       <DropdownMenuItem onClick={onInviteMembers}>
                         <UserRoundSearchIcon />
-                        Invite Members
+                        {t("group.header.inviteMembers")}
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
@@ -135,18 +137,18 @@ export function GroupHeader({
                   {!isArchived && (
                     <DropdownMenuItem onClick={onTogglePin}>
                       {isPinned ? <StarOff /> : <Star />}
-                      {isPinned ? "Unpin Group" : "Pin Group"}
+                      {isPinned ? t("group.unpin") : t("group.pin")}
                     </DropdownMenuItem>
                   )}
 
                   <DropdownMenuItem onClick={onToggleArchive}>
                     {isArchived ? <ArchiveRestoreIcon /> : <ArchiveIcon />}
-                    {isArchived ? "Unarchive Group" : "Archive Group"}
+                    {isArchived ? t("group.header.unarchive") : t("group.header.archive")}
                   </DropdownMenuItem>
 
                   <DropdownMenuItem variant="destructive" onClick={onDeleteGroup}>
                     <TrashIcon />
-                    Delete Group
+                    {t("group.delete")}
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>

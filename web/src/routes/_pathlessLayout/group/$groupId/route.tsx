@@ -29,6 +29,7 @@ import { useTransferModal } from "@/features/transfer/hooks/use-transfer-modal";
 import { getUserGroups } from "@/gen/api/v1/group-GroupService_connectquery";
 import { GroupArchiveFilter, type UserGroup } from "@/gen/api/v1/group_pb";
 import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
+import i18n from "@/i18n";
 import { transport } from "@/transport";
 
 export const Route = createFileRoute("/_pathlessLayout/group/$groupId")({
@@ -41,7 +42,7 @@ export const Route = createFileRoute("/_pathlessLayout/group/$groupId")({
     const group = userGroups.groups.find((g) => g.groupId === params.groupId);
 
     if (!group) {
-      toast.error("Group not found");
+      toast.error(i18n.t("group.notFound"));
       throw redirect({ to: "/dashboard" });
     }
   },

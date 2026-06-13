@@ -9,6 +9,7 @@ import (
 	"pennywise/db"
 	"pennywise/db/database"
 	"pennywise/db/overrides"
+	apperrors "pennywise/errors"
 	apiv1 "pennywise/gen/api/v1"
 	"pennywise/http/helpers"
 	"pennywise/log"
@@ -36,7 +37,7 @@ func (s *UserService) UserRegister(ctx context.Context, r *apiv1.UserRegisterReq
 
 	if !config.Config.RegistrationEnabled {
 		logger.Warn("registration attempt while disabled", "email", r.Email)
-		return nil, connect.NewError(connect.CodePermissionDenied, fmt.Errorf("registration is disabled"))
+		return nil, apperrors.NewBusinessError(connect.CodePermissionDenied, apperrors.CodeRegisterDisabled, "", "registration is disabled")
 	}
 
 	hash, err := argon2id.CreateHash(r.Password, argon2id.DefaultParams)

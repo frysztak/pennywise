@@ -17,7 +17,8 @@ export interface ReceiptDraft {
   items: ItemDraft[];
 }
 
-export const STEPS = ["Upload", "Scan", "Review", "Save"] as const;
+// Translation keys for the wizard steps; callers render them through t().
+export const STEPS = ["scan.steps.upload", "scan.steps.scan", "scan.steps.review", "scan.steps.save"] as const;
 export const STEP_INDEX: Record<Step, number> = {
   upload: 0,
   processing: 1,

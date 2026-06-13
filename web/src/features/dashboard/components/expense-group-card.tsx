@@ -1,4 +1,5 @@
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
+import { useTranslation } from "react-i18next";
 
 import { GroupImage } from "@/features/group/components/group-image";
 import { GroupMemberStack } from "@/features/group/components/group-member-stack";
@@ -27,6 +28,7 @@ export function ExpenseGroupCard({
   recentExpenses,
   archived,
 }: ExpenseGroupCardProps) {
+  const { t } = useTranslation();
   return (
     <Card className="transition-all hover:shadow-md hover:border-primary/50 h-full overflow-hidden gap-0 pt-0 pb-4">
       <div className="bg-muted aspect-2/1 w-full overflow-hidden relative">
@@ -34,7 +36,7 @@ export function ExpenseGroupCard({
         <GroupMemberStack members={members} className="absolute left-3 bottom-3" avatarClassName="size-7" />
         {archived && (
           <Badge variant="secondary" className="absolute right-3 top-3">
-            Archived
+            {t("common.archived")}
           </Badge>
         )}
       </div>
@@ -43,13 +45,13 @@ export function ExpenseGroupCard({
       </CardHeader>
       <CardContent className="space-y-1 px-4">
         <div>
-          <div className="text-sm text-muted-foreground mb-1">Your balance:</div>
+          <div className="text-sm text-muted-foreground mb-1">{t("dashboard.yourBalance")}</div>
           <AmountWithCurrency className="text-lg" balance={balance} defaultCurrency={groupDefaultCurrency} />
         </div>
 
         {recentExpenses && recentExpenses.length > 0 && (
           <div className="space-y-2 pt-2 border-t">
-            <div className="text-sm text-muted-foreground">Recent expenses</div>
+            <div className="text-sm text-muted-foreground">{t("dashboard.recentExpenses")}</div>
             {recentExpenses.slice(0, 3).map((expense, idx) => (
               <div key={idx} className="flex items-center justify-between text-sm">
                 <span className="truncate flex-1">{expense.name}</span>

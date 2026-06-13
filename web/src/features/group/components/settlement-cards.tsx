@@ -7,7 +7,7 @@ import { MemberAvatar } from "@/shared/components/member-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Separator } from "@/shared/components/ui/separator";
-import { formatCurrency } from "@/shared/lib/utils";
+import { formatCurrency } from "@/shared/lib/format";
 
 interface SettlementCardsProps {
   suggestions: SettlementSuggestion[];

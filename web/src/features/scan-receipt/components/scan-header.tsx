@@ -1,5 +1,6 @@
 import { Check, Receipt, X } from "lucide-react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { STEPS } from "@/features/scan-receipt/types";
 import { Button } from "@/shared/components/ui/button";
@@ -16,6 +17,7 @@ export function ScanHeader({
   subtitle?: string;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center justify-between gap-3 border-b px-4 py-3 md:px-6 md:py-4">
       <div className="flex min-w-0 items-center gap-3">
@@ -30,7 +32,7 @@ export function ScanHeader({
 
       <Stepper current={step} className="hidden md:flex" />
 
-      <Button variant="ghost" size="icon-sm" onClick={onClose} aria-label="Close" className="md:invisible">
+      <Button variant="ghost" size="icon-sm" onClick={onClose} aria-label={t("common.close")} className="md:invisible">
         <X />
       </Button>
     </div>
@@ -38,6 +40,7 @@ export function ScanHeader({
 }
 
 function Stepper({ current, className }: { current: number; className?: string }) {
+  const { t } = useTranslation();
   return (
     <div className={cn("flex items-center", className)}>
       {STEPS.map((label, i) => {
@@ -64,7 +67,7 @@ function Stepper({ current, className }: { current: number; className?: string }
                   !isCurrent && !done && "text-muted-foreground font-medium",
                 )}
               >
-                {label}
+                {t(label)}
               </span>
             </div>
             {i < STEPS.length - 1 && <div className={cn("mx-3 h-px w-7", i < current ? "bg-primary" : "bg-border")} />}
@@ -76,13 +79,12 @@ function Stepper({ current, className }: { current: number; className?: string }
 }
 
 export function MobileProgress({ current, className }: { current: number; className?: string }) {
+  const { t } = useTranslation();
   return (
     <div className={cn("flex flex-col gap-2 border-b px-4 py-3", className)}>
       <div className="text-muted-foreground flex justify-between text-xs font-medium tracking-wide uppercase">
-        <span>
-          Step {current + 1} of {STEPS.length}
-        </span>
-        <span className="text-foreground/80">{STEPS[current]}</span>
+        <span>{t("scan.stepOf", { current: current + 1, total: STEPS.length })}</span>
+        <span className="text-foreground/80">{t(STEPS[current])}</span>
       </div>
       <div className="flex gap-1.5">
         {STEPS.map((label, i) => (

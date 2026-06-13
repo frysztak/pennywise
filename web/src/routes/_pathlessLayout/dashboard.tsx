@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@connectrpc/connect-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useState, useTransition } from "react";
+import { useTranslation } from "react-i18next";
 
 import { ExpenseGroupCard } from "@/features/dashboard/components/expense-group-card";
 import { NewGroupModal } from "@/features/sidebar/components/new-group-modal";
@@ -13,9 +14,9 @@ import { Spinner } from "@/shared/components/ui/spinner";
 import { cn } from "@/shared/lib/utils";
 
 const FILTER_OPTIONS = [
-  { value: GroupArchiveFilter.ACTIVE, label: "Active" },
-  { value: GroupArchiveFilter.ARCHIVED, label: "Archived" },
-  { value: GroupArchiveFilter.ALL, label: "All" },
+  { value: GroupArchiveFilter.ACTIVE, labelKey: "dashboard.filter.active" },
+  { value: GroupArchiveFilter.ARCHIVED, labelKey: "dashboard.filter.archived" },
+  { value: GroupArchiveFilter.ALL, labelKey: "dashboard.filter.all" },
 ] as const;
 
 export const Route = createFileRoute("/_pathlessLayout/dashboard")({
@@ -26,25 +27,24 @@ export const Route = createFileRoute("/_pathlessLayout/dashboard")({
 });
 
 function RouteComponent() {
+  const { t } = useTranslation();
   const [filter, setFilter] = useState<GroupArchiveFilter>(GroupArchiveFilter.ACTIVE);
   const [isPending, startTransition] = useTransition();
   const { data: groupsData } = useSuspenseQuery(getUserGroups, { filter });
   const [newGroupOpen, setNewGroupOpen] = useState(false);
 
   const emptyMessage =
-    filter === GroupArchiveFilter.ARCHIVED
-      ? "You don't have any archived groups."
-      : "You don't have any expense groups yet.";
+    filter === GroupArchiveFilter.ARCHIVED ? t("dashboard.emptyArchived") : t("dashboard.emptyActive");
 
   return (
     <>
       <div>
-        <h1 className="text-5xl font-bold tracking-tight font-serif">Dashboard</h1>
+        <h1 className="text-5xl font-bold tracking-tight font-serif">{t("dashboard.title")}</h1>
         <div className="flex justify-between items-center">
-          <p className="text-muted-foreground mt-2">Overview of your expense groups and balances</p>
+          <p className="text-muted-foreground mt-2">{t("dashboard.subtitle")}</p>
           <Button variant="outline" onClick={() => setNewGroupOpen(true)}>
             <Plus />
-            New Group
+            {t("dashboard.newGroup")}
           </Button>
         </div>
       </div>
@@ -56,7 +56,7 @@ function RouteComponent() {
             variant={filter === option.value ? "default" : "outline"}
             onClick={() => startTransition(() => setFilter(option.value))}
           >
-            {option.label}
+            {t(option.labelKey)}
           </Button>
         ))}
       </ButtonGroup>
@@ -72,7 +72,7 @@ function RouteComponent() {
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <p className="text-muted-foreground mb-4">{emptyMessage}</p>
               {filter !== GroupArchiveFilter.ARCHIVED && (
-                <p className="text-sm text-muted-foreground">Create a group to start tracking shared expenses.</p>
+                <p className="text-sm text-muted-foreground">{t("dashboard.createHint")}</p>
               )}
             </div>
           ) : (

@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Eye, EyeOff, Lock, Mail, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import * as z from "zod";
 
 import { AuthCard, AuthHeading, AuthShell } from "@/features/auth/components/auth-shell";
@@ -55,6 +56,7 @@ interface CredentialsCardProps {
 }
 
 function CredentialsCard({ onSubmit, isLoading, provider, showRegister }: CredentialsCardProps) {
+  const { t } = useTranslation();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: { email: "", password: "" },
@@ -64,7 +66,7 @@ function CredentialsCard({ onSubmit, isLoading, provider, showRegister }: Creden
   return (
     <AuthCard>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5.5" noValidate>
-        <AuthHeading title="Welcome back" description="Sign in to keep tabs on what you owe — and what you're owed." />
+        <AuthHeading title={t("auth.login.title")} description={t("auth.login.description")} />
 
         <div className="flex flex-col gap-3.5">
           <Controller
@@ -74,7 +76,7 @@ function CredentialsCard({ onSubmit, isLoading, provider, showRegister }: Creden
             render={({ field, fieldState }) => (
               <Field>
                 <FieldLabel htmlFor="email" className="text-xs font-medium">
-                  Email
+                  {t("fields.email")}
                 </FieldLabel>
                 <InputGroup>
                   <InputGroupAddon>
@@ -101,7 +103,7 @@ function CredentialsCard({ onSubmit, isLoading, provider, showRegister }: Creden
             render={({ field, fieldState }) => (
               <Field>
                 <FieldLabel htmlFor="password" className="text-xs font-medium">
-                  Password
+                  {t("fields.password")}
                 </FieldLabel>
                 <InputGroup>
                   <InputGroupAddon>
@@ -120,7 +122,7 @@ function CredentialsCard({ onSubmit, isLoading, provider, showRegister }: Creden
                     <InputGroupButton
                       size="icon-xs"
                       onClick={() => setRevealPassword((v) => !v)}
-                      aria-label={revealPassword ? "Hide password" : "Show password"}
+                      aria-label={revealPassword ? t("auth.hidePassword") : t("auth.showPassword")}
                       aria-pressed={revealPassword}
                     >
                       {revealPassword ? <EyeOff /> : <Eye />}
@@ -134,24 +136,24 @@ function CredentialsCard({ onSubmit, isLoading, provider, showRegister }: Creden
 
         <Button type="submit" disabled={isLoading} className="h-11 w-full text-sm">
           {isLoading && <Spinner />}
-          Sign in
+          {t("auth.login.submit")}
         </Button>
 
         {provider && (
           <>
-            <Divider>or</Divider>
+            <Divider>{t("auth.or")}</Divider>
             <ProviderButton provider={provider} />
           </>
         )}
 
         {showRegister && (
           <p className="text-muted-foreground text-center text-xs">
-            Don&apos;t have an account?{" "}
+            {t("auth.login.noAccount")}{" "}
             <Link
               to="/auth/register"
               className="text-foreground decoration-border hover:decoration-primary underline underline-offset-[3px] transition-all"
             >
-              Sign up
+              {t("auth.login.signUp")}
             </Link>
           </p>
         )}
@@ -165,14 +167,13 @@ interface OidcOnlyCardProps {
 }
 
 function OidcOnlyCard({ provider }: OidcOnlyCardProps) {
+  const { t } = useTranslation();
   return (
     <AuthCard>
       <div className="flex flex-col gap-5.5">
         <AuthHeading
-          title="Sign in to Pennywise"
-          description={
-            <>This instance uses single sign-on. You&apos;ll be redirected to {provider.name} to authenticate.</>
-          }
+          title={t("auth.oidc.title")}
+          description={t("auth.oidc.description", { provider: provider.name })}
         />
 
         <div className="flex flex-col gap-4.5">
@@ -181,8 +182,8 @@ function OidcOnlyCard({ provider }: OidcOnlyCardProps) {
           <div className="bg-primary/15 text-secondary-foreground flex gap-2.5 rounded-md px-3.5 py-3 text-xs leading-relaxed">
             <ShieldCheck className="text-primary mt-0.5 size-4 shrink-0" />
             <p>
-              <strong className="text-foreground font-medium">Password login is disabled</strong> on this instance. Your
-              administrator has set {provider.name} as the only sign-in method.
+              <strong className="text-foreground font-medium">{t("auth.oidc.disabledTitle")}</strong>{" "}
+              {t("auth.oidc.disabledBody", { provider: provider.name })}
             </p>
           </div>
         </div>
@@ -207,6 +208,7 @@ interface ProviderButtonProps {
 }
 
 function ProviderButton({ provider, primary }: ProviderButtonProps) {
+  const { t } = useTranslation();
   const Icon = provider.Icon;
   return (
     <a
@@ -219,7 +221,7 @@ function ProviderButton({ provider, primary }: ProviderButtonProps) {
       )}
     >
       <Icon className="size-[18px]" />
-      <span>Continue with {provider.name}</span>
+      <span>{t("auth.oidc.continueWith", { provider: provider.name })}</span>
     </a>
   );
 }

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,23 +18,21 @@ interface DeleteRecurringExpenseDialogProps {
 }
 
 export function DeleteRecurringExpenseDialog({ open, onOpenChange, onConfirm }: DeleteRecurringExpenseDialogProps) {
+  const { t } = useTranslation();
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete recurring expense</AlertDialogTitle>
-          <AlertDialogDescription>
-            Are you sure you want to delete this recurring expense template? This will not affect any expenses that have
-            already been recorded.
-          </AlertDialogDescription>
+          <AlertDialogTitle>{t("recurringExpense.deleteDialog.title")}</AlertDialogTitle>
+          <AlertDialogDescription>{t("recurringExpense.deleteDialog.description")}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            Delete
+            {t("common.delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

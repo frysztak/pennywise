@@ -1,6 +1,7 @@
 import { useMutation, useSuspenseQuery } from "@connectrpc/connect-query";
 import { Link, useRouter } from "@tanstack/react-router";
 import { ChevronsUpDown, LogOut, Settings, ShieldUser } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { logout } from "@/gen/api/v1/auth-AuthService_connectquery";
 import { userInfo } from "@/gen/api/v1/user-UserService_connectquery";
@@ -21,6 +22,7 @@ export function NavUser() {
   const { data } = useSuspenseQuery(userInfo);
   const { mutate } = useMutation(logout);
   const router = useRouter();
+  const { t } = useTranslation();
 
   const onLogoutClicked = () => {
     mutate(
@@ -65,7 +67,7 @@ export function NavUser() {
                 render={
                   <Link to="/settings">
                     <Settings />
-                    Settings
+                    {t("nav.settings")}
                   </Link>
                 }
               />
@@ -74,7 +76,7 @@ export function NavUser() {
                   render={
                     <Link to="/admin">
                       <ShieldUser />
-                      Admin
+                      {t("nav.admin")}
                     </Link>
                   }
                 />
@@ -83,7 +85,7 @@ export function NavUser() {
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={onLogoutClicked}>
               <LogOut />
-              Log out
+              {t("nav.logout")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

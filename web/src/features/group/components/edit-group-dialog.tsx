@@ -1,7 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { TFunction } from "i18next";
 import { Minus, Plus, RotateCcw } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import * as z from "zod";
 
 import type { EditingGroup } from "@/features/group/hooks/use-edit-group-modal";
@@ -41,6 +43,7 @@ interface WeightStepperProps {
 }
 
 function WeightStepper({ value, onChange, disabled, min = 0, max = 99, step = 0.5, id }: WeightStepperProps) {
+  const { t } = useTranslation();
   const dec = () => onChange(Math.max(min, +(value - step).toFixed(2)));
   const inc = () => onChange(Math.min(max, +(value + step).toFixed(2)));
 
@@ -50,7 +53,7 @@ function WeightStepper({ value, onChange, disabled, min = 0, max = 99, step = 0.
         type="button"
         onClick={dec}
         disabled={disabled}
-        aria-label="Decrease weight"
+        aria-label={t("group.weights.decrease")}
         className="text-muted-foreground hover:bg-muted flex w-7 items-center justify-center transition-colors disabled:opacity-50"
       >
         <Minus className="size-3" strokeWidth={2.2} />
@@ -74,7 +77,7 @@ function WeightStepper({ value, onChange, disabled, min = 0, max = 99, step = 0.
         type="button"
         onClick={inc}
         disabled={disabled}
-        aria-label="Increase weight"
+        aria-label={t("group.weights.increase")}
         className="text-muted-foreground hover:bg-muted flex w-7 items-center justify-center transition-colors disabled:opacity-50"
       >
         <Plus className="size-3" strokeWidth={2.2} />
@@ -83,17 +86,20 @@ function WeightStepper({ value, onChange, disabled, min = 0, max = 99, step = 0.
   );
 }
 
-const formSchema = z
-  .object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    description: z.string(),
-    defaultCurrency: z.string().min(2, "Currency is required"),
-    currencies: z.array(z.string()).min(1, "Select at least one currency"),
-  })
-  .refine((data) => data.currencies.includes(data.defaultCurrency), {
-    message: "Default currency must be one of the selected currencies",
-    path: ["defaultCurrency"],
-  });
+const makeFormSchema = (t: TFunction) =>
+  z
+    .object({
+      name: z.string().min(2, t("group.form.nameMin")),
+      description: z.string(),
+      defaultCurrency: z.string().min(2, t("group.form.currencyRequired")),
+      currencies: z.array(z.string()).min(1, t("group.form.selectAtLeastOne")),
+    })
+    .refine((data) => data.currencies.includes(data.defaultCurrency), {
+      message: t("group.form.defaultMustBeSelected"),
+      path: ["defaultCurrency"],
+    });
+
+type FormSchema = ReturnType<typeof makeFormSchema>;
 
 interface EditGroupDialogProps {
   open: boolean;
@@ -114,6 +120,8 @@ export function EditGroupDialog({
   onUpdateGroup,
   onUpdateWeight,
 }: EditGroupDialogProps) {
+  const { t } = useTranslation();
+  const formSchema = useMemo(() => makeFormSchema(t), [t]);
   const currencyOptions = useCurrencies();
   const [editingWeights, setEditingWeights] = useState(() => {
     const weights: Record<string, number> = {};
@@ -125,7 +133,7 @@ export function EditGroupDialog({
 
   const [isPending, setIsPending] = useState(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<z.infer<FormSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: group.groupName,
@@ -138,7 +146,7 @@ export function EditGroupDialog({
   const selectedCurrencies = form.watch("currencies");
   const defaultCurrencyItems = selectedCurrencies.map((c) => ({ value: c, label: c }));
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
+  const onSubmit = (data: z.infer<FormSchema>) => {
     setIsPending(true);
 
     // Update group details
@@ -171,8 +179,8 @@ export function EditGroupDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Group</DialogTitle>
-          <DialogDescription>Update group details and manage member weights</DialogDescription>
+          <DialogTitle>{t("group.edit.title")}</DialogTitle>
+          <DialogDescription>{t("group.edit.description")}</DialogDescription>
         </DialogHeader>
         <form id="edit-group-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Group Details Section */}
@@ -184,11 +192,11 @@ export function EditGroupDialog({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor="groupName">Group name</FieldLabel>
+                    <FieldLabel htmlFor="groupName">{t("group.form.name")}</FieldLabel>
                     <Input
                       {...field}
                       id="groupName"
-                      placeholder="My group..."
+                      placeholder={t("group.form.namePlaceholder")}
                       required
                       aria-invalid={fieldState.invalid}
                     />
@@ -202,7 +210,7 @@ export function EditGroupDialog({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor="groupDesc">Group description</FieldLabel>
+                    <FieldLabel htmlFor="groupDesc">{t("group.form.description")}</FieldLabel>
                     <Input {...field} id="groupDesc" aria-invalid={fieldState.invalid} />
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
@@ -215,7 +223,7 @@ export function EditGroupDialog({
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field>
-                      <FieldLabel htmlFor="groupCurrencies">Currencies</FieldLabel>
+                      <FieldLabel htmlFor="groupCurrencies">{t("group.form.currencies")}</FieldLabel>
                       <Select
                         multiple
                         items={currencyOptions.map((c) => ({ value: c, label: c }))}
@@ -233,8 +241,10 @@ export function EditGroupDialog({
                           disabled={isPending}
                           className="w-full"
                         >
-                          <SelectValue placeholder="Select currencies">
-                            {(value: string[]) => (value.length === 0 ? "Select currencies" : value.join(", "))}
+                          <SelectValue placeholder={t("group.form.selectCurrencies")}>
+                            {(value: string[]) =>
+                              value.length === 0 ? t("group.form.selectCurrencies") : value.join(", ")
+                            }
                           </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
@@ -255,7 +265,7 @@ export function EditGroupDialog({
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field>
-                      <FieldLabel htmlFor="defaultCurrency">Default currency</FieldLabel>
+                      <FieldLabel htmlFor="defaultCurrency">{t("group.form.defaultCurrency")}</FieldLabel>
                       <Select
                         items={defaultCurrencyItems}
                         value={field.value}
@@ -263,7 +273,7 @@ export function EditGroupDialog({
                         disabled={isPending || defaultCurrencyItems.length === 0}
                       >
                         <SelectTrigger id="defaultCurrency" aria-invalid={fieldState.invalid}>
-                          <SelectValue placeholder="Select currency" />
+                          <SelectValue placeholder={t("group.form.selectCurrency")} />
                         </SelectTrigger>
                         <SelectContent>
                           {defaultCurrencyItems.map((currency) => (
@@ -284,7 +294,7 @@ export function EditGroupDialog({
           {/* Member Weights Section */}
           <div>
             <div className="mb-1.5 flex items-center justify-between">
-              <FieldLabel>Member weights</FieldLabel>
+              <FieldLabel>{t("group.weights.label")}</FieldLabel>
               <button
                 type="button"
                 onClick={resetWeights}
@@ -296,12 +306,10 @@ export function EditGroupDialog({
                 )}
               >
                 <RotateCcw className="size-2.5" strokeWidth={2.2} />
-                Reset
+                {t("group.weights.reset")}
               </button>
             </div>
-            <p className="text-muted-foreground mb-3 text-xs leading-snug">
-              How expenses split between members. Weight 2.0 pays twice as much as 1.0.
-            </p>
+            <p className="text-muted-foreground mb-3 text-xs leading-snug">{t("group.weights.hint")}</p>
             <div className="bg-card rounded-lg border px-3.5 pt-3.5 pb-1.5">
               {/* Stacked allocation bar */}
               <div className="bg-muted mb-1.5 flex h-2 overflow-hidden rounded-full">
@@ -363,11 +371,11 @@ export function EditGroupDialog({
         <DialogFooter>
           <div className="flex justify-end gap-3">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending} size="lg">
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" form="edit-group-form" disabled={isPending} size="lg">
               {isPending && <Spinner />}
-              Save Changes
+              {t("group.saveChanges")}
             </Button>
           </div>
         </DialogFooter>

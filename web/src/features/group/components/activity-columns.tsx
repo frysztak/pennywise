@@ -1,5 +1,6 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { type ColumnDef } from "@tanstack/react-table";
+import type { TFunction } from "i18next";
 import { ArrowRight, BanknoteIcon, Redo2Icon } from "lucide-react";
 
 import { ActivityItemMenu } from "@/features/group/components/activity-item-menu";
@@ -21,11 +22,15 @@ interface ActivityCallbacks {
   onDeleteTransfer: (transfer: GetGroupActivityResponse_ActivityItem_Transfer) => void;
 }
 
-export function makeActivityColumns(callbacks: ActivityCallbacks, isArchived = false): ColumnDef<ActivityItem>[] {
+export function makeActivityColumns(
+  callbacks: ActivityCallbacks,
+  t: TFunction,
+  isArchived = false,
+): ColumnDef<ActivityItem>[] {
   const columns: ColumnDef<ActivityItem>[] = [
     {
       id: "date",
-      header: "Date",
+      header: t("activity.date"),
       cell: ({ row }) => {
         const date = timestampDate(row.original.data.date!);
         return (
@@ -37,20 +42,20 @@ export function makeActivityColumns(callbacks: ActivityCallbacks, isArchived = f
     },
     {
       id: "description",
-      header: "Description",
+      header: t("activity.description"),
       cell: ({ row }) => {
         const item = row.original;
         return (
           <div className="flex items-center gap-2">
             {item.type === "expense" ? <BanknoteIcon className="h-4 w-4" /> : <Redo2Icon className="h-4 w-4" />}
-            <span>{item.type === "expense" ? item.data.name : "Transfer"}</span>
+            <span>{item.type === "expense" ? item.data.name : t("activity.transfer")}</span>
           </div>
         );
       },
     },
     {
       id: "amount",
-      header: () => <span className="block">Amount</span>,
+      header: () => <span className="block">{t("activity.amount")}</span>,
       cell: ({ row }) => {
         const item = row.original;
         const balance =
@@ -60,14 +65,14 @@ export function makeActivityColumns(callbacks: ActivityCallbacks, isArchived = f
     },
     {
       id: "details",
-      header: "Details",
+      header: t("activity.details"),
       cell: ({ row }) => {
         const item = row.original;
         if (item.type === "expense") {
           return (
             <div className="flex items-center gap-2">
               <MemberAvatar userId={item.data.payerId} username={item.data.payerName} className="w-6 h-6" />
-              <span className="text-sm line-clamp-1">paid by {item.data.payerName}</span>
+              <span className="text-sm line-clamp-1">{t("activity.paidBy", { name: item.data.payerName })}</span>
             </div>
           );
         }
@@ -87,7 +92,7 @@ export function makeActivityColumns(callbacks: ActivityCallbacks, isArchived = f
   if (!isArchived) {
     columns.push({
       id: "actions",
-      header: () => <span className="block">Actions</span>,
+      header: () => <span className="block">{t("activity.actions")}</span>,
       cell: ({ row }) => {
         const item = row.original;
         if (item.type === "expense") {

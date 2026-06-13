@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 import type { GetGroupStatsResponse } from "@/gen/api/v1/group_pb";
 import { Card } from "@/shared/components/ui/card";
 
@@ -14,14 +16,15 @@ interface Kpi {
 }
 
 export function StatsKpis({ stats, currency }: StatsKpisProps) {
+  const { t } = useTranslation();
   const totalSpent = stats.totalSpending[currency] ?? 0n;
   const largest = stats.largestExpense[currency] ?? 0n;
 
   const kpis: Kpi[] = [
-    { label: "Total spent", value: formatCents(totalSpent, currency) },
-    { label: "Largest expense", value: formatCents(largest, currency) },
-    { label: "Expenses", value: stats.expenseCount.toString() },
-    { label: "Transfers", value: stats.transferCount.toString() },
+    { label: t("stats.totalSpent"), value: formatCents(totalSpent, currency) },
+    { label: t("stats.largestExpense"), value: formatCents(largest, currency) },
+    { label: t("stats.expenses"), value: stats.expenseCount.toString() },
+    { label: t("stats.transfers"), value: stats.transferCount.toString() },
   ];
 
   return (

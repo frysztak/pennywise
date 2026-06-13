@@ -8,9 +8,10 @@ import {
   RepeatIcon,
   TrashIcon,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { useSkipRecurringExpense } from "@/features/recurring-expense/hooks/use-skip-recurring-expense";
-import { frequencyToString } from "@/features/recurring-expense/recurring-expense";
+import { frequencyToKey } from "@/features/recurring-expense/recurring-expense";
 import type { GetGroupRecurringExpensesResponse_RecurringExpense } from "@/gen/api/v1/recurring_expense_pb";
 import { AmountWithCurrency } from "@/shared/components/amount-with-currency";
 import { MemberAvatar } from "@/shared/components/member-avatar";
@@ -40,6 +41,7 @@ export function RecurringReminderCard({
   onDelete,
   isArchived,
 }: RecurringReminderCardProps) {
+  const { t } = useTranslation();
   const { mutate: skipMutate, isPending } = useSkipRecurringExpense(groupId);
 
   const handlePay = () => {
@@ -62,7 +64,7 @@ export function RecurringReminderCard({
       <CardContent className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <span className="text-xs text-muted-foreground">
-            {formattedDate} · {frequencyToString(reminder.frequency)}
+            {formattedDate} · {t(frequencyToKey(reminder.frequency))}
           </span>
           {!isArchived && (
             <DropdownMenu>
@@ -76,7 +78,7 @@ export function RecurringReminderCard({
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => onEdit?.(reminder)} disabled={isPending}>
                   <EditIcon />
-                  Edit
+                  {t("common.edit")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => onDelete?.(reminder.id)}
@@ -85,7 +87,7 @@ export function RecurringReminderCard({
                   variant="destructive"
                 >
                   <TrashIcon />
-                  Delete
+                  {t("common.delete")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -122,7 +124,7 @@ export function RecurringReminderCard({
         {reminder.payerName && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <MemberAvatar userId={reminder.payerId || ""} username={reminder.payerName} className="w-6 h-6" />
-            <span className="line-clamp-1">paid by {reminder.payerName}</span>
+            <span className="line-clamp-1">{t("activity.paidBy", { name: reminder.payerName })}</span>
           </div>
         )}
 
@@ -130,11 +132,11 @@ export function RecurringReminderCard({
           <div className="flex gap-2">
             <Button className="flex-1" onClick={handlePay} disabled={isPending}>
               <BanknoteArrowUp />
-              Pay
+              {t("recurringExpense.pay")}
             </Button>
             <Button className="flex-1" variant="outline" onClick={handleSkip} disabled={isPending}>
               <CircleOff />
-              Skip
+              {t("recurringExpense.skip")}
             </Button>
           </div>
         )}

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,22 +19,21 @@ interface DeleteExpenseDialogProps {
 }
 
 export function DeleteExpenseDialog({ open, expenseName, onOpenChange, onConfirm }: DeleteExpenseDialogProps) {
+  const { t } = useTranslation();
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete expense</AlertDialogTitle>
-          <AlertDialogDescription>
-            Are you sure you want to delete "{expenseName}"? This action cannot be undone.
-          </AlertDialogDescription>
+          <AlertDialogTitle>{t("expense.delete.title")}</AlertDialogTitle>
+          <AlertDialogDescription>{t("expense.delete.description", { name: expenseName })}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            Delete
+            {t("common.delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

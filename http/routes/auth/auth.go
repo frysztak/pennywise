@@ -3,13 +3,13 @@ package auth
 import (
 	"context"
 	"crypto/rand"
-	"errors"
 	"log"
 	"net/http"
 	"pennywise/config"
 	"pennywise/db"
 	"pennywise/db/database"
 	"pennywise/db/overrides"
+	apperrors "pennywise/errors"
 	apiv1 "pennywise/gen/api/v1"
 	"pennywise/http/helpers"
 	userPkg "pennywise/http/routes/user"
@@ -30,8 +30,8 @@ var (
 	OIDCVerifier *oidc.IDTokenVerifier
 	TokenAuth    *jwtauth.JWTAuth
 
-	ErrInvalidPassword       = connect.NewError(connect.CodeInvalidArgument, errors.New("invalid password"))
-	ErrPasswordLoginDisabled = connect.NewError(connect.CodePermissionDenied, errors.New("password login disabled"))
+	ErrInvalidPassword       = apperrors.NewBusinessError(connect.CodeInvalidArgument, apperrors.CodeInvalidPassword, "password", "invalid password")
+	ErrPasswordLoginDisabled = apperrors.NewBusinessError(connect.CodePermissionDenied, apperrors.CodePasswordDisabled, "", "password login disabled")
 )
 
 // OIDCClaims represents the claims extracted from an OIDC ID token

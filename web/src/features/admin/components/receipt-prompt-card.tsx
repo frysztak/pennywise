@@ -1,5 +1,6 @@
 import { useMutation, useSuspenseQuery } from "@connectrpc/connect-query";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { getReceiptPrompt, setReceiptPrompt } from "@/gen/api/v1/admin-AdminService_connectquery";
@@ -11,12 +12,13 @@ import { getConfig } from "@/shared/lib/config";
 import { handleError } from "@/shared/lib/utils";
 
 export function ReceiptPromptCard() {
+  const { t } = useTranslation();
   const { data } = useSuspenseQuery(getReceiptPrompt);
   const [prompt, setPrompt] = useState(data.prompt);
 
   const { mutate, isPending } = useMutation(setReceiptPrompt, {
     onSuccess: (res) => {
-      toast.success("Prompt saved");
+      toast.success(t("admin.receiptPrompt.saved"));
       setPrompt(res.prompt);
     },
     onError: handleError,
@@ -28,15 +30,13 @@ export function ReceiptPromptCard() {
   return (
     <Card className="max-w-xl">
       <CardHeader>
-        <CardTitle>Receipt OCR prompt</CardTitle>
-        <CardDescription>The instructions sent to the model when scanning a receipt.</CardDescription>
+        <CardTitle>{t("admin.receiptPrompt.title")}</CardTitle>
+        <CardDescription>{t("admin.receiptPrompt.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           {!scanningEnabled && (
-            <p className="text-muted-foreground text-sm">
-              Receipt scanning is not configured on this server, so this prompt is currently unused.
-            </p>
+            <p className="text-muted-foreground text-sm">{t("admin.receiptPrompt.notConfigured")}</p>
           )}
           <Textarea
             value={prompt}
@@ -47,7 +47,7 @@ export function ReceiptPromptCard() {
           <div className="flex justify-end">
             <Button onClick={() => mutate({ prompt })} disabled={!isDirty || isPending || prompt.trim().length === 0}>
               {isPending && <Spinner />}
-              Save
+              {t("common.save")}
             </Button>
           </div>
         </div>

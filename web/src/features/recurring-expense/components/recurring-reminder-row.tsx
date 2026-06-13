@@ -1,8 +1,9 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { BanknoteArrowUp, CircleOff, EditIcon, MoreHorizontal, RepeatIcon, TrashIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { useSkipRecurringExpense } from "@/features/recurring-expense/hooks/use-skip-recurring-expense";
-import { frequencyToString } from "@/features/recurring-expense/recurring-expense";
+import { frequencyToKey } from "@/features/recurring-expense/recurring-expense";
 import type { GetGroupRecurringExpensesResponse_RecurringExpense } from "@/gen/api/v1/recurring_expense_pb";
 import { AmountWithCurrency } from "@/shared/components/amount-with-currency";
 import { MemberAvatar } from "@/shared/components/member-avatar";
@@ -32,6 +33,7 @@ export function RecurringReminderRow({
   onDelete,
   isArchived,
 }: RecurringReminderRowProps) {
+  const { t } = useTranslation();
   const { mutate: skipMutate, isPending } = useSkipRecurringExpense(groupId);
 
   const handlePay = () => {
@@ -61,7 +63,7 @@ export function RecurringReminderRow({
         {reminder.description && <div className="text-sm text-muted-foreground mt-1">{reminder.description}</div>}
       </TableCell>
 
-      <TableCell>{frequencyToString(reminder.frequency)}</TableCell>
+      <TableCell>{t(frequencyToKey(reminder.frequency))}</TableCell>
 
       <TableCell className="text-right">
         {(reminder.amount !== undefined && reminder.currency && (
@@ -93,11 +95,11 @@ export function RecurringReminderRow({
           <div className="flex items-center gap-2">
             <Button size="sm" onClick={handlePay} disabled={isPending}>
               <BanknoteArrowUp />
-              Pay
+              {t("recurringExpense.pay")}
             </Button>
             <Button size="sm" variant="outline" onClick={handleSkip} disabled={isPending}>
               <CircleOff />
-              Skip
+              {t("recurringExpense.skip")}
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger
@@ -110,7 +112,7 @@ export function RecurringReminderRow({
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => onEdit?.(reminder)} disabled={isPending}>
                   <EditIcon />
-                  Edit
+                  {t("common.edit")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => onDelete?.(reminder.id)}
@@ -119,7 +121,7 @@ export function RecurringReminderRow({
                   variant="destructive"
                 >
                   <TrashIcon />
-                  Delete
+                  {t("common.delete")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

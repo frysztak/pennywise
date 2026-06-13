@@ -1,5 +1,6 @@
 import { useQuery } from "@connectrpc/connect-query";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { getUsers } from "@/gen/api/v1/user-UserService_connectquery";
 import { MemberAvatar } from "@/shared/components/member-avatar";
@@ -38,6 +39,7 @@ interface AddMemberDialogProps {
 }
 
 export function AddMemberDialog({ open, onOpenChange, onAddMember }: AddMemberDialogProps) {
+  const { t } = useTranslation();
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const anchor = useComboboxAnchor();
 
@@ -71,8 +73,8 @@ export function AddMemberDialog({ open, onOpenChange, onAddMember }: AddMemberDi
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Members to Group</DialogTitle>
-          <DialogDescription>Search and select users to add them to the group.</DialogDescription>
+          <DialogTitle>{t("member.addTitle")}</DialogTitle>
+          <DialogDescription>{t("member.addDescription")}</DialogDescription>
         </DialogHeader>
 
         <div className="py-4">
@@ -94,10 +96,10 @@ export function AddMemberDialog({ open, onOpenChange, onAddMember }: AddMemberDi
                   {option.label}
                 </ComboboxChip>
               ))}
-              <ComboboxChipsInput placeholder="Search users by username or email..." />
+              <ComboboxChipsInput placeholder={t("member.searchPlaceholder")} />
             </ComboboxChips>
             <ComboboxContent anchor={anchor}>
-              <ComboboxEmpty>No users found</ComboboxEmpty>
+              <ComboboxEmpty>{t("member.noUsers")}</ComboboxEmpty>
               <ComboboxList>
                 {(option: UserOption) => (
                   <ComboboxItem key={option.value} value={option}>
@@ -115,10 +117,10 @@ export function AddMemberDialog({ open, onOpenChange, onAddMember }: AddMemberDi
 
         <DialogFooter>
           <Button variant="outline" onClick={handleCancel} size="lg">
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button onClick={handleAddMembers} disabled={selectedUsers.length === 0} size="lg">
-            Add {selectedUsers.length > 0 && `(${selectedUsers.length})`}
+            {t("member.add")} {selectedUsers.length > 0 && `(${selectedUsers.length})`}
           </Button>
         </DialogFooter>
       </DialogContent>

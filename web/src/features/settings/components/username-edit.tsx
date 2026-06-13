@@ -1,6 +1,7 @@
 import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { useAuth } from "@/features/auth/auth";
@@ -14,23 +15,24 @@ const userInfoKey = createConnectQueryKey({
 });
 
 export function UsernameEdit() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [username, setUsername] = useState(user?.username ?? "");
 
   const { mutate: updateUsername, isPending } = useMutation(updateUser, {
     onSuccess: () => {
-      toast.success("Username updated successfully");
+      toast.success(t("settings.profile.usernameUpdated"));
       queryClient.invalidateQueries({ queryKey: userInfoKey });
     },
     onError: (error) => {
-      toast.error(`Failed to update username: ${error.message}`);
+      toast.error(t("settings.profile.usernameUpdateFailed", { error: error.message }));
     },
   });
 
   const handleSave = () => {
     if (username.length < 3) {
-      toast.error("Username must be at least 3 characters");
+      toast.error(t("settings.profile.usernameMin"));
       return;
     }
     updateUsername({ username });
@@ -38,9 +40,13 @@ export function UsernameEdit() {
 
   return (
     <div className="flex gap-2">
-      <Input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Enter username" />
+      <Input
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        placeholder={t("settings.profile.usernamePlaceholder")}
+      />
       <Button onClick={handleSave} disabled={isPending || username === user?.username} size="lg">
-        {isPending ? "Saving..." : "Save"}
+        {isPending ? t("common.saving") : t("common.save")}
       </Button>
     </div>
   );

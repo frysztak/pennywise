@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import { SignupForm } from "@/features/auth/components/signup-form";
 import { userRegister } from "@/gen/api/v1/user-UserService_connectquery";
+import i18n from "@/i18n";
 import { getConfig } from "@/shared/lib/config";
 import { handleError } from "@/shared/lib/utils";
 
@@ -24,7 +25,7 @@ function RouteComponent() {
 
   const { mutate, isPending } = useMutation(userRegister, {
     onSuccess: () => {
-      toast.success("Account created successfully! Please log in.");
+      toast.success(i18n.t("auth.register.success"));
       navigate({ to: "/auth/login" });
     },
     onError: handleError,

@@ -2,8 +2,10 @@ import { timestampDate, timestampFromDate } from "@bufbuild/protobuf/wkt";
 import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect } from "react";
+import type { TFunction } from "i18next";
+import { useCallback, useEffect, useMemo } from "react";
 import { Controller, type FieldErrors, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import * as z from "zod";
 
@@ -32,20 +34,23 @@ import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { handleError } from "@/shared/lib/utils";
 
-const formSchema = z
-  .object({
-    senderId: z.string().min(1, "Sender is required"),
-    receiverId: z.string().min(1, "Receiver is required"),
-    amountWithCurrency: z.object({
-      amount: z.number({ error: () => "Amount must be a number" }).positive("Amount must be a positive number"),
-      currency: z.string().min(2, "Currency is required"),
-    }),
-    date: z.string().date("Invalid date format"),
-  })
-  .refine((data) => data.senderId !== data.receiverId, {
-    message: "Sender and receiver must be different",
-    path: ["receiverId"],
-  });
+const makeFormSchema = (t: TFunction) =>
+  z
+    .object({
+      senderId: z.string().min(1, t("transfer.validation.senderRequired")),
+      receiverId: z.string().min(1, t("transfer.validation.receiverRequired")),
+      amountWithCurrency: z.object({
+        amount: z
+          .number({ error: () => t("transfer.validation.amountNumber") })
+          .positive(t("transfer.validation.amountPositive")),
+        currency: z.string().min(2, t("transfer.validation.currencyRequired")),
+      }),
+      date: z.string().date(t("transfer.validation.dateInvalid")),
+    })
+    .refine((data) => data.senderId !== data.receiverId, {
+      message: t("transfer.validation.differentParties"),
+      path: ["receiverId"],
+    });
 
 // Helper functions for amount conversion
 const convertAmountToDisplay = (amount: bigint | number): number => {
@@ -61,7 +66,7 @@ const convertRFC3339ToDateString = (rfc3339: string | Date): string => {
   return new Date(rfc3339).toISOString().split("T")[0];
 };
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof makeFormSchema>>;
 
 interface TransferModalProps {
   open: boolean;
@@ -97,6 +102,8 @@ export const TransferModal = ({
   defaultCurrency,
   currencies,
 }: TransferModalProps) => {
+  const { t } = useTranslation();
+  const formSchema = useMemo(() => makeFormSchema(t), [t]);
   const isEditMode = mode === "edit";
 
   const getFormDefaults = useCallback((): FormValues => {
@@ -144,7 +151,7 @@ export const TransferModal = ({
 
   const { isPending: isCreating, mutate: createMutate } = useMutation(createTransfer, {
     onSuccess: () => {
-      toast.success("Transfer recorded!");
+      toast.success(t("transfer.recorded"));
       queryClient.invalidateQueries({ queryKey: groupActivityKey });
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
       queryClient.invalidateQueries({ queryKey: settlementSuggestionsKey });
@@ -155,7 +162,7 @@ export const TransferModal = ({
 
   const { isPending: isUpdating, mutate: updateMutate } = useMutation(updateTransfer, {
     onSuccess: () => {
-      toast.success("Transfer updated!");
+      toast.success(t("transfer.updated"));
       queryClient.invalidateQueries({ queryKey: groupActivityKey });
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
       queryClient.invalidateQueries({ queryKey: settlementSuggestionsKey });
@@ -206,15 +213,15 @@ export const TransferModal = ({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEditMode ? "Edit transfer" : "Record transfer"}</DialogTitle>
+          <DialogTitle>{isEditMode ? t("transfer.edit") : t("transfer.new")}</DialogTitle>
           <DialogDescription>
-            {isEditMode ? "Update transfer details." : "Record a payment between group members."}
+            {isEditMode ? t("transfer.editDescription") : t("transfer.newDescription")}
           </DialogDescription>
         </DialogHeader>
         <form id="transfer-form" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
             <Field>
-              <FieldLabel>Transfer</FieldLabel>
+              <FieldLabel>{t("transfer.label")}</FieldLabel>
               <TransferFlow
                 members={groupMembers}
                 senderId={senderId}
@@ -235,7 +242,7 @@ export const TransferModal = ({
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel htmlFor="amountWithCurrency">
-                      Amount
+                      {t("transfer.amount")}
                       <AmountInputTooltip />
                     </FieldLabel>
                     <AmountInput
@@ -264,7 +271,7 @@ export const TransferModal = ({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel htmlFor="transferDate">Date</FieldLabel>
+                    <FieldLabel htmlFor="transferDate">{t("transfer.date")}</FieldLabel>
                     <Input {...field} id="transferDate" type="date" required aria-invalid={fieldState.invalid} />
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
@@ -278,7 +285,7 @@ export const TransferModal = ({
           <Field>
             <Button type="submit" form="transfer-form" disabled={isPending} size="lg">
               {isPending && <Spinner />}
-              {isEditMode ? "Update Transfer" : "Record Transfer"}
+              {isEditMode ? t("transfer.submitEdit") : t("transfer.submitNew")}
             </Button>
           </Field>
         </DialogFooter>

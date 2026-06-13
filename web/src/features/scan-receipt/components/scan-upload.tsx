@@ -1,5 +1,6 @@
 import { Check, ChevronRight, Receipt, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
@@ -8,6 +9,7 @@ import { useObjectUrl } from "@/shared/hooks/use-object-url";
 import { cn } from "@/shared/lib/utils";
 
 export function ScanUpload({ file, onFileChange }: { file: File | null; onFileChange: (file: File | null) => void }) {
+  const { t } = useTranslation();
   const [dragOver, setDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const previewUrl = useObjectUrl(file);
@@ -66,10 +68,10 @@ export function ScanUpload({ file, onFileChange }: { file: File | null; onFileCh
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={() => inputRef.current?.click()}>
-                  Replace
+                  {t("scan.upload.replace")}
                 </Button>
                 <Button variant="ghost" size="sm" onClick={() => onFileChange(null)}>
-                  <X /> Remove
+                  <X /> {t("scan.upload.remove")}
                 </Button>
               </div>
             </div>
@@ -107,36 +109,31 @@ export function ScanUpload({ file, onFileChange }: { file: File | null; onFileCh
             </div>
 
             <div className="relative">
-              <div className="text-base font-semibold md:text-lg">Drop a receipt photo here</div>
+              <div className="text-base font-semibold md:text-lg">{t("scan.upload.drop")}</div>
               <div className="text-muted-foreground mt-1 text-xs md:mt-1.5 md:text-sm">
-                or <span className="text-primary underline underline-offset-4">browse files</span>
+                {t("scan.upload.or")}{" "}
+                <span className="text-primary underline underline-offset-4">{t("scan.upload.browse")}</span>
                 <span className="mx-1.5">·</span>
-                JPG, PNG, WebP up to 10 MB
+                {t("scan.upload.formats")}
               </div>
             </div>
           </div>
         )}
 
         <div className="text-muted-foreground hidden items-center gap-2.5 text-xs md:flex">
-          Paste from clipboard, or drag &amp; drop from anywhere.
+          {t("scan.upload.pasteHint")}
         </div>
       </div>
 
       <div className="flex flex-col gap-5 overflow-y-auto p-4 md:p-6">
         <div>
-          <div className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">What we'll do</div>
+          <div className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
+            {t("scan.upload.whatWeDo")}
+          </div>
           <div className="mt-3 flex flex-col gap-3">
-            <ExplainerStep n={1} label="Read your receipt" body="Merchant, date, every line item with prices." />
-            <ExplainerStep
-              n={2}
-              label="You review"
-              body="Edit anything that looks off, deselect items you don't want."
-            />
-            <ExplainerStep
-              n={3}
-              label="Split & save"
-              body="One expense, or one per item. Pick who paid and who shares it."
-            />
+            <ExplainerStep n={1} label={t("scan.upload.step1Label")} body={t("scan.upload.step1Body")} />
+            <ExplainerStep n={2} label={t("scan.upload.step2Label")} body={t("scan.upload.step2Body")} />
+            <ExplainerStep n={3} label={t("scan.upload.step3Label")} body={t("scan.upload.step3Body")} />
           </div>
         </div>
 
@@ -144,12 +141,12 @@ export function ScanUpload({ file, onFileChange }: { file: File | null; onFileCh
 
         <div>
           <div className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-            Tips for best results
+            {t("scan.upload.tipsTitle")}
           </div>
           <div className="mt-3 flex flex-col gap-2.5">
-            <Tip text="Lay the receipt flat, fully in frame" />
-            <Tip text="Even lighting, no shadow across items" />
-            <Tip text="Crop tight — but don't cut off the total" />
+            <Tip text={t("scan.upload.tip1")} />
+            <Tip text={t("scan.upload.tip2")} />
+            <Tip text={t("scan.upload.tip3")} />
           </div>
         </div>
 
@@ -195,18 +192,17 @@ export function ScanUploadFooter({
   canContinue: boolean;
   pending: boolean;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="bg-card flex flex-col-reverse gap-3 border-t px-4 py-3 md:flex-row md:items-center md:justify-between md:px-6 md:py-3.5">
-      <div className="text-muted-foreground hidden text-xs md:block">
-        Your image is uploaded for processing and deleted after extraction.
-      </div>
+      <div className="text-muted-foreground hidden text-xs md:block">{t("scan.upload.privacy")}</div>
       <div className="flex gap-2.5 md:gap-2.5">
         <Button variant="ghost" onClick={onCancel} className="flex-1 md:flex-initial">
-          Cancel
+          {t("common.cancel")}
         </Button>
         <Button disabled={!canContinue || pending} onClick={onContinue} className="flex-1 md:flex-initial">
           {pending ? <Spinner /> : null}
-          Continue {!pending && <ChevronRight />}
+          {t("scan.continue")} {!pending && <ChevronRight />}
         </Button>
       </div>
     </div>

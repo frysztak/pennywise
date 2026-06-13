@@ -3,6 +3,7 @@ import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { Trash2, Upload } from "lucide-react";
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { GroupImage } from "@/features/group/components/group-image";
@@ -21,26 +22,27 @@ interface GroupImageUploadProps {
 }
 
 export function GroupImageUpload({ groupId, groupName, imageUpdatedAt }: GroupImageUploadProps) {
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
 
   const upload = useMutation(uploadGroupImage, {
     onSuccess: () => {
-      toast.success("Group photo updated");
+      toast.success(t("group.photo.updated"));
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
     },
     onError: (error) => {
-      toast.error(`Failed to upload photo: ${error.message}`);
+      toast.error(t("group.photo.uploadFailed", { error: error.message }));
     },
   });
 
   const remove = useMutation(deleteGroupImage, {
     onSuccess: () => {
-      toast.success("Group photo removed");
+      toast.success(t("group.photo.removed"));
       queryClient.invalidateQueries({ queryKey: userGroupsKey });
     },
     onError: (error) => {
-      toast.error(`Failed to remove photo: ${error.message}`);
+      toast.error(t("group.photo.removeFailed", { error: error.message }));
     },
   });
 
@@ -50,13 +52,13 @@ export function GroupImageUpload({ groupId, groupName, imageUpdatedAt }: GroupIm
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
+      toast.error(t("group.photo.invalidType"));
       return;
     }
 
     // Cap raw upload at 16MB — server re-encodes to JPEG ~1600×1067.
     if (file.size > 16 * 1024 * 1024) {
-      toast.error("Image must be smaller than 16MB");
+      toast.error(t("group.photo.tooLarge"));
       return;
     }
 
@@ -85,16 +87,16 @@ export function GroupImageUpload({ groupId, groupName, imageUpdatedAt }: GroupIm
         />
         <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isPending}>
           <Upload />
-          {imageUpdatedAt ? "Replace photo" : "Upload photo"}
+          {imageUpdatedAt ? t("group.photo.replace") : t("group.photo.upload")}
         </Button>
         {imageUpdatedAt && (
           <Button type="button" variant="ghost" onClick={() => remove.mutate({ groupId })} disabled={isPending}>
             <Trash2 />
-            Remove
+            {t("group.photo.remove")}
           </Button>
         )}
       </div>
-      <p className="text-xs text-muted-foreground">JPG, PNG, or WebP. Stored at 1600×1067 and 800×534.</p>
+      <p className="text-xs text-muted-foreground">{t("group.photo.formatsHint")}</p>
     </div>
   );
 }

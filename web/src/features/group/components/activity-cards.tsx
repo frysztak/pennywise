@@ -1,5 +1,6 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { ArrowRight, BanknoteIcon, ReceiptText, Redo2Icon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { ActivityItemMenu } from "@/features/group/components/activity-item-menu";
 import type {
@@ -31,8 +32,9 @@ export function ActivityCards({
   onDeleteTransfer,
   isArchived,
 }: ActivityCardsProps) {
+  const { t } = useTranslation();
   if (recentActivity.length === 0) {
-    return <p className="py-6 text-center text-sm text-muted-foreground">No activity yet in this group.</p>;
+    return <p className="py-6 text-center text-sm text-muted-foreground">{t("activity.empty")}</p>;
   }
 
   return (
@@ -91,7 +93,7 @@ export function ActivityCards({
               <div className="flex flex-col items-start justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <Redo2Icon className="h-6 w-6 shrink-0 text-muted-foreground" />
-                  <span className="font-medium text-lg">Transfer</span>
+                  <span className="font-medium text-lg">{t("activity.transfer")}</span>
                 </div>
                 <div className="flex items-center gap-2 min-w-0">
                   <BanknoteIcon className="h-6 w-6 shrink-0 text-muted-foreground" />

@@ -1,8 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "@tanstack/react-router";
+import type { TFunction } from "i18next";
 import { Eye, EyeOff, Lock, Mail, User } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import * as z from "zod";
 
 import { AuthCard, AuthHeading, AuthShell } from "@/features/auth/components/auth-shell";
@@ -11,19 +13,20 @@ import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/shared/components/ui/input-group";
 import { Spinner } from "@/shared/components/ui/spinner";
 
-const formSchema = z
-  .object({
-    username: z.string().min(3, "Username must be at least 3 characters long"),
-    email: z.email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters long"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
+const makeFormSchema = (t: TFunction) =>
+  z
+    .object({
+      username: z.string().min(3, t("auth.register.usernameMin")),
+      email: z.email(t("auth.register.emailInvalid")),
+      password: z.string().min(6, t("auth.register.passwordMin")),
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t("validation.passwordMatch"),
+      path: ["confirmPassword"],
+    });
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof makeFormSchema>>;
 
 interface Props {
   isLoading?: boolean;
@@ -31,6 +34,8 @@ interface Props {
 }
 
 export function SignupForm({ onSubmit, isLoading }: Props) {
+  const { t } = useTranslation();
+  const formSchema = useMemo(() => makeFormSchema(t), [t]);
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: { username: "", email: "", password: "", confirmPassword: "" },
@@ -42,10 +47,7 @@ export function SignupForm({ onSubmit, isLoading }: Props) {
     <AuthShell>
       <AuthCard>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5.5" noValidate>
-          <AuthHeading
-            title="Create your account"
-            description="Set up Pennywise to start tracking shared expenses with friends and family."
-          />
+          <AuthHeading title={t("auth.register.title")} description={t("auth.register.description")} />
 
           <div className="flex flex-col gap-3.5">
             <Controller
@@ -55,7 +57,7 @@ export function SignupForm({ onSubmit, isLoading }: Props) {
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel htmlFor="username" className="text-xs font-medium">
-                    Username
+                    {t("fields.username")}
                   </FieldLabel>
                   <InputGroup>
                     <InputGroupAddon>
@@ -83,7 +85,7 @@ export function SignupForm({ onSubmit, isLoading }: Props) {
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel htmlFor="email" className="text-xs font-medium">
-                    Email
+                    {t("fields.email")}
                   </FieldLabel>
                   <InputGroup>
                     <InputGroupAddon>
@@ -111,7 +113,7 @@ export function SignupForm({ onSubmit, isLoading }: Props) {
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel htmlFor="password" className="text-xs font-medium">
-                    Password
+                    {t("fields.password")}
                   </FieldLabel>
                   <InputGroup>
                     <InputGroupAddon>
@@ -121,7 +123,7 @@ export function SignupForm({ onSubmit, isLoading }: Props) {
                       {...field}
                       id="password"
                       type={revealPassword ? "text" : "password"}
-                      placeholder="At least 6 characters"
+                      placeholder={t("auth.register.passwordHint")}
                       autoComplete="new-password"
                       required
                       aria-invalid={fieldState.invalid}
@@ -130,7 +132,7 @@ export function SignupForm({ onSubmit, isLoading }: Props) {
                       <InputGroupButton
                         size="icon-xs"
                         onClick={() => setRevealPassword((v) => !v)}
-                        aria-label={revealPassword ? "Hide password" : "Show password"}
+                        aria-label={revealPassword ? t("auth.hidePassword") : t("auth.showPassword")}
                         aria-pressed={revealPassword}
                       >
                         {revealPassword ? <EyeOff /> : <Eye />}
@@ -149,7 +151,7 @@ export function SignupForm({ onSubmit, isLoading }: Props) {
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel htmlFor="confirm-password" className="text-xs font-medium">
-                    Confirm password
+                    {t("auth.register.confirmPassword")}
                   </FieldLabel>
                   <InputGroup>
                     <InputGroupAddon>
@@ -168,7 +170,7 @@ export function SignupForm({ onSubmit, isLoading }: Props) {
                       <InputGroupButton
                         size="icon-xs"
                         onClick={() => setRevealConfirm((v) => !v)}
-                        aria-label={revealConfirm ? "Hide password" : "Show password"}
+                        aria-label={revealConfirm ? t("auth.hidePassword") : t("auth.showPassword")}
                         aria-pressed={revealConfirm}
                       >
                         {revealConfirm ? <EyeOff /> : <Eye />}
@@ -183,16 +185,16 @@ export function SignupForm({ onSubmit, isLoading }: Props) {
 
           <Button type="submit" disabled={isLoading} className="h-11 w-full text-sm">
             {isLoading && <Spinner />}
-            Create account
+            {t("auth.register.submit")}
           </Button>
 
           <p className="text-muted-foreground text-center text-xs">
-            Already have an account?{" "}
+            {t("auth.register.hasAccount")}{" "}
             <Link
               to="/auth/login"
               className="text-foreground decoration-border hover:decoration-primary underline underline-offset-[3px] transition-all"
             >
-              Sign in
+              {t("auth.register.signIn")}
             </Link>
           </p>
         </form>

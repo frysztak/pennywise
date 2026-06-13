@@ -2,8 +2,10 @@ import { timestampDate, timestampFromDate } from "@bufbuild/protobuf/wkt";
 import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import type { TFunction } from "i18next";
+import { useEffect, useMemo } from "react";
 import { Controller, type FieldErrors, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import * as z from "zod";
 
@@ -32,21 +34,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Spinner } from "@/shared/components/ui/spinner";
 import { handleError } from "@/shared/lib/utils";
 
-const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  description: z.string(),
-  frequency: z.nativeEnum(RecurringFrequency),
-  startDate: z.string().date("Invalid date format"),
-  amountWithCurrency: z
-    .object({
-      amount: z.number().positive("Amount must be positive").optional(),
-      currency: z.string().min(2).optional(),
-    })
-    .optional(),
-  payerId: z.string().optional(),
-});
+const makeFormSchema = (t: TFunction) =>
+  z.object({
+    name: z.string().min(2, t("recurringExpense.validation.nameMin")),
+    description: z.string(),
+    frequency: z.nativeEnum(RecurringFrequency),
+    startDate: z.string().date(t("recurringExpense.validation.dateInvalid")),
+    amountWithCurrency: z
+      .object({
+        amount: z.number().positive(t("recurringExpense.validation.amountPositive")).optional(),
+        currency: z.string().min(2).optional(),
+      })
+      .optional(),
+    payerId: z.string().optional(),
+  });
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof makeFormSchema>>;
 
 interface RecurringExpenseModalProps {
   open: boolean;
@@ -71,13 +74,15 @@ export const RecurringExpenseModal = ({
   currencies,
   recurringExpense,
 }: RecurringExpenseModalProps) => {
+  const { t } = useTranslation();
+  const formSchema = useMemo(() => makeFormSchema(t), [t]);
   const isEditMode = mode === "edit";
 
   const frequencyItems = [
-    { value: RecurringFrequency.DAILY.toString(), label: "Daily" },
-    { value: RecurringFrequency.WEEKLY.toString(), label: "Weekly" },
-    { value: RecurringFrequency.MONTHLY.toString(), label: "Monthly" },
-    { value: RecurringFrequency.YEARLY.toString(), label: "Yearly" },
+    { value: RecurringFrequency.DAILY.toString(), label: t("recurringExpense.frequencies.daily") },
+    { value: RecurringFrequency.WEEKLY.toString(), label: t("recurringExpense.frequencies.weekly") },
+    { value: RecurringFrequency.MONTHLY.toString(), label: t("recurringExpense.frequencies.monthly") },
+    { value: RecurringFrequency.YEARLY.toString(), label: t("recurringExpense.frequencies.yearly") },
   ];
   const memberItems = groupMembers.map((m) => ({ value: m.userId, label: m.userName }));
 
@@ -127,7 +132,7 @@ export const RecurringExpenseModal = ({
 
   const { isPending: isCreating, mutate: createMutate } = useMutation(createRecurringExpense, {
     onSuccess: () => {
-      toast.success("Recurring expense created!");
+      toast.success(t("recurringExpense.created"));
       queryClient.invalidateQueries({ queryKey: recurringExpensesKey });
       onOpenChange(false);
     },
@@ -136,7 +141,7 @@ export const RecurringExpenseModal = ({
 
   const { isPending: isUpdating, mutate: updateMutate } = useMutation(updateRecurringExpense, {
     onSuccess: () => {
-      toast.success("Recurring expense updated!");
+      toast.success(t("recurringExpense.updated"));
       queryClient.invalidateQueries({ queryKey: recurringExpensesKey });
       onOpenChange(false);
     },
@@ -175,11 +180,9 @@ export const RecurringExpenseModal = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEditMode ? "Edit Recurring Expense" : "Create Recurring Expense"}</DialogTitle>
+          <DialogTitle>{isEditMode ? t("recurringExpense.edit") : t("recurringExpense.new")}</DialogTitle>
           <DialogDescription>
-            {isEditMode
-              ? "Update the recurring expense template."
-              : "Create a template that will remind you to record expenses."}
+            {isEditMode ? t("recurringExpense.editDescription") : t("recurringExpense.newDescription")}
           </DialogDescription>
         </DialogHeader>
         <form id="recurring-expense-form" onSubmit={form.handleSubmit(onSubmit)}>
@@ -190,8 +193,8 @@ export const RecurringExpenseModal = ({
               disabled={isPending}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel>Name</FieldLabel>
-                  <Input {...field} placeholder="e.g., Monthly Rent" required />
+                  <FieldLabel>{t("recurringExpense.name")}</FieldLabel>
+                  <Input {...field} placeholder={t("recurringExpense.namePlaceholder")} required />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -203,8 +206,8 @@ export const RecurringExpenseModal = ({
               disabled={isPending}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel>Description (optional)</FieldLabel>
-                  <Input {...field} placeholder="Additional details..." />
+                  <FieldLabel>{t("recurringExpense.descriptionLabel")}</FieldLabel>
+                  <Input {...field} placeholder={t("recurringExpense.descriptionPlaceholder")} />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -217,7 +220,7 @@ export const RecurringExpenseModal = ({
                 disabled={isPending}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Frequency</FieldLabel>
+                    <FieldLabel>{t("recurringExpense.frequency")}</FieldLabel>
                     <Select
                       items={frequencyItems}
                       value={field.value.toString()}
@@ -228,10 +231,18 @@ export const RecurringExpenseModal = ({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value={RecurringFrequency.DAILY.toString()}>Daily</SelectItem>
-                        <SelectItem value={RecurringFrequency.WEEKLY.toString()}>Weekly</SelectItem>
-                        <SelectItem value={RecurringFrequency.MONTHLY.toString()}>Monthly</SelectItem>
-                        <SelectItem value={RecurringFrequency.YEARLY.toString()}>Yearly</SelectItem>
+                        <SelectItem value={RecurringFrequency.DAILY.toString()}>
+                          {t("recurringExpense.frequencies.daily")}
+                        </SelectItem>
+                        <SelectItem value={RecurringFrequency.WEEKLY.toString()}>
+                          {t("recurringExpense.frequencies.weekly")}
+                        </SelectItem>
+                        <SelectItem value={RecurringFrequency.MONTHLY.toString()}>
+                          {t("recurringExpense.frequencies.monthly")}
+                        </SelectItem>
+                        <SelectItem value={RecurringFrequency.YEARLY.toString()}>
+                          {t("recurringExpense.frequencies.yearly")}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -245,7 +256,7 @@ export const RecurringExpenseModal = ({
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel htmlFor="amountWithCurrency">
-                      Amount (optional)
+                      {t("recurringExpense.amount")}
                       <AmountInputTooltip />
                     </FieldLabel>
                     <AmountInput
@@ -276,7 +287,7 @@ export const RecurringExpenseModal = ({
                 disabled={isPending}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Start Date</FieldLabel>
+                    <FieldLabel>{t("recurringExpense.startDate")}</FieldLabel>
                     <Input {...field} type="date" required />
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
@@ -290,10 +301,10 @@ export const RecurringExpenseModal = ({
               disabled={isPending}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel>Default Payer (optional)</FieldLabel>
+                  <FieldLabel>{t("recurringExpense.defaultPayer")}</FieldLabel>
                   <Select items={memberItems} value={field.value} onValueChange={field.onChange} disabled={isPending}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select payer" />
+                      <SelectValue placeholder={t("recurringExpense.selectPayer")} />
                     </SelectTrigger>
                     <SelectContent>
                       {groupMembers.map((member) => (
@@ -309,14 +320,14 @@ export const RecurringExpenseModal = ({
             />
 
             <div className="text-sm text-muted-foreground p-3 bg-muted rounded-md">
-              Expense will be split equally among all group members
+              {t("recurringExpense.splitNote")}
             </div>
           </FieldGroup>
         </form>
         <DialogFooter>
           <Button type="submit" form="recurring-expense-form" disabled={isPending} size="lg">
             {isPending && <Spinner />}
-            {isEditMode ? "Update Template" : "Create Template"}
+            {isEditMode ? t("recurringExpense.submitEdit") : t("recurringExpense.submitNew")}
           </Button>
         </DialogFooter>
       </DialogContent>
