@@ -30,7 +30,7 @@ RETURNING id, email, username, role;
 SELECT COUNT(*) FROM users WHERE role = 1;
 
 -- name: IsUsersEmpty :one
-SELECT EXISTS(SELECT 1 FROM users LIMIT 1);
+SELECT NOT EXISTS(SELECT 1 FROM users LIMIT 1);
 
 -- name: UpdateUserAvatar :exec
 UPDATE users

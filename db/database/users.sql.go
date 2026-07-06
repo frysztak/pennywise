@@ -153,14 +153,14 @@ func (q *Queries) GetUsers(ctx context.Context) ([]GetUsersRow, error) {
 }
 
 const isUsersEmpty = `-- name: IsUsersEmpty :one
-SELECT EXISTS(SELECT 1 FROM users LIMIT 1)
+SELECT NOT EXISTS(SELECT 1 FROM users LIMIT 1)
 `
 
 func (q *Queries) IsUsersEmpty(ctx context.Context) (bool, error) {
 	row := q.db.QueryRowContext(ctx, isUsersEmpty)
-	var exists bool
-	err := row.Scan(&exists)
-	return exists, err
+	var not_exists bool
+	err := row.Scan(&not_exists)
+	return not_exists, err
 }
 
 const updateUserAvatar = `-- name: UpdateUserAvatar :exec
