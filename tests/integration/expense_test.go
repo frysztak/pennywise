@@ -231,11 +231,16 @@ func getGroupBalances(t *testing.T, groupID string) calc.GroupBalance {
 		t.Fatalf("GetGroupTransfersForBalance failed: %v", err)
 	}
 
+	conversions, err := db.ReadQueries.GetGroupConversionsForBalance(ctx, groupID)
+	if err != nil {
+		t.Fatalf("GetGroupConversionsForBalance failed: %v", err)
+	}
+
 	// Get default currency from group
 	group, err := db.ReadQueries.GetGroupById(ctx, groupID)
 	if err != nil {
 		t.Fatalf("GetGroupById failed: %v", err)
 	}
 
-	return calc.ComputeGroupBalance(&members, &expenses, &transfers, group.DefaultCurrency)
+	return calc.ComputeGroupBalance(&members, &expenses, &transfers, &conversions, group.DefaultCurrency)
 }

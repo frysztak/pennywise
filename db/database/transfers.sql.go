@@ -133,19 +133,25 @@ func (q *Queries) GetGroupTransfers(ctx context.Context, groupID string) ([]GetG
 
 const getGroupTransfersForBalance = `-- name: GetGroupTransfersForBalance :many
 SELECT
+    id,
     sender_id,
     receiver_id,
     amount,
-    currency
+    currency,
+    created_at,
+    date
 FROM transfers
 WHERE group_id = ?1
 `
 
 type GetGroupTransfersForBalanceRow struct {
+	ID         string
 	SenderID   string
 	ReceiverID string
 	Amount     int64
 	Currency   string
+	CreatedAt  overrides.TextTime
+	Date       overrides.TextTime
 }
 
 func (q *Queries) GetGroupTransfersForBalance(ctx context.Context, groupID string) ([]GetGroupTransfersForBalanceRow, error) {
@@ -158,10 +164,13 @@ func (q *Queries) GetGroupTransfersForBalance(ctx context.Context, groupID strin
 	for rows.Next() {
 		var i GetGroupTransfersForBalanceRow
 		if err := rows.Scan(
+			&i.ID,
 			&i.SenderID,
 			&i.ReceiverID,
 			&i.Amount,
 			&i.Currency,
+			&i.CreatedAt,
+			&i.Date,
 		); err != nil {
 			return nil, err
 		}

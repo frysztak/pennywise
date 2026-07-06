@@ -53,6 +53,8 @@ func activityTypeFilterToString(f apiv1.ActivityTypeFilter) string {
 		return "expense"
 	case apiv1.ActivityTypeFilter_ACTIVITY_TYPE_FILTER_TRANSFER:
 		return "transfer"
+	case apiv1.ActivityTypeFilter_ACTIVITY_TYPE_FILTER_CONVERSION:
+		return "conversion"
 	default:
 		return ""
 	}
@@ -74,6 +76,13 @@ func derefStr(s *string) string {
 		return ""
 	}
 	return *s
+}
+
+func derefFloat(f *float64) float64 {
+	if f == nil {
+		return 0
+	}
+	return *f
 }
 
 type GroupService struct{}
@@ -367,7 +376,13 @@ func (s *GroupService) GetUserGroups(ctx context.Context, r *apiv1.GetUserGroups
 			return nil, connect.NewError(connect.CodeInternal, err)
 		}
 
-		groupBalance := calc.ComputeGroupBalance(&members, &expenses, &transfers, v.DefaultCurrency)
+		conversions, err := db.ReadQueries.GetGroupConversionsForBalance(ctx, v.ID)
+		if err != nil {
+			logger.Error("failed to get group conversions", "error", err, "group_id", v.ID)
+			return nil, connect.NewError(connect.CodeInternal, err)
+		}
+
+		groupBalance := calc.ComputeGroupBalance(&members, &expenses, &transfers, &conversions, v.DefaultCurrency)
 
 		// Build member balances
 		memberBalances := make([]*apiv1.MemberBalance, 0, len(members))
@@ -473,8 +488,14 @@ func (s *GroupService) GetSettlementSuggestions(ctx context.Context, r *apiv1.Ge
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
+	conversions, err := db.ReadQueries.GetGroupConversionsForBalance(ctx, r.GroupId)
+	if err != nil {
+		logger.Error("failed to get group conversions", "error", err, "group_id", r.GroupId)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
 	// Calculate current balances
-	balances := calc.ComputeGroupBalance(&members, &expenses, &transfers, group.DefaultCurrency)
+	balances := calc.ComputeGroupBalance(&members, &expenses, &transfers, &conversions, group.DefaultCurrency)
 
 	// Collect currencies in group
 	currenciesMap := make(map[string]bool)
@@ -489,17 +510,10 @@ func (s *GroupService) GetSettlementSuggestions(ctx context.Context, r *apiv1.Ge
 	}
 	sort.Strings(currencies)
 
-	// Calculate settlements (single currency mode or default)
-	var settlements []calc.SettlementSuggestion
-	if r.TargetCurrency != nil && *r.TargetCurrency != "" {
-		settlements = calc.CalculateSettlementsInCurrency(
-			balances,
-			*r.TargetCurrency,
-			r.ConversionRates,
-		)
-	} else {
-		settlements = calc.CalculateSettlements(balances)
-	}
+	// Calculate per-currency settlements. To settle across currencies, users
+	// create conversion actions that fold the group into a single currency;
+	// once that's done this same path naturally yields one consolidated set.
+	settlements := calc.CalculateSettlements(balances)
 
 	// Build user name map
 	userNames := make(map[string]string)
@@ -691,7 +705,22 @@ func (s *GroupService) GetGroupActivity(ctx context.Context, r *apiv1.GetGroupAc
 	// Build response items
 	items := make([]*apiv1.GetGroupActivityResponse_ActivityItem, 0, len(rows))
 	for _, row := range rows {
-		if row.Type == "expense" {
+		switch row.Type {
+		case "conversion":
+			items = append(items, &apiv1.GetGroupActivityResponse_ActivityItem{
+				Type: apiv1.GetGroupActivityResponse_ActivityItem_TYPE_CONVERSION,
+				Data: &apiv1.GetGroupActivityResponse_ActivityItem_Conversion_{
+					Conversion: &apiv1.GetGroupActivityResponse_ActivityItem_Conversion{
+						Id:           row.ID,
+						CreatedAt:    timestamppb.New(row.CreatedAt.Time),
+						FromCurrency: derefStr(row.FromCurrency),
+						ToCurrency:   row.Currency,
+						Rate:         derefFloat(row.Rate),
+						Date:         timestamppb.New(row.Date.Time),
+					},
+				},
+			})
+		case "expense":
 			var beneficiariesIds []string
 			if row.BeneficiariesIds != nil {
 				bStr, ok := row.BeneficiariesIds.(string)
@@ -722,7 +751,7 @@ func (s *GroupService) GetGroupActivity(ctx context.Context, r *apiv1.GetGroupAc
 					},
 				},
 			})
-		} else {
+		default:
 			items = append(items, &apiv1.GetGroupActivityResponse_ActivityItem{
 				Type: apiv1.GetGroupActivityResponse_ActivityItem_TYPE_TRANSFER,
 				Data: &apiv1.GetGroupActivityResponse_ActivityItem_Transfer_{

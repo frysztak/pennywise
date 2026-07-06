@@ -1,5 +1,7 @@
 import { type ReactNode, createContext, use } from "react";
 
+import type { useConversionModal } from "@/features/conversion/hooks/use-conversion-modal";
+import type { useDeleteConversionModal } from "@/features/conversion/hooks/use-delete-conversion-modal";
 import type { useDeleteExpenseModal } from "@/features/expense/hooks/use-delete-expense-modal";
 import type { useExpenseModal } from "@/features/expense/hooks/use-expense-modal";
 import type { useDeleteGroupModal } from "@/features/group/hooks/use-delete-group-modal";
@@ -15,9 +17,11 @@ export interface GroupPageContextValue {
   currentUserId: string;
   expenseModal: ReturnType<typeof useExpenseModal>;
   transferModal: ReturnType<typeof useTransferModal>;
+  conversionModal: ReturnType<typeof useConversionModal>;
   recurringExpenseModal: ReturnType<typeof useRecurringExpenseModal>;
   deleteExpenseModal: ReturnType<typeof useDeleteExpenseModal>;
   deleteTransferModal: ReturnType<typeof useDeleteTransferModal>;
+  deleteConversionModal: ReturnType<typeof useDeleteConversionModal>;
   deleteRecurringExpenseModal: ReturnType<typeof useDeleteRecurringExpenseModal>;
   deleteGroupModal: ReturnType<typeof useDeleteGroupModal>;
 }

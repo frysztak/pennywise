@@ -17,9 +17,11 @@ function ActivityTab() {
     currentUserId,
     expenseModal,
     transferModal,
+    conversionModal,
     recurringExpenseModal,
     deleteExpenseModal,
     deleteTransferModal,
+    deleteConversionModal,
     deleteRecurringExpenseModal,
   } = useGroupPageContext();
 
@@ -42,6 +44,8 @@ function ActivityTab() {
         onDeleteExpense={deleteExpenseModal.confirmDelete}
         onEditTransfer={transferModal.openEdit}
         onDeleteTransfer={deleteTransferModal.confirmDelete}
+        onEditConversion={conversionModal.openEdit}
+        onDeleteConversion={deleteConversionModal.confirmDelete}
         isArchived={groupInfo.archived}
         remindersSlot={
           <Suspense

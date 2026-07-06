@@ -19,6 +19,7 @@ func TestComputeGroupBalance(t *testing.T) {
 		members         []database.GetGroupMembersRow
 		expenses        []database.GetGroupExpensesRow
 		transfers       []database.GetGroupTransfersForBalanceRow
+		conversions     []database.GetGroupConversionsForBalanceRow
 		defaultCurrency string
 		want            GroupBalance
 	}{
@@ -439,13 +440,161 @@ func TestComputeGroupBalance(t *testing.T) {
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := ComputeGroupBalance(&tc.members, &tc.expenses, &tc.transfers, tc.defaultCurrency)
+			got := ComputeGroupBalance(&tc.members, &tc.expenses, &tc.transfers, &tc.conversions, tc.defaultCurrency)
 
 			if !cmp.Equal(got, tc.want) {
 				t.Errorf("Wrong balance:\n%s", cmp.Diff(tc.want, got))
 			}
 		})
 	}
+}
+
+// TestComputeGroupBalance_Conversions covers the temporal-replay conversion
+// fold: zero-sum preservation, ordering sensitivity, chaining, and rounding.
+func TestComputeGroupBalance_Conversions(t *testing.T) {
+	members := []database.GetGroupMembersRow{
+		{UserID: "uA", Weight: 1.0},
+		{UserID: "uB", Weight: 1.0},
+	}
+
+	t.Run("fold preserves zero-sum and zeroes source currency", func(t *testing.T) {
+		expenses := []database.GetGroupExpensesRow{
+			{
+				ID: "e1", Currency: "EUR", GroupID: "g1", PayerID: "uA",
+				Amount: amount(10.00), BeneficiariesIds: utils.SliceToJSONString("uA", "uB"),
+				Date: day("2024-01-01"), CreatedAt: day("2024-01-01"),
+			},
+		}
+		conversions := []database.GetGroupConversionsForBalanceRow{
+			{
+				ID: "c1", FromCurrency: "EUR", ToCurrency: "USD", Rate: 1.10,
+				Date: day("2024-01-02"), CreatedAt: day("2024-01-02"),
+			},
+		}
+		got := ComputeGroupBalance(&members, &expenses, &[]database.GetGroupTransfersForBalanceRow{}, &conversions, "USD")
+		want := GroupBalance{
+			"uA": PerCurrencyBalance{"EUR": 0, "USD": amount(5.50)},
+			"uB": PerCurrencyBalance{"EUR": 0, "USD": amount(-5.50)},
+		}
+		if !cmp.Equal(got, want) {
+			t.Errorf("Wrong balance:\n%s", cmp.Diff(want, got))
+		}
+	})
+
+	t.Run("conversion after expense differs from conversion before expense", func(t *testing.T) {
+		conv := database.GetGroupConversionsForBalanceRow{
+			ID: "c1", FromCurrency: "EUR", ToCurrency: "USD", Rate: 2.0,
+		}
+
+		// Expense first, then conversion: EUR folds into USD.
+		before := ComputeGroupBalance(
+			&members,
+			&[]database.GetGroupExpensesRow{{
+				ID: "e1", Currency: "EUR", GroupID: "g1", PayerID: "uA",
+				Amount: amount(10.00), BeneficiariesIds: utils.SliceToJSONString("uA", "uB"),
+				Date: day("2024-01-01"), CreatedAt: day("2024-01-01"),
+			}},
+			&[]database.GetGroupTransfersForBalanceRow{},
+			&[]database.GetGroupConversionsForBalanceRow{func() database.GetGroupConversionsForBalanceRow {
+				c := conv
+				c.Date, c.CreatedAt = day("2024-01-02"), day("2024-01-02")
+				return c
+			}()},
+			"USD",
+		)
+		wantBefore := GroupBalance{
+			"uA": PerCurrencyBalance{"EUR": 0, "USD": amount(10.00)},
+			"uB": PerCurrencyBalance{"EUR": 0, "USD": amount(-10.00)},
+		}
+		if !cmp.Equal(before, wantBefore) {
+			t.Errorf("expense-then-conversion wrong:\n%s", cmp.Diff(wantBefore, before))
+		}
+
+		// Conversion first, then a late-dated EUR expense: EUR stays unfolded.
+		after := ComputeGroupBalance(
+			&members,
+			&[]database.GetGroupExpensesRow{{
+				ID: "e1", Currency: "EUR", GroupID: "g1", PayerID: "uA",
+				Amount: amount(10.00), BeneficiariesIds: utils.SliceToJSONString("uA", "uB"),
+				Date: day("2024-01-03"), CreatedAt: day("2024-01-03"),
+			}},
+			&[]database.GetGroupTransfersForBalanceRow{},
+			&[]database.GetGroupConversionsForBalanceRow{func() database.GetGroupConversionsForBalanceRow {
+				c := conv
+				c.Date, c.CreatedAt = day("2024-01-02"), day("2024-01-02")
+				return c
+			}()},
+			"USD",
+		)
+		wantAfter := GroupBalance{
+			"uA": PerCurrencyBalance{"EUR": amount(5.00), "USD": 0},
+			"uB": PerCurrencyBalance{"EUR": amount(-5.00), "USD": 0},
+		}
+		if !cmp.Equal(after, wantAfter) {
+			t.Errorf("conversion-then-late-expense wrong:\n%s", cmp.Diff(wantAfter, after))
+		}
+	})
+
+	t.Run("chained conversions EUR->USD->GBP", func(t *testing.T) {
+		expenses := []database.GetGroupExpensesRow{
+			{
+				ID: "e1", Currency: "EUR", GroupID: "g1", PayerID: "uA",
+				Amount: amount(10.00), BeneficiariesIds: utils.SliceToJSONString("uA", "uB"),
+				Date: day("2024-01-01"), CreatedAt: day("2024-01-01"),
+			},
+		}
+		conversions := []database.GetGroupConversionsForBalanceRow{
+			{
+				ID: "c1", FromCurrency: "EUR", ToCurrency: "USD", Rate: 1.10,
+				Date: day("2024-01-02"), CreatedAt: day("2024-01-02"),
+			},
+			{
+				ID: "c2", FromCurrency: "USD", ToCurrency: "GBP", Rate: 0.80,
+				Date: day("2024-01-03"), CreatedAt: day("2024-01-03"),
+			},
+		}
+		got := ComputeGroupBalance(&members, &expenses, &[]database.GetGroupTransfersForBalanceRow{}, &conversions, "USD")
+		// 5.00 EUR -> 5.50 USD -> round(550*0.80)=440 -> 4.40 GBP
+		want := GroupBalance{
+			"uA": PerCurrencyBalance{"EUR": 0, "USD": 0, "GBP": amount(4.40)},
+			"uB": PerCurrencyBalance{"EUR": 0, "USD": 0, "GBP": amount(-4.40)},
+		}
+		if !cmp.Equal(got, want) {
+			t.Errorf("Wrong balance:\n%s", cmp.Diff(want, got))
+		}
+	})
+
+	t.Run("rounding stays within +/-1c of zero-sum", func(t *testing.T) {
+		members3 := []database.GetGroupMembersRow{
+			{UserID: "uA", Weight: 1.0},
+			{UserID: "uB", Weight: 1.0},
+			{UserID: "uC", Weight: 1.0},
+		}
+		expenses := []database.GetGroupExpensesRow{
+			{
+				ID: "e1", Currency: "EUR", GroupID: "g1", PayerID: "uA",
+				Amount: amount(10.00), BeneficiariesIds: utils.SliceToJSONString("uA", "uB", "uC"),
+				Date: day("2024-01-01"), CreatedAt: day("2024-01-01"),
+			},
+		}
+		conversions := []database.GetGroupConversionsForBalanceRow{
+			{
+				ID: "c1", FromCurrency: "EUR", ToCurrency: "USD", Rate: 1.37,
+				Date: day("2024-01-02"), CreatedAt: day("2024-01-02"),
+			},
+		}
+		got := ComputeGroupBalance(&members3, &expenses, &[]database.GetGroupTransfersForBalanceRow{}, &conversions, "USD")
+		var sum int64
+		for _, perCurr := range got {
+			if perCurr["EUR"] != 0 {
+				t.Errorf("EUR not fully folded: %d", perCurr["EUR"])
+			}
+			sum += perCurr["USD"]
+		}
+		if sum < -1 || sum > 1 {
+			t.Errorf("USD balance sum after fold = %d, want within +/-1c", sum)
+		}
+	})
 }
 
 // TestComputeGroupBalance_NoSystematicBias guards against the bias the old
@@ -472,7 +621,7 @@ func TestComputeGroupBalance_NoSystematicBias(t *testing.T) {
 		})
 	}
 
-	got := ComputeGroupBalance(&members, &expenses, &[]database.GetGroupTransfersForBalanceRow{}, "USD")
+	got := ComputeGroupBalance(&members, &expenses, &[]database.GetGroupTransfersForBalanceRow{}, &[]database.GetGroupConversionsForBalanceRow{}, "USD")
 
 	var sum int64
 	for _, perCurrency := range got {

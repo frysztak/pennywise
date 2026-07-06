@@ -8,7 +8,7 @@ import (
 type SettlementSuggestion struct {
 	FromUserID string
 	ToUserID   string
-	Amount     int64  // cents, always positive
+	Amount     int64 // cents, always positive
 	Currency   string
 }
 
@@ -49,41 +49,6 @@ func CalculateSettlements(balances GroupBalance) []SettlementSuggestion {
 	}
 
 	return results
-}
-
-// CalculateSettlementsInCurrency converts all debts to a single currency and settles.
-// conversionRates maps source currency to a multiplier to get target currency amount.
-// Example: if targetCurrency is USD and EUR→USD is 1.10, conversionRates["EUR"] = 1.10
-func CalculateSettlementsInCurrency(
-	balances GroupBalance,
-	targetCurrency string,
-	conversionRates map[string]float64,
-) []SettlementSuggestion {
-	if len(balances) == 0 {
-		return nil
-	}
-
-	// Convert all balances to target currency
-	convertedBalances := make(PerCurrencyBalance)
-
-	for userID, currencyBalances := range balances {
-		var totalInTarget int64
-		for currency, amount := range currencyBalances {
-			if currency == targetCurrency {
-				totalInTarget += amount
-			} else if rate, ok := conversionRates[currency]; ok {
-				// Convert: amount * rate = amount in target currency
-				converted := int64(float64(amount) * rate)
-				totalInTarget += converted
-			}
-			// Skip currencies without conversion rate (shouldn't happen with proper UI)
-		}
-		if totalInTarget != 0 {
-			convertedBalances[userID] = totalInTarget
-		}
-	}
-
-	return settleForSingleCurrency(convertedBalances, targetCurrency)
 }
 
 func settleForCurrency(balances GroupBalance, currency string) []SettlementSuggestion {

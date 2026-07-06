@@ -2,6 +2,10 @@ import { createQueryOptions, useSuspenseQuery } from "@connectrpc/connect-query"
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 import { toast } from "sonner";
 
+import { ConversionModal } from "@/features/conversion/components/conversion-modal";
+import { DeleteConversionDialog } from "@/features/conversion/components/delete-conversion-dialog";
+import { useConversionModal } from "@/features/conversion/hooks/use-conversion-modal";
+import { useDeleteConversionModal } from "@/features/conversion/hooks/use-delete-conversion-modal";
 import { DeleteExpenseDialog } from "@/features/expense/components/delete-expense-dialog";
 import { ExpenseModal } from "@/features/expense/components/expense-modal";
 import { useDeleteExpenseModal } from "@/features/expense/hooks/use-delete-expense-modal";
@@ -83,9 +87,11 @@ function RouteComponent() {
   const groupMutations = useGroupMutations(groupId);
   const expenseModal = useExpenseModal();
   const transferModal = useTransferModal();
+  const conversionModal = useConversionModal();
   const recurringExpenseModal = useRecurringExpenseModal();
   const deleteExpenseModal = useDeleteExpenseModal(groupId);
   const deleteTransferModal = useDeleteTransferModal(groupId);
+  const deleteConversionModal = useDeleteConversionModal(groupId);
   const deleteRecurringExpenseModal = useDeleteRecurringExpenseModal(groupId);
   const deleteGroupModal = useDeleteGroupModal();
   const addMemberModal = useAddMemberModal();
@@ -105,6 +111,7 @@ function RouteComponent() {
         isArchived={groupInfo.archived}
         onCreateExpense={expenseModal.openCreate}
         onCreateTransfer={transferModal.openCreate}
+        onCreateConversion={conversionModal.openCreate}
         onCreateRecurring={recurringExpenseModal.openCreate}
         onInviteMembers={() => addMemberModal.openModal(groupId)}
         onEditGroup={() =>
@@ -136,9 +143,11 @@ function RouteComponent() {
             currentUserId: currentUser.id,
             expenseModal,
             transferModal,
+            conversionModal,
             recurringExpenseModal,
             deleteExpenseModal,
             deleteTransferModal,
+            deleteConversionModal,
             deleteRecurringExpenseModal,
             deleteGroupModal,
           }}
@@ -189,8 +198,21 @@ function RouteComponent() {
         currencies={groupInfo.currencies}
       />
 
+      {/* Conversion Modal (Create/Edit) */}
+      <ConversionModal
+        open={conversionModal.modalState.open}
+        onOpenChange={(open) => !open && conversionModal.close()}
+        mode={conversionModal.modalState.mode}
+        conversion={conversionModal.modalState.conversion}
+        templateDefaults={conversionModal.modalState.templateDefaults}
+        groupId={groupId}
+        defaultCurrency={groupInfo.groupDefaultCurrency}
+        currencies={groupInfo.currencies}
+      />
+
       <DeleteExpenseDialog {...deleteExpenseModal.dialogProps} />
       <DeleteTransferDialog {...deleteTransferModal.dialogProps} />
+      <DeleteConversionDialog {...deleteConversionModal.dialogProps} />
       <DeleteRecurringExpenseDialog {...deleteRecurringExpenseModal.dialogProps} />
       <DeleteGroupDialog {...deleteGroupModal.dialogProps} />
       {addMemberModal.dialogProps.open && <AddMemberDialog {...addMemberModal.dialogProps} />}

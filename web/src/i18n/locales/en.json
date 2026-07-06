@@ -158,7 +158,8 @@
       "addRecurring": "Add Recurring",
       "inviteMembers": "Invite Members",
       "archive": "Archive Group",
-      "unarchive": "Unarchive Group"
+      "unarchive": "Unarchive Group",
+      "addConversion": "Add Conversion"
     },
     "recentActivity": "Recent Activity",
     "balancesTitle": "Group Balances",
@@ -302,7 +303,8 @@
       "expenses": "Expenses",
       "transfers": "Transfers",
       "allCurrencies": "All currencies",
-      "allMembers": "All members"
+      "allMembers": "All members",
+      "conversions": "Conversions"
     },
     "pagination": {
       "empty": "No items",
@@ -577,6 +579,50 @@
       "commit": "Commit",
       "instanceUrl": "Instance URL",
       "viewOnGithub": "GitHub"
+    }
+  },
+  "conversion": {
+    "new": "Record conversion",
+    "edit": "Edit conversion",
+    "newDescription": "Fold the whole group's balance in one currency into another at a chosen rate.",
+    "editDescription": "Update conversion details.",
+    "from": "From",
+    "to": "To",
+    "rate": "Exchange rate",
+    "rateHint": "1 {{from}} = {{rate}} {{to}}",
+    "date": "Date",
+    "fetchRate": "Fetch rate",
+    "rateFetched": "Exchange rate updated",
+    "rateFetchedOn": "Exchange rate as of {{date}}",
+    "rateFetchFailed": "Couldn't fetch the rate — enter it manually.",
+    "submitNew": "Record Conversion",
+    "submitEdit": "Update Conversion",
+    "recorded": "Conversion recorded!",
+    "updated": "Conversion updated!",
+    "deleted": "Conversion deleted!",
+    "delete": {
+      "title": "Delete conversion",
+      "description": "Are you sure you want to delete this {{from}} → {{to}} conversion? This action cannot be undone."
+    },
+    "validation": {
+      "fromRequired": "Source currency is required",
+      "toRequired": "Target currency is required",
+      "rateNumber": "Rate must be a number",
+      "ratePositive": "Rate must be a positive number",
+      "dateInvalid": "Invalid date format",
+      "differentCurrencies": "Source and target currency must be different"
+    },
+    "singleCurrency": {
+      "open": "Single currency mode",
+      "title": "Convert to a single currency",
+      "description": "Fold every other currency's balance into one target currency. This creates a conversion for each currency.",
+      "target": "Target currency",
+      "rateDate": "Rate date",
+      "rates": "Exchange rates",
+      "fetchAll": "Fetch rates",
+      "nothingToConvert": "Nothing to convert — the group is already in this currency.",
+      "submit": "Convert",
+      "done": "Balances consolidated into {{currency}}!"
     }
   }
 }

@@ -1,5 +1,13 @@
 # Single Currency Settlement Mode
 
+> **Superseded by [`currency-conversion.md`](currency-conversion.md).** The
+> ephemeral `target_currency` / `conversion_rates` approach described below was
+> never persisted and has been removed. Single-currency settlement is now
+> achieved by creating persistent **currency conversion** actions that fold the
+> group into one currency, after which the normal per-currency settlement path
+> yields a single consolidated set of transfers. The document below is retained
+> for historical context only.
+
 ## Overview
 
 Add single currency mode to settlement suggestions, allowing users to consolidate multi-currency debts into a single target currency by providing exchange rates.

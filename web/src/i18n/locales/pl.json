@@ -158,7 +158,8 @@
       "addRecurring": "Dodaj cykliczny",
       "inviteMembers": "Zaproś członków",
       "archive": "Zarchiwizuj grupę",
-      "unarchive": "Przywróć grupę"
+      "unarchive": "Przywróć grupę",
+      "addConversion": "Dodaj przewalutowanie"
     },
     "recentActivity": "Ostatnia aktywność",
     "balancesTitle": "Salda grupy",
@@ -302,7 +303,8 @@
       "expenses": "Wydatki",
       "transfers": "Przelewy",
       "allCurrencies": "Wszystkie waluty",
-      "allMembers": "Wszyscy członkowie"
+      "allMembers": "Wszyscy członkowie",
+      "conversions": "Przewalutowania"
     },
     "pagination": {
       "empty": "Brak elementów",
@@ -588,6 +590,50 @@
       "commit": "Commit",
       "instanceUrl": "Adres instancji",
       "viewOnGithub": "GitHub"
+    }
+  },
+  "conversion": {
+    "new": "Dodaj przewalutowanie",
+    "edit": "Edytuj przewalutowanie",
+    "newDescription": "Przelicz saldo całej grupy w jednej walucie na inną po wybranym kursie.",
+    "editDescription": "Zaktualizuj szczegóły przewalutowania.",
+    "from": "Z",
+    "to": "Na",
+    "rate": "Kurs wymiany",
+    "rateHint": "1 {{from}} = {{rate}} {{to}}",
+    "date": "Data",
+    "fetchRate": "Pobierz kurs",
+    "rateFetched": "Zaktualizowano kurs wymiany",
+    "rateFetchedOn": "Kurs wymiany z dnia {{date}}",
+    "rateFetchFailed": "Nie udało się pobrać kursu — wpisz go ręcznie.",
+    "submitNew": "Dodaj przewalutowanie",
+    "submitEdit": "Zaktualizuj przewalutowanie",
+    "recorded": "Dodano przewalutowanie!",
+    "updated": "Zaktualizowano przewalutowanie!",
+    "deleted": "Usunięto przewalutowanie!",
+    "delete": {
+      "title": "Usuń przewalutowanie",
+      "description": "Czy na pewno chcesz usunąć to przewalutowanie {{from}} → {{to}}? Tej operacji nie można cofnąć."
+    },
+    "validation": {
+      "fromRequired": "Waluta źródłowa jest wymagana",
+      "toRequired": "Waluta docelowa jest wymagana",
+      "rateNumber": "Kurs musi być liczbą",
+      "ratePositive": "Kurs musi być liczbą dodatnią",
+      "dateInvalid": "Nieprawidłowy format daty",
+      "differentCurrencies": "Waluta źródłowa i docelowa muszą się różnić"
+    },
+    "singleCurrency": {
+      "open": "Tryb jednej waluty",
+      "title": "Przelicz na jedną walutę",
+      "description": "Przelicz salda we wszystkich pozostałych walutach na jedną walutę docelową. Utworzy to przewalutowanie dla każdej waluty.",
+      "target": "Waluta docelowa",
+      "rateDate": "Data kursu",
+      "rates": "Kursy wymiany",
+      "fetchAll": "Pobierz kursy",
+      "nothingToConvert": "Nie ma czego przeliczać — grupa jest już w tej walucie.",
+      "submit": "Przelicz",
+      "done": "Salda skonsolidowane do {{currency}}!"
     }
   }
 }

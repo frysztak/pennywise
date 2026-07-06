@@ -1,8 +1,9 @@
 import { useSuspenseQuery } from "@connectrpc/connect-query";
-import { Info } from "lucide-react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
+import type { useConversionModal } from "@/features/conversion/hooks/use-conversion-modal";
+import type { useDeleteConversionModal } from "@/features/conversion/hooks/use-delete-conversion-modal";
 import type { useDeleteExpenseModal } from "@/features/expense/hooks/use-delete-expense-modal";
 import type { useExpenseModal } from "@/features/expense/hooks/use-expense-modal";
 import { ActivitySection } from "@/features/group/components/activity-section";
@@ -13,7 +14,6 @@ import type { useDeleteTransferModal } from "@/features/transfer/hooks/use-delet
 import type { useTransferModal } from "@/features/transfer/hooks/use-transfer-modal";
 import { getSettlementSuggestions } from "@/gen/api/v1/group-GroupService_connectquery";
 import type { MemberBalance } from "@/gen/api/v1/group_pb";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
 
 interface GroupSectionsProps {
   className?: string;
@@ -28,6 +28,8 @@ interface GroupSectionsProps {
   onDeleteExpense: ReturnType<typeof useDeleteExpenseModal>["confirmDelete"];
   onEditTransfer: ReturnType<typeof useTransferModal>["openEdit"];
   onDeleteTransfer: ReturnType<typeof useDeleteTransferModal>["confirmDelete"];
+  onEditConversion: ReturnType<typeof useConversionModal>["openEdit"];
+  onDeleteConversion: ReturnType<typeof useDeleteConversionModal>["confirmDelete"];
   isArchived?: boolean;
 }
 
@@ -43,6 +45,8 @@ export function GroupSections({
   onDeleteExpense,
   onEditTransfer,
   onDeleteTransfer,
+  onEditConversion,
+  onDeleteConversion,
   isArchived,
 }: GroupSectionsProps) {
   const { t } = useTranslation();
@@ -65,6 +69,8 @@ export function GroupSections({
         onDeleteExpense={onDeleteExpense}
         onEditTransfer={onEditTransfer}
         onDeleteTransfer={onDeleteTransfer}
+        onEditConversion={onEditConversion}
+        onDeleteConversion={onDeleteConversion}
         isArchived={isArchived}
       />
     </div>
@@ -82,18 +88,11 @@ export function GroupSections({
       </div>
 
       <div>
-        <h2 className="text-xl font-bold mb-4">
-          {t("group.settleUp")}{" "}
-          <Tooltip>
-            <TooltipTrigger>
-              <Info className="w-4 h-4 text-muted-foreground" />
-            </TooltipTrigger>
-            <TooltipContent>{t("group.settleUpTooltip")}</TooltipContent>
-          </Tooltip>
-        </h2>
         <SettlementSuggestions
           groupId={groupId}
           currentUserId={currentUserId}
+          currencies={currencies}
+          defaultCurrency={defaultCurrency}
           onSettle={onSettle}
           isArchived={isArchived}
         />

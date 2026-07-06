@@ -76,15 +76,16 @@ type BalanceSnapshot struct {
 	Balances map[string]map[string]int64 // currency -> userID -> cents
 }
 
-// ComputeBalanceTimeline replays expenses and transfers in (date asc,
-// created_at asc) order, accumulating in float cents, and emits one snapshot
-// per distinct activity day (carry-forward between days). It reuses the same
-// weighted-share math as ComputeGroupBalance, so the final snapshot equals the
-// current group balance.
+// ComputeBalanceTimeline replays expenses, transfers and conversions in
+// (date asc, created_at asc, id asc) order, accumulating in float cents, and
+// emits one snapshot per distinct activity day (carry-forward between days). It
+// reuses the same event-building/fold math as ComputeGroupBalance, so the final
+// snapshot equals the current group balance.
 func ComputeBalanceTimeline(
 	members *[]database.GetGroupMembersRow,
 	expenses *[]database.GetGroupExpensesRow,
-	transfers *[]database.GetGroupTransfersRow,
+	transfers *[]database.GetGroupTransfersForBalanceRow,
+	conversions *[]database.GetGroupConversionsForBalanceRow,
 	defaultCurrency string,
 ) []BalanceSnapshot {
 
@@ -101,6 +102,10 @@ func ComputeBalanceTimeline(
 	for _, t := range *transfers {
 		currencies[t.Currency] = true
 	}
+	for _, c := range *conversions {
+		currencies[c.FromCurrency] = true
+		currencies[c.ToCurrency] = true
+	}
 
 	floatBalances := make(map[string]map[string]float64, len(userWeights))
 	for userID := range userWeights {
@@ -110,53 +115,7 @@ func ComputeBalanceTimeline(
 		}
 	}
 
-	type event struct {
-		date      time.Time
-		createdAt time.Time
-		apply     func()
-	}
-
-	events := make([]event, 0, len(*expenses)+len(*transfers))
-
-	for _, e := range *expenses {
-		events = append(events, event{
-			date:      e.Date.Time,
-			createdAt: e.CreatedAt.Time,
-			apply: func() {
-				beneficiaries, _ := utils.JSONStringToSlice(e.BeneficiariesIds)
-				totalWeight := 0.0
-				for _, b := range beneficiaries {
-					totalWeight += userWeights[b]
-				}
-				if totalWeight == 0 {
-					return
-				}
-				for _, b := range beneficiaries {
-					share := float64(e.Amount) * userWeights[b] / totalWeight
-					floatBalances[b][e.Currency] -= share
-				}
-				floatBalances[e.PayerID][e.Currency] += float64(e.Amount)
-			},
-		})
-	}
-
-	for _, t := range *transfers {
-		events = append(events, event{
-			date:      t.Date.Time,
-			createdAt: t.CreatedAt.Time,
-			apply: func() {
-				floatBalances[t.SenderID][t.Currency] += float64(t.Amount)
-				floatBalances[t.ReceiverID][t.Currency] -= float64(t.Amount)
-			},
-		})
-	}
-
-	sort.SliceStable(events, func(i, j int) bool {
-		if !events[i].date.Equal(events[j].date) {
-			return events[i].date.Before(events[j].date)
-		}
-		return events[i].createdAt.Before(events[j].createdAt)
-	})
+	events := buildBalanceEvents(*expenses, *transfers, *conversions, userWeights, floatBalances)
 
 	snapshot := func(day time.Time) BalanceSnapshot {
 		balances := make(map[string]map[string]int64, len(currencies))

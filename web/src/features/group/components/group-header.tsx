@@ -7,6 +7,7 @@ import {
   ImageIcon,
   Plus,
   Redo2Icon,
+  RefreshCw,
   RepeatIcon,
   Star,
   StarOff,
@@ -39,6 +40,7 @@ interface GroupHeaderProps {
   isArchived: boolean;
   onCreateExpense: () => void;
   onCreateTransfer: () => void;
+  onCreateConversion: () => void;
   onCreateRecurring: () => void;
   onInviteMembers: () => void;
   onEditGroup: () => void;
@@ -57,6 +59,7 @@ export function GroupHeader({
   isArchived,
   onCreateExpense,
   onCreateTransfer,
+  onCreateConversion,
   onCreateRecurring,
   onInviteMembers,
   onEditGroup,
@@ -100,13 +103,17 @@ export function GroupHeader({
                   </Button>
                 }
               />
-              <DropdownMenuContent align="end" className="w-40 [--radius:1rem]">
+              <DropdownMenuContent align="end" className="w-48 [--radius:1rem]">
                 {!isArchived && (
                   <>
                     <DropdownMenuGroup>
                       <DropdownMenuItem onClick={onCreateTransfer}>
                         <Redo2Icon />
                         {t("group.header.addTransfer")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={onCreateConversion}>
+                        <RefreshCw />
+                        {t("group.header.addConversion")}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={onCreateRecurring}>
                         <RepeatIcon />

@@ -50,9 +50,15 @@ func (s *GroupService) GetGroupStats(ctx context.Context, r *apiv1.GetGroupStats
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
-	transfers, err := db.ReadQueries.GetGroupTransfers(ctx, r.GroupId)
+	transfers, err := db.ReadQueries.GetGroupTransfersForBalance(ctx, r.GroupId)
 	if err != nil {
 		logger.Error("failed to get group transfers", "error", err, "group_id", r.GroupId)
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	conversions, err := db.ReadQueries.GetGroupConversionsForBalance(ctx, r.GroupId)
+	if err != nil {
+		logger.Error("failed to get group conversions", "error", err, "group_id", r.GroupId)
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
@@ -63,7 +69,7 @@ func (s *GroupService) GetGroupStats(ctx context.Context, r *apiv1.GetGroupStats
 	}
 
 	paid, share := calc.ComputeMemberSpending(&members, &expenses)
-	timeline := calc.ComputeBalanceTimeline(&members, &expenses, &transfers, group.DefaultCurrency)
+	timeline := calc.ComputeBalanceTimeline(&members, &expenses, &transfers, &conversions, group.DefaultCurrency)
 	spendingTimeline := calc.ComputeSpendingTimeline(&expenses, group.DefaultCurrency)
 
 	totalSpending := make(map[string]int64, len(totalSpendingRows))
@@ -132,9 +138,9 @@ func (s *GroupService) GetGroupStats(ctx context.Context, r *apiv1.GetGroupStats
 	logger.Info("group stats retrieved", "group_id", r.GroupId, "expenses", len(expenses), "transfers", len(transfers))
 
 	return &apiv1.GetGroupStatsResponse{
-		TotalSpending:   totalSpending,
-		MemberSpending:  memberSpending,
-		BalanceOverTime: balanceOverTime,
+		TotalSpending:      totalSpending,
+		MemberSpending:     memberSpending,
+		BalanceOverTime:    balanceOverTime,
 		ExpenseCount:       int64(len(expenses)),
 		TransferCount:      int64(len(transfers)),
 		LargestExpense:     largestExpense,

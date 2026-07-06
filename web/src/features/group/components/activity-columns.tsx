@@ -1,10 +1,11 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { type ColumnDef } from "@tanstack/react-table";
 import type { TFunction } from "i18next";
-import { ArrowRight, BanknoteIcon, Redo2Icon } from "lucide-react";
+import { ArrowRight, BanknoteIcon, Redo2Icon, RefreshCw } from "lucide-react";
 
 import { ActivityItemMenu } from "@/features/group/components/activity-item-menu";
 import type {
+  GetGroupActivityResponse_ActivityItem_Conversion,
   GetGroupActivityResponse_ActivityItem_Expense,
   GetGroupActivityResponse_ActivityItem_Transfer,
 } from "@/gen/api/v1/group_pb";
@@ -14,13 +15,16 @@ import { formatDate } from "@/shared/lib/format";
 
 export type ActivityItem =
   | { type: "expense"; data: GetGroupActivityResponse_ActivityItem_Expense }
-  | { type: "transfer"; data: GetGroupActivityResponse_ActivityItem_Transfer };
+  | { type: "transfer"; data: GetGroupActivityResponse_ActivityItem_Transfer }
+  | { type: "conversion"; data: GetGroupActivityResponse_ActivityItem_Conversion };
 
 interface ActivityCallbacks {
   onEditExpense: (expense: GetGroupActivityResponse_ActivityItem_Expense) => void;
   onDeleteExpense: (expense: GetGroupActivityResponse_ActivityItem_Expense) => void;
   onEditTransfer: (transfer: GetGroupActivityResponse_ActivityItem_Transfer) => void;
   onDeleteTransfer: (transfer: GetGroupActivityResponse_ActivityItem_Transfer) => void;
+  onEditConversion: (conversion: GetGroupActivityResponse_ActivityItem_Conversion) => void;
+  onDeleteConversion: (conversion: GetGroupActivityResponse_ActivityItem_Conversion) => void;
 }
 
 export function makeActivityColumns(
@@ -42,6 +46,16 @@ export function makeActivityColumns(
       header: t("activity.description"),
       cell: ({ row }) => {
         const item = row.original;
+        if (item.type === "conversion") {
+          return (
+            <div className="flex items-center gap-2">
+              <RefreshCw className="h-4 w-4" />
+              <span>
+                {item.data.fromCurrency} → {item.data.toCurrency}
+              </span>
+            </div>
+          );
+        }
         return (
           <div className="flex items-center gap-2">
             {item.type === "expense" ? <BanknoteIcon className="h-4 w-4" /> : <Redo2Icon className="h-4 w-4" />}
@@ -55,6 +69,10 @@ export function makeActivityColumns(
       header: () => <span className="block">{t("activity.amount")}</span>,
       cell: ({ row }) => {
         const item = row.original;
+        if (item.type === "conversion") {
+          // Conversions have no monetary amount; the rate is shown in the details column.
+          return <span className="text-muted-foreground">-</span>;
+        }
         const balance =
           item.type === "expense" ? [item.data] : [{ amount: item.data.amount, currency: item.data.currency }];
         return <AmountWithCurrency disableColor balance={balance} />;
@@ -71,6 +89,17 @@ export function makeActivityColumns(
               <MemberAvatar userId={item.data.payerId} username={item.data.payerName} className="w-6 h-6" />
               <span className="text-sm line-clamp-1">{t("activity.paidBy", { name: item.data.payerName })}</span>
             </div>
+          );
+        }
+        if (item.type === "conversion") {
+          return (
+            <span className="text-sm text-muted-foreground line-clamp-1">
+              {t("conversion.rateHint", {
+                from: item.data.fromCurrency,
+                to: item.data.toCurrency,
+                rate: item.data.rate,
+              })}
+            </span>
           );
         }
         return (
@@ -97,6 +126,14 @@ export function makeActivityColumns(
             <ActivityItemMenu
               onEdit={() => callbacks.onEditExpense(item.data)}
               onDelete={() => callbacks.onDeleteExpense(item.data)}
+            />
+          );
+        }
+        if (item.type === "conversion") {
+          return (
+            <ActivityItemMenu
+              onEdit={() => callbacks.onEditConversion(item.data)}
+              onDelete={() => callbacks.onDeleteConversion(item.data)}
             />
           );
         }

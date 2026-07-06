@@ -129,14 +129,15 @@ func TestComputeBalanceTimeline(t *testing.T) {
 			Date:             day("2024-01-03"), CreatedAt: day("2024-01-03"),
 		},
 	}
-	transfers := []database.GetGroupTransfersRow{
+	transfers := []database.GetGroupTransfersForBalanceRow{
 		{
 			ID: "t1", SenderID: "uB", ReceiverID: "uA", Amount: amount(3.00), Currency: "USD",
 			Date: day("2024-01-03"), CreatedAt: day("2024-01-03"),
 		},
 	}
+	conversions := []database.GetGroupConversionsForBalanceRow{}
 
-	timeline := ComputeBalanceTimeline(&members, &expenses, &transfers, "USD")
+	timeline := ComputeBalanceTimeline(&members, &expenses, &transfers, &conversions, "USD")
 
 	// Two distinct activity days -> two snapshots.
 	if len(timeline) != 2 {
@@ -152,10 +153,7 @@ func TestComputeBalanceTimeline(t *testing.T) {
 	}
 
 	// Final snapshot must equal ComputeGroupBalance.
-	forBalance := []database.GetGroupTransfersForBalanceRow{
-		{SenderID: "uB", ReceiverID: "uA", Amount: amount(3.00), Currency: "USD"},
-	}
-	want := ComputeGroupBalance(&members, &expenses, &forBalance, "USD")
+	want := ComputeGroupBalance(&members, &expenses, &transfers, &conversions, "USD")
 	final := timeline[len(timeline)-1]
 	for userID, perCurr := range want {
 		for currency, cents := range perCurr {

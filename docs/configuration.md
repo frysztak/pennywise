@@ -50,6 +50,19 @@ in the [README](../README.md).
 | `OPENAI_OCR_MODEL`| For OCR    | —       | Vision model to use for OCR (e.g. `gpt-5-mini`, `gemma3:4b`). |
 | `OPENAI_BASE_URL` | No         | —       | Override the API base URL to point at a compatible endpoint (e.g. `http://ollama:11434/v1`). Defaults to OpenAI's API. |
 
+## Currency Conversion (Exchange Rates)
+
+Conversions pre-fill their exchange rate from an FX provider. The rate is only a
+suggestion — it can be overridden or entered manually, and the value used is
+stored on the conversion — so these settings are optional. See the Currency
+Conversion section in the [README](../README.md).
+
+| Variable      | Required | Default                          | Description |
+| ------------- | -------- | -------------------------------- | ----------- |
+| `FX_PROVIDER` | No       | `frankfurter`                    | Exchange-rate provider id. Only `frankfurter` is implemented. |
+| `FX_BASE_URL` | No       | `https://api.frankfurter.dev/v1` | Provider base URL. Override to point at a self-hosted [Frankfurter](https://github.com/lineofflight/frankfurter) instance. |
+| `FX_API_KEY`  | No       | —                                | Reserved for a future keyed provider; unused by Frankfurter. |
+
 ## Logging
 
 | Variable     | Required | Default | Description |

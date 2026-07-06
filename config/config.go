@@ -25,6 +25,9 @@ type config struct {
 	LogLevel             string        `env:"LOG_LEVEL" envDefault:"info"`
 	LogFormat            string        `env:"LOG_FORMAT" envDefault:"text"`
 	StoragePath          string        `env:"STORAGE_PATH" envDefault:"/data"`
+	FXProvider           string        `env:"FX_PROVIDER" envDefault:"frankfurter"`
+	FXBaseURL            string        `env:"FX_BASE_URL" envDefault:"https://api.frankfurter.dev/v1"`
+	FXAPIKey             string        `env:"FX_API_KEY"`
 }
 
 // Global variables to hold the config

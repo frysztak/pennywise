@@ -185,6 +185,28 @@ environment:
   - OPENAI_OCR_MODEL=gemma4:9b
 ```
 
+## Currency Conversion (Exchange Rates)
+
+Multi-currency groups can fold one currency's outstanding balance into another
+with a **currency conversion** action. When creating a conversion, Pennywise
+pre-fills the exchange rate from a provider — by default
+[Frankfurter](https://frankfurter.dev/) (ECB data, keyless, no quota). The rate
+is only a suggestion: it can always be overridden or entered manually, and the
+rate used is stored on the conversion so settlement math never depends on a live
+API call.
+
+The defaults need no configuration. To self-host the provider or override it:
+
+```yaml
+environment:
+  - FX_PROVIDER=frankfurter            # provider id (default: frankfurter)
+  - FX_BASE_URL=https://fx.example.com/v1  # override for a self-hosted instance
+  # - FX_API_KEY=<...>                 # reserved for a future keyed provider
+```
+
+If the provider is unreachable, conversion creation still works — the UI falls
+back to manual rate entry.
+
 ## Migrating from other apps
 
 A CLI tool ships with the repo for importing projects from [ihatemoney](https://github.com/spiral-project/ihatemoney) or [Splitwise](https://www.splitwise.com/). See [`cmd/migrate/README.md`](cmd/migrate/README.md) for the full workflow, mapping file format, and flags.

@@ -70,6 +70,15 @@ sql:
             go_type:
               import: "pennywise/db/overrides"
               type: "TextTime"
+          # Timestamp columns - currency_conversions table
+          - column: "currency_conversions.created_at"
+            go_type:
+              import: "pennywise/db/overrides"
+              type: "TextTime"
+          - column: "currency_conversions.date"
+            go_type:
+              import: "pennywise/db/overrides"
+              type: "TextTime"
           # Timestamp columns - recurring_expenses table
           - column: "recurring_expenses.created_at"
             go_type:

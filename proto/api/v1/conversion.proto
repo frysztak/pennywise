@@ -1,0 +1,133 @@
+syntax = "proto3";
+
+package api.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+message CreateConversionRequest {
+  string group_id = 1 [(buf.validate.field).string.uuid = true];
+  string from_currency = 2 [(buf.validate.field).string.min_len = 2];
+  string to_currency = 3 [(buf.validate.field).string.min_len = 2];
+  double rate = 4 [(buf.validate.field).double.gt = 0.0];
+  google.protobuf.Timestamp date = 5;
+}
+
+message CreateConversionResponse {
+  string id = 1;
+}
+
+// CreateConversionsRequest records several conversions into a single target
+// currency atomically. Used by the "convert to single currency" flow, where a
+// group's debts span multiple currencies and each source currency is folded
+// into the target in one shot.
+message CreateConversionsRequest {
+  message Conversion {
+    string from_currency = 1 [(buf.validate.field).string.min_len = 2];
+    double rate = 2 [(buf.validate.field).double.gt = 0.0];
+    google.protobuf.Timestamp date = 3;
+  }
+
+  string group_id = 1 [(buf.validate.field).string.uuid = true];
+  string to_currency = 2 [(buf.validate.field).string.min_len = 2];
+  repeated Conversion conversions = 3 [(buf.validate.field).repeated.min_items = 1];
+}
+
+message CreateConversionsResponse {
+  repeated string ids = 1;
+}
+
+message UpdateConversionRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  string group_id = 2 [(buf.validate.field).string.uuid = true];
+  string from_currency = 3 [(buf.validate.field).string.min_len = 2];
+  string to_currency = 4 [(buf.validate.field).string.min_len = 2];
+  double rate = 5 [(buf.validate.field).double.gt = 0.0];
+  google.protobuf.Timestamp date = 6;
+}
+
+message UpdateConversionResponse {
+  string id = 1;
+}
+
+message DeleteConversionRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  string group_id = 2 [(buf.validate.field).string.uuid = true];
+}
+
+message DeleteConversionResponse {}
+
+message GetGroupConversionsRequest {
+  string group_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message GetGroupConversionsResponse {
+  message Conversion {
+    string id = 1;
+    google.protobuf.Timestamp created_at = 2;
+    string from_currency = 3;
+    string to_currency = 4;
+    double rate = 5;
+    google.protobuf.Timestamp date = 6;
+  }
+
+  repeated Conversion conversions = 1;
+}
+
+// GetExchangeRate looks up a historical exchange rate from the configured FX
+// provider (Frankfurter by default). It only pre-fills a conversion's rate input;
+// the value is never trusted blindly and can always be overridden or entered
+// manually. Failures are non-fatal — the UI falls back to manual entry.
+message GetExchangeRateRequest {
+  string from_currency = 1 [(buf.validate.field).string.min_len = 2];
+  string to_currency = 2 [(buf.validate.field).string.min_len = 2];
+  google.protobuf.Timestamp date = 3;
+}
+
+message GetExchangeRateResponse {
+  // 1 from_currency = rate to_currency
+  double rate = 1;
+  // The business day the rate is actually sourced from (providers snap to the
+  // nearest prior business day).
+  google.protobuf.Timestamp rate_date = 2;
+}
+
+// GetExchangeRates looks up several source currencies against one target in a
+// single call, used to pre-fill the "convert to single currency" rate inputs.
+// Individual lookups that fail are simply omitted from the response — the UI
+// keeps manual entry for those.
+message GetExchangeRatesRequest {
+  string to_currency = 1 [(buf.validate.field).string.min_len = 2];
+  repeated string from_currencies = 2 [
+    (buf.validate.field).repeated.min_items = 1,
+    (buf.validate.field).repeated.items.string.min_len = 2
+  ];
+  google.protobuf.Timestamp date = 3;
+}
+
+message GetExchangeRatesResponse {
+  message Rate {
+    string from_currency = 1;
+    // 1 from_currency = rate to_currency
+    double rate = 2;
+    google.protobuf.Timestamp rate_date = 3;
+  }
+
+  repeated Rate rates = 1;
+}
+
+service ConversionService {
+  rpc CreateConversion(CreateConversionRequest) returns (CreateConversionResponse) {}
+
+  rpc CreateConversions(CreateConversionsRequest) returns (CreateConversionsResponse) {}
+
+  rpc UpdateConversion(UpdateConversionRequest) returns (UpdateConversionResponse) {}
+
+  rpc DeleteConversion(DeleteConversionRequest) returns (DeleteConversionResponse) {}
+
+  rpc GetGroupConversions(GetGroupConversionsRequest) returns (GetGroupConversionsResponse) {}
+
+  rpc GetExchangeRate(GetExchangeRateRequest) returns (GetExchangeRateResponse) {}
+
+  rpc GetExchangeRates(GetExchangeRatesRequest) returns (GetExchangeRatesResponse) {}
+}

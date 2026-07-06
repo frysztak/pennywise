@@ -11,6 +11,7 @@ enum ActivityTypeFilter {
   ACTIVITY_TYPE_FILTER_UNSPECIFIED = 0;
   ACTIVITY_TYPE_FILTER_EXPENSE = 1;
   ACTIVITY_TYPE_FILTER_TRANSFER = 2;
+  ACTIVITY_TYPE_FILTER_CONVERSION = 3;
 }
 
 message CreateExpenseGroupRequest {
@@ -121,6 +122,7 @@ message GetGroupActivityResponse {
       TYPE_UNSPECIFIED = 0;
       TYPE_EXPENSE = 1;
       TYPE_TRANSFER = 2;
+      TYPE_CONVERSION = 3;
     }
 
     message Expense {
@@ -149,10 +151,20 @@ message GetGroupActivityResponse {
       google.protobuf.Timestamp date = 9;
     }
 
+    message Conversion {
+      string id = 1;
+      google.protobuf.Timestamp created_at = 2;
+      string from_currency = 3;
+      string to_currency = 4;
+      double rate = 5;
+      google.protobuf.Timestamp date = 6;
+    }
+
     Type type = 1;
     oneof data {
       Expense expense = 2;
       Transfer transfer = 3;
+      Conversion conversion = 4;
     }
   }
 
@@ -224,13 +236,6 @@ message DeleteGroupImageRequest {
 
 message GetSettlementSuggestionsRequest {
   string group_id = 1 [(buf.validate.field).string.uuid = true];
-
-  // Optional: settle all debts in a single currency
-  optional string target_currency = 2;
-
-  // Required if target_currency is set: conversion rates from other currencies
-  // Key: source currency code, Value: multiplier to get target currency
-  map<string, double> conversion_rates = 3;
 }
 
 message SettlementSuggestion {

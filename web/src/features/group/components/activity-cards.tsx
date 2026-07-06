@@ -1,9 +1,10 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
-import { ArrowRight, BanknoteIcon, ReceiptText, Redo2Icon } from "lucide-react";
+import { ArrowRight, BanknoteIcon, ReceiptText, Redo2Icon, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { ActivityItemMenu } from "@/features/group/components/activity-item-menu";
 import type {
+  GetGroupActivityResponse_ActivityItem_Conversion,
   GetGroupActivityResponse_ActivityItem_Expense,
   GetGroupActivityResponse_ActivityItem_Transfer,
 } from "@/gen/api/v1/group_pb";
@@ -14,7 +15,8 @@ import { formatDate } from "@/shared/lib/format";
 
 type ActivityItem =
   | { type: "expense"; data: GetGroupActivityResponse_ActivityItem_Expense }
-  | { type: "transfer"; data: GetGroupActivityResponse_ActivityItem_Transfer };
+  | { type: "transfer"; data: GetGroupActivityResponse_ActivityItem_Transfer }
+  | { type: "conversion"; data: GetGroupActivityResponse_ActivityItem_Conversion };
 
 interface ActivityCardsProps {
   recentActivity: ActivityItem[];
@@ -22,6 +24,8 @@ interface ActivityCardsProps {
   onDeleteExpense: (expense: GetGroupActivityResponse_ActivityItem_Expense) => void;
   onEditTransfer: (transfer: GetGroupActivityResponse_ActivityItem_Transfer) => void;
   onDeleteTransfer: (transfer: GetGroupActivityResponse_ActivityItem_Transfer) => void;
+  onEditConversion: (conversion: GetGroupActivityResponse_ActivityItem_Conversion) => void;
+  onDeleteConversion: (conversion: GetGroupActivityResponse_ActivityItem_Conversion) => void;
   isArchived?: boolean;
 }
 
@@ -31,6 +35,8 @@ export function ActivityCards({
   onDeleteExpense,
   onEditTransfer,
   onDeleteTransfer,
+  onEditConversion,
+  onDeleteConversion,
   isArchived,
 }: ActivityCardsProps) {
   const { t } = useTranslation();
@@ -68,6 +74,42 @@ export function ActivityCards({
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <MemberAvatar userId={expense.payerId} username={expense.payerName} className="w-6 h-6" />
                   <span className="line-clamp-1">{t("activity.paidBy", { name: expense.payerName })}</span>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        }
+
+        if (item.type === "conversion") {
+          const conversion = item.data;
+          return (
+            <Card key={`conversion-${conversion.id}`}>
+              <CardContent className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">{formattedDate}</span>
+                  {!isArchived && (
+                    <ActivityItemMenu
+                      onEdit={() => onEditConversion(conversion)}
+                      onDelete={() => onDeleteConversion(conversion)}
+                    />
+                  )}
+                </div>
+                <div className="flex flex-col items-start justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <RefreshCw className="h-6 w-6 shrink-0 text-muted-foreground" />
+                    <span className="font-medium text-lg">
+                      {conversion.fromCurrency} → {conversion.toCurrency}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span className="line-clamp-1">
+                    {t("conversion.rateHint", {
+                      from: conversion.fromCurrency,
+                      to: conversion.toCurrency,
+                      rate: conversion.rate,
+                    })}
+                  </span>
                 </div>
               </CardContent>
             </Card>

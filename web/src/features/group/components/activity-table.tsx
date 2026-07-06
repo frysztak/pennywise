@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 
 import { type ActivityItem, makeActivityColumns } from "@/features/group/components/activity-columns";
 import type {
+  GetGroupActivityResponse_ActivityItem_Conversion,
   GetGroupActivityResponse_ActivityItem_Expense,
   GetGroupActivityResponse_ActivityItem_Transfer,
 } from "@/gen/api/v1/group_pb";
@@ -13,6 +14,8 @@ interface ActivityTableProps {
   onDeleteExpense: (expense: GetGroupActivityResponse_ActivityItem_Expense) => void;
   onEditTransfer: (transfer: GetGroupActivityResponse_ActivityItem_Transfer) => void;
   onDeleteTransfer: (transfer: GetGroupActivityResponse_ActivityItem_Transfer) => void;
+  onEditConversion: (conversion: GetGroupActivityResponse_ActivityItem_Conversion) => void;
+  onDeleteConversion: (conversion: GetGroupActivityResponse_ActivityItem_Conversion) => void;
   isArchived?: boolean;
 }
 
@@ -22,11 +25,13 @@ export function ActivityTable({
   onDeleteExpense,
   onEditTransfer,
   onDeleteTransfer,
+  onEditConversion,
+  onDeleteConversion,
   isArchived,
 }: ActivityTableProps) {
   const { t } = useTranslation();
   const columns = makeActivityColumns(
-    { onEditExpense, onDeleteExpense, onEditTransfer, onDeleteTransfer },
+    { onEditExpense, onDeleteExpense, onEditTransfer, onDeleteTransfer, onEditConversion, onDeleteConversion },
     t,
     isArchived,
   );

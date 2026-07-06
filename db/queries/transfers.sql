@@ -29,10 +29,13 @@ ORDER BY t.created_at DESC;
 
 -- name: GetGroupTransfersForBalance :many
 SELECT
+    id,
     sender_id,
     receiver_id,
     amount,
-    currency
+    currency,
+    created_at,
+    date
 FROM transfers
 WHERE group_id = @group_id;
 

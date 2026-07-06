@@ -29,6 +29,14 @@ SELECT COUNT(*) AS total FROM (
     AND (?2 = '' OR ?2 = 'transfer')
     AND (?3 = '' OR t.currency = ?3)
     AND (?4 = '' OR t.sender_id = ?4 OR t.receiver_id = ?4)
+
+  UNION ALL
+
+  SELECT c.id FROM currency_conversions c
+  WHERE c.group_id = ?1
+    AND (?2 = '' OR ?2 = 'conversion')
+    AND (?3 = '' OR c.from_currency = ?3 OR c.to_currency = ?3)
+    AND (?4 = '')
 )
 `
 
@@ -65,7 +73,9 @@ SELECT
   CAST(NULL AS TEXT) AS receiver_id,
   CAST(NULL AS TEXT) AS receiver_name,
   json_group_array(b.user_id) AS beneficiaries_ids,
-  e.recurring_id AS recurring_id
+  e.recurring_id AS recurring_id,
+  CAST(NULL AS TEXT) AS from_currency,
+  CAST(NULL AS REAL) AS rate
 FROM expenses e
 INNER JOIN expense_payers p ON p.expense_id = e.id
 INNER JOIN users u ON u.id = p.user_id
@@ -97,7 +107,9 @@ SELECT
   t.receiver_id,
   r.username AS receiver_name,
   CAST(NULL AS TEXT) AS beneficiaries_ids,
-  CAST(NULL AS TEXT) AS recurring_id
+  CAST(NULL AS TEXT) AS recurring_id,
+  CAST(NULL AS TEXT) AS from_currency,
+  CAST(NULL AS REAL) AS rate
 FROM transfers t
 JOIN users s ON s.id = t.sender_id
 JOIN users r ON r.id = t.receiver_id
@@ -110,6 +122,36 @@ WHERE t.group_id = ?2
     t.date < ?6 OR
     (t.date = ?6 AND t.created_at < ?7) OR
     (t.date = ?6 AND t.created_at = ?7 AND t.id < ?8)
+  )
+
+UNION ALL
+
+SELECT
+  c.id,
+  'conversion' AS type,
+  c.date,
+  c.created_at,
+  'Currency conversion' AS description,
+  c.to_currency AS currency,
+  0 AS amount,
+  '' AS actor_id,
+  '' AS actor_name,
+  CAST(NULL AS TEXT) AS receiver_id,
+  CAST(NULL AS TEXT) AS receiver_name,
+  CAST(NULL AS TEXT) AS beneficiaries_ids,
+  CAST(NULL AS TEXT) AS recurring_id,
+  c.from_currency,
+  c.rate
+FROM currency_conversions c
+WHERE c.group_id = ?2
+  AND (?3 = '' OR ?3 = 'conversion')
+  AND (?4 = '' OR c.from_currency = ?4 OR c.to_currency = ?4)
+  AND (?5 = '')
+  AND (
+    ?6 = '' OR
+    c.date < ?6 OR
+    (c.date = ?6 AND c.created_at < ?7) OR
+    (c.date = ?6 AND c.created_at = ?7 AND c.id < ?8)
   )
 
 ORDER BY date DESC, created_at DESC, id DESC
@@ -141,6 +183,8 @@ type GetGroupActivityPaginatedRow struct {
 	ReceiverName     *string
 	BeneficiariesIds interface{}
 	RecurringID      *string
+	FromCurrency     *string
+	Rate             *float64
 }
 
 func (q *Queries) GetGroupActivityPaginated(ctx context.Context, arg GetGroupActivityPaginatedParams) ([]GetGroupActivityPaginatedRow, error) {
@@ -175,6 +219,8 @@ func (q *Queries) GetGroupActivityPaginated(ctx context.Context, arg GetGroupAct
 			&i.ReceiverName,
 			&i.BeneficiariesIds,
 			&i.RecurringID,
+			&i.FromCurrency,
+			&i.Rate,
 		); err != nil {
 			return nil, err
 		}

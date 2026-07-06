@@ -13,6 +13,16 @@ type AppSetting struct {
 	Value string
 }
 
+type CurrencyConversion struct {
+	ID           string
+	GroupID      string
+	FromCurrency string
+	ToCurrency   string
+	Rate         float64
+	CreatedAt    overrides.TextTime
+	Date         overrides.TextTime
+}
+
 type Expense struct {
 	ID          string
 	CreatedAt   overrides.TextTime

@@ -31,13 +31,29 @@ export function ActivityFilters({
       ? "expense"
       : typeFilter === ActivityTypeFilter.TRANSFER
         ? "transfer"
-        : ALL;
+        : typeFilter === ActivityTypeFilter.CONVERSION
+          ? "conversion"
+          : ALL;
 
   const typeItems = [
     { value: ALL, label: t("activity.filter.allTypes") },
     { value: "expense", label: t("activity.filter.expenses") },
     { value: "transfer", label: t("activity.filter.transfers") },
+    { value: "conversion", label: t("activity.filter.conversions") },
   ];
+
+  const typeFilterFromValue = (v: string): ActivityTypeFilter => {
+    switch (v) {
+      case "expense":
+        return ActivityTypeFilter.EXPENSE;
+      case "transfer":
+        return ActivityTypeFilter.TRANSFER;
+      case "conversion":
+        return ActivityTypeFilter.CONVERSION;
+      default:
+        return ActivityTypeFilter.UNSPECIFIED;
+    }
+  };
 
   const currencyItems = [
     { value: ALL, label: t("activity.filter.allCurrencies") },
@@ -54,16 +70,7 @@ export function ActivityFilters({
       <Select
         items={typeItems}
         value={typeValue}
-        onValueChange={(v) =>
-          onChange({
-            typeFilter:
-              v === "expense"
-                ? ActivityTypeFilter.EXPENSE
-                : v === "transfer"
-                  ? ActivityTypeFilter.TRANSFER
-                  : ActivityTypeFilter.UNSPECIFIED,
-          })
-        }
+        onValueChange={(v) => onChange({ typeFilter: typeFilterFromValue(v ?? "") })}
       >
         <SelectTrigger size="sm">
           <SelectValue placeholder={t("activity.filter.allTypes")} />
@@ -72,6 +79,7 @@ export function ActivityFilters({
           <SelectItem value={ALL}>{t("activity.filter.allTypes")}</SelectItem>
           <SelectItem value="expense">{t("activity.filter.expenses")}</SelectItem>
           <SelectItem value="transfer">{t("activity.filter.transfers")}</SelectItem>
+          <SelectItem value="conversion">{t("activity.filter.conversions")}</SelectItem>
         </SelectContent>
       </Select>
 

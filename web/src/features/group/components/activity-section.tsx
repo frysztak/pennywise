@@ -2,6 +2,8 @@ import { useQuery } from "@connectrpc/connect-query";
 import { keepPreviousData } from "@tanstack/react-query";
 import { useState } from "react";
 
+import type { useConversionModal } from "@/features/conversion/hooks/use-conversion-modal";
+import type { useDeleteConversionModal } from "@/features/conversion/hooks/use-delete-conversion-modal";
 import type { useDeleteExpenseModal } from "@/features/expense/hooks/use-delete-expense-modal";
 import type { useExpenseModal } from "@/features/expense/hooks/use-expense-modal";
 import { ActivityCards } from "@/features/group/components/activity-cards";
@@ -24,6 +26,8 @@ interface ActivitySectionProps {
   onDeleteExpense: ReturnType<typeof useDeleteExpenseModal>["confirmDelete"];
   onEditTransfer: ReturnType<typeof useTransferModal>["openEdit"];
   onDeleteTransfer: ReturnType<typeof useDeleteTransferModal>["confirmDelete"];
+  onEditConversion: ReturnType<typeof useConversionModal>["openEdit"];
+  onDeleteConversion: ReturnType<typeof useDeleteConversionModal>["confirmDelete"];
   isArchived?: boolean;
 }
 
@@ -35,6 +39,8 @@ export function ActivitySection({
   onDeleteExpense,
   onEditTransfer,
   onDeleteTransfer,
+  onEditConversion,
+  onDeleteConversion,
   isArchived,
 }: ActivitySectionProps) {
   const [filters, setFilters] = useState<ActivityFiltersState>({});
@@ -69,10 +75,18 @@ export function ActivitySection({
   const recentActivity = (data?.items ?? []).map((item) => {
     if (item.data.case === "expense") return { type: "expense" as const, data: item.data.value };
     if (item.data.case === "transfer") return { type: "transfer" as const, data: item.data.value };
+    if (item.data.case === "conversion") return { type: "conversion" as const, data: item.data.value };
     throw new Error("Unknown activity item type");
   });
 
-  const callbacks = { onEditExpense, onDeleteExpense, onEditTransfer, onDeleteTransfer };
+  const callbacks = {
+    onEditExpense,
+    onDeleteExpense,
+    onEditTransfer,
+    onDeleteTransfer,
+    onEditConversion,
+    onDeleteConversion,
+  };
 
   return (
     <div className="flex flex-col gap-4">

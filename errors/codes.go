@@ -19,6 +19,7 @@ const (
 	CodeSenderNotMember   = "transfer.sender_not_member"
 	CodeReceiverNotMember = "transfer.receiver_not_member"
 	CodeSameUser          = "transfer.same_user"
+	CodeSameCurrency      = "conversion.same_currency"
 	CodeMemberExists      = "group.member_exists"
 	CodeNotMember         = "group.not_member"
 	CodeDefaultCurrency   = "group.default_currency"
