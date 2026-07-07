@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-07
+
 ### Added
 - Currency conversion to fold one currency's balance into another, with exchange rates auto-suggested by a provider (Frankfurter by default) and overridable manually.
 - Internationalization (i18n) with English and Polish translations; additional languages are lazy-loaded.
