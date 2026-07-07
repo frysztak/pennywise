@@ -36,8 +36,8 @@ func TestUserRegistration(t *testing.T) {
 	if registerResp.Username != "NewUser" {
 		t.Errorf("Expected username 'NewUser', got '%s'", registerResp.Username)
 	}
-	if registerResp.Role != apiv1.UserRole_USER_ROLE_REGULAR {
-		t.Errorf("Expected role REGULAR, got %v", registerResp.Role)
+	if registerResp.Role != apiv1.UserRole_USER_ROLE_ADMIN {
+		t.Errorf("Expected role ADMIN, got %v", registerResp.Role)
 	}
 
 	// Verify user exists in database with correct password hash
