@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Correctly detect whether any users already exist during first-run setup.
+- Assorted UI fixes.
 
 ## [0.2.0] - 2026-06-08
 

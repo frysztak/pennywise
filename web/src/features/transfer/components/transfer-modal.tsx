@@ -3,6 +3,7 @@ import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import type { TFunction } from "i18next";
+import { Check, Redo2Icon } from "lucide-react";
 import { useCallback, useEffect, useMemo } from "react";
 import { Controller, type FieldErrors, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -282,12 +283,10 @@ export const TransferModal = ({
         </form>
 
         <DialogFooter>
-          <Field>
-            <Button type="submit" form="transfer-form" disabled={isPending} size="lg">
-              {isPending && <Spinner />}
-              {isEditMode ? t("transfer.submitEdit") : t("transfer.submitNew")}
-            </Button>
-          </Field>
+          <Button type="submit" form="transfer-form" disabled={isPending} size="lg">
+            {isPending ? <Spinner /> : isEditMode ? <Check /> : <Redo2Icon />}
+            {isEditMode ? t("transfer.submitEdit") : t("transfer.submitNew")}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

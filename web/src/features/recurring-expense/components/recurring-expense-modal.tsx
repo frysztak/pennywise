@@ -3,6 +3,7 @@ import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import type { TFunction } from "i18next";
+import { Check, RepeatIcon } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { Controller, type FieldErrors, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -326,7 +327,7 @@ export const RecurringExpenseModal = ({
         </form>
         <DialogFooter>
           <Button type="submit" form="recurring-expense-form" disabled={isPending} size="lg">
-            {isPending && <Spinner />}
+            {isPending ? <Spinner /> : isEditMode ? <Check /> : <RepeatIcon />}
             {isEditMode ? t("recurringExpense.submitEdit") : t("recurringExpense.submitNew")}
           </Button>
         </DialogFooter>

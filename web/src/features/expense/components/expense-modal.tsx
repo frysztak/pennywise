@@ -3,6 +3,7 @@ import { createConnectQueryKey, useMutation } from "@connectrpc/connect-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import type { TFunction } from "i18next";
+import { Check, Plus } from "lucide-react";
 import { useCallback, useEffect, useMemo } from "react";
 import { Controller, type DeepPartial, type FieldErrors, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -372,7 +373,7 @@ export const ExpenseModal = ({
         </form>
         <DialogFooter>
           <Button type="submit" form="expense-form" disabled={isPending} size="lg">
-            {isPending && <Spinner />}
+            {isPending ? <Spinner /> : isEditMode ? <Check /> : <Plus />}
             {isEditMode ? t("expense.submitEdit") : t("expense.submitNew")}
           </Button>
         </DialogFooter>
