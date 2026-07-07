@@ -4,11 +4,11 @@ go 1.25.7
 
 require (
 	github.com/caarlos0/env/v11 v11.4.1
-	github.com/coreos/go-oidc/v3 v3.18.0
+	github.com/coreos/go-oidc/v3 v3.19.0
 	github.com/go-chi/chi/v5 v5.2.3 // indirect
 	github.com/go-chi/jwtauth/v5 v5.4.0
 	github.com/joho/godotenv v1.5.1
-	github.com/pressly/goose/v3 v3.27.1
+	github.com/pressly/goose/v3 v3.27.2
 	golang.org/x/oauth2 v0.36.0
 )
 
@@ -27,12 +27,12 @@ require (
 	github.com/kolesa-team/go-webp v1.0.5
 	github.com/lmittmann/tint v1.1.3
 	github.com/lucasb-eyer/go-colorful v1.4.0
-	github.com/mattn/go-sqlite3 v1.14.45
+	github.com/mattn/go-sqlite3 v1.14.47
 	github.com/olivere/vite v0.1.0
-	github.com/openai/openai-go/v3 v3.39.0
+	github.com/openai/openai-go/v3 v3.41.0
 	github.com/spf13/afero v1.15.0
 	github.com/vearutop/statigz v1.5.0
-	golang.org/x/image v0.42.0
+	golang.org/x/image v0.43.0
 	golang.org/x/sync v0.21.0
 	google.golang.org/protobuf v1.36.11
 )
