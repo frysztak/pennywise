@@ -11,11 +11,9 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/shared/components/ui/combobox";
-import { FieldDescription } from "@/shared/components/ui/field";
-import { Input } from "@/shared/components/ui/input";
+import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from "@/shared/components/ui/input-group";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { evaluateAmount } from "@/shared/lib/calc-expression";
-import { cn } from "@/shared/lib/utils";
 
 // Mobile numeric keyboards omit operators, so we surface them as tap targets.
 // `label` is what the user sees; `insert` is what's spliced into the expression.
@@ -137,27 +135,31 @@ export function AmountInput({
 
   const hint =
     result.kind === "expression"
-      ? `= ${result.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${inputValue?.currency ? ` ${inputValue.currency}` : ""}`
+      ? `= ${result.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
       : null;
 
   return (
     <div className="flex flex-col gap-0">
-      <ButtonGroup
-        className={cn("w-auto", hint && "[&>[data-slot][data-slot]:not(:has(~[data-slot]))]:rounded-b-none!")}
-      >
-        <Input
-          ref={inputRef}
-          id={id}
-          placeholder="0.00"
-          type="text"
-          inputMode="decimal"
-          required={required}
-          aria-invalid={invalid}
-          disabled={disabled}
-          value={rawAmount}
-          onChange={onAmountChange}
-          className={cn("transition-[border-radius]", hint && "rounded-b-none")}
-        />
+      <ButtonGroup className="w-auto [&>[data-slot][data-slot]:not(:has(~[data-slot]))]:rounded-r-md!">
+        <InputGroup>
+          <InputGroupInput
+            ref={inputRef}
+            id={id}
+            placeholder="0.00"
+            type="text"
+            inputMode="decimal"
+            required={required}
+            aria-invalid={invalid}
+            disabled={disabled}
+            value={rawAmount}
+            onChange={onAmountChange}
+          />
+          {hint && (
+            <InputGroupAddon align="inline-end">
+              <InputGroupText>{hint}</InputGroupText>
+            </InputGroupAddon>
+          )}
+        </InputGroup>
         <Combobox
           items={currencies}
           value={inputValue?.currency}
@@ -165,11 +167,7 @@ export function AmountInput({
           disabled={disabled}
           autoHighlight
         >
-          <ComboboxInput
-            placeholder="USD"
-            disabled={disabled}
-            className="w-20 rounded-r-md! transition-[border-radius]"
-          />
+          <ComboboxInput placeholder="USD" disabled={disabled} className="w-28" />
           <ComboboxContent>
             <ComboboxEmpty>No items found.</ComboboxEmpty>
             <ComboboxList>
@@ -182,14 +180,6 @@ export function AmountInput({
           </ComboboxContent>
         </Combobox>
       </ButtonGroup>
-      <FieldDescription
-        className={cn(
-          "bg-primary/90 text-foreground rounded-b-md py-1 pl-2 transition-[opacity,visibility]",
-          hint ? "opacity-100 visible" : "opacity-0 invisible",
-        )}
-      >
-        {hint ?? " "}
-      </FieldDescription>
       {isMobile && (
         <div className="mt-1.5 flex gap-1">
           {OPERATOR_KEYS.map(({ label, insert }) => (
