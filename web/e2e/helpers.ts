@@ -41,6 +41,6 @@ export async function createGroup(page: Page, name: string) {
   await page.getByRole("main").getByRole("button", { name: "New Group" }).click();
   const dialog = page.getByRole("dialog");
   await dialog.locator("#groupName").fill(name);
-  await dialog.getByRole("button", { name: "Submit" }).click();
+  await dialog.getByRole("button", { name: "Create" }).click();
   await expect(dialog).toBeHidden();
 }
