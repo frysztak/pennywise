@@ -19,6 +19,7 @@
 - **Expense Tracking** - Record expenses with multiple beneficiaries and weighted splits
 - **Money Transfers** - Track payments between group members
 - **Multi-Currency Support** - Handle expenses in different currencies with separate balance tracking
+- **Currency Conversion** - Fold one currency's balance into another with auto-suggested exchange rates
 - **Real-Time Balances** - See who owes what, updated instantly as expenses and transfers are added
 - **Activity Feed** - View all group transactions in one unified timeline
 - **Group Management** - Create groups, invite members, and customize splitting weights
