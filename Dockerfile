@@ -36,7 +36,7 @@ RUN CGO_ENABLED=1 go build -ldflags="-s -w -X main.Version=${APP_VERSION}" -o pe
 RUN CGO_ENABLED=1 go build -ldflags="-s -w" -o migrate-cli ./cmd/migrate
 
 # Stage 3: Runtime
-FROM alpine:3.23
+FROM alpine:3.24
 
 # Install runtime dependencies for SQLite and go-webp
 RUN apk add --no-cache ca-certificates tzdata libwebp
