@@ -333,6 +333,10 @@ All API requests validated via buf.validate in protobuf definitions. Validation 
 
 ## Common Development Workflows
 
+### Keeping the Changelog
+
+When a change is user-facing or otherwise significant (new feature, behavior change, notable fix), add a bullet under the `## [Unreleased]` section of `CHANGELOG.md`, in the appropriate `Added` / `Changed` / `Fixed` / `Removed` group. Skip routine noise (dependency bumps, docs/screenshot updates, internal refactors with no user impact). Releases are cut with `just release <version>`, which stamps `[Unreleased]` with the version and date.
+
 ### Adding a New API Endpoint
 
 1. Define the RPC method in the appropriate `.proto` file in `proto/api/v1/`
