@@ -12,7 +12,7 @@ COPY web/ ./
 RUN npm run build
 
 # Stage 2: Build backend
-FROM golang:1.26-alpine AS backend-builder
+FROM golang:1.27-alpine AS backend-builder
 
 # Install build dependencies for CGO (required by go-sqlite3 and go-webp)
 RUN apk add --no-cache gcc musl-dev libwebp-dev
